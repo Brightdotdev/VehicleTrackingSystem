@@ -3,7 +3,9 @@
   <component name="CompilerConfiguration">
     <bytecodeTargetLevel>
       <module name="UserService.UserService.main" target="21" />
+      <module name="UserService.UserService.main~1" target="21" />
       <module name="UserService.UserService.test" target="21" />
+      <module name="UserService.UserService.test~1" target="21" />
     </bytecodeTargetLevel>
   </component>
 </project>

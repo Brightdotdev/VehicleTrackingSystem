@@ -1,0 +1,17 @@
+{
+  "projects": {
+    "eureka-server": {
+      "sourceDir": "services/eureka-server",
+      "docker": {
+        "dockerfilePath": "services/eureka-server/Dockerfile"
+      }
+    },
+    "user-service": {
+      "sourceDir": "services/user-service",
+
+      "docker": {
+        "dockerfilePath": "services/user-service/Dockerfile"
+      }
+    }
+  }
+}

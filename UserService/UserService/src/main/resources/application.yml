@@ -1,0 +1,26 @@
+server:
+  port: 8103
+
+spring:
+  application:
+    name: userService
+
+
+eureka:
+  instance :
+    prefer-ip-address: true
+  client:
+    service-url:
+      defaultZone: ${EUREKA_LINK:http://eureka-server:8101}/eureka
+    register-with-eureka: true
+    fetch-registry: true
+
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      inventoryCB:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        failureRateThreshold: 50
+        waitDurationInOpenState: 5s

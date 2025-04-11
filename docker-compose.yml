@@ -1,0 +1,49 @@
+
+services:
+  eureka-server:
+    image: eureka-service:latest
+    container_name: eureka-server
+    build:
+      context: ./eurica-service/eurica-service
+    ports:
+      - "8101:8101"
+    networks:
+      - my-network
+
+  api-gateway:
+    container_name: api-gateway
+    build:
+      context: ./ApiGateway/ApiGateway
+    ports:
+      - "8102:8102"
+    depends_on:
+      - eureka-server
+    networks:
+      - my-network
+
+  user-service:
+    container_name: userService
+    build:
+      context: ./UserService/UserService  # Path to your user-service folder
+    ports:
+      - "8103:8103"
+    depends_on:
+      - eureka-server
+    networks:
+      - my-network
+
+  dispatch-service:
+    container_name: userService
+    build:
+      context: ./DispatchService/DispatchService  # Path to your user-service folder
+    ports:
+      - "8105:8105"
+    depends_on:
+      - eureka-server
+    networks:
+      - my-network
+
+
+networks:
+  my-network:
+    driver: bridge

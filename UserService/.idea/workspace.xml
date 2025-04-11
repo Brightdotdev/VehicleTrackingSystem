@@ -5,13 +5,21 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="dd421624-0232-4b52-af6b-8e4b662088f5" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/../.idea/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.idea/SRPING_VEHICLE_TRACKING_APP.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.idea/modules.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.idea/vcs.xml" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/../ApiGateway/.idea/.gitignore" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/../ApiGateway/.idea/ApiGateway.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ApiGateway/.idea/compiler.xml" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/../ApiGateway/.idea/gradle.xml" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/../ApiGateway/.idea/jarRepositories.xml" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/../ApiGateway/.idea/misc.xml" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/../ApiGateway/.idea/modules.xml" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/../ApiGateway/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ApiGateway/ApiGateway/.dockerignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ApiGateway/ApiGateway/Dockerfile" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/../DispatchService/.idea/.gitignore" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/../DispatchService/.idea/DispatchService.iml" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/../DispatchService/.idea/compiler.xml" afterDir="false" />
@@ -20,19 +28,33 @@
       <change afterPath="$PROJECT_DIR$/../DispatchService/.idea/misc.xml" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/../DispatchService/.idea/modules.xml" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/../DispatchService/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../DispatchService/DispatchService/src/main/java/com/example/DispatchService/controllers/DispatchController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../DispatchService/DispatchService/.dockerignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../DispatchService/DispatchService/Dockerfile" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../DispatchService/DispatchService/src/main/java/com/example/DispatchService/controller/DispatchController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Railway.json" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/.idea/UserService.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/jarRepositories.xml" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/UserService/.dockerignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/UserService/Dockerfile" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/UserService/src/main/java/com/example/UserService/controller/UserController.java" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/../VehicleService/.idea/.gitignore" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/../VehicleService/.idea/VehicleService.iml" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/../VehicleService/.idea/gradle.xml" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/../VehicleService/.idea/misc.xml" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/../VehicleService/.idea/modules.xml" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/../VehicleService/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../docker-compose.yml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../eurica-service/.idea/compiler.xml" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/../eurica-service/.idea/eurica-service.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../eurica-service/eurica-service/.dockerignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../eurica-service/eurica-service/Dockerfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.gitignore" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -56,29 +78,81 @@
       </state>
     </system>
   </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
   </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "customColor": "",
-  "associatedIndex": 1
-}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 1
+}</component>
   <component name="ProjectId" id="2vVkrrQtQm4VNTlVOIkCDPFWYsV" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "ASKED_ADD_EXTERNAL_FILES": "true",
+    "Application.UserServiceApplication.executor": "Run",
+    "Docker.UserService/Dockerfile.executor": "Run",
+    "Gradle.UserService [:UserServiceApplication.main()].executor": "Run",
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "git-widget-placeholder": "Main",
-    "kotlin-language-version-configured": "true"
+    "kotlin-language-version-configured": "true",
+    "project.structure.last.edited": "Project",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.0"
   }
 }]]></component>
+  <component name="RunManager" selected="Docker.UserService/Dockerfile">
+    <configuration name="UserServiceApplication" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="ALTERNATIVE_JRE_PATH" value="21" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
+      <option name="MAIN_CLASS_NAME" value="com.example.UserService.UserServiceApplication" />
+      <module name="UserService.UserService.main~1" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.example.UserService.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="UserService/Dockerfile" type="docker-deploy" factoryName="dockerfile" temporary="true" server-name="Docker">
+      <deployment type="dockerfile">
+        <settings>
+          <option name="sourceFilePath" value="UserService/Dockerfile" />
+        </settings>
+      </deployment>
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="docker-deploy" factoryName="dockerfile" temporary="true">
+      <deployment type="dockerfile" />
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Docker.UserService/Dockerfile" />
+        <item itemvalue="Application.UserServiceApplication" />
+      </list>
+    </recent_temporary>
+  </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
@@ -89,5 +163,8 @@
       <updated>1744237830802</updated>
     </task>
     <servers />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
   </component>
 </project>

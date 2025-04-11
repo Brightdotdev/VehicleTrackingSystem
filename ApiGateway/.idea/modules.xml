@@ -3,6 +3,8 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/ApiGateway.iml" filepath="$PROJECT_DIR$/.idea/ApiGateway.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/ApiGateway.ApiGateway.main.iml" filepath="$PROJECT_DIR$/.idea/modules/ApiGateway.ApiGateway.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/ApiGateway.ApiGateway.test.iml" filepath="$PROJECT_DIR$/.idea/modules/ApiGateway.ApiGateway.test.iml" />
     </modules>
   </component>
 </project>

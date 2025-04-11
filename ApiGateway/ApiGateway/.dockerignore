@@ -1,0 +1,33 @@
+# Ignore Gradle and Maven wrapper files if they are not needed for the build
+.gradle
+.gradle/*
+**/.gradle
+**/gradle-wrapper.jar
+**/gradle-wrapper.properties
+gradlew
+gradlew.bat
+
+# Ignore build artifacts
+build/
+target/
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.log
+
+# Ignore IDE files
+.idea/
+.vscode/
+*.iml
+
+# Ignore operating system files
+.DS_Store
+Thumbs.db
+
+# Ignore temporary and backup files
+*.swp
+*.bak
+*.tmp
+*~

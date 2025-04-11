@@ -1,0 +1,31 @@
+server:
+  port: 8102
+
+spring:
+  application:
+    name: api-gateway
+
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+
+      routes:
+        - id: dispatchService
+          uri: lb://dispatchService
+          predicates:
+            - Path=/dispatch/**
+
+        - id: userService
+          uri: lb://userService
+          predicates:
+            - Path=/user/**
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_LINK:http://eureka-server:8101}/eureka
+    register-with-eureka: true
+    fetch-registry: true
