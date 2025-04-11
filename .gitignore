@@ -1,1 +1,190 @@
 *.zip
+docker-compose.yml
+HELP.md
+.gradle
+build/**
+!gradle/wrapper/gradle-wrapper.jar
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+bin/
+!**/src/main/**/bin/
+!**/src/test/**/bin/
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+out/
+!**/src/main/**/out/
+!**/src/test/**/out/
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+### VS Code ###
+.vscode/
+
+.gitignore
+
+.git/
+
+
+# Root .gitignore
+**/build/
+**/.gradle/
+**/node_modules/
+
+# General
+*.log
+*.swp
+*.bak
+.DS_Store
+.idea/
+
+/bin/
+/build/
+/target/
+
+logs/
+
+# Gradle specific
+.gradle/
+gradle-app.setting
+!gradle-wrapper.jar
+gradle/wrapper/gradle-wrapper.properties
+build/
+!src*/build/
+
+# Dependency cache
+**/src/test/tmp/
+
+# Spring Boot specific
+**/application.properties
+**/application.yml
+**/application-local*.yml
+!**/src/main/resources/application*.yml
+
+# Java
+*.class
+*.jar
+*.war
+*.ear
+*.nar
+hs_err_pid*
+
+# Env files
+.env
+*.env
+secrets/
+
+# Build Scan
+.scans/
+
+# Local configuration
+**/src/main/resources/config/local/
+
+
+
+!settings.gradle
+!build.gradle
+!gradle/
+!gradlew
+!gradlew.bat
+
+
+### Universal Monorepo Ignore ###
+# General OS/Editor
+
+
+Thumbs.db
+
+*.swo
+
+.nova/
+Session.vim
+.netrwhist
+
+### Build Artifacts ###
+# Generic build outputs
+
+**/out/
+**/target/
+**/dist/
+**/logs/
+**/.settings/
+
+# Dependency directories
+**/node_modules/
+**/.next/
+**/.nuxt/
+**/.cache/
+**/.parcel-cache/
+**/.svelte-kit/
+**/vendor/
+**/venv/
+**/target/  # Rust/Cargo
+**/__pycache__/
+
+### Gradle (for Java services) ###
+**/.gradle/
+**/gradle-app.setting
+!**/gradle-wrapper.jar  # Keep wrapper jars in services
+
+!**/src*/build/  # Allow test build dirs
+**/.flattened-pom.xml
+
+### Java ###
+**/*.class
+**/*.jar
+**/*.war
+**/*.nar
+**/hs_err_pid*
+
+### Spring Boot ###
+**/application-local*.properties
+
+!**/src/main/resources/application*.yml  # Keep main configs
+
+### Frontend ###
+# General
+**/.env.local
+**/.env.*.local
+**/.sass-cache/
+**/jspm_packages/
+**/typings/
+**/coverage/
+**/tmp/
+
+# Framework-specific
+**/.next
+**/.nuxt
+**/.vuepress/dist
+**/.cache-loader/
+**/storybook-static/
+**/public/build/
+
+### IDEs ###
+**/.classpath
+**/.project
+**/.factorypath
+
+### Environment ###
+**/.env
+**/.envrc
+**/secrets/
+**/credentials/
+**/config/credentials/

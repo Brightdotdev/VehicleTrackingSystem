@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="dd421624-0232-4b52-af6b-8e4b662088f5" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/../ApiGateway/.idea/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ApiGateway/.idea/ApiGateway.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ApiGateway/.idea/gradle.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ApiGateway/.idea/jarRepositories.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ApiGateway/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ApiGateway/.idea/modules.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ApiGateway/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../DispatchService/.idea/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../DispatchService/.idea/DispatchService.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../DispatchService/.idea/compiler.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../DispatchService/.idea/gradle.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../DispatchService/.idea/jarRepositories.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../DispatchService/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../DispatchService/.idea/modules.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../DispatchService/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../DispatchService/DispatchService/src/main/java/com/example/DispatchService/controllers/DispatchController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/UserService.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../VehicleService/.idea/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../VehicleService/.idea/VehicleService.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../VehicleService/.idea/gradle.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../VehicleService/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../VehicleService/.idea/modules.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../VehicleService/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../eurica-service/.idea/eurica-service.iml" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ExternalProjectsData">
+    <projectState path="$PROJECT_DIR$/UserService">
+      <ProjectState />
+    </projectState>
+  </component>
+  <component name="ExternalProjectsManager">
+    <system id="GRADLE">
+      <state>
+        <projects_view>
+          <tree_state>
+            <expand />
+            <select />
+          </tree_state>
+        </projects_view>
+      </state>
+    </system>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "customColor": "",
+  "associatedIndex": 1
+}]]></component>
+  <component name="ProjectId" id="2vVkrrQtQm4VNTlVOIkCDPFWYsV" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "git-widget-placeholder": "Main",
+    "kotlin-language-version-configured": "true"
+  }
+}]]></component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="dd421624-0232-4b52-af6b-8e4b662088f5" name="Changes" comment="" />
+      <created>1744237830802</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1744237830802</updated>
+    </task>
+    <servers />
+  </component>
+</project>
