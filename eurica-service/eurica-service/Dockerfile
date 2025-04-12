@@ -1,33 +1,31 @@
-# Build stage
-FROM gradle:7.5-jdk17 AS builder
-
+# Stage 1: Build with Gradle
+FROM gradle:jdk21-alpine AS builder
 WORKDIR /app
 
-# 1. First copy only gradle files
-COPY --chown=gradle:gradle build.gradle .
-COPY --chown=gradle:gradle settings.gradle .
-COPY --chown=gradle:gradle gradle gradle
-RUN mkdir -p src && chown -R gradle:gradle .
+# 1. Copy build configs first for layer caching
+COPY build.gradle .
+COPY settings.gradle .
 
-# 2. Run initial download of dependencies
-RUN gradle --no-daemon dependencies
+# 2. Download dependencies (cache this layer)
+RUN gradle dependencies --no-daemon
 
 # 3. Copy source code
-COPY --chown=gradle:gradle src src
+COPY src src
 
-# 4. Build with cache
-RUN gradle --no-daemon clean build --refresh-dependencies
+# 4. Build (will use cached dependencies)
+RUN gradle build --no-daemon
 
-# Runtime stage remains the same
-FROM openjdk:17-jdk-slim
-
-RUN adduser --system --group appuser
-USER appuser
-
+# Stage 2: Runtime image
+FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 
-COPY --from=builder --chown=appuser:appuser /app/build/libs/*.jar app.jar
+# Copy built artifact
+COPY --from=builder /app/build/libs/*.jar /app/app.jar
 
-EXPOSE 8105
+# Non-root user for security
+RUN addgroup --system javauser && \
+    adduser --system --ingroup javauser javauser
+USER javauser
 
-ENTRYPOINT ["java", "-Xmx512m", "-jar", "app.jar"]
+EXPOSE 8101
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]

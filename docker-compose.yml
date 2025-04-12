@@ -1,10 +1,11 @@
+version: '3.8'
 
 services:
   eureka-server:
-    image: eureka-service:latest
     container_name: eureka-server
     build:
       context: ./eurica-service/eurica-service
+    image: eureka-server:latest
     ports:
       - "8101:8101"
     networks:
@@ -24,7 +25,7 @@ services:
   user-service:
     container_name: userService
     build:
-      context: ./UserService/UserService  # Path to your user-service folder
+      context: ./UserService/UserService
     ports:
       - "8103:8103"
     depends_on:
@@ -33,16 +34,15 @@ services:
       - my-network
 
   dispatch-service:
-    container_name: userService
+    container_name: dispatchService
     build:
-      context: ./DispatchService/DispatchService  # Path to your user-service folder
+      context: ./DispatchService/DispatchService
     ports:
       - "8105:8105"
     depends_on:
       - eureka-server
     networks:
       - my-network
-
 
 networks:
   my-network:

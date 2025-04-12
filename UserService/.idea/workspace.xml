@@ -5,56 +5,17 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="dd421624-0232-4b52-af6b-8e4b662088f5" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/../.idea/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../.idea/SRPING_VEHICLE_TRACKING_APP.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../ApiGateway/.idea/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../ApiGateway/.idea/ApiGateway.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../ApiGateway/.idea/compiler.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../ApiGateway/.idea/gradle.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../ApiGateway/.idea/jarRepositories.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../ApiGateway/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../ApiGateway/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../ApiGateway/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../ApiGateway/ApiGateway/.dockerignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../ApiGateway/ApiGateway/Dockerfile" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../DispatchService/.idea/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../DispatchService/.idea/DispatchService.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../DispatchService/.idea/compiler.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../DispatchService/.idea/gradle.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../DispatchService/.idea/jarRepositories.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../DispatchService/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../DispatchService/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../DispatchService/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../DispatchService/DispatchService/.dockerignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../DispatchService/DispatchService/Dockerfile" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../DispatchService/DispatchService/src/main/java/com/example/DispatchService/controller/DispatchController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../Railway.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/UserService.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/jarRepositories.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/UserService/.dockerignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/UserService/Dockerfile" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/UserService/src/main/java/com/example/UserService/controller/UserController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../VehicleService/.idea/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../VehicleService/.idea/VehicleService.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../VehicleService/.idea/gradle.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../VehicleService/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../VehicleService/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../VehicleService/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../docker-compose.yml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../eurica-service/.idea/compiler.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../eurica-service/.idea/eurica-service.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../eurica-service/eurica-service/.dockerignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../eurica-service/eurica-service/Dockerfile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/../.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ApiGateway/ApiGateway/.dockerignore" beforeDir="false" afterPath="$PROJECT_DIR$/../ApiGateway/ApiGateway/.dockerignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ApiGateway/ApiGateway/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/../ApiGateway/ApiGateway/Dockerfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../DispatchService/DispatchService/.dockerignore" beforeDir="false" afterPath="$PROJECT_DIR$/../DispatchService/DispatchService/.dockerignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../DispatchService/DispatchService/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/../DispatchService/DispatchService/Dockerfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserService/.dockerignore" beforeDir="false" afterPath="$PROJECT_DIR$/UserService/.dockerignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserService/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/UserService/Dockerfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/../docker-compose.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../eurica-service/eurica-service/.dockerignore" beforeDir="false" afterPath="$PROJECT_DIR$/../eurica-service/eurica-service/.dockerignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../eurica-service/eurica-service/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/../eurica-service/eurica-service/Dockerfile" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

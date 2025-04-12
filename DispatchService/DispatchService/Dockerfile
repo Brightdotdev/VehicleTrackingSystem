@@ -1,19 +1,31 @@
-
-FROM gradle:7.5-jdk17 AS builder
-
+# Stage 1: Build with Gradle
+FROM gradle:jdk21-alpine AS builder
 WORKDIR /app
 
-COPY --chown=gradle:gradle . .
+# 1. Copy build configs first for layer caching
+COPY build.gradle .
+COPY settings.gradle .
 
+# 2. Download dependencies (cache this layer)
+RUN gradle dependencies --no-daemon
 
-RUN gradle --no-daemon clean build --refresh-dependencies
+# 3. Copy source code
+COPY src src
 
-FROM openjdk:17-jdk-slim
+# 4. Build (will use cached dependencies)
+RUN gradle build --no-daemon
 
+# Stage 2: Runtime image
+FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 
-COPY --from=builder /app/build/libs/DispatchService-0.0.1-SNAPSHOT.jar DispatchService.jar
+# Copy built artifact
+COPY --from=builder /app/build/libs/*.jar /app/app.jar
+
+# Non-root user for security
+RUN addgroup --system javauser && \
+    adduser --system --ingroup javauser javauser
+USER javauser
 
 EXPOSE 8105
-
-ENTRYPOINT ["java", "-jar", "DispatchService.jar"]
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]

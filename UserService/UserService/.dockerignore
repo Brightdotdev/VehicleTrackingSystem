@@ -1,32 +1,78 @@
-# Ignore Gradle and Maven wrapper files if they are not needed for the build
-.gradle
-.gradle/*
-**/.gradle
-**/gradle-wrapper.jar
-**/gradle-wrapper.properties
-gradlew
-gradlew.bat
+# .dockerignore at monorepo root
 
-# Ignore build artifacts
-target/
-*.jar
-*.war
-*.ear
-*.zip
-*.tar.gz
-*.log
+### Universal Exclusions ###
+**/.git
+**/.gitignore
+**/.gitmodules
+**/.github/
+**/README.md
+**/LICENSE
 
-# Ignore IDE files
-.idea/
-.vscode/
-*.iml
+### Build Artifacts ###
+**/build/
+**/bin/
+**/out/
+**/target/
+**/dist/
+**/.settings/
+**/*.jar
+**/*.war
 
-# Ignore operating system files
-.DS_Store
-Thumbs.db
+### Dependency Caches ###
+**/.gradle/
+**/gradle/
+**/node_modules/
+**/.next/
+**/.nuxt/
+**/venv/
+**/__pycache__/
 
-# Ignore temporary and backup files
-*.swp
-*.bak
-*.tmp
-*~
+### IDE & Editor ###
+**/.idea/
+**/.vscode/
+**/*.iml
+**/*.swp
+**/*.swo
+**/.history/
+
+### Logs & Temp Files ###
+**/*.log
+**/logs/
+**/temp/
+**/tmp/
+**/hs_err_pid*
+
+### Environment Secrets ###
+**/.env
+**/.env.local
+**/secrets/
+**/config/credentials/
+**/*.key
+**/*.pem
+
+### Documentation ###
+**/docs/
+**/examples/
+**/CHANGELOG.md
+
+### OS Specific ###
+**/.DS_Store
+**/Thumbs.db
+
+### Frontend Specific ###
+**/.cache/
+**/.svelte-kit/
+**/storybook-static/
+**/public/build/
+**/coverage/
+
+### Docker Specific ###
+**/docker-compose.yml
+**/Dockerfile*
+**/.dockerignore
+**/docker-compose.override.yml
+
+### Special Case: Allow Service-Specific Files ###
+!services/**/build.gradle
+!services/**/settings.gradle
+!services/**/src/

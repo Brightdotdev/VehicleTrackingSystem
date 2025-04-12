@@ -1,21 +1,31 @@
-
-
-FROM gradle:7.5-jdk17 AS builder
-
+# Stage 1: Build with Gradle
+FROM gradle:jdk21-alpine AS builder
 WORKDIR /app
 
-COPY --chown=gradle:gradle . .
+# 1. Copy build configs first for layer caching
+COPY build.gradle .
+COPY settings.gradle .
 
+# 2. Download dependencies (cache this layer)
+RUN gradle dependencies --no-daemon
 
-RUN gradle --no-daemon clean build --refresh-dependencies
+# 3. Copy source code
+COPY src src
 
+# 4. Build (will use cached dependencies)
+RUN gradle build --no-daemon
 
-FROM openjdk:17-jdk-slim
-
+# Stage 2: Runtime image
+FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 
-COPY --from=builder /app/build/libs/UserService-0.0.1-SNAPSHOT.jar UserService.jar
+# Copy built artifact
+COPY --from=builder /app/build/libs/*.jar /app/app.jar
 
-EXPOSE 8105
 
-ENTRYPOINT ["java", "-jar", "UserService.jar"]
+RUN addgroup --system javauser && \
+    adduser --system --ingroup javauser javauser
+USER javauser
+
+EXPOSE 8103
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]
