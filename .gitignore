@@ -40,13 +40,8 @@ out/
 
 .gitignore
 
-.git/
 
 
-# Root .gitignore
-**/build/
-**/.gradle/
-**/node_modules/
 
 # General
 *.log
@@ -54,11 +49,12 @@ out/
 *.bak
 .DS_Store
 .idea/
-
+.vscode/
+*.iml
 /bin/
 /build/
 /target/
-
+out/
 logs/
 
 # Gradle specific
@@ -97,94 +93,15 @@ secrets/
 # Local configuration
 **/src/main/resources/config/local/
 
-
-
+# Exclude build directories but keep source build configs
+**/build/
 !settings.gradle
 !build.gradle
 !gradle/
 !gradlew
 !gradlew.bat
 
-
-### Universal Monorepo Ignore ###
-# General OS/Editor
+***/.idea/
 
 
-Thumbs.db
-
-*.swo
-
-.nova/
-Session.vim
-.netrwhist
-
-### Build Artifacts ###
-# Generic build outputs
-
-**/out/
-**/target/
-**/dist/
-**/logs/
-**/.settings/
-
-# Dependency directories
-**/node_modules/
-**/.next/
-**/.nuxt/
-**/.cache/
-**/.parcel-cache/
-**/.svelte-kit/
-**/vendor/
-**/venv/
-**/target/  # Rust/Cargo
-**/__pycache__/
-
-### Gradle (for Java services) ###
-**/.gradle/
-**/gradle-app.setting
-!**/gradle-wrapper.jar  # Keep wrapper jars in services
-
-!**/src*/build/  # Allow test build dirs
-**/.flattened-pom.xml
-
-### Java ###
-**/*.class
-**/*.jar
-**/*.war
-**/*.nar
-**/hs_err_pid*
-
-### Spring Boot ###
-**/application-local*.properties
-
-!**/src/main/resources/application*.yml  # Keep main configs
-
-### Frontend ###
-# General
-**/.env.local
-**/.env.*.local
-**/.sass-cache/
-**/jspm_packages/
-**/typings/
-**/coverage/
-**/tmp/
-
-# Framework-specific
-**/.next
-**/.nuxt
-**/.vuepress/dist
-**/.cache-loader/
-**/storybook-static/
-**/public/build/
-
-### IDEs ###
-**/.classpath
-**/.project
-**/.factorypath
-
-### Environment ###
-**/.env
-**/.envrc
-**/secrets/
-**/credentials/
-**/config/credentials/
+/.idea/**
