@@ -1,5 +1,3 @@
-Here's the complete Vehicle Tracking System README in markdown format:
-
 # Vehicle Tracking System 🚗 📍
 
 A comprehensive solution designed for car companies to manage and track their vehicle dispatches in real-time.
@@ -31,10 +29,11 @@ The system is built on a microservices architecture with the following component
   - Spring Boot
   - Spring Cloud Gateway
   - Kafka
-  - WebSocket
+  - WebSockets
 
 - **Frontend**:
   - React
+
 
 - **DevOps**:
   - Docker
