@@ -1,4 +1,4 @@
-package com.example.UserTaskApplication.Exceptions;
+package com.example.AuthService.Exceptions;
 
 public class AccessException extends RuntimeException{
     public AccessException(String message) {

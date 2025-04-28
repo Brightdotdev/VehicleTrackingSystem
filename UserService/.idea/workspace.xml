@@ -5,17 +5,94 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="dd421624-0232-4b52-af6b-8e4b662088f5" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/../.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/../.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ApiGateway/ApiGateway/.dockerignore" beforeDir="false" afterPath="$PROJECT_DIR$/../ApiGateway/ApiGateway/.dockerignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ApiGateway/ApiGateway/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/../ApiGateway/ApiGateway/Dockerfile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../DispatchService/DispatchService/.dockerignore" beforeDir="false" afterPath="$PROJECT_DIR$/../DispatchService/DispatchService/.dockerignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../DispatchService/DispatchService/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/../DispatchService/DispatchService/Dockerfile" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../DispatchService/DispatchService/src/main/java/com/example/DispatchService/Config/JwtConfig.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../DispatchService/DispatchService/src/main/java/com/example/DispatchService/Config/JwtProperties.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../DispatchService/DispatchService/src/main/java/com/example/DispatchService/Config/JwtRequestFilter.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../DispatchService/DispatchService/src/main/java/com/example/DispatchService/Config/SecurityConfig.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../DispatchService/DispatchService/src/main/java/com/example/DispatchService/Config/UserHandler.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../DispatchService/DispatchService/src/main/java/com/example/DispatchService/Exceptions/AccessException.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../DispatchService/DispatchService/src/main/java/com/example/DispatchService/Exceptions/ConflictException.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../DispatchService/DispatchService/src/main/java/com/example/DispatchService/Exceptions/GlobalExceptionHandler.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../DispatchService/DispatchService/src/main/java/com/example/DispatchService/Exceptions/InvalidTaskRequestException.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../DispatchService/DispatchService/src/main/java/com/example/DispatchService/Exceptions/NotFoundException.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../DispatchService/DispatchService/src/main/java/com/example/DispatchService/Models/DispatchModel.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../DispatchService/DispatchService/src/main/java/com/example/DispatchService/Repositories/DispatchRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../DispatchService/DispatchService/src/main/java/com/example/DispatchService/Service/DispatchService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../DispatchService/DispatchService/src/main/java/com/example/DispatchService/Utils/ApiResponse.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../DispatchService/DispatchService/src/main/java/com/example/DispatchService/Utils/DispatchEnums.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../DispatchService/DispatchService/src/main/java/com/example/DispatchService/Utils/UtilRecords.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ApiGateway/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../ApiGateway/.idea/compiler.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ApiGateway/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../ApiGateway/.idea/modules.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ApiGateway/ApiGateway/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/../ApiGateway/ApiGateway/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ApiGateway/ApiGateway/src/main/java/com/example/ApiGateway/ApiGatewayApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/../ApiGateway/ApiGateway/src/main/java/com/example/ApiGateway/ApiGatewayApplication.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ApiGateway/ApiGateway/src/main/java/com/example/ApiGateway/JwtAuthenticationFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/../ApiGateway/ApiGateway/src/main/java/com/example/ApiGateway/JwtAuthenticationFilter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ApiGateway/ApiGateway/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/../ApiGateway/ApiGateway/src/main/resources/application.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AuthService/AuthService/src/main/java/com/example/AuthService/Config/JwtConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/../AuthService/AuthService/src/main/java/com/example/AuthService/Config/JwtConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AuthService/AuthService/src/main/java/com/example/AuthService/Config/JwtProperties.java" beforeDir="false" afterPath="$PROJECT_DIR$/../AuthService/AuthService/src/main/java/com/example/AuthService/Config/JwtProperties.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AuthService/AuthService/src/main/java/com/example/AuthService/Config/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/../AuthService/AuthService/src/main/java/com/example/AuthService/Config/SecurityConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AuthService/AuthService/src/main/java/com/example/AuthService/Controllers/AuthController.java" beforeDir="false" afterPath="$PROJECT_DIR$/../AuthService/AuthService/src/main/java/com/example/AuthService/Controllers/AuthController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AuthService/AuthService/src/main/java/com/example/AuthService/Controllers/Oauth2Controller.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AuthService/AuthService/src/main/java/com/example/AuthService/Controllers/TestCOntroller.java" beforeDir="false" afterPath="$PROJECT_DIR$/../AuthService/AuthService/src/main/java/com/example/AuthService/Controllers/TestCOntroller.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AuthService/AuthService/src/main/java/com/example/AuthService/Exceptions/AccessException.java" beforeDir="false" afterPath="$PROJECT_DIR$/../AuthService/AuthService/src/main/java/com/example/AuthService/Exceptions/AccessException.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AuthService/AuthService/src/main/java/com/example/AuthService/Exceptions/ConflictException.java" beforeDir="false" afterPath="$PROJECT_DIR$/../AuthService/AuthService/src/main/java/com/example/AuthService/Exceptions/ConflictException.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AuthService/AuthService/src/main/java/com/example/AuthService/Exceptions/GlobalExceptionHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/../AuthService/AuthService/src/main/java/com/example/AuthService/Exceptions/GlobalExceptionHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AuthService/AuthService/src/main/java/com/example/AuthService/Exceptions/InvalidTaskRequestException.java" beforeDir="false" afterPath="$PROJECT_DIR$/../AuthService/AuthService/src/main/java/com/example/AuthService/Exceptions/InvalidTaskRequestException.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AuthService/AuthService/src/main/java/com/example/AuthService/Exceptions/NotFoundException.java" beforeDir="false" afterPath="$PROJECT_DIR$/../AuthService/AuthService/src/main/java/com/example/AuthService/Exceptions/NotFoundException.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AuthService/AuthService/src/main/java/com/example/AuthService/Handlers/CookieGenerationHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/../AuthService/AuthService/src/main/java/com/example/AuthService/Handlers/CookieGenerationHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AuthService/AuthService/src/main/java/com/example/AuthService/Handlers/OAuth2AuthenticationFailureHandler.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AuthService/AuthService/src/main/java/com/example/AuthService/Handlers/OAuth2LoginSuccessHandler.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AuthService/AuthService/src/main/java/com/example/AuthService/Models/UserModel.java" beforeDir="false" afterPath="$PROJECT_DIR$/../AuthService/AuthService/src/main/java/com/example/AuthService/Models/UserModel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AuthService/AuthService/src/main/java/com/example/AuthService/Repositoies/UserRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/../AuthService/AuthService/src/main/java/com/example/AuthService/Repositoies/UserRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AuthService/AuthService/src/main/java/com/example/AuthService/Services/AuthService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AuthService/AuthService/src/main/java/com/example/AuthService/Services/CustomUserDetailsService.java" beforeDir="false" afterPath="$PROJECT_DIR$/../AuthService/AuthService/src/main/java/com/example/AuthService/Services/CustomUserDetailsService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AuthService/AuthService/src/main/java/com/example/AuthService/Services/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/../AuthService/AuthService/src/main/java/com/example/AuthService/Services/UserService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AuthService/AuthService/src/main/java/com/example/AuthService/Utils/ApiResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/../AuthService/AuthService/src/main/java/com/example/AuthService/Utils/ApiResponse.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AuthService/AuthService/src/main/java/com/example/AuthService/Utils/GoogleVerifyUtil.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AuthService/AuthService/src/main/java/com/example/AuthService/Utils/UtilRecords.java" beforeDir="false" afterPath="$PROJECT_DIR$/../AuthService/AuthService/src/main/java/com/example/AuthService/Utils/UtilRecords.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../DispatchService/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../DispatchService/.idea/modules.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../DispatchService/DispatchService/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/../DispatchService/DispatchService/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../DispatchService/DispatchService/src/main/java/com/example/DispatchService/controller/DispatchController.java" beforeDir="false" afterPath="$PROJECT_DIR$/../DispatchService/DispatchService/src/main/java/com/example/DispatchService/controller/DispatchController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../DispatchService/DispatchService/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/../DispatchService/DispatchService/src/main/resources/application.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UserService/.dockerignore" beforeDir="false" afterPath="$PROJECT_DIR$/UserService/.dockerignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UserService/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/UserService/Dockerfile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/../docker-compose.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../eurica-service/eurica-service/.dockerignore" beforeDir="false" afterPath="$PROJECT_DIR$/../eurica-service/eurica-service/.dockerignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../eurica-service/eurica-service/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/../eurica-service/eurica-service/Dockerfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserService/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/UserService/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserService/src/main/java/com/example/UserService/Config/JwtConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/UserService/src/main/java/com/example/UserService/Config/JwtConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserService/src/main/java/com/example/UserService/Config/JwtRequestFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/UserService/src/main/java/com/example/UserService/Config/JwtRequestFilter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserService/src/main/java/com/example/UserService/Config/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/UserService/src/main/java/com/example/UserService/Config/SecurityConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserService/src/main/java/com/example/UserService/controller/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/UserService/src/main/java/com/example/UserService/controller/UserController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserService/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/UserService/src/main/resources/application.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../eurica-service/.idea/compiler.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../eurica-service/.idea/eurica-service.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../eurica-service/eurica-service/.dockerignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../eurica-service/eurica-service/.gitattributes" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../eurica-service/eurica-service/Dockerfile" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../eurica-service/eurica-service/build.gradle" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../eurica-service/eurica-service/gradle/wrapper/gradle-wrapper.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../eurica-service/eurica-service/gradle/wrapper/gradle-wrapper.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../eurica-service/eurica-service/gradlew" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../eurica-service/eurica-service/gradlew.bat" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../eurica-service/eurica-service/settings.gradle" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../eurica-service/eurica-service/src/main/java/com/example/eureka_service/EurekaServiceApplication.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../eurica-service/eurica-service/src/main/resources/application.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../eurica-service/eurica-service/src/test/java/com/example/eureka_service/EurekaServiceApplicationTests.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../views/README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../views/eslint.config.mjs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../views/next.config.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../views/package-lock.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../views/package.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../views/postcss.config.mjs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../views/public/file.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../views/public/globe.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../views/public/next.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../views/public/vercel.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../views/public/window.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../views/src/app/favicon.ico" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../views/src/app/globals.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../views/src/app/layout.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../views/src/app/page.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../views/src/components/GoogleLogInButton.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../views/tsconfig.json" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -30,9 +107,17 @@
   <component name="ExternalProjectsManager">
     <system id="GRADLE">
       <state>
+        <task path="$PROJECT_DIR$/UserService">
+          <activation />
+        </task>
         <projects_view>
           <tree_state>
-            <expand />
+            <expand>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="UserService" type="f1a62948:ProjectNode" />
+              </path>
+            </expand>
             <select />
           </tree_state>
         </projects_view>
@@ -49,6 +134,9 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
   </component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/io.jsonwebtoken/jjwt-api/0.12.6/478886a888f6add04937baf0361144504a024967/jjwt-api-0.12.6.jar!/io/jsonwebtoken/Jwts.class" root0="SKIP_INSPECTION" />
+  </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
   </component>
@@ -64,22 +152,37 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ASKED_ADD_EXTERNAL_FILES": "true",
-    "Application.UserServiceApplication.executor": "Run",
-    "Docker.UserService/Dockerfile.executor": "Run",
-    "Gradle.UserService [:UserServiceApplication.main()].executor": "Run",
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "Main",
-    "kotlin-language-version-configured": "true",
-    "project.structure.last.edited": "Project",
-    "project.structure.proportion": "0.15",
-    "project.structure.side.proportion": "0.0"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
+    &quot;Application.UserServiceApplication.executor&quot;: &quot;Run&quot;,
+    &quot;Docker.UserService/Dockerfile.executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.UserService [:UserServiceApplication.main()].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.UserService [dependencies].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.UserService.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;Main&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;
   }
-}]]></component>
-  <component name="RunManager" selected="Docker.UserService/Dockerfile">
+}</component>
+  <component name="RunManager" selected="Application.UserServiceApplication">
+    <configuration name="UserServiceApplication (1)" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="com.example.UserService.UserServiceApplication" />
+      <module name="UserService.UserService.main~2" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.example.UserService.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="UserServiceApplication" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="ALTERNATIVE_JRE_PATH" value="21" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
@@ -95,6 +198,41 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <configuration name="UserServiceApplication" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="com.example.UserService.UserServiceApplication" />
+      <module name="UserService.UserService.main~2" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.example.UserService.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="UserService [dependencies]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$/UserService" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value="dependencies" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <RunAsTest>false</RunAsTest>
+      <method v="2" />
+    </configuration>
     <configuration name="UserService/Dockerfile" type="docker-deploy" factoryName="dockerfile" temporary="true" server-name="Docker">
       <deployment type="dockerfile">
         <settings>
@@ -104,12 +242,16 @@
       <method v="2" />
     </configuration>
     <configuration default="true" type="docker-deploy" factoryName="dockerfile" temporary="true">
-      <deployment type="dockerfile" />
+      <deployment type="dockerfile">
+        <settings />
+      </deployment>
       <method v="2" />
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Application.UserServiceApplication (1)" />
         <item itemvalue="Docker.UserService/Dockerfile" />
+        <item itemvalue="Gradle.UserService [dependencies]" />
         <item itemvalue="Application.UserServiceApplication" />
       </list>
     </recent_temporary>

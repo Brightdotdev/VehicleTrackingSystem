@@ -1,0 +1,45 @@
+server :
+  port : 8013
+
+spring:
+  application:
+    name: authService
+  datasource :
+    url : jdbc:mysql://localhost:3306/taskApplication?createDatabaseIfNotExist=true
+    username : root
+    password : bomboclat
+  security :
+    oauth2 :
+      client :
+        registration :
+          google :
+            client-id : 556140372447-p7lc0v0v295d5gk11orul7617l7rfaf2.apps.googleusercontent.com
+            client-secret : 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
+            scope : profile,email
+  jpa :
+    show-sql : true
+    hibernate :
+      ddl-auto : update
+
+auth:
+ jwt:
+    secret: 6715c78c9a1d53f358dafd68da12c40c95780b0d00486f9d725672b7bf95eea89d682826b22883dd592b45b6ee2f79d4d4372d0c136b2e6fb1935c04f7593d05
+    expiration: 86400000
+    issuer: auth-service
+
+
+logging:
+  level:
+    org.springframework.security: DEBUG
+    com.example.UserService: DEBUG
+
+
+
+#eureka:
+#  instance :
+#    prefer-ip-address: true
+#  client:
+#    service-url:
+#      defaultZone: ${EUREKA_LINK:http://eureka-server:8101}/eureka
+#    register-with-eureka: true
+#    fetch-registry: true

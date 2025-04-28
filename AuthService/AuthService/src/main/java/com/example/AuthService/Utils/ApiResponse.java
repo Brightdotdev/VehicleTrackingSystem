@@ -3,14 +3,14 @@ package com.example.AuthService.Utils;
 import java.time.LocalDateTime;
 
 public class ApiResponse <T> {
-    private boolean success;
-    private String code;
-    private String message;
-    private T data;
-    private LocalDateTime timestamp;
+    private final boolean success;
+    private final int code;
+    private final String message;
+    private final T data;
+    private final LocalDateTime timestamp;
 
 
-    public ApiResponse(boolean success, String code,
+    public ApiResponse(boolean success, int code,
                        String message, T data) {
         this.success = success;
         this.code = code;
@@ -19,11 +19,12 @@ public class ApiResponse <T> {
         this.timestamp = LocalDateTime.now();
     }
 
+
     public boolean isSuccess() {
         return success;
     }
 
-    public String getCode() {
+    public int getCode() {
         return code;
     }
 
@@ -39,11 +40,11 @@ public class ApiResponse <T> {
         return timestamp;
     }
 
-    public static <T> ApiResponse<T> success(String code, String message, T data) {
+    public static <T> ApiResponse<T> success(int code, String message, T data) {
         return new ApiResponse<>(true, code, message, data);
     }
 
-    public static <T> ApiResponse<T> error(String code, String message) {
+    public static <T> ApiResponse<T> error(int code, String message) {
         return new ApiResponse<>(false, code, message, null);
     }
 }

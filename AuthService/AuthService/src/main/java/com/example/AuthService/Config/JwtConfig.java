@@ -1,6 +1,5 @@
-package com.example.AuthService.config;
+package com.example.AuthService.Config;
 
-import com.example.AuthService.Models.UserModel;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -8,7 +7,6 @@ import io.jsonwebtoken.security.Keys;
 import javax.crypto.SecretKey;
 
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -38,16 +36,29 @@ public class JwtConfig {
         return jwtProperties.getExpiration();
     }
 
+
     // 🔑 Used for token generation
     public String generateToken(Authentication auth) {
-        UserModel userDetails = (UserModel) auth.getPrincipal();
-        List<String> roles = userDetails.getAuthorities()
-                .stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.toList());
+
+        Object principal = auth.getPrincipal();
+        String username;
+        List<String> roles;
+
+
+        if (principal instanceof UserDetails userDetails) {
+
+            username = userDetails.getUsername();
+            roles = userDetails.getAuthorities().stream()
+                    .map(GrantedAuthority::getAuthority)
+                    .collect(Collectors.toList());
+
+        }
+        else {
+            throw new IllegalArgumentException("Unsupported principal type: " + principal.getClass());
+        }
 
         return Jwts.builder()
-                .subject(userDetails.getEmail())
+                .subject(username)
                 .claim("roles", roles)
                 .expiration(new Date(System.currentTimeMillis() + getExpiration()))
                 .signWith(getSecretKey())
@@ -66,7 +77,8 @@ public class JwtConfig {
     public String extractToken(HttpServletRequest request) {
         String authHeader = request.getHeader("Authorization");
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            return authHeader.substring(7);
+
+            return authHeader.substring(7).trim(); // Use .trim() to remove leading/trailing spaces
         }
         return null;
     }
@@ -93,18 +105,6 @@ public class JwtConfig {
         return getSecretKey();
     }
 
-
-
-
-
-    public String generateToken(String username, List<String> roles) {
-        return Jwts.builder()
-                .subject(username)
-                .claim("roles", roles)
-                .expiration(new Date(System.currentTimeMillis() + jwtProperties.getExpiration()))
-                .signWith(getSecretKey())
-                .compact();
-    }
 
     public boolean validateTokenWithUserDetails(String token, UserDetails userDetails) {
         try {

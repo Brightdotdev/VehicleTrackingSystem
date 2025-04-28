@@ -1,62 +1,78 @@
 package com.example.UserService.Config;
 
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jws;
-import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
-
 import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
-
 @Component
+@ConfigurationProperties(prefix = "auth.jwt")
 public class JwtConfig {
 
 
-    private static final Logger logger = LoggerFactory.getLogger(JwtConfig.class);
+    private final JwtProperties jwtProperties;
 
-    private final SecretKey secretKey;
-    private static final long EXPIRATION_TIME = 86400000; // 24 hours
-
-    public JwtConfig(SecretKey secretKey) {
-        this.secretKey = secretKey;
+    public JwtConfig(JwtProperties jwtProperties) {
+        this.jwtProperties = jwtProperties;
     }
 
-    public String extractUsername(String token) {
-        logger.info("Extracting username from token: {}", token);
-        String username = validateToken(token).getBody().getSubject();
-        logger.info("Extracted username: {}", username);
-        return username;
+    public SecretKey getSecretKey() {
+        return Keys.hmacShaKeyFor(jwtProperties.getSecret().getBytes(StandardCharsets.UTF_8));
     }
-
-
-    public boolean isTokenExpired(String token) {
-        logger.info("Checking if token is expired: {}", token);
-        Date expiration = validateToken(token).getBody().getExpiration();
-        boolean isExpired = expiration.before(new Date());
-        logger.info("Is token expired? {}", isExpired);
-        return isExpired;
+    @Bean
+    public SecretKey jwtSecretKey() {
+        return getSecretKey();
     }
 
 
-    public Claims getClaims(String token) {
-        logger.info("Extracting claims from token: {}", token);
-        Claims claims = validateToken(token).getBody();
-        logger.info("Extracted claims: {}", claims);
-        return claims;
+    public long getExpiration() {
+        return jwtProperties.getExpiration();
     }
 
 
+        public boolean validateToken(String token) {
+            try {
+                Claims claims = getClaims(token);
+                return claims.getExpiration().after(new Date());
+            } catch (Exception e) {
+                return false;
+            }
+        }
 
-    public Jws<Claims> validateToken(String token) throws JwtException {
-        return Jwts.parser()
-                .verifyWith(secretKey)
-                .build()
-                .parseClaimsJws(token);
+        public String extractToken(HttpServletRequest request) {
+            String authHeader = request.getHeader("Authorization");
+            if (authHeader != null && authHeader.startsWith("Bearer ")) {
+
+                return authHeader.substring(7).trim(); // Use .trim() to remove leading/trailing spaces
+            }
+            return null;
+        }
+
+
+        public String extractUser(String token) {
+            return getClaims(token).getSubject();
+        }
+
+
+        public boolean isTokenExpired(String token) {
+            return getClaims(token).getExpiration().before(new Date());
+        }
+
+
+        Claims getClaims(String token) {
+            return Jwts.parser()
+                    .verifyWith(getSecretKey())
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload();
+        }
+
     }
 
 
-}

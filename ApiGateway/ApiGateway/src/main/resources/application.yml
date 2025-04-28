@@ -4,7 +4,6 @@ server:
 spring:
   application:
     name: api-gateway
-
   cloud:
     gateway:
       discovery:
@@ -13,15 +12,30 @@ spring:
           lower-case-service-id: true
 
       routes:
-        - id: dispatchService
-          uri: lb://dispatchService
+        - id: authService
+          uri: http://localhost:8013
           predicates:
-            - Path=/dispatch/**
-
+            - Path=/v1/auth/**
         - id: userService
-          uri: lb://userService
+          uri: http://localhost:8104
           predicates:
             - Path=/user/**
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins:
+              - "http://localhost:3000"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - PATCH
+            allowedHeaders:
+              - Content-Type
+              - Authorization
+              - X-Requested-With
+            allowCredentials: true
 
 eureka:
   client:
@@ -29,3 +43,26 @@ eureka:
       defaultZone: ${EUREKA_LINK:http://eureka-server:8101}/eureka
     register-with-eureka: true
     fetch-registry: true
+
+
+auth:
+  jwt:
+    secret: ${JWT_SECRET:6715c78c9a1d53f358dafd68da12c40c95780b0d00486f9d725672b7bf95eea89d682826b22883dd592b45b6ee2f79d4d4372d0c136b2e6fb1935c04f7593d05}
+    expiration: 86400000
+
+
+logging:
+  level:
+    org.springframework.security: DEBUG
+    com.example.UserService: DEBUG
+
+
+
+#eureka:
+#  instance :
+#    prefer-ip-address: true
+#  client:
+#    service-url:
+#      defaultZone: ${EUREKA_LINK:http://eureka-server:8101}/eureka
+#    register-with-eureka: true
+#    fetch-registry: true

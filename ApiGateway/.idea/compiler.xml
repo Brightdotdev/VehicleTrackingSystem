@@ -3,7 +3,13 @@
   <component name="CompilerConfiguration">
     <bytecodeTargetLevel>
       <module name="ApiGateway.ApiGateway.main" target="21" />
+      <module name="ApiGateway.ApiGateway.main~1" target="21" />
+      <module name="ApiGateway.ApiGateway.main~2" target="21" />
+      <module name="ApiGateway.ApiGateway.main~3" target="21" />
       <module name="ApiGateway.ApiGateway.test" target="21" />
+      <module name="ApiGateway.ApiGateway.test~1" target="21" />
+      <module name="ApiGateway.ApiGateway.test~2" target="21" />
+      <module name="ApiGateway.ApiGateway.test~3" target="21" />
     </bytecodeTargetLevel>
   </component>
 </project>

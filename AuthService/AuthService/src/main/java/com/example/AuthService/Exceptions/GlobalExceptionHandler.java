@@ -1,16 +1,13 @@
-package com.example.UserTaskApplication;
+package com.example.AuthService.Exceptions;
 
-import com.example.UserTaskApplication.Exceptions.AccessException;
-import com.example.UserTaskApplication.Exceptions.ConflictException;
-import com.example.UserTaskApplication.Exceptions.InvalidTaskRequestException;
-import com.example.UserTaskApplication.Exceptions.NotFoundException;
+import com.example.AuthService.Utils.ApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-
 import java.util.stream.Collectors;
+
 
 
 @ControllerAdvice
@@ -21,7 +18,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<ApiResponse<Void>> handleNotFound(NotFoundException ex) {
         ApiResponse<Void> response = ApiResponse.error(
-                "DATA_NOT_FOUND",
+                404,
                 ex.getMessage()
         );
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
@@ -32,7 +29,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ConflictException.class)
     public ResponseEntity<ApiResponse<Void>> handleConflicts(ConflictException ex) {
         ApiResponse<Void> response = ApiResponse.error(
-                "APPLICATION_CONFLICT_ERROR",
+                401,
                 ex.getMessage()
         );
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
@@ -42,7 +39,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(AccessException.class)
     public ResponseEntity<ApiResponse<Void>> handleAccess(AccessException ex) {
         ApiResponse<Void> response = ApiResponse.error(
-                "ACCESS_DENIED",
+                403,
                 ex.getMessage()
         );
         return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
@@ -67,7 +64,7 @@ public class GlobalExceptionHandler {
                 .collect(Collectors.joining(", "));
 
         ApiResponse<Void> response = ApiResponse.error(
-                "VALIDATION_ERROR",
+                403,
                 errorMessage
         );
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
