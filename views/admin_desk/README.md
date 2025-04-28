@@ -1,36 +1,53 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🛠 Admin View - Vehicle Tracking Application
 
-## Getting Started
+The Admin View is a crucial component of the Vehicle Tracking Application.  
+It allows administrators to manage vehicles, users, and monitor live vehicle locations through an intuitive dashboard.
 
-First, run the development server:
+## ✨ Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+### User Management
+- View, edit, suspend, or delete user accounts
+- Assign users specific vehicles or fleets
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Vehicle Management
+- Add, update, or remove vehicles from the system
+- View vehicle status (active, inactive, maintenance)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Real-Time Tracking
+- Monitor the live location of all registered vehicles on an interactive map
+- View trip history and reports
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Reports and Analytics
+- Generate reports on vehicle usage, trip durations, and user activity
+- Export data in CSV/PDF formats
 
-## Learn More
+### Alerts and Notifications
+- Receive alerts for:
+  - Unauthorized vehicle movements
+  - Speeding
+  - Maintenance requirements
 
-To learn more about Next.js, take a look at the following resources:
+## 🖥 Interface Overview
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Dashboard
+- Summary cards for:
+  - Total vehicles
+  - Active trips
+  - User statistics
+- Recent activity feed
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Map View
+- Real-time GPS tracking of all vehicles
+- Vehicle status indicators (e.g., moving, idle, offline)
 
-## Deploy on Vercel
+### Users Section
+- Table view of all users with filters and search options
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Vehicles Section
+- Table view of all vehicles, including:
+  - Status
+  - Assigned driver
+  - Last location update
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Reports Section
+- Customizable reporting tool for analyzing operations
