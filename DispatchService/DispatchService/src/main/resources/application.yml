@@ -1,22 +1,18 @@
 server:
-  port: 8106
+  port: 8105
+
 
 spring:
   application:
     name: dispatchService
-
-
-
-eureka:
-  instance :
-    prefer-ip-address: true
-  client:
-    service-url:
-      defaultZone: ${EUREKA_LINK:http://eureka-server:8101}/eureka
-    register-with-eureka: true
-    fetch-registry: true
-
-
+  datasource :
+    url : jdbc:mysql://localhost:3306/taskApplication?createDatabaseIfNotExist=true
+    username : root
+    password : bomboclat
+  jpa :
+    show-sql : true
+    hibernate :
+      ddl-auto : update
 
 resilience4j:
   circuitbreaker:

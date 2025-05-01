@@ -1,9 +1,10 @@
-server :
-  port : 8013
+server:
+  port: 8106
+
 
 spring:
   application:
-    name: authService
+    name: dispatchService
   datasource :
     url : jdbc:mysql://localhost:3306/taskApplication?createDatabaseIfNotExist=true
     username : root
@@ -13,12 +14,21 @@ spring:
     hibernate :
       ddl-auto : update
 
+resilience4j:
+  circuitbreaker:
+    instances:
+      inventoryCB:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        failureRateThreshold: 50
+        waitDurationInOpenState: 5s
+
+
 auth:
- jwt:
+  jwt:
     secret: 6715c78c9a1d53f358dafd68da12c40c95780b0d00486f9d725672b7bf95eea89d682826b22883dd592b45b6ee2f79d4d4372d0c136b2e6fb1935c04f7593d05
     expiration: 86400000
     issuer: auth-service
-
 
 logging:
   level:
@@ -26,12 +36,3 @@ logging:
     com.example.UserService: DEBUG
 
 
-
-#eureka:
-#  instance :
-#    prefer-ip-address: true
-#  client:
-#    service-url:
-#      defaultZone: ${EUREKA_LINK:http://eureka-server:8101}/eureka
-#    register-with-eureka: true
-#    fetch-registry: true

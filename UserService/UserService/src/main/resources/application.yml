@@ -1,8 +1,21 @@
+server:
+  port: 8104
+
+
+
 spring:
   application:
     name: userService
-server:
-  port: 8104
+  datasource :
+    url : jdbc:mysql://localhost:3306/taskApplication?createDatabaseIfNotExist=true
+    username : root
+    password : bomboclat
+  jpa :
+    show-sql : true
+    hibernate :
+      ddl-auto : update
+
+
 
 
 resilience4j:

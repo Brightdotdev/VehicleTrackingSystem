@@ -1,18 +1,19 @@
-package com.example.DispatchService.Utils;
+package com.example.VehicleService.Utils;
 
 
 
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.*;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
 public class UtilRecords {
+
+
+
 
 
 
@@ -52,29 +53,22 @@ public class UtilRecords {
 
 
 
+    public record UserGoogleSignUp(
+            @NotBlank(message = "Name is required")
+            String name,
 
-public record dispatchRequestBody(
-
-    @NotNull(message = "Uhm what type of vehicle is being dispatched")
-    String dispatchVehicleId,
-
-    @NotNull(message = "Uhm what type of vehicle class is being dispatched")
-    @Enumerated(EnumType.STRING)
-    DispatchEnums.VehicleStatus vehicleClass,
-
-    @NotNull(message = "Uhm what type of vehicle is being dispatched")
-    @Enumerated(EnumType.STRING)
-    DispatchEnums.DispatchReason dispatchReason,
-
-    @NotNull(message = "When do you plan to end the dispatch boy")
-    LocalDateTime dispatchEndTime
-
-){}
+            @NotBlank(message = "Email is required for sign up")
+            @Email(message = "Email should be valid")
+            String email,
 
 
+            @AssertTrue
+            boolean email_verified,
 
 
+            String sub,
+            String picture
+    ) {}
 
-
-
+    public record  SafetyScoreResult(double safetyScore, List<String> wildCardReasons  ) {}
 }

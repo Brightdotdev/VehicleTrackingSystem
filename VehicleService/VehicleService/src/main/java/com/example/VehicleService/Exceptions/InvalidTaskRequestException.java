@@ -1,4 +1,4 @@
-package com.example.DispatchService.Exceptions;
+package com.example.VehicleService.Exceptions;
 
 public class InvalidTaskRequestException extends RuntimeException {
 

@@ -18,14 +18,18 @@ public class DispatchEnums {
     public static enum DispatchStatus {
         PENDING,
         IN_PROGRESS,
+        EXPIRED,
         CANCELLED,
         COMPLETED
     }
 
+
     public static enum VehicleStatus {
+
         CLASSIFIED,
+        CARGO,
         REGULAR,
-        BASIC
+        TRANSPORT
     }
 
 }

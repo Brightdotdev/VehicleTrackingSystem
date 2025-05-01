@@ -3,7 +3,7 @@ package com.example.AuthService.Services;
 
 import com.example.AuthService.Exceptions.NotFoundException;
 import com.example.AuthService.Models.UserModel;
-import com.example.AuthService.Repositoies.UserRepository;
+import com.example.AuthService.Repositories.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 

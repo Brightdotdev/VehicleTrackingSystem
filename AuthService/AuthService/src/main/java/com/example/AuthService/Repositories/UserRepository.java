@@ -1,4 +1,4 @@
-package com.example.AuthService.Repositoies;
+package com.example.AuthService.Repositories;
 
 import com.example.AuthService.Models.UserModel;
 import org.springframework.data.jpa.repository.JpaRepository;

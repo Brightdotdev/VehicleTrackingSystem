@@ -32,7 +32,8 @@ public class AuthController {
         this.jwtConfig = jwtConfig;
     }
 
-    //  Local sign up :: localhost:8013/v1/auth/new-user/join-us
+    
+    //  :: localhost:8013/v1/auth/new-user/join-us
     @PostMapping("/new-user/join-us")
     public ResponseEntity<ApiResponse<UtilRecords.LogInClientResponse>> signUpLocally(@Valid @RequestBody UtilRecords.UserLocalSignUp request, HttpServletResponse response) {
 
@@ -61,7 +62,7 @@ public class AuthController {
     }
 
 
-    //  Local sign up :: localhost:8013/v1/auth/new-user/google
+    //  :: localhost:8013/v1/auth/new-user/google
     @PostMapping("/new-user/google")
     public ResponseEntity<ApiResponse<UtilRecords.LogInClientResponse>> signUpGoogle(@Valid @RequestBody UtilRecords.UserGoogleSignUp request, HttpServletResponse response) {
 
@@ -119,8 +120,8 @@ public class AuthController {
                 ));
     }
 
-
-    @GetMapping("/see-you-soon")
+    //  Local log in :: localhost:8013/v1/auth/log-out
+    @GetMapping("/log-out")
     public ResponseEntity<Void> logout(HttpServletResponse response) {
         ResponseCookie expiredCookie = ResponseCookie.from("userDeskToken", "")
                 .httpOnly(true)

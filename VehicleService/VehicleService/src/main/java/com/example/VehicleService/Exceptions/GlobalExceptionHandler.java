@@ -1,6 +1,6 @@
-package com.example.DispatchService.Exceptions;
+package com.example.VehicleService.Exceptions;
 
-import com.example.DispatchService.Utils.ApiResponse;
+import com.example.VehicleService.Utils.ApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -46,8 +46,8 @@ public class GlobalExceptionHandler {
     }
 
 
-    @ExceptionHandler(InvalidRequestException.class)
-    public ResponseEntity<ApiResponse<Void>> handleInvalidTask(InvalidRequestException ex) {
+    @ExceptionHandler(InvalidTaskRequestException.class)
+    public ResponseEntity<ApiResponse<Void>> handleInvalidTask(InvalidTaskRequestException ex) {
         ApiResponse<Void> response = ApiResponse.error(
                 ex.getErrorCode(),
                 ex.getMessage()

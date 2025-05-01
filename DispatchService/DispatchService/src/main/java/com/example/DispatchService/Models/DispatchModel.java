@@ -1,9 +1,20 @@
 package com.example.DispatchService.Models;
 
 import com.example.DispatchService.Utils.DispatchEnums;
+import com.example.DispatchService.Utils.MapToJsonConverter;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.generator.Generator;
+import org.hibernate.id.factory.spi.CustomIdGeneratorCreationContext;
+
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
+
 
 
 @Entity
@@ -11,7 +22,6 @@ import java.time.LocalDateTime;
 public class DispatchModel {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // Auto-increment ID
     private int dispatchId;
 
 
@@ -25,7 +35,7 @@ public class DispatchModel {
 
 
     @NotNull(message = "What role of dispatch request if this coming from")
-    private String dispatchRequesterRole;
+    private List<String> dispatchRequesterRole;
 
     @NotNull(message = "Uhm what type of vehicle is being dispatched")
     @Enumerated(EnumType.STRING)
@@ -51,11 +61,17 @@ public class DispatchModel {
     @NotNull(message = "Status is required")
     private DispatchEnums.DispatchStatus dispatchStatus;
 
+
+    @Convert(converter = MapToJsonConverter.class)
+    @Column(columnDefinition = "TEXT") // or "JSON" for Postgres/MySQL 8+
+    private Map<String, Object> dispatchMetadata;
+
     public DispatchModel() {
     }
 
-    public DispatchModel(int dispatchId, String dispatchRequester, String dispatchAdmin, String dispatchVehicleId, String dispatchRequesterRole, DispatchEnums.VehicleStatus vehicleClass, LocalDateTime dispatchRequestTime, LocalDateTime dispatchRequestApproveTime, LocalDateTime dispatchStartTime, LocalDateTime dispatchEndTime, DispatchEnums.DispatchReason dispatchReason, DispatchEnums.DispatchStatus dispatchStatus) {
+    public DispatchModel(int dispatchId, String dispatchRequester, String dispatchAdmin, String dispatchVehicleId, List<String> dispatchRequesterRole, DispatchEnums.VehicleStatus vehicleClass, LocalDateTime dispatchRequestTime, LocalDateTime dispatchRequestApproveTime, LocalDateTime dispatchStartTime, LocalDateTime dispatchEndTime, DispatchEnums.DispatchReason dispatchReason, DispatchEnums.DispatchStatus dispatchStatus, Map<String, Object> dispatchMetadata) {
         this.dispatchId = dispatchId;
+        this.dispatchMetadata = dispatchMetadata;
         this.dispatchRequester = dispatchRequester;
         this.dispatchAdmin = dispatchAdmin;
         this.dispatchVehicleId = dispatchVehicleId;
@@ -69,6 +85,12 @@ public class DispatchModel {
         this.dispatchStatus = dispatchStatus;
     }
 
+    public void addToDispatchMetadata(String key, Object value) {
+        if (this.dispatchMetadata == null) {
+            this.dispatchMetadata = new HashMap<>();
+        }
+        this.dispatchMetadata.put(key, value);
+    }
     public int getDispatchId() {
         return dispatchId;
     }
@@ -101,11 +123,11 @@ public class DispatchModel {
         this.dispatchVehicleId = dispatchVehicleId;
     }
 
-    public String getDispatchRequesterRole() {
+    public List<String> getDispatchRequesterRole() {
         return dispatchRequesterRole;
     }
 
-    public void setDispatchRequesterRole(String dispatchRequesterRole) {
+    public void setDispatchRequesterRole(List<String> dispatchRequesterRole) {
         this.dispatchRequesterRole = dispatchRequesterRole;
     }
 
@@ -163,5 +185,13 @@ public class DispatchModel {
 
     public void setDispatchStatus(DispatchEnums.DispatchStatus dispatchStatus) {
         this.dispatchStatus = dispatchStatus;
+    }
+
+    public Map<String, Object> getDispatchMetadata() {
+        return dispatchMetadata;
+    }
+
+    public void setDispatchMetadata(Map<String, Object> dispatchMetadata) {
+        this.dispatchMetadata = dispatchMetadata;
     }
 }
