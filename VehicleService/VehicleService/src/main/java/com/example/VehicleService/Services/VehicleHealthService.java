@@ -1,56 +1,56 @@
 package com.example.VehicleService.Services;
 
 
+import com.example.VehicleService.Models.VehicleHealthAttributeModel;
 import com.example.VehicleService.Models.VehicleModel;
-import com.example.VehicleService.Utils.UtilRecords;
-import com.example.VehicleService.Utils.VehicleEnums;
+import com.example.VehicleService.Models.VehicleWildcardAttributeModel;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @Service
 public class VehicleHealthService {
 
+    @Transactional
+    public Map<String, Object> vehicleDispatchStatus(VehicleModel vehicle) {
+
+        boolean canDispatch = true;
+        double safetyScore = 0.00;
+
+        Map<String, Object> safetyScoreResult = new HashMap<>();
+        List<Map<String, Boolean>> wildCards = new ArrayList<>();
+        List<Map<String, Double>> healthAttributes = new ArrayList<>();
 
 
-    public UtilRecords.SafetyScoreResult calculateSafetyScore(Map<String, Boolean> healthAttributes, Map<String, Boolean> wildcards) {
+        for (VehicleHealthAttributeModel attribute : vehicle.getHealthAttributes()) {
+            double score = attribute.getScore();
+            healthAttributes.add(Map.of(
+                    String.valueOf(attribute.getAttributeName()),
+                    score));
+            safetyScore += score;}
 
-        double score = 100.0;
-        double healthPenalty = 5.0;
-        List<String> failedWildcards = new ArrayList<>();
+        for (VehicleWildcardAttributeModel wildcard : vehicle.getWildcardAttributes()) {
 
-        for (Map.Entry<String, Boolean> entry : wildcards.entrySet()) {
-            if (!entry.getValue()) {
-                failedWildcards.add(entry.getKey());
-            }
-        }
+            if (wildcard.getWildcardValue()){
 
-        // 2. Deduct penalties for health attributes
-        for (Boolean value : healthAttributes.values()) {
-            if (!value) {
-                score -= healthPenalty;
-            }
-        }
+                wildCards.add(Map.of(
+                String.valueOf(wildcard.getWildcardKey()),
+                wildcard.getWildcardValue()));
 
-        // 3. Clamp score to 0 minimum
-        score = Math.max(score, 0);
+                canDispatch = false;
+            }}
 
-        // 4. Return the score + list of failed wildcards
-        return new UtilRecords.SafetyScoreResult(score, failedWildcards);
+        safetyScoreResult.put("safetyScore",  safetyScore);
+        safetyScoreResult.put("canDispatch",canDispatch);
+        safetyScoreResult.put("wildCards", wildCards);
+        safetyScoreResult.put("healthAttributes", healthAttributes);
+
+        return safetyScoreResult;
     }
 
 
-    public void updateVehicleAfterHealthCheck(VehicleModel vehicle, UtilRecords.SafetyScoreResult result) {
-
-        vehicle.setSafetyScore(result.safetyScore());
-
-        if (!result.wildCardReasons().isEmpty()) {
-            vehicle.setHealthStatus(VehicleEnums.VehicleHealthStatus.MAINTENANCE);
-        } else {
-            vehicle.setHealthStatus(VehicleEnums.VehicleHealthStatus.ACTIVE);
-        }
-
-}
 }

@@ -22,8 +22,6 @@ public class DispatchEnums {
         CANCELLED,
         COMPLETED
     }
-
-
     public static enum VehicleStatus {
 
         CLASSIFIED,

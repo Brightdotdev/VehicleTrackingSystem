@@ -11,7 +11,7 @@ The Vehicle Tracking System enables car companies to efficiently manage their fl
 - **Dispatch Management**: Create, update, and manage vehicle dispatches
 - **Safety Scoring**: Calculate and store safety scores based on vehicle conditions
 - **Real-time Updates**: Receive live updates via WebSocket on vehicle status and dispatches
-- **Kafka Integration**: Leverage event-driven communication between services
+- **Rabbit Mq Integration**: Leverage event-driven communication between services
 - **Microservices Architecture**: Modular design with specialized services
 
 ## System Architecture
@@ -28,7 +28,7 @@ The system is built on a microservices architecture with the following component
 - **Backend**:
   - Spring Boot
   - Spring Cloud Gateway
-  - Kafka
+  - Rabbit Mq
   - WebSockets
 
 - **Frontend**:

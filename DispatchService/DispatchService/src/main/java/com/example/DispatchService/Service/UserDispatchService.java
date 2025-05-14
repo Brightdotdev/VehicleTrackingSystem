@@ -5,10 +5,15 @@ import com.example.DispatchService.Exceptions.ConflictException;
 import com.example.DispatchService.Exceptions.InvalidRequestException;
 import com.example.DispatchService.Exceptions.NotFoundException;
 import com.example.DispatchService.Models.DispatchModel;
+import com.example.DispatchService.RabbitMq.RabbitMqSenderService;
+import com.example.DispatchService.RabbitMq.ResponseMapperService;
 import com.example.DispatchService.Repositories.DispatchRepository;
 import com.example.DispatchService.Utils.DispatchEnums;
 import com.example.DispatchService.Utils.UtilRecords;
 import jakarta.transaction.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -21,6 +26,12 @@ import java.util.Map;
 public class UserDispatchService {
 
     private final DispatchRepository dispatchRepository;
+    private final Logger logger = LoggerFactory.getLogger(UserDispatchService.class);
+
+    @Autowired
+    private ResponseMapperService mapperService;
+    @Autowired
+    private RabbitMqSenderService rabbitMqSenderService;
 
     public UserDispatchService(DispatchRepository dispatchRepository) {
         this.dispatchRepository = dispatchRepository;
@@ -30,38 +41,58 @@ public class UserDispatchService {
     /**  creating a dispatch requesting for one  **/
 
     @Transactional
-    public DispatchModel requestVehicleDispatch(UtilRecords.dispatchRequestBody requestBody,String userName ,List<String> userRole){
+    public UtilRecords.DispatchResponseDTO requestVehicleDispatch(UtilRecords.dispatchRequestBody requestBody, String userName , List<String> userRole) {
 
-       List<DispatchModel> foundVehicleDispatches = dispatchRepository.findByDispatchVehicleId(requestBody.dispatchVehicleId());
+        Boolean canDispatch = false;
 
-       for (DispatchModel dispatchModel : foundVehicleDispatches){
+        List<DispatchModel> foundVehicleDispatches = dispatchRepository.findByDispatchVehicleId(requestBody.vehicleIdentificationNumber());
 
-           if(
-           dispatchModel.getDispatchStatus() == DispatchEnums.DispatchStatus.COMPLETED ||
-           dispatchModel.getDispatchStatus() == DispatchEnums.DispatchStatus.CANCELLED ||
-           dispatchModel.getDispatchStatus() == DispatchEnums.DispatchStatus.EXPIRED
-           ){continue;}
-
-
-           if(dispatchModel.getDispatchStatus().equals(DispatchEnums.DispatchStatus.PENDING)) {
-            throw new InvalidRequestException("Vehicle already requested by another user", 401);
-           }
-
-           if(dispatchModel.getDispatchStatus().equals(DispatchEnums.DispatchStatus.IN_PROGRESS)) {
-               throw new InvalidRequestException("The current vehicle is already in dispatch and cannot be booked", 401);
-           }
-       }
+        for (DispatchModel dispatchModel : foundVehicleDispatches) {
+            if (
+                    dispatchModel.getDispatchStatus() == DispatchEnums.DispatchStatus.COMPLETED ||
+                            dispatchModel.getDispatchStatus() == DispatchEnums.DispatchStatus.CANCELLED ||
+                            dispatchModel.getDispatchStatus() == DispatchEnums.DispatchStatus.EXPIRED
+            ) {
+                continue;
+            }
 
 
-        DispatchModel finalDispatchBody = getDispatchModel(requestBody, userName, userRole);
-       return dispatchRepository.save(finalDispatchBody);
+            if (dispatchModel.getDispatchStatus().equals(DispatchEnums.DispatchStatus.PENDING)) {
+                throw new InvalidRequestException("Vehicle already requested by another user", 401);
+            }
+
+            if (dispatchModel.getDispatchStatus().equals(DispatchEnums.DispatchStatus.IN_PROGRESS)) {
+                throw new InvalidRequestException("The current vehicle is already in dispatch and cannot be booked", 401);
+            }
+        }
+
+
+        Map<String, Object> dispatchResult = (Map<String, Object>) rabbitMqSenderService.sendDispatchCreatedEvent(requestBody);
+
+
+        if (dispatchResult.containsKey("canDispatch")) {
+            canDispatch = (Boolean) dispatchResult.get("canDispatch");
+        }
+        rabbitMqSenderService.sendDispatchCreatedEventNoResponse(requestBody);
+
+        UtilRecords.DispatchResponseDTO finalResponse = mapperService.dispatchResponseMapper(dispatchResult);
+
+//        if (canDispatch) {
+//            DispatchModel finalDispatchBody = getDispatchModel(requestBody, userName, userRole);
+//           dispatchRepository.save(finalDispatchBody);
+//        }
+
+        System.out.println("final Response: " +  finalResponse);
+
+        System.out.println("Dispatch Result: " +  dispatchResult);
+return finalResponse;
     }
 
 
     /** canceling a dispatch (user(dispatch requester)) **/
 
     @Transactional
-    public DispatchModel userCancelingDispatch(String userName ,List<String> userRole, int dispatchId){
+    public DispatchModel userCancelingDispatch(String userName ,List<String> userRole, Long dispatchId){
 
         if(userRole.isEmpty()){
             throw new InvalidRequestException("No user role provided", 400);}
@@ -83,6 +114,9 @@ public class UserDispatchService {
         dispatch.setDispatchRequestApproveTime(LocalDateTime.now());
         return dispatchRepository.save(dispatch);
     }
+
+
+
 
 
 
@@ -145,7 +179,7 @@ public class UserDispatchService {
 
 
     @Transactional
-    public Map<String, Object>  revalidateDispatchById(String user,int dispatchId){
+    public Map<String, Object>  revalidateDispatchById(String user,Long dispatchId){
 
 
         DispatchModel dispatch = dispatchRepository.findByDispatchRequesterAndDispatchId(user, dispatchId);
@@ -194,16 +228,54 @@ public class UserDispatchService {
 
 
 
+    @Transactional
+    public DispatchModel completeDispatch(UtilRecords.DispatchCompletedEvent completedEvent){
+
+        DispatchModel dispatch = dispatchRepository
+            .findByDispatchIdAndDispatchRequester(completedEvent.dispatchId(),completedEvent.userName());
+
+
+        if(!isStillValidDispatch(dispatch)){
+            logger.error("The dispatch is not even valid before");
+            return null;
+        }
+
+        if(!dispatch.getDispatchRequester().equals(completedEvent.userName())){
+            throw new InvalidRequestException("Uhm how did this even happen", 400);
+        }
+        dispatch.addToDispatchMetadata("dispatchApprovalStatus", "Your dispatch has been canceled");
+        dispatch.setDispatchStatus(DispatchEnums.DispatchStatus.COMPLETED);
+        dispatch.setDispatchEndTime(completedEvent.endTime());
+        return dispatchRepository.save(dispatch);
+    }
+
+
+
+
+    @Transactional
+    public DispatchModel setDispatchRating(Double rating, Long dispatchId, String username){
+
+        DispatchModel dispatch = dispatchRepository
+                .findByDispatchIdAndDispatchRequester(dispatchId,username);
+        if(!dispatch.getDispatchRequester().equals(username)){
+            throw new InvalidRequestException("Why are you rating another person's dispatch", 400);
+        }
+        dispatch.setDispatchReviewScore(rating);
+        return dispatchRepository.save(dispatch);
+    }
+
+
 
     /** Util static methods  (im too lazy to create a file for it) **/
 
     private static DispatchModel getDispatchModel(UtilRecords.dispatchRequestBody requestBody, String userName, List<String> userRole) {
         DispatchModel finalDispatchBody = new DispatchModel();
-        finalDispatchBody.setDispatchVehicleId(requestBody.dispatchVehicleId());
+        finalDispatchBody.setDispatchVehicleId(requestBody.vehicleIdentificationNumber());
         finalDispatchBody.setDispatchRequesterRole(userRole);
         finalDispatchBody.setDispatchRequester(userName);
         finalDispatchBody.setDispatchReason(requestBody.dispatchReason());
         finalDispatchBody.setDispatchStatus(DispatchEnums.DispatchStatus.PENDING);
+        finalDispatchBody.setDispatchRequestTime(LocalDateTime.now());
         finalDispatchBody.setVehicleClass(requestBody.vehicleClass());
         finalDispatchBody.setDispatchEndTime(requestBody.dispatchEndTime());
         return finalDispatchBody;

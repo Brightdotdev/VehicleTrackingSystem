@@ -2,8 +2,9 @@
 <project version="4">
   <component name="CompilerConfiguration">
     <bytecodeTargetLevel>
-      <module name="DispatchService.DispatchService.main~1" target="21" />
-      <module name="DispatchService.DispatchService.test~1" target="21" />
+      <module name="AuthService" target="21" />
+      <module name="AuthService.main" target="21" />
+      <module name="AuthService.test" target="21" />
     </bytecodeTargetLevel>
   </component>
 </project>

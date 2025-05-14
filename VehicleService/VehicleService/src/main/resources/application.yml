@@ -4,15 +4,20 @@ server:
 
 spring:
   application:
-    name: dispatchService
+    name: vehicleService
   datasource :
-    url : jdbc:mysql://localhost:3306/taskApplication?createDatabaseIfNotExist=true
+    url : jdbc:mysql://localhost:3306/vtaDb?createDatabaseIfNotExist=true
     username : root
     password : bomboclat
   jpa :
     show-sql : true
     hibernate :
       ddl-auto : update
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: bright
+    password: secret123
 
 resilience4j:
   circuitbreaker:
@@ -32,6 +37,8 @@ auth:
 
 logging:
   level:
+    org.springframework.amqp: WARN
+    com.rabbitmq: WARN
     org.springframework.security: DEBUG
     com.example.UserService: DEBUG
 

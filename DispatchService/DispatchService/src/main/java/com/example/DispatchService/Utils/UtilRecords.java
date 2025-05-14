@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class UtilRecords {
@@ -35,20 +36,17 @@ public class UtilRecords {
 
 
 
-    public record LogInClientResponse(
 
+    public record DispatchCompletedEvent(
+
+            @NotBlank(message = "VIN is required")
+            String vehicleIdentificationNumber,
             @NotBlank(message = "Name is required")
-            String name,
-
-            @NotBlank(message = "Email is required for sign up")
-            @Email(message = "Email should be valid")
-            String email,
-
-
-            List<String> roles,
-
-            String cookie
+            String userName,
+            Long dispatchId,
+            LocalDateTime endTime
     ) {}
+
 
 
 
@@ -56,7 +54,7 @@ public class UtilRecords {
 public record dispatchRequestBody(
 
     @NotNull(message = "Uhm what type of vehicle is being dispatched")
-    String dispatchVehicleId,
+    String vehicleIdentificationNumber,
 
     @NotNull(message = "Uhm what type of vehicle class is being dispatched")
     @Enumerated(EnumType.STRING)
@@ -66,6 +64,9 @@ public record dispatchRequestBody(
     @Enumerated(EnumType.STRING)
     DispatchEnums.DispatchReason dispatchReason,
 
+
+    String dispatchRequester,
+
     @NotNull(message = "When do you plan to end the dispatch boy")
     LocalDateTime dispatchEndTime
 
@@ -73,8 +74,11 @@ public record dispatchRequestBody(
 
 
 
-
-
-
+    public record DispatchResponseDTO(
+            List<Map<String , Boolean>> wildCards,
+            double safetyScore,
+            List<Map<String, Double>> healthAttributes,
+            boolean canDispatch
+    ) {}
 
 }

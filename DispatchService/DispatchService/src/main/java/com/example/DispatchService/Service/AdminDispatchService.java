@@ -128,9 +128,19 @@ public class AdminDispatchService {
     }
 
 
+
+
+
+
+
+
+
     public List<DispatchModel> getAllDispatch(){
         return   dispatchRepository.findAll();
     }
+
+
+
 
 
 
@@ -138,7 +148,7 @@ public class AdminDispatchService {
 
     private static DispatchModel getDispatchModel(UtilRecords.dispatchRequestBody requestBody, String userName, List<String> userRole) {
         DispatchModel finalDispatchBody = new DispatchModel();
-        finalDispatchBody.setDispatchVehicleId(requestBody.dispatchVehicleId());
+        finalDispatchBody.setDispatchVehicleId(requestBody.vehicleIdentificationNumber());
         finalDispatchBody.setDispatchRequesterRole(userRole);
         finalDispatchBody.setDispatchRequester(userName);
         finalDispatchBody.setDispatchReason(requestBody.dispatchReason());
@@ -147,6 +157,9 @@ public class AdminDispatchService {
         finalDispatchBody.setDispatchEndTime(requestBody.dispatchEndTime());
         return finalDispatchBody;
     }
+
+
+
 
 
     private static boolean isStillValidDispatch(DispatchModel dispatch) {
@@ -161,4 +174,9 @@ public class AdminDispatchService {
         }
         return true;
     }
+
+
+
+
+
 }

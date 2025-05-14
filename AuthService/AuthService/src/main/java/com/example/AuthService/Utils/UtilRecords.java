@@ -65,10 +65,8 @@ public class UtilRecords {
             @Email(message = "Email should be valid")
             String email,
 
-
             @AssertTrue
             boolean email_verified,
-
 
             String sub,
             String picture

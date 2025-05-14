@@ -1,0 +1,4 @@
+FROM rabbitmq:3.12.2-management-alpine
+
+ENV RABBITMQ_DEFAULT_USER=bright
+ENV RABBITMQ_DEFAULT_PASS=secret123

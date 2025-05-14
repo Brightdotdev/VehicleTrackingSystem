@@ -5,11 +5,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface DispatchRepository extends JpaRepository<DispatchModel, Integer> {
+public interface DispatchRepository extends JpaRepository<DispatchModel, Long> {
 
 
 
-    DispatchModel findByDispatchRequesterAndDispatchId(String user, int dispatchId);
+    DispatchModel findByDispatchRequesterAndDispatchId(String user, Long dispatchId);
 
     List<DispatchModel> findByDispatchVehicleId(String findByDispatchVehicleId);
 
@@ -17,9 +17,9 @@ public interface DispatchRepository extends JpaRepository<DispatchModel, Integer
 
     DispatchModel findByDispatchId(int dispatchId);
 
-    DispatchModel findByDispatchIdAndDispatchRequester(int dispatchId, String dispatchRequester);
+    DispatchModel findByDispatchIdAndDispatchRequester(Long dispatchId, String dispatchRequester);
 
 
-    List<DispatchModel> findAllByDispatchIdAndDispatchRequester(int dispatchId, String dispatchRequester);
+    List<DispatchModel> findAllByDispatchIdAndDispatchRequester(Long dispatchId, String dispatchRequester);
 
 }

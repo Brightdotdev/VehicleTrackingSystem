@@ -7,11 +7,11 @@ import com.example.DispatchService.Service.UserDispatchService;
 import com.example.DispatchService.Utils.ApiResponse;
 import com.example.DispatchService.Utils.UtilRecords;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/v1/user/dispatch")
@@ -28,26 +28,39 @@ public class UserDispatchController {
 
     // :: localhost:8105/v1/user/dispatch/request-dispatch
     @PostMapping("/request-dispatch")
-    public ResponseEntity<ApiResponse<DispatchModel>> requestDispatch(
-            @RequestBody UtilRecords.dispatchRequestBody requestBody,
-            @RequestParam String userName,
-            @RequestParam List<String> userRole) {
+    public
+    ResponseEntity<ApiResponse<
+    UtilRecords.DispatchResponseDTO>>
+    requestDispatch(
+    @RequestBody UtilRecords.dispatchRequestBody requestBody) {
 
-        DispatchModel model =  userDispatchService.requestVehicleDispatch(requestBody, userName, userRole);
+      UtilRecords.DispatchResponseDTO dispatchResponse =  userDispatchService.requestVehicleDispatch(requestBody, userHandler.getCurrentUser(), userHandler.getRoles());
 
+        if (dispatchResponse == null) {
+            return ResponseEntity
+                    .status(HttpStatus.FORBIDDEN)
+                    .body(ApiResponse.error(
+                            403,
+                            "Your request couldn't be processed"
+                    ));
+        }
+
+        // If the model is not null, return success with the dispatch info
         return ResponseEntity.ok(
                 ApiResponse.success(
                         201,
-                        "Dispatch request Success",
-                        model
-                ));
+                        "Dispatch request success",
+                        dispatchResponse
+                )
+        );
     }
+
 
     /** Endpoint for a user to cancel their own dispatch **/
 
     // :: localhost:8105/v1/user/dispatch/user-cancel
     @PutMapping("/user-cancel")
-    public ResponseEntity<ApiResponse<DispatchModel>> userCancelDispatch(@RequestParam int dispatchId) {
+    public ResponseEntity<ApiResponse<DispatchModel>> userCancelDispatch(@RequestParam Long dispatchId) {
 
 
        DispatchModel dispatchModel =  userDispatchService.userCancelingDispatch(userHandler.getCurrentUser(), userHandler.getRoles(), dispatchId);

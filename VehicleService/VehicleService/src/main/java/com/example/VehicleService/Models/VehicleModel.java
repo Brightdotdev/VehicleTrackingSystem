@@ -1,10 +1,7 @@
 package com.example.VehicleService.Models;
 
-
 import com.example.VehicleService.Utils.VehicleEnums;
 import jakarta.persistence.*;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -13,15 +10,20 @@ import java.util.List;
 @Entity
 @Table(name = "vehicles")
 public class VehicleModel {
-
-    // Unique ID for the vehicle in the database
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
-
+    @SequenceGenerator(
+            name = "user_sequence",
+            sequenceName =  "user_id_sequence",
+            allocationSize = 1
+    )
+    @GeneratedValue(
+            strategy = GenerationType.SEQUENCE,
+            generator = "user_id_sequence"
+    )
+    private Long id;
 
     @Column(nullable = false, unique = true)
-    private String VehicleIdentificationNumber;
+    private String vehicleIdentificationNumber;
 
     // License plate number
     @Column(nullable = false, unique = true)
@@ -30,45 +32,59 @@ public class VehicleModel {
     @Column(nullable = false)
     private String model;
 
-    private int vehicleAcquiredYear;
 
+    @Column(nullable = false)
+    private int vehicleAcquiredYear;
 
     // Engine type: GAS, DIESEL, ELECTRIC, HYBRID
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private VehicleEnums.EngineType engineType;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private VehicleEnums.VehicleType vehicleType;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private VehicleEnums.VehicleStatus vehicleStatus;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private VehicleEnums.VehicleDispatchStatus dispatchStatus;
 
-    @Enumerated(EnumType.STRING)
-    private VehicleEnums.VehicleHealthStatus healthStatus;
 
     @ElementCollection
     private List<String> dispatchHistory;
 
-
     @ElementCollection
     private List<String> vehicleImages;
 
-
     // Vehicle's safety score (out of 100)
+    @Column(nullable = false)
     private Double safetyScore;
 
+    @Column(nullable = false)
     private String vehicleMetadata;
+
+
+
+    @OneToMany(mappedBy = "vehicle", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<VehicleHealthAttributeModel> healthAttributes;
+
+    // Relationship to Vehicle Wildcards (if needed)
+    @OneToMany(mappedBy = "vehicle", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<VehicleWildcardAttributeModel> wildcardAttributes;
 
 
     public VehicleModel() {
     }
 
-    public VehicleModel(int id, String vehicleIdentificationNumber, String licensePlate, String model, int vehicleAcquiredYear, VehicleEnums.EngineType engineType, VehicleEnums.VehicleType vehicleType, VehicleEnums.VehicleStatus vehicleStatus, VehicleEnums.VehicleDispatchStatus dispatchStatus, VehicleEnums.VehicleHealthStatus healthStatus, List<String> dispatchHistory, List<String> vehicleImages, Double safetyScore, String vehicleMetadata) {
+    public VehicleModel(Long id, String vehicleIdentificationNumber, String licensePlate, String model, int vehicleAcquiredYear, VehicleEnums.EngineType engineType, VehicleEnums.VehicleType vehicleType, VehicleEnums.VehicleStatus vehicleStatus, VehicleEnums.VehicleDispatchStatus dispatchStatus, List<String> dispatchHistory, List<String> vehicleImages, Double safetyScore, String vehicleMetadata, List<VehicleHealthAttributeModel> healthAttributes,
+                        List<VehicleWildcardAttributeModel> wildcardAttributes
+    ) {
         this.id = id;
-        VehicleIdentificationNumber = vehicleIdentificationNumber;
+        this.vehicleIdentificationNumber = vehicleIdentificationNumber;
         this.licensePlate = licensePlate;
         this.model = model;
         this.vehicleAcquiredYear = vehicleAcquiredYear;
@@ -76,27 +92,29 @@ public class VehicleModel {
         this.vehicleType = vehicleType;
         this.vehicleStatus = vehicleStatus;
         this.dispatchStatus = dispatchStatus;
-        this.healthStatus = healthStatus;
         this.dispatchHistory = dispatchHistory;
         this.vehicleImages = vehicleImages;
         this.safetyScore = safetyScore;
         this.vehicleMetadata = vehicleMetadata;
+        this.healthAttributes = healthAttributes;
+        this.wildcardAttributes = wildcardAttributes;
     }
 
-    public int getId() {
+    // Getters and setters for all fields
+    public Long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
     public String getVehicleIdentificationNumber() {
-        return VehicleIdentificationNumber;
+        return vehicleIdentificationNumber;
     }
 
     public void setVehicleIdentificationNumber(String vehicleIdentificationNumber) {
-        VehicleIdentificationNumber = vehicleIdentificationNumber;
+        this.vehicleIdentificationNumber = vehicleIdentificationNumber;
     }
 
     public String getLicensePlate() {
@@ -155,13 +173,7 @@ public class VehicleModel {
         this.dispatchStatus = dispatchStatus;
     }
 
-    public VehicleEnums.VehicleHealthStatus getHealthStatus() {
-        return healthStatus;
-    }
 
-    public void setHealthStatus(VehicleEnums.VehicleHealthStatus healthStatus) {
-        this.healthStatus = healthStatus;
-    }
 
     public List<String> getDispatchHistory() {
         return dispatchHistory;
@@ -193,5 +205,21 @@ public class VehicleModel {
 
     public void setVehicleMetadata(String vehicleMetadata) {
         this.vehicleMetadata = vehicleMetadata;
+    }
+
+    public List<VehicleHealthAttributeModel> getHealthAttributes() {
+        return healthAttributes;
+    }
+
+    public void setHealthAttributes(List<VehicleHealthAttributeModel> healthAttributes) {
+        this.healthAttributes = healthAttributes;
+    }
+
+    public List<VehicleWildcardAttributeModel> getWildcardAttributes() {
+        return wildcardAttributes;
+    }
+
+    public void setWildcardAttributes(List<VehicleWildcardAttributeModel> wildcardAttributes) {
+        this.wildcardAttributes = wildcardAttributes;
     }
 }

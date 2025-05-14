@@ -18,6 +18,8 @@ export default function RootLayout({
 
   return (
   <html lang="en" >
+
+    
       <body className="antialiased bodyWrapper duration-700 transition-all" >   
       <GoogleOAuthProvider clientId={googleCleintId}>
         <ThemeProvider>

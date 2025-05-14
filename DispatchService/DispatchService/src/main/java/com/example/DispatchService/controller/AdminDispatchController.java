@@ -103,7 +103,7 @@ public class AdminDispatchController {
     @GetMapping("/revalidate-dispatch")
     public
     ResponseEntity<ApiResponse<Map<String, Object>>>
-    revalidateSingleDispatch(@PathVariable int dispatchId) {
+    revalidateSingleDispatch(@PathVariable Long dispatchId) {
         Map<String, Object> metadata = userDispatchService.revalidateDispatchById(userHandler.getCurrentUser(),dispatchId);
 
         return ResponseEntity.ok(

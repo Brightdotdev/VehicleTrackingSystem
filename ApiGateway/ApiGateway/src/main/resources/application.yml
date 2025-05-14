@@ -12,24 +12,21 @@ spring:
           lower-case-service-id: true
       routes:
         - id: authService
-          uri: http://localhost:8013
+          uri: http://localhost:8103
           predicates:
             - Path=/v1/auth/**
-        - id: userService
+        - id: loggingService
           uri: http://localhost:8104
           predicates:
-            - Path=/user/**
+            - Path=/v1/user/notifications/** , /v1/sse/**,/v1/user/tracking
         - id: dispatchService
           uri: http://localhost:8105
           predicates:
-            - Path=/v1/admin/dispatch/**
-            - Path=/v1/user/dispatch/**
+            - Path=/v1/admin/dispatch/** , /v1/user/dispatch/**
         - id: vehicleService
           uri: http://localhost:8106
           predicates:
-            - Path=/v1/admin/dispatch/**
-            - Path=/v1/user/dispatch/**
-
+            - Path=/v1/admin/vehicle/** , /v1/user/vehicle/**
       globalcors:
         corsConfigurations:
           '[/**]':

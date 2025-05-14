@@ -4,15 +4,10 @@ import com.example.DispatchService.Utils.DispatchEnums;
 import com.example.DispatchService.Utils.MapToJsonConverter;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.generator.Generator;
-import org.hibernate.id.factory.spi.CustomIdGeneratorCreationContext;
-
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.Map;;
 
 
 
@@ -22,7 +17,16 @@ import java.util.UUID;
 public class DispatchModel {
 
     @Id
-    private int dispatchId;
+    @SequenceGenerator(
+            name = "user_sequence",
+            sequenceName =  "user_id_sequence",
+            allocationSize = 1
+    )
+    @GeneratedValue(
+            strategy = GenerationType.SEQUENCE,
+            generator = "user_id_sequence"
+    )
+    private Long dispatchId;
 
 
     @NotNull(message = "Uhm who tf is making the dispatch")
@@ -42,7 +46,7 @@ public class DispatchModel {
     private DispatchEnums.VehicleStatus vehicleClass;
 
 
-  // dispatch logs and metadata
+    // dispatch logs and metadata
 
     private LocalDateTime dispatchRequestTime;
 
@@ -63,15 +67,17 @@ public class DispatchModel {
 
 
     @Convert(converter = MapToJsonConverter.class)
-    @Column(columnDefinition = "TEXT") // or "JSON" for Postgres/MySQL 8+
+    @Column(columnDefinition = "TEXT")
     private Map<String, Object> dispatchMetadata;
+
+
+    private Double dispatchReviewScore;
 
     public DispatchModel() {
     }
 
-    public DispatchModel(int dispatchId, String dispatchRequester, String dispatchAdmin, String dispatchVehicleId, List<String> dispatchRequesterRole, DispatchEnums.VehicleStatus vehicleClass, LocalDateTime dispatchRequestTime, LocalDateTime dispatchRequestApproveTime, LocalDateTime dispatchStartTime, LocalDateTime dispatchEndTime, DispatchEnums.DispatchReason dispatchReason, DispatchEnums.DispatchStatus dispatchStatus, Map<String, Object> dispatchMetadata) {
+    public DispatchModel(Long dispatchId, String dispatchRequester, String dispatchAdmin, String dispatchVehicleId, List<String> dispatchRequesterRole, DispatchEnums.VehicleStatus vehicleClass, LocalDateTime dispatchRequestTime, LocalDateTime dispatchRequestApproveTime, LocalDateTime dispatchStartTime, LocalDateTime dispatchEndTime, DispatchEnums.DispatchReason dispatchReason, DispatchEnums.DispatchStatus dispatchStatus, Map<String, Object> dispatchMetadata, Double dispatchReviewScore) {
         this.dispatchId = dispatchId;
-        this.dispatchMetadata = dispatchMetadata;
         this.dispatchRequester = dispatchRequester;
         this.dispatchAdmin = dispatchAdmin;
         this.dispatchVehicleId = dispatchVehicleId;
@@ -83,19 +89,20 @@ public class DispatchModel {
         this.dispatchEndTime = dispatchEndTime;
         this.dispatchReason = dispatchReason;
         this.dispatchStatus = dispatchStatus;
+        this.dispatchMetadata = dispatchMetadata;
+        this.dispatchReviewScore = dispatchReviewScore;
     }
-
     public void addToDispatchMetadata(String key, Object value) {
         if (this.dispatchMetadata == null) {
             this.dispatchMetadata = new HashMap<>();
         }
         this.dispatchMetadata.put(key, value);
     }
-    public int getDispatchId() {
+    public Long getDispatchId() {
         return dispatchId;
     }
 
-    public void setDispatchId(int dispatchId) {
+    public void setDispatchId(Long dispatchId) {
         this.dispatchId = dispatchId;
     }
 
@@ -193,5 +200,13 @@ public class DispatchModel {
 
     public void setDispatchMetadata(Map<String, Object> dispatchMetadata) {
         this.dispatchMetadata = dispatchMetadata;
+    }
+
+    public Double getDispatchReviewScore() {
+        return dispatchReviewScore;
+    }
+
+    public void setDispatchReviewScore(Double dispatchReviewScore) {
+        this.dispatchReviewScore = dispatchReviewScore;
     }
 }
