@@ -1,4 +1,4 @@
-package com.example.DispatchService.controller;
+package com.example.DispatchService.Controller;
 
 
 import com.example.DispatchService.Config.UserHandler;
@@ -38,7 +38,7 @@ public class AdminDispatchController {
     @PutMapping("/validate")
     public ResponseEntity<ApiResponse<DispatchModel>> validateDispatch(
             @RequestParam Long dispatchId) {
-
+        System.out.println(dispatchId);
         DispatchModel model = adminDispatchService.validateDispatch(userHandler.getCurrentUser(), userHandler.getRoles(), dispatchId);
 
         return ResponseEntity.ok(

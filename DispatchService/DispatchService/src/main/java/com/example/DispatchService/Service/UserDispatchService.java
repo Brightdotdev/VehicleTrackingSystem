@@ -41,7 +41,9 @@ public class UserDispatchService {
     /**  creating a dispatch requesting for one  **/
 
     @Transactional
-    public UtilRecords.DispatchResponseDTO requestVehicleDispatch(UtilRecords.dispatchRequestBody requestBody, String userName , List<String> userRole) {
+    public
+    //UtilRecords.DispatchResponseDTO
+            DispatchModel requestVehicleDispatch(UtilRecords.dispatchRequestBody requestBody, String userName , List<String> userRole) {
 
         DispatchModel dispatchFinalModel = new DispatchModel();
         Boolean canDispatch = false;
@@ -80,7 +82,7 @@ public class UserDispatchService {
 
         dispatchRepository.save(finalDispatchModel);
 
-        return finalResponse;
+        return finalDispatchModel;
     }
 
 

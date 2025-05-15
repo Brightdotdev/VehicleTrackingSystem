@@ -27,6 +27,27 @@ public class TrackingService {
 
     }
 
+    private TrackingModel validateAndCompleteIfNeeded(TrackingModel model) {
+        if (model.getDispatchEndTime() != null &&
+                LocalDateTime.now().isAfter(model.getDispatchEndTime())) {
+
+            model.setDispatchStatus(LogEnums.DispatchStatus.COMPLETED);
+            model.setEndedAt(LocalDateTime.now());
+
+            trackingRepository.save(model);
+
+            UtilRecords.DispatchCompletedEvent completedEvent = new UtilRecords
+                    .DispatchCompletedEvent(
+                    model.getVehicleIdentificationNumber(),
+                    model.getDispatchRequester(),
+                    model.getDispatchId(),
+                    LocalDateTime.now()
+            );
+
+            rabbitMqSenderService.sendCompletedDispatchFanOut(completedEvent);
+        }
+        return model;
+    }
 
     public TrackingModel revalidateTracking(String dispatchId) {
         Optional<TrackingModel> trackingModel = trackingRepository.findByDispatchId(dispatchId);

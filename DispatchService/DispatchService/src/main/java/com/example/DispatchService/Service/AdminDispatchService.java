@@ -172,7 +172,7 @@ public class AdminDispatchService {
 
 
     private static boolean isStillValidDispatch(DispatchModel dispatch) {
-        if(!dispatch.getDispatchAdmin().isEmpty()){
+        if(dispatch.getDispatchAdmin() != null){
             throw  new ConflictException("This dispatch is already tracked by another admin");}
 
         if(dispatch.getDispatchStatus() == DispatchEnums.DispatchStatus.EXPIRED ){

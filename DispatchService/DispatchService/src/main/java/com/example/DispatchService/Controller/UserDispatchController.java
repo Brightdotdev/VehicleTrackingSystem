@@ -1,4 +1,4 @@
-package com.example.DispatchService.controller;
+package com.example.DispatchService.Controller;
 
 
 import com.example.DispatchService.Config.UserHandler;
@@ -30,11 +30,14 @@ public class UserDispatchController {
     @PostMapping("/request-dispatch")
     public
     ResponseEntity<ApiResponse<
-    UtilRecords.DispatchResponseDTO>>
+   // UtilRecords.DispatchResponseDTO
+     DispatchModel
+            >>
     requestDispatch(
     @RequestBody UtilRecords.dispatchRequestBody requestBody) {
 
-      UtilRecords.DispatchResponseDTO dispatchResponse =  userDispatchService.requestVehicleDispatch(requestBody, userHandler.getCurrentUser(), userHandler.getRoles());
+    //  UtilRecords.DispatchResponseDTO
+        DispatchModel  dispatchResponse =  userDispatchService.requestVehicleDispatch(requestBody, userHandler.getCurrentUser(), userHandler.getRoles());
 
         if (dispatchResponse == null) {
             return ResponseEntity

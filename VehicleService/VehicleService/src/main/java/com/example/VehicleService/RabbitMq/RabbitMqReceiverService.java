@@ -9,6 +9,7 @@ import com.example.VehicleService.Services.VehicleService;
 import com.example.VehicleService.Utils.UtilRecords;
 import com.example.VehicleService.Utils.VehicleEnums;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -49,23 +50,28 @@ public class RabbitMqReceiverService {
 
     @Transactional
     @RabbitListener(queues = VEHICLE_QUEUE)
-    public Map<String, Object>
-    handleDispatchToVehicleQueue(UtilRecords.dispatchRequestBody dispatchEvent) {
-     try {
+    public Map<String, Object> handleDispatchToVehicleQueue(UtilRecords.dispatchRequestBody dispatchEvent) {
+        try {
             VehicleModel vehicle = vehicleRepository.findByVehicleIdentificationNumber(dispatchEvent.vehicleIdentificationNumber());
 
             if (vehicle == null) {
-                throw new NotFoundException("Vehicle not found for dispatch ID: " + dispatchEvent.vehicleIdentificationNumber());
+                throw new NotFoundException("Vehicle not found for VIN: " + dispatchEvent.vehicleIdentificationNumber());
             }
-        vehicle.setDispatchStatus(VehicleEnums.VehicleDispatchStatus.PENDING);
-        vehicleRepository.save(vehicle);
-         return vehicleHealthService.vehicleDispatchStatus(vehicle);
+
+            vehicle.setDispatchStatus(VehicleEnums.VehicleDispatchStatus.PENDING);
+            vehicleRepository.save(vehicle);
+
+            // OPTIONAL: Ensure any lazy fields are initialized before passing it to service
+            Hibernate.initialize(vehicle.getDispatchHistory());
+
+            // This is where you should double-check for null keys in the service
+            return vehicleHealthService.vehicleDispatchStatus(vehicle);
+
         } catch (Exception e) {
-            logger.error("Error processing dispatch message: {}", e.getMessage());
+            logger.error("Error processing dispatch message: {}", e.getMessage(), e);
             return null;
         }
     }
-
 
     @Transactional
     @RabbitListener(queues = COMPLETE_DISPATCH_FAN_OUT_QUEUE)

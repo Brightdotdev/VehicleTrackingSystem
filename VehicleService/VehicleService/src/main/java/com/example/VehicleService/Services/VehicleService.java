@@ -174,6 +174,7 @@ public class VehicleService {
     }
 
 
+    @Transactional
     public void handleValidatedDispatch(UtilRecords.ValidatedDispatch dispatchEvent) {
 
         VehicleModel dispatchedVehicle = vehicleRepository.

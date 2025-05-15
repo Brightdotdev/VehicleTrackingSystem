@@ -27,11 +27,19 @@ public class NotificationService {
 
     public void sendCreatedDispatchNotification(UtilRecords.dispatchRequestBody dispatchEvent) {
 
+        String receiver = dispatchEvent.dispatchRequester();
+        if (receiver == null) {
+            System.err.println("❌ Dispatch requester is null, cannot send notification.");
+            return;
+        }
+
         NotificationModel notificationModel = new NotificationModel();
 
-        String message = "Vehicle of VIN " + dispatchEvent.vehicleIdentificationNumber() + " is requested for dispatch from " + dispatchEvent.dispatchRequester() + " for " + dispatchEvent.dispatchReason() ;
-        String receiver = dispatchEvent.dispatchRequester();
+        String message = "Vehicle of VIN " + dispatchEvent.vehicleIdentificationNumber()
+                + " is requested for dispatch from " + receiver
+                + " for " + dispatchEvent.dispatchReason();
 
+        // Set up the notification model
         notificationModel.setCreatedAt(LocalDateTime.now());
         notificationModel.setDescription("Dispatch Request Notification");
         notificationModel.setRead(false);
@@ -39,30 +47,44 @@ public class NotificationService {
         notificationModel.setType(LogEnums.NotificationType.INFO);
         notificationModel.setMessage(message);
 
-        NotificationModel notificationModel1 = notificationRepository.save(notificationModel);
+        // Save and send notification
+        NotificationModel savedNotification = notificationRepository.save(notificationModel);
 
-        System.out.println("Yes it worked");
-        System.out.println(notificationModel1);
-        notificationEmiterService.sendUserNotification(receiver, notificationModel);
+        System.out.println("✅ Dispatch creation notification saved.");
+        System.out.println(savedNotification);
+
+        notificationEmiterService.sendUserNotification(receiver, savedNotification);
 
     }
 
     public void handleValidatedDispatchNotif(UtilRecords.ValidatedDispatch dispatchValidatedEvent) {
+        String receiver = dispatchValidatedEvent.dispatchRequester();
+        if (receiver == null) {
+            System.err.println("❌ Validated dispatch requester is null, cannot send notification.");
+            return;
+        }
+
         NotificationModel notificationModel = new NotificationModel();
 
-        String message = "Your request for the " + dispatchValidatedEvent.vehicleName() + " has been validated " + "we believe you plan to use the vehicle for " + dispatchValidatedEvent.dispatchReason() + "\n Enjoy your dispatch!";
+        String message = "Your request for the " + dispatchValidatedEvent.vehicleName()
+                + " has been validated. We believe you plan to use the vehicle for "
+                + dispatchValidatedEvent.dispatchReason() + ".\nEnjoy your dispatch!";
+
+        // Set up the notification model
         notificationModel.setCreatedAt(LocalDateTime.now());
         notificationModel.setDescription("Dispatch Request Notification");
         notificationModel.setRead(false);
-        notificationModel.setReceiver(dispatchValidatedEvent.dispatchRequester());
+        notificationModel.setReceiver(receiver);
         notificationModel.setType(LogEnums.NotificationType.INFO);
         notificationModel.setMessage(message);
 
-        NotificationModel notificationModel1 = notificationRepository.save(notificationModel);
-        System.out.println("Yes it worked here for the validated shii");
-        System.out.println(notificationModel1);
+        // Save and send notification
+        NotificationModel savedNotification = notificationRepository.save(notificationModel);
 
-        notificationEmiterService.sendUserNotification(dispatchValidatedEvent.dispatchRequester(), notificationModel1);
+        System.out.println("✅ Validated dispatch notification saved.");
+        System.out.println(savedNotification);
+
+        notificationEmiterService.sendUserNotification(receiver, savedNotification);
 
     }
 }
