@@ -7,6 +7,7 @@ import com.example.VehicleService.Repositories.VehicleRepository;
 import com.example.VehicleService.Services.VehicleHealthService;
 import com.example.VehicleService.Services.VehicleService;
 import com.example.VehicleService.Utils.UtilRecords;
+import com.example.VehicleService.Utils.VehicleEnums;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +27,7 @@ public class RabbitMqReceiverService {
 
     private final String VEHICLE_QUEUE = "vehicle.service.created.dispatch.queue";
 
+    private final String DISPATCH_VALIDATED_FAN_OUT_QUEUE_VEHICLE = "dispatch.validated.queue.service.vehicle";
 
     private final Logger logger = LoggerFactory.getLogger(RabbitMqReceiverService.class);
     private final VehicleRepository vehicleRepository;
@@ -55,7 +57,8 @@ public class RabbitMqReceiverService {
             if (vehicle == null) {
                 throw new NotFoundException("Vehicle not found for dispatch ID: " + dispatchEvent.vehicleIdentificationNumber());
             }
-
+        vehicle.setDispatchStatus(VehicleEnums.VehicleDispatchStatus.PENDING);
+        vehicleRepository.save(vehicle);
          return vehicleHealthService.vehicleDispatchStatus(vehicle);
         } catch (Exception e) {
             logger.error("Error processing dispatch message: {}", e.getMessage());
@@ -75,4 +78,13 @@ public class RabbitMqReceiverService {
         }
     }
 
+    @RabbitListener(queues = DISPATCH_VALIDATED_FAN_OUT_QUEUE_VEHICLE)
+    public void
+    handleDispatchValidatedQueue(UtilRecords.ValidatedDispatch dispatchEvent) {
+        try {
+            vehicleService.handleValidatedDispatch(dispatchEvent);
+        } catch (Exception e) {
+            logger.error("Error processing dispatch message: {}", e.getMessage());
+        }
+    }
 }

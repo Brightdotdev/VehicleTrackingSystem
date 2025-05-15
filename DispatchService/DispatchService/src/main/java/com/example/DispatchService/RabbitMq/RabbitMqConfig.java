@@ -15,15 +15,48 @@ public class RabbitMqConfig {
 
     private final String CREATED_DISPATCH_FAN_OUT_QUEUE = "created.dispatch.log.queue";
 
+
     private final String DISPATCH_CREATED_FAN_OUT_EXCHANGE = "dispatch.created.fanOut";
     private final String DISPATCH_DIRECT_EXCHANGE = "dispatch.created.exchange";
 
+    private final String DISPATCH_VALIDATED_FAN_OUT_EXCHANGE = "dispatch.validated.fanOut";
+
+    private final String DISPATCH_VALIDATED_FAN_OUT_QUEUE_LOGS = "dispatch.validated.queue.service.logs";
+    private final String DISPATCH_VALIDATED_FAN_OUT_QUEUE_VEHICLE = "dispatch.validated.queue.service.vehicle";
 
 
     // direct exchange response to the vehicle service
     @Bean
     public DirectExchange dispatchDirectExchange() {
         return new DirectExchange(DISPATCH_DIRECT_EXCHANGE);
+    }
+
+
+
+    // fan-out exchange for  a validated dispatch event
+    @Bean
+    public FanoutExchange validatedDispatchFanOut() {
+        return new FanoutExchange(DISPATCH_VALIDATED_FAN_OUT_EXCHANGE);
+    }
+
+    @Bean
+    public Queue logValidatedQueue() {
+        return new Queue(DISPATCH_VALIDATED_FAN_OUT_QUEUE_LOGS);
+    }
+
+    @Bean
+    public Binding logValidatedBinding(Queue logValidatedQueue, FanoutExchange fanoutExchange) {
+        return BindingBuilder.bind(logValidatedQueue).to(fanoutExchange);
+    }
+
+    @Bean
+    public Queue vehicleValidatedQueue() {
+        return new Queue(DISPATCH_VALIDATED_FAN_OUT_QUEUE_VEHICLE);
+    }
+
+    @Bean
+    public Binding vehicleValidatedBinding(Queue vehicleValidatedQueue, FanoutExchange validatedDispatchFanOut) {
+        return BindingBuilder.bind(vehicleValidatedQueue).to(validatedDispatchFanOut);
     }
 
 

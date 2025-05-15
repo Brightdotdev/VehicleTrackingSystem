@@ -134,4 +134,25 @@ public class UtilRecords {
 
 
 
+    public record ValidatedDispatch(
+            @NotBlank(message = "the dispatch id is needed")
+            Long dispatchId,
+
+
+            @NotNull
+            String vehicleName,
+
+            @NotNull
+            LogEnums.DispatchReason dispatchReason,
+            @NotBlank(message = "Vehicle identification is needed")
+            String vehicleIdentificationNumber,
+
+            @NotBlank(message = "Who requested for the dispatch?? is needed")
+            String dispatchRequester,
+
+            @NotBlank(message = "Vehicle identification is needed")
+            String dispatchAdmin) {}
+
+
+
 }

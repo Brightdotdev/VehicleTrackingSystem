@@ -1,20 +1,28 @@
-server :
-  port : 8103
+server:
+  port: 8104
 
-spring:
+
+spring :
   application:
-    name: authService
-  datasource :
-    url : jdbc:mysql://localhost:3306/taskApplication?createDatabaseIfNotExist=true
-    username : root
-    password : bomboclat
-  jpa :
-    show-sql : true
-    hibernate :
-      ddl-auto : update
+    name: loggingService
+  autoconfigure :
+    exclude :
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+      - org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
+  data :
+    mongodb:
+      auto-index-creation : true
+      uri : mongodb://localhost:27017/logger?retryWrites=true&w=majority&appName=SpringApplication54
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: bright
+    password: secret123
+
+
 
 auth:
- jwt:
+  jwt:
     secret: 6715c78c9a1d53f358dafd68da12c40c95780b0d00486f9d725672b7bf95eea89d682826b22883dd592b45b6ee2f79d4d4372d0c136b2e6fb1935c04f7593d05
     expiration: 86400000
     issuer: auth-service
@@ -26,6 +34,8 @@ logging:
     com.rabbitmq: WARN
     org.springframework.security: DEBUG
     com.example.UserService: DEBUG
+
+
 
 
 resilience4j:

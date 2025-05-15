@@ -43,6 +43,7 @@ public class UserDispatchService {
     @Transactional
     public UtilRecords.DispatchResponseDTO requestVehicleDispatch(UtilRecords.dispatchRequestBody requestBody, String userName , List<String> userRole) {
 
+        DispatchModel dispatchFinalModel = new DispatchModel();
         Boolean canDispatch = false;
 
         List<DispatchModel> foundVehicleDispatches = dispatchRepository.findByDispatchVehicleId(requestBody.vehicleIdentificationNumber());
@@ -66,9 +67,7 @@ public class UserDispatchService {
             }
         }
 
-
         Map<String, Object> dispatchResult = (Map<String, Object>) rabbitMqSenderService.sendDispatchCreatedEvent(requestBody);
-
 
         if (dispatchResult.containsKey("canDispatch")) {
             canDispatch = (Boolean) dispatchResult.get("canDispatch");
@@ -77,15 +76,11 @@ public class UserDispatchService {
 
         UtilRecords.DispatchResponseDTO finalResponse = mapperService.dispatchResponseMapper(dispatchResult);
 
-//        if (canDispatch) {
-//            DispatchModel finalDispatchBody = getDispatchModel(requestBody, userName, userRole);
-//           dispatchRepository.save(finalDispatchBody);
-//        }
+        DispatchModel finalDispatchModel = getDispatchModel(finalResponse,userName,userRole,requestBody);
 
-        System.out.println("final Response: " +  finalResponse);
+        dispatchRepository.save(finalDispatchModel);
 
-        System.out.println("Dispatch Result: " +  dispatchResult);
-return finalResponse;
+        return finalResponse;
     }
 
 
@@ -163,10 +158,6 @@ return finalResponse;
                 Duration remainingTime = Duration.between(now, expiry);
 
                 // Add metadata to result list
-
-                dispatch.addToDispatchMetadata("DispatchRequester", dispatch.getDispatchRequester());
-                dispatch.addToDispatchMetadata("vehicleId", dispatch.getDispatchVehicleId());
-                dispatch.addToDispatchMetadata("status", dispatch.getDispatchStatus().name());
                 dispatch.addToDispatchMetadata("expiresInMinutes", remainingTime.toMinutes());
                 dispatch.addToDispatchMetadata("expiresInHours", remainingTime.toHours());
                 dispatchRepository.save(dispatch);
@@ -215,11 +206,7 @@ return finalResponse;
             Duration remainingTime = Duration.between(now, expiry);
 
             // Add metadata to result list
-
-            dispatch.addToDispatchMetadata("DispatchRequester", dispatch.getDispatchRequester());
-            dispatch.addToDispatchMetadata("vehicleId", dispatch.getDispatchVehicleId());
-            dispatch.addToDispatchMetadata("status", dispatch.getDispatchStatus().name());
-            dispatch.addToDispatchMetadata("expiresInMinutes", remainingTime.toMinutes());
+             dispatch.addToDispatchMetadata("expiresInMinutes", remainingTime.toMinutes());
             dispatch.addToDispatchMetadata("expiresInHours", remainingTime.toHours());
             dispatchRepository.save(dispatch);
         }
@@ -241,9 +228,11 @@ return finalResponse;
         }
 
         if(!dispatch.getDispatchRequester().equals(completedEvent.userName())){
+            System.out.println(completedEvent.userName());
+            System.out.println(dispatch.getDispatchRequester());
             throw new InvalidRequestException("Uhm how did this even happen", 400);
         }
-        dispatch.addToDispatchMetadata("dispatchApprovalStatus", "Your dispatch has been canceled");
+        dispatch.addToDispatchMetadata("dispatchCompleteStatus", "Your dispatch has been completed");
         dispatch.setDispatchStatus(DispatchEnums.DispatchStatus.COMPLETED);
         dispatch.setDispatchEndTime(completedEvent.endTime());
         return dispatchRepository.save(dispatch);
@@ -268,25 +257,31 @@ return finalResponse;
 
     /** Util static methods  (im too lazy to create a file for it) **/
 
-    private static DispatchModel getDispatchModel(UtilRecords.dispatchRequestBody requestBody, String userName, List<String> userRole) {
+    private static DispatchModel getDispatchModel(
+    UtilRecords.DispatchResponseDTO requestBody,
+    String userName, List<String> roles,
+    UtilRecords.dispatchRequestBody dispatchRequestBody) {
+
         DispatchModel finalDispatchBody = new DispatchModel();
-        finalDispatchBody.setDispatchVehicleId(requestBody.vehicleIdentificationNumber());
-        finalDispatchBody.setDispatchRequesterRole(userRole);
+        finalDispatchBody.setDispatchVehicleId(dispatchRequestBody.vehicleIdentificationNumber());
+        finalDispatchBody.setDispatchRequesterRole(roles);
         finalDispatchBody.setDispatchRequester(userName);
-        finalDispatchBody.setDispatchReason(requestBody.dispatchReason());
+        finalDispatchBody.setDispatchReason(dispatchRequestBody.dispatchReason());
         finalDispatchBody.setDispatchStatus(DispatchEnums.DispatchStatus.PENDING);
         finalDispatchBody.setDispatchRequestTime(LocalDateTime.now());
-        finalDispatchBody.setVehicleClass(requestBody.vehicleClass());
-        finalDispatchBody.setDispatchEndTime(requestBody.dispatchEndTime());
+        finalDispatchBody.setVehicleClass(dispatchRequestBody.vehicleClass());
+        finalDispatchBody.setDispatchEndTime(dispatchRequestBody.dispatchEndTime());
+        finalDispatchBody.setVehicleName(dispatchRequestBody.vehicleName());
+        finalDispatchBody.setCanDispatch(requestBody.canDispatch());
+        finalDispatchBody.setHealthAttributes(requestBody.healthAttributes());
+        finalDispatchBody.setWildCards(requestBody.wildCards());
+        finalDispatchBody.setSafetyScore(requestBody.safetyScore());
         return finalDispatchBody;
     }
 
 
 
     private static boolean isStillValidDispatch(DispatchModel dispatch) {
-        if(!dispatch.getDispatchAdmin().isEmpty()){
-        throw  new ConflictException("This dispatch is already tracked by another admin");}
-
         if(dispatch.getDispatchStatus() == DispatchEnums.DispatchStatus.EXPIRED ){
         throw new NotFoundException("Dispatch not found in staging must be expired");
         }

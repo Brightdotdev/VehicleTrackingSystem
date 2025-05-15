@@ -55,7 +55,7 @@ public class VehicleModel {
 
 
     @ElementCollection
-    private List<String> dispatchHistory;
+    private List<Long> dispatchHistory;
 
     @ElementCollection
     private List<String> vehicleImages;
@@ -80,7 +80,7 @@ public class VehicleModel {
     public VehicleModel() {
     }
 
-    public VehicleModel(Long id, String vehicleIdentificationNumber, String licensePlate, String model, int vehicleAcquiredYear, VehicleEnums.EngineType engineType, VehicleEnums.VehicleType vehicleType, VehicleEnums.VehicleStatus vehicleStatus, VehicleEnums.VehicleDispatchStatus dispatchStatus, List<String> dispatchHistory, List<String> vehicleImages, Double safetyScore, String vehicleMetadata, List<VehicleHealthAttributeModel> healthAttributes,
+    public VehicleModel(Long id, String vehicleIdentificationNumber, String licensePlate, String model, int vehicleAcquiredYear, VehicleEnums.EngineType engineType, VehicleEnums.VehicleType vehicleType, VehicleEnums.VehicleStatus vehicleStatus, VehicleEnums.VehicleDispatchStatus dispatchStatus, List<Long> dispatchHistory, List<String> vehicleImages, Double safetyScore, String vehicleMetadata, List<VehicleHealthAttributeModel> healthAttributes,
                         List<VehicleWildcardAttributeModel> wildcardAttributes
     ) {
         this.id = id;
@@ -173,13 +173,30 @@ public class VehicleModel {
         this.dispatchStatus = dispatchStatus;
     }
 
+    public void addDispatchHistoryEntry(Long entry) {
+        this.dispatchHistory.add(entry);
+    }
 
+    // Add multiple entries to dispatchHistory
+    public void addDispatchHistoryEntries(List<Long> entries) {
+        this.dispatchHistory.addAll(entries);
+    }
 
-    public List<String> getDispatchHistory() {
+    // Add a single vehicle image without overwriting the list
+    public void addVehicleImage(String image) {
+        this.vehicleImages.add(image);
+    }
+
+    // Add multiple vehicle images
+    public void addVehicleImages(List<String> images) {
+        this.vehicleImages.addAll(images);
+    }
+
+    public List<Long> getDispatchHistory() {
         return dispatchHistory;
     }
 
-    public void setDispatchHistory(List<String> dispatchHistory) {
+    public void setDispatchHistory(List<Long> dispatchHistory) {
         this.dispatchHistory = dispatchHistory;
     }
 

@@ -5,6 +5,7 @@ import com.example.DispatchService.Exceptions.ConflictException;
 import com.example.DispatchService.Exceptions.InvalidRequestException;
 import com.example.DispatchService.Exceptions.NotFoundException;
 import com.example.DispatchService.Models.DispatchModel;
+import com.example.DispatchService.RabbitMq.RabbitMqSenderService;
 import com.example.DispatchService.Repositories.DispatchRepository;
 import com.example.DispatchService.Utils.DispatchEnums;
 import com.example.DispatchService.Utils.UtilRecords;
@@ -22,8 +23,11 @@ import java.util.Map;
 public class AdminDispatchService {
     private final DispatchRepository dispatchRepository;
 
-    public AdminDispatchService(DispatchRepository dispatchRepository) {
+    private final RabbitMqSenderService rabbitMqSenderService;
+
+    public AdminDispatchService(DispatchRepository dispatchRepository, RabbitMqSenderService rabbitMqSenderService) {
         this.dispatchRepository = dispatchRepository;
+        this.rabbitMqSenderService = rabbitMqSenderService;
     }
 
 
@@ -31,7 +35,7 @@ public class AdminDispatchService {
     /**  admin validating a dispatch  **/
 
     @Transactional
-    public DispatchModel validateDispatch(String userName , List<String> userRole, int dispatchId){
+    public DispatchModel validateDispatch(String adminEmail , List<String> userRole, Long dispatchId){
 
         if(userRole.isEmpty()){
             throw new InvalidRequestException("No user role provided", 400);}
@@ -46,9 +50,14 @@ public class AdminDispatchService {
             return null;
         }
 
-        dispatch.setDispatchAdmin(userName);
+        dispatch.setDispatchAdmin(adminEmail);
         dispatch.setDispatchStatus(DispatchEnums.DispatchStatus.IN_PROGRESS);
         dispatch.setDispatchRequestApproveTime(LocalDateTime.now());
+
+        UtilRecords.ValidatedDispatch dispatchValidatedBroadcast = new UtilRecords.ValidatedDispatch(dispatch.getDispatchId(), dispatch.getVehicleName(), dispatch.getDispatchReason(),dispatch.getDispatchVehicleId(),dispatch.getDispatchRequester(),dispatch.getDispatchAdmin());
+
+        rabbitMqSenderService.sendDispatchValidatedNoResponse(dispatchValidatedBroadcast);
+
         return dispatchRepository.save(dispatch);
     }
 
@@ -58,7 +67,7 @@ public class AdminDispatchService {
     /**  canceling a dispatch (admin) **/
 
     @Transactional
-    public DispatchModel cancelDispatch(String userName ,List<String> userRole, int dispatchId, String dispatchCancelReason){
+    public DispatchModel cancelDispatch(String adminEmail ,List<String> userRole, Long dispatchId, String dispatchCancelReason){
 
         if(userRole.isEmpty()){
             throw new InvalidRequestException("No user role provided", 400);}
@@ -76,7 +85,7 @@ public class AdminDispatchService {
         }
 
         dispatch.addToDispatchMetadata("dispatchApprovalStatus", dispatchCancelReason);
-        dispatch.setDispatchAdmin(userName);
+        dispatch.setDispatchAdmin(adminEmail);
         dispatch.setDispatchStatus(DispatchEnums.DispatchStatus.CANCELLED);
         dispatch.setDispatchRequestApproveTime(LocalDateTime.now());
         return dispatchRepository.save(dispatch);
@@ -146,11 +155,11 @@ public class AdminDispatchService {
 
     /** Util static methods  (im too lazy to create a file for it) **/
 
-    private static DispatchModel getDispatchModel(UtilRecords.dispatchRequestBody requestBody, String userName, List<String> userRole) {
+    private static DispatchModel getDispatchModel(UtilRecords.dispatchRequestBody requestBody, String adminEmail, List<String> userRole) {
         DispatchModel finalDispatchBody = new DispatchModel();
         finalDispatchBody.setDispatchVehicleId(requestBody.vehicleIdentificationNumber());
         finalDispatchBody.setDispatchRequesterRole(userRole);
-        finalDispatchBody.setDispatchRequester(userName);
+        finalDispatchBody.setDispatchRequester(adminEmail);
         finalDispatchBody.setDispatchReason(requestBody.dispatchReason());
         finalDispatchBody.setDispatchStatus(DispatchEnums.DispatchStatus.PENDING);
         finalDispatchBody.setVehicleClass(requestBody.vehicleClass());

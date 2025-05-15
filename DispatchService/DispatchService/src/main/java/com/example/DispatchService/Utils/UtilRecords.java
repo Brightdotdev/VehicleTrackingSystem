@@ -18,21 +18,26 @@ public class UtilRecords {
 
 
 
-    public record UserLocalSignUp(
-            @NotBlank(message = "Name is required")
-            String name,
 
-            @NotBlank(message = "Email is required for sign up")
-            @Email(message = "Email should be valid")
-            String email,
+    public record ValidatedDispatch(
+            @NotBlank(message = "the dispatch id is needed")
+            Long dispatchId,
 
 
-            List<String> roles,
+            @NotNull
+            String vehicleName,
 
-            @NotBlank(message = "Password is required for sign up")
-            @Size(min = 6, message = "Password must be at least 6 characters")
-            String password
-    ) {}
+            @NotNull
+            DispatchEnums.DispatchReason dispatchReason,
+            @NotBlank(message = "Vehicle identification is needed")
+            String vehicleIdentificationNumber,
+
+            @NotBlank(message = "Who requested for the dispatch?? is needed")
+            String dispatchRequester,
+
+            @NotBlank(message = "Vehicle identification is needed")
+            String dispatchAdmin) {}
+
 
 
 
@@ -53,6 +58,8 @@ public class UtilRecords {
 
 public record dispatchRequestBody(
 
+        @NotNull
+        String vehicleName,
     @NotNull(message = "Uhm what type of vehicle is being dispatched")
     String vehicleIdentificationNumber,
 

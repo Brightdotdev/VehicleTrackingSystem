@@ -1,5 +1,6 @@
 package com.example.VehicleService.Services;
 
+import com.example.VehicleService.Exceptions.ConflictException;
 import com.example.VehicleService.Exceptions.NotFoundException;
 import com.example.VehicleService.Models.VehicleHealthAttributeModel;
 import com.example.VehicleService.Models.VehicleModel;
@@ -170,6 +171,24 @@ public class VehicleService {
             throw new NotFoundException("The vehicle doesn't even exist boss");
         }
         dispatchedVehicle.setDispatchStatus(VehicleEnums.VehicleDispatchStatus.COMPLETED);
+    }
+
+
+    public void handleValidatedDispatch(UtilRecords.ValidatedDispatch dispatchEvent) {
+
+        VehicleModel dispatchedVehicle = vehicleRepository.
+        findByVehicleIdentificationNumber(dispatchEvent.vehicleIdentificationNumber());
+
+        if (dispatchedVehicle == null){
+            throw new NotFoundException("The vehicle doesn't even exist boss");
+        }
+        if(dispatchedVehicle.getDispatchStatus() != VehicleEnums.VehicleDispatchStatus.PENDING){
+            throw new ConflictException("The vehicle is not staged for dispatch");
+        }
+        dispatchedVehicle.addDispatchHistoryEntry(dispatchEvent.dispatchId());
+        dispatchedVehicle.setDispatchStatus(VehicleEnums.VehicleDispatchStatus.IN_PROGRESS);
+        vehicleRepository.save(dispatchedVehicle);
+        System.out.println("Were good here too");
     }
 }
 

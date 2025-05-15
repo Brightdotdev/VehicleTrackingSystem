@@ -1,6 +1,8 @@
 package com.example.DispatchService.Models;
 
 import com.example.DispatchService.Utils.DispatchEnums;
+import com.example.DispatchService.Utils.ListMapStringBooleanConverter;
+import com.example.DispatchService.Utils.ListMapStringDoubleConverter;
 import com.example.DispatchService.Utils.MapToJsonConverter;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -73,10 +75,31 @@ public class DispatchModel {
 
     private Double dispatchReviewScore;
 
+
+    private String vehicleName;
+
+    @Convert(converter = ListMapStringBooleanConverter.class)
+    @Column(columnDefinition = "TEXT")
+    List<Map<String, Boolean>> wildCards;
+
+    @Convert(converter = ListMapStringDoubleConverter.class)
+    @Column(columnDefinition = "TEXT")
+    List<Map<String, Double>> healthAttributes;
+    Double safetyScore;
+
+    Boolean canDispatch;
+
+    public void addToDispatchMetadata(String key, Object value) {
+        if (this.dispatchMetadata == null) {
+            this.dispatchMetadata = new HashMap<>();
+        }
+        this.dispatchMetadata.put(key, value);
+    }
+
     public DispatchModel() {
     }
 
-    public DispatchModel(Long dispatchId, String dispatchRequester, String dispatchAdmin, String dispatchVehicleId, List<String> dispatchRequesterRole, DispatchEnums.VehicleStatus vehicleClass, LocalDateTime dispatchRequestTime, LocalDateTime dispatchRequestApproveTime, LocalDateTime dispatchStartTime, LocalDateTime dispatchEndTime, DispatchEnums.DispatchReason dispatchReason, DispatchEnums.DispatchStatus dispatchStatus, Map<String, Object> dispatchMetadata, Double dispatchReviewScore) {
+    public DispatchModel(Long dispatchId, String dispatchRequester, String dispatchAdmin, String dispatchVehicleId, List<String> dispatchRequesterRole, DispatchEnums.VehicleStatus vehicleClass, LocalDateTime dispatchRequestTime, LocalDateTime dispatchRequestApproveTime, LocalDateTime dispatchStartTime, LocalDateTime dispatchEndTime, DispatchEnums.DispatchReason dispatchReason, DispatchEnums.DispatchStatus dispatchStatus, Map<String, Object> dispatchMetadata, Double dispatchReviewScore, String vehicleName, List<Map<String, Boolean>> wildCards, List<Map<String, Double>> healthAttributes, Double safetyScore, Boolean canDispatch) {
         this.dispatchId = dispatchId;
         this.dispatchRequester = dispatchRequester;
         this.dispatchAdmin = dispatchAdmin;
@@ -91,13 +114,13 @@ public class DispatchModel {
         this.dispatchStatus = dispatchStatus;
         this.dispatchMetadata = dispatchMetadata;
         this.dispatchReviewScore = dispatchReviewScore;
+        this.vehicleName = vehicleName;
+        this.wildCards = wildCards;
+        this.healthAttributes = healthAttributes;
+        this.safetyScore = safetyScore;
+        this.canDispatch = canDispatch;
     }
-    public void addToDispatchMetadata(String key, Object value) {
-        if (this.dispatchMetadata == null) {
-            this.dispatchMetadata = new HashMap<>();
-        }
-        this.dispatchMetadata.put(key, value);
-    }
+
     public Long getDispatchId() {
         return dispatchId;
     }
@@ -208,5 +231,45 @@ public class DispatchModel {
 
     public void setDispatchReviewScore(Double dispatchReviewScore) {
         this.dispatchReviewScore = dispatchReviewScore;
+    }
+
+    public String getVehicleName() {
+        return vehicleName;
+    }
+
+    public void setVehicleName(String vehicleName) {
+        this.vehicleName = vehicleName;
+    }
+
+    public List<Map<String, Boolean>> getWildCards() {
+        return wildCards;
+    }
+
+    public void setWildCards(List<Map<String, Boolean>> wildCards) {
+        this.wildCards = wildCards;
+    }
+
+    public List<Map<String, Double>> getHealthAttributes() {
+        return healthAttributes;
+    }
+
+    public void setHealthAttributes(List<Map<String, Double>> healthAttributes) {
+        this.healthAttributes = healthAttributes;
+    }
+
+    public Double getSafetyScore() {
+        return safetyScore;
+    }
+
+    public void setSafetyScore(Double safetyScore) {
+        this.safetyScore = safetyScore;
+    }
+
+    public Boolean getCanDispatch() {
+        return canDispatch;
+    }
+
+    public void setCanDispatch(Boolean canDispatch) {
+        this.canDispatch = canDispatch;
     }
 }

@@ -18,8 +18,7 @@ spring:
     port: 5672
     username: bright
     password: secret123
-  jackson:
-    trusted-packages: com.example.DispatchService.RabbitMq
+
 
 resilience4j:
   circuitbreaker:

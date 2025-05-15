@@ -4,6 +4,7 @@ package com.example.VehicleService.Services;
 import com.example.VehicleService.Models.VehicleHealthAttributeModel;
 import com.example.VehicleService.Models.VehicleModel;
 import com.example.VehicleService.Models.VehicleWildcardAttributeModel;
+import com.example.VehicleService.Repositories.VehicleRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,6 +15,8 @@ import java.util.Map;
 
 @Service
 public class VehicleHealthService {
+
+
 
     @Transactional
     public Map<String, Object> vehicleDispatchStatus(VehicleModel vehicle) {

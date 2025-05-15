@@ -9,25 +9,3 @@ public class LoggingTrackingServiceApplication {
 
 	}
 }
-
-// Folder structure:
-// com.tracker.loggingtrackingservice
-// ├── client
-// │   ├── VehicleClient.java
-// │   └── DispatchClient.java
-// ├── controller
-// │   └── TrackingController.java
-// ├── dto
-// │   ├── DispatchInfo.java
-// │   ├── VehicleInfo.java
-// │   └── TrackingLogDTO.java
-// ├── entity
-// │   └── TrackingLog.java
-// ├── repository
-// │   └── TrackingLogRepository.java
-// ├── service
-// │   ├── TrackingService.java
-// │   └── impl
-// │       └── TrackingServiceImpl.java
-// ├── security
-// │   └── WebSecurityConfig.java

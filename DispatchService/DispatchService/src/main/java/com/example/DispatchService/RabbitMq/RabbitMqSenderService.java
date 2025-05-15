@@ -15,6 +15,8 @@ public class RabbitMqSenderService {
     private final String DISPATCH_DIRECT_EXCHANGE = "dispatch.created.exchange";
     private final String DISPATCH_CREATED_FAN_OUT_EXCHANGE = "dispatch.created.fanOut";
 
+    private final String DISPATCH_VALIDATED_FAN_OUT_EXCHANGE = "dispatch.validated.fanOut";
+
     private final String VEHICLE_BIDING_KEY = "dispatch.created.key";
 
 
@@ -65,5 +67,20 @@ public class RabbitMqSenderService {
             logger.error("Failed to send dispatch created event: {}", e.getMessage());
             throw new RuntimeException("Failed to send dispatch created event", e);
         }
+    }
+
+    public void sendDispatchValidatedNoResponse(UtilRecords.ValidatedDispatch dispatchValidatedBroadcast) {
+        try {
+
+            rabbitTemplate.convertAndSend(
+                    DISPATCH_VALIDATED_FAN_OUT_EXCHANGE,
+                    "",
+                    dispatchValidatedBroadcast
+            );
+        } catch (Exception e) {
+            logger.error("Failed to send dispatch VALIDATED event: {}", e.getMessage());
+            throw new RuntimeException("Failed to send dispatch created event", e);
+        }
+
     }
 }
