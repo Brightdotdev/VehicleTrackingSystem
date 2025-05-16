@@ -7,16 +7,12 @@ import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.HashMap;
-import java.util.Map;
-
-
 @Configuration
 public class RabbitConfig {
 
     private final String VEHICLE_QUEUE = "vehicle.service.created.dispatch.queue";
     private final String DISPATCH_DIRECT_EXCHANGE = "dispatch.created.exchange";
-    private final String VEHICLE_BIDING_KEY = "dispatch.created.key";
+    private final String VEHICLE_BINDING_KEY = "dispatch.created.key";
 
     @Bean
     public Queue vehicleDispatchQueue() {
@@ -28,19 +24,17 @@ public class RabbitConfig {
         return new DirectExchange(DISPATCH_DIRECT_EXCHANGE);
     }
 
-
-    // Bind queue to exchange with routing key
     @Bean
-    public Binding dispatchBinding(Queue vehicleDispatchQueue, DirectExchange dispatchDirectExchange) {
-        return BindingBuilder.bind(vehicleDispatchQueue)
-                .to(dispatchDirectExchange)
-                .with(VEHICLE_BIDING_KEY);
+    public Binding dispatchBinding() {
+        return BindingBuilder.bind(vehicleDispatchQueue())
+                .to(dispatchDirectExchange())
+                .with(VEHICLE_BINDING_KEY);
     }
+
     @Bean
     public Jackson2JsonMessageConverter jackson2JsonMessageConverter() {
         return new Jackson2JsonMessageConverter();
     }
-
 
     @Bean
     public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory) {
@@ -48,5 +42,4 @@ public class RabbitConfig {
         template.setMessageConverter(jackson2JsonMessageConverter());
         return template;
     }
-
 }

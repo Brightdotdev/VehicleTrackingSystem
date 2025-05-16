@@ -14,6 +14,24 @@ import java.util.Map;
 @Service
 public class UtilRecords {
 
+    public record DispatchEndedDTO(
+
+            Boolean wasCancelled,
+            @NotBlank(message = "Timestamp is required")
+            LocalDateTime timeStamp,
+            @NotBlank(message = "VIN is required")
+            String vehicleIdentificationNumber,
+
+            @NotBlank(message = "VIN is required")
+            String receiver,
+
+            @NotBlank(message = "VIN is required")
+            String vehicleName,
+            Long dispatchId) {}
+
+
+
+
     public record DispatchCompletedEvent(
 
             @NotBlank(message = "VIN is required")
@@ -24,9 +42,11 @@ public class UtilRecords {
             LocalDateTime endTime
     ) {}
 
-    public record checkPoint(
+    public record CheckPoint(
             @NotNull(message = "Where was the checkpoint set")
-            String location,
+            String latitude,
+            @NotNull(message = "Where was the checkpoint set")
+            String longitude,
             @NotNull(message = "When was the checkpoint check pointed")
             LocalDateTime timeStamp
             ){}
@@ -71,17 +91,18 @@ public class UtilRecords {
 
             LogEnums.DispatchReason dispatchReason,
 
-            List<UtilRecords.checkPoint> checkpoints,
-            UtilRecords.checkPoint currentLocation,
+            List<UtilRecords.CheckPoint> checkpoints,
+            UtilRecords.CheckPoint currentLocation,
             LogEnums.DispatchStatus dispatchStatus,
             LocalDateTime dispatchEndTime,
             LocalDateTime createdAt
     ){}
 
 
+    public record dispatchRequestBodyDTO(
 
-    public record dispatchRequestBody(
-
+            @NotNull
+            String vehicleName,
             @NotNull(message = "Uhm what type of vehicle is being dispatched")
             String vehicleIdentificationNumber,
 
@@ -99,6 +120,7 @@ public class UtilRecords {
             LocalDateTime dispatchEndTime
 
     ){}
+
 
 
 

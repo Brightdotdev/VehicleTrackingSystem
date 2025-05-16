@@ -27,7 +27,16 @@ public class TrackingService {
 
     }
 
-    private TrackingModel validateAndCompleteIfNeeded(TrackingModel model) {
+    public TrackingModel revalidateTracking(Long dispatchId, UtilRecords.CheckPoint checkPoint) {
+
+        Optional<TrackingModel> trackingModel = trackingRepository.findByDispatchId(dispatchId);
+
+        if (trackingModel.isEmpty()) {
+            throw new NotFoundException("Tracking record not found");
+        }
+        TrackingModel model = trackingModel.get();
+
+
         if (model.getDispatchEndTime() != null &&
                 LocalDateTime.now().isAfter(model.getDispatchEndTime())) {
 
@@ -35,74 +44,42 @@ public class TrackingService {
             model.setEndedAt(LocalDateTime.now());
 
             trackingRepository.save(model);
-
-            UtilRecords.DispatchCompletedEvent completedEvent = new UtilRecords
-                    .DispatchCompletedEvent(
-                    model.getVehicleIdentificationNumber(),
-                    model.getDispatchRequester(),
-                    model.getDispatchId(),
-                    LocalDateTime.now()
+            UtilRecords.DispatchEndedDTO completedEvent = new UtilRecords.DispatchEndedDTO(
+                    false,LocalDateTime.now(), model.getVehicleIdentificationNumber(), model.getDispatchRequester(), model.getVehicleName(), model.getDispatchId()
             );
-
             rabbitMqSenderService.sendCompletedDispatchFanOut(completedEvent);
         }
+        model.addToCheckPoint(model.getCurrentLocation());
+        model.setCurrentLocation(checkPoint);
         return model;
     }
 
-    public TrackingModel revalidateTracking(String dispatchId) {
-        Optional<TrackingModel> trackingModel = trackingRepository.findByDispatchId(dispatchId);
+
+    public TrackingModel startTracking(Long dispatchId, UtilRecords.ValidatedDispatch validatedDispatch, UtilRecords.CheckPoint checkPoint) {
+       TrackingModel trackingModel = new TrackingModel();
+       trackingModel.setDispatchStatus(LogEnums.DispatchStatus.IN_PROGRESS);
+       trackingModel.setCurrentLocation(checkPoint);
+       trackingModel.setDispatchedBy(validatedDispatch.dispatchAdmin());
+       trackingModel.setVehicleIdentificationNumber(validatedDispatch.vehicleIdentificationNumber());
+       trackingModel.setDispatchRequester(validatedDispatch.dispatchRequester());
+       trackingModel.setVehicleName(validatedDispatch.vehicleName());
+        return trackingModel;
+    }
+
+    public void stopTracking(UtilRecords.DispatchEndedDTO dispatchEvent) {
+        Optional<TrackingModel> trackingModel = trackingRepository.findByDispatchId(dispatchEvent.dispatchId());
 
         if (trackingModel.isEmpty()) {
             throw new NotFoundException("Tracking record not found");
         }
 
         TrackingModel model = trackingModel.get();
-
-
-        if (model.getDispatchEndTime() != null &&
-                LocalDateTime.now().isAfter(model.getDispatchEndTime())) {
-
-            model.setDispatchStatus(LogEnums.DispatchStatus.COMPLETED);
-            model.setEndedAt(LocalDateTime.now());
-
-            trackingRepository.save(model);
-            UtilRecords.DispatchCompletedEvent completedEvent = new UtilRecords
-
-            .DispatchCompletedEvent(model.getVehicleIdentificationNumber(),model.getDispatchRequester(),model.getDispatchId(),LocalDateTime.now());
-
-
-            rabbitMqSenderService.sendCompletedDispatchFanOut(completedEvent);
+        if(dispatchEvent.wasCancelled()){
+            model.setDispatchStatus(LogEnums.DispatchStatus.CANCELLED);
         }
-
-        return model;
-    }
-
-
-    public TrackingModel startTracking(String dispatchId) {
-        Optional<TrackingModel> trackingModel = trackingRepository.findByDispatchId(dispatchId);
-
-        if (trackingModel.isEmpty()) {
-            throw new NotFoundException("Tracking record not found");
-        }
-
-        TrackingModel model = trackingModel.get();
-
-
-        if (model.getDispatchEndTime() != null &&
-                LocalDateTime.now().isAfter(model.getDispatchEndTime())) {
-
-            model.setDispatchStatus(LogEnums.DispatchStatus.COMPLETED);
-            model.setEndedAt(LocalDateTime.now());
-
-            trackingRepository.save(model);
-            UtilRecords.DispatchCompletedEvent completedEvent = new UtilRecords
-
-                    .DispatchCompletedEvent(model.getVehicleIdentificationNumber(),model.getDispatchRequester(),model.getDispatchId(),LocalDateTime.now());
-
-
-            rabbitMqSenderService.sendCompletedDispatchFanOut(completedEvent);
-        }
-
-        return model;
+        model.setDispatchStatus(LogEnums.DispatchStatus.COMPLETED);
+        model.setEndedAt(LocalDateTime.now());
+       trackingRepository.save(model);
+        System.out.println("yup it's successfully cancelled");
     }
 }

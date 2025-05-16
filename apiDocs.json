@@ -1,0 +1,99 @@
+{
+  "info": {
+    "name": "Vehicle Tracking API",
+    "_postman_id": "abc123-vehicle-api",
+    "description": "API for user registration, vehicle management, and dispatch handling",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Register New User",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"bright@example.com\",\n  \"userImage\": \"https://example.com/images/bright.png\",\n  \"provider\": \"LOCAL_USER\",\n  \"roles\": [\"ROLE_USER\", \"ROLE_ADMIN\"],\n  \"password\": \"securePassword123!\",\n  \"isValidated\": true,\n  \"name\": \"Bright\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8102/v1/auth/new-user/join-us",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8102",
+          "path": ["v1", "auth", "new-user", "join-us"]
+        }
+      }
+    },
+    {
+      "name": "Create Vehicle (Admin)",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"model\": \"Tesla Model S\",\n  \"engineType\": \"DIESEL\",\n  \"vehicleType\": \"SEDAN\",\n  \"vehicleStatus\": \"CLASSIFIED\",\n  \"vehicleMetadata\": \"Fully autonomous vehicle, includes autopilot features.\",\n  \"vehicleImages\": [\n    \"https://example.com/images/tesla_model_s_1.jpg\",\n    \"https://example.com/images/tesla_model_s_2.jpg\",\n    \"https://example.com/images/tesla_model_s_3.jpg\"\n  ]\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8102/v1/admin/vehicle",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8102",
+          "path": ["v1", "admin", "vehicle"]
+        }
+      }
+    },
+    {
+      "name": "Request Dispatch (User)",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"vehicleIdentificationNumber\": \"R7ZGTNP2VK3CT8FNN\",\n  \"vehicleName\": \"Tesla Model S\",\n  \"vehicleClass\": \"TRANSPORT\",\n  \"dispatchReason\": \"DELIVERY\",\n  \"dispatchEndTime\": \"2025-05-10T15:30:00\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8102/v1/user/dispatch/request-dispatch",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8102",
+          "path": ["v1", "user", "dispatch", "request-dispatch"]
+        }
+      }
+    },
+    {
+      "name": "Validate Dispatch (Admin)",
+      "request": {
+        "method": "PUT",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8102/v1/admin/dispatch/validate?dispatchId=2",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8102",
+          "path": ["v1", "admin", "dispatch", "validate"],
+          "query": [
+            {
+              "key": "dispatchId",
+              "value": "2"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -162,16 +162,6 @@ public class VehicleService {
 
 
 
-    @Transactional
-    public void completeDispatch(UtilRecords.DispatchCompletedEvent dispatchEvent) {
-        VehicleModel dispatchedVehicle = vehicleRepository.
-                findByVehicleIdentificationNumber(dispatchEvent.vehicleIdentificationNumber());
-
-        if (dispatchedVehicle == null){
-            throw new NotFoundException("The vehicle doesn't even exist boss");
-        }
-        dispatchedVehicle.setDispatchStatus(VehicleEnums.VehicleDispatchStatus.COMPLETED);
-    }
 
 
     @Transactional
@@ -190,6 +180,30 @@ public class VehicleService {
         dispatchedVehicle.setDispatchStatus(VehicleEnums.VehicleDispatchStatus.IN_PROGRESS);
         vehicleRepository.save(dispatchedVehicle);
         System.out.println("Were good here too");
+    }
+
+    public void completedDispatch(UtilRecords.DispatchEndedDTO dispatchEvent) {
+
+        VehicleModel dispatchedVehicle = vehicleRepository.
+                findByVehicleIdentificationNumber(dispatchEvent.vehicleIdentificationNumber());
+
+        if (dispatchedVehicle == null){
+            throw new NotFoundException("The vehicle doesn't even exist boss");
+        }
+        if(
+                dispatchedVehicle.getDispatchStatus() != VehicleEnums.VehicleDispatchStatus.IN_PROGRESS
+        ||
+                        dispatchedVehicle.getDispatchStatus() != VehicleEnums.VehicleDispatchStatus.PENDING
+        ){
+            throw new ConflictException("The vehicle is not staged for dispatch");
+        }
+            if(!dispatchedVehicle.getDispatchHistory().contains(dispatchEvent.dispatchId())){
+                dispatchedVehicle.addDispatchHistoryEntry(dispatchEvent.dispatchId());
+            }
+
+        dispatchedVehicle.setDispatchStatus(VehicleEnums.VehicleDispatchStatus.AVAILABLE);
+        vehicleRepository.save(dispatchedVehicle);
+        System.out.println("Were good here too Yayyy");
     }
 }
 

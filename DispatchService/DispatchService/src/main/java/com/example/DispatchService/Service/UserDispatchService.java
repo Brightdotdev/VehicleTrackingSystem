@@ -69,16 +69,20 @@ public class UserDispatchService {
             }
         }
 
-        Map<String, Object> dispatchResult = (Map<String, Object>) rabbitMqSenderService.sendDispatchCreatedEvent(requestBody);
+        UtilRecords.dispatchRequestBodyDTO requestBodyDTO
+                = new UtilRecords.dispatchRequestBodyDTO(requestBody.vehicleName(),requestBody.vehicleIdentificationNumber(),requestBody.vehicleClass(),requestBody.dispatchReason(),userName,requestBody.dispatchEndTime());
+
+        Map<String, Object> dispatchResult = (Map<String, Object>) rabbitMqSenderService.sendDispatchCreatedEvent(requestBodyDTO);
 
         if (dispatchResult.containsKey("canDispatch")) {
             canDispatch = (Boolean) dispatchResult.get("canDispatch");
         }
-        rabbitMqSenderService.sendDispatchCreatedEventNoResponse(requestBody);
+
 
         UtilRecords.DispatchResponseDTO finalResponse = mapperService.dispatchResponseMapper(dispatchResult);
 
         DispatchModel finalDispatchModel = getDispatchModel(finalResponse,userName,userRole,requestBody);
+        rabbitMqSenderService.sendDispatchCreatedEventNoResponse(requestBodyDTO);
 
         dispatchRepository.save(finalDispatchModel);
 
@@ -106,9 +110,12 @@ public class UserDispatchService {
             throw new InvalidRequestException("An external user cannot cancel another user's dispatch", 400);
         }
 
-        dispatch.addToDispatchMetadata("dispatchApprovalStatus", "Your dispatch has been canceled");
+        dispatch.addToDispatchMetadata("dispatchStatus", "Your dispatch has been canceled");
         dispatch.setDispatchStatus(DispatchEnums.DispatchStatus.CANCELLED);
         dispatch.setDispatchRequestApproveTime(LocalDateTime.now());
+        UtilRecords.DispatchEndedDTO dispatchEnded = new UtilRecords.DispatchEndedDTO(true,LocalDateTime.now(),dispatch.getDispatchVehicleId(),userName,dispatch.getVehicleName(),dispatchId);
+
+        rabbitMqSenderService.sendDispatchCanceledOrCompletedEventNoResponse(dispatchEnded);
         return dispatchRepository.save(dispatch);
     }
 

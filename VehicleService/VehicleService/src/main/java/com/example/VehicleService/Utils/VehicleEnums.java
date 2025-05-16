@@ -31,9 +31,6 @@ public class VehicleEnums {
         IN_TRANSIT,
         PENDING,
         IN_PROGRESS,
-        EXPIRED,
-        CANCELLED,
-        COMPLETED,
         AVAILABLE
     }
 

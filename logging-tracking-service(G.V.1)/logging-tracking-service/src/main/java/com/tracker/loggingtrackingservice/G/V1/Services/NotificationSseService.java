@@ -47,6 +47,17 @@ public class NotificationSseService {
         }
     }
 
+    public void sendUserDispatchNotification(String email, Object notificationData) {
+        SseEmitter emitter = emitters.get(email);
+        if (emitter != null) {
+            try {
+                emitter.send(SseEmitter.event().name("DISPATCH_USER_NOTIFICATION").data(notificationData));
+            } catch (IOException e) {
+                emitters.remove(email);
+            }
+        }
+    }
+
     // Send admin notification
     public void sendAdminNotification(String adminId, Object notificationData) {
         SseEmitter emitter = emitters.get(adminId);

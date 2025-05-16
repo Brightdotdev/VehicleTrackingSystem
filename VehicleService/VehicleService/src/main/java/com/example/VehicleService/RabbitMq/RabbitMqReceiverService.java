@@ -27,6 +27,8 @@ public class RabbitMqReceiverService {
     private final String COMPLETE_DISPATCH_FAN_OUT_QUEUE = "completed.dispatch.service.vehicle.fanOut";
 
     private final String VEHICLE_QUEUE = "vehicle.service.created.dispatch.queue";
+    private final String END_DISPATCH_FAN_OUT_QUEUE_VEHICLE =  "end.dispatch.service.vehicle";
+
 
     private final String DISPATCH_VALIDATED_FAN_OUT_QUEUE_VEHICLE = "dispatch.validated.queue.service.vehicle";
 
@@ -50,7 +52,7 @@ public class RabbitMqReceiverService {
 
     @Transactional
     @RabbitListener(queues = VEHICLE_QUEUE)
-    public Map<String, Object> handleDispatchToVehicleQueue(UtilRecords.dispatchRequestBody dispatchEvent) {
+    public Map<String, Object> handleDispatchToVehicleQueue(UtilRecords.dispatchRequestBodyDTO dispatchEvent) {
         try {
             VehicleModel vehicle = vehicleRepository.findByVehicleIdentificationNumber(dispatchEvent.vehicleIdentificationNumber());
 
@@ -61,10 +63,8 @@ public class RabbitMqReceiverService {
             vehicle.setDispatchStatus(VehicleEnums.VehicleDispatchStatus.PENDING);
             vehicleRepository.save(vehicle);
 
-            // OPTIONAL: Ensure any lazy fields are initialized before passing it to service
             Hibernate.initialize(vehicle.getDispatchHistory());
 
-            // This is where you should double-check for null keys in the service
             return vehicleHealthService.vehicleDispatchStatus(vehicle);
 
         } catch (Exception e) {
@@ -76,11 +76,11 @@ public class RabbitMqReceiverService {
     @Transactional
     @RabbitListener(queues = COMPLETE_DISPATCH_FAN_OUT_QUEUE)
     public void
-    handleDispatchToVehicleQueue(UtilRecords.DispatchCompletedEvent dispatchEvent) {
+    handleDispatchToVehicleQueue(UtilRecords.DispatchEndedDTO dispatchEvent) {
         try {
-            vehicleService.completeDispatch(dispatchEvent);
+            vehicleService.completedDispatch(dispatchEvent);
         } catch (Exception e) {
-            logger.error("Error processing dispatch message: {}", e.getMessage());
+            logger.error("Error processing dispatch message for fanout queue for complete dispatch: {}", e.getMessage());
         }
     }
 
@@ -90,7 +90,21 @@ public class RabbitMqReceiverService {
         try {
             vehicleService.handleValidatedDispatch(dispatchEvent);
         } catch (Exception e) {
-            logger.error("Error processing dispatch message: {}", e.getMessage());
+            logger.error("Error processing dispatch for validation: {}", e.getMessage());
+        }
+    }
+
+
+
+
+    @Transactional
+    @RabbitListener(queues = END_DISPATCH_FAN_OUT_QUEUE_VEHICLE)
+    public void
+    handleDispatchCreatedOrCancelled(UtilRecords.DispatchEndedDTO dispatchEvent) {
+        try {
+            vehicleService.completedDispatch(dispatchEvent);
+        } catch (Exception e) {
+            logger.error("Error processing completed dispatch dispatch message: {}", e.getMessage());
         }
     }
 }

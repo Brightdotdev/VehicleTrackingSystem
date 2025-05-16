@@ -7,65 +7,37 @@ import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-
 @Configuration
 public class RabbitConfig {
 
-    private final String FAN_OUT_QUEUE = "completed.dispatch.fanOut";
-
-    private final String COMPELTED_DISPATCH_VEHICLE_QUEUE = "completed.dispatch.service.vehicle.fanOut";
-
-    private final String COMPELTED_DISPATCH_DISPATCH_QUEUE = "completed.dispatch.service.dispatch.fanOut";
-
-
-
-
-    // fan out exchange for completed dispatch
+    private final String COMPLETED_DISPATCH_FANOUT = "completed.dispatch.fanOut";
+    private final String COMPLETED_DISPATCH_LOG_QUEUE = "completed.dispatch.service.dispatch.fanOut";
 
     @Bean
-    public FanoutExchange fanoutExchange() {
-        return new FanoutExchange(FAN_OUT_QUEUE);
-    }
-
-
-    @Bean
-    public Queue vehicleQueue() {
-        return new Queue(COMPELTED_DISPATCH_VEHICLE_QUEUE);
-    }
-    @Bean
-    public Queue dispatchQueue() {
-        return new Queue(COMPELTED_DISPATCH_DISPATCH_QUEUE);
+    public FanoutExchange completedDispatchFanout() {
+        return new FanoutExchange(COMPLETED_DISPATCH_FANOUT);
     }
 
     @Bean
-    public Binding vehicleBinding(Queue vehicleQueue, FanoutExchange fanoutExchange) {
-        return BindingBuilder.bind(vehicleQueue).to(fanoutExchange);
+    public Queue completedDispatchLogQueue() {
+        return new Queue(COMPLETED_DISPATCH_LOG_QUEUE);
     }
 
     @Bean
-    public Binding dispatchBinding(Queue dispatchQueue, FanoutExchange fanoutExchange) {
-        return BindingBuilder.bind(dispatchQueue).to(fanoutExchange);
+    public Binding dispatchBinding() {
+        return BindingBuilder.bind(completedDispatchLogQueue())
+                .to(completedDispatchFanout());
     }
-
-
-
 
     @Bean
     public Jackson2JsonMessageConverter jackson2JsonMessageConverter() {
         return new Jackson2JsonMessageConverter();
     }
 
-
     @Bean
     public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory) {
         RabbitTemplate template = new RabbitTemplate(connectionFactory);
         template.setMessageConverter(jackson2JsonMessageConverter());
-        template.setReplyTimeout(5000);
         return template;
     }
-
 }

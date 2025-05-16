@@ -16,14 +16,18 @@ public class TrackingModel {
     private  String id;
     private String vehicleIdentificationNumber;
     private String dispatchRequester;
+
+
+    @Column(unique = true)
     private Long dispatchId;
+
     private String dispatchedBy;
 
     @Enumerated(EnumType.STRING)
     private LogEnums.DispatchReason dispatchReason;
-    private List<UtilRecords.checkPoint> checkpoints;
+    private List<UtilRecords.CheckPoint> checkpoints;
 
-    private UtilRecords.checkPoint currentLocation;
+    private UtilRecords.CheckPoint currentLocation;
 
 
     @Enumerated(EnumType.STRING)
@@ -33,10 +37,16 @@ public class TrackingModel {
 
     private LocalDateTime endedAt;
 
+    private String vehicleName;
+
+
+    public void addToCheckPoint(UtilRecords.CheckPoint cp) {
+            checkpoints.add(cp);}
+
     public TrackingModel() {
     }
 
-    public TrackingModel(String id, String vehicleIdentificationNumber, String dispatchRequester, Long dispatchId, String dispatchedBy, LogEnums.DispatchReason dispatchReason, List<UtilRecords.checkPoint> checkpoints, UtilRecords.checkPoint currentLocation, LogEnums.DispatchStatus dispatchStatus, LocalDateTime dispatchEndTime, LocalDateTime createdAt, LocalDateTime endedAt) {
+    public TrackingModel(String id, String vehicleIdentificationNumber, String dispatchRequester, Long dispatchId, String dispatchedBy, LogEnums.DispatchReason dispatchReason, List<UtilRecords.CheckPoint> checkpoints, UtilRecords.CheckPoint currentLocation, LogEnums.DispatchStatus dispatchStatus, LocalDateTime dispatchEndTime, LocalDateTime createdAt, LocalDateTime endedAt, String vehicleName) {
         this.id = id;
         this.vehicleIdentificationNumber = vehicleIdentificationNumber;
         this.dispatchRequester = dispatchRequester;
@@ -49,6 +59,7 @@ public class TrackingModel {
         this.dispatchEndTime = dispatchEndTime;
         this.createdAt = createdAt;
         this.endedAt = endedAt;
+        this.vehicleName = vehicleName;
     }
 
     public String getId() {
@@ -99,19 +110,19 @@ public class TrackingModel {
         this.dispatchReason = dispatchReason;
     }
 
-    public List<UtilRecords.checkPoint> getCheckpoints() {
+    public List<UtilRecords.CheckPoint> getCheckpoints() {
         return checkpoints;
     }
 
-    public void setCheckpoints(List<UtilRecords.checkPoint> checkpoints) {
+    public void setCheckpoints(List<UtilRecords.CheckPoint> checkpoints) {
         this.checkpoints = checkpoints;
     }
 
-    public UtilRecords.checkPoint getCurrentLocation() {
+    public UtilRecords.CheckPoint getCurrentLocation() {
         return currentLocation;
     }
 
-    public void setCurrentLocation(UtilRecords.checkPoint currentLocation) {
+    public void setCurrentLocation(UtilRecords.CheckPoint currentLocation) {
         this.currentLocation = currentLocation;
     }
 
@@ -145,5 +156,13 @@ public class TrackingModel {
 
     public void setEndedAt(LocalDateTime endedAt) {
         this.endedAt = endedAt;
+    }
+
+    public String getVehicleName() {
+        return vehicleName;
+    }
+
+    public void setVehicleName(String vehicleName) {
+        this.vehicleName = vehicleName;
     }
 }

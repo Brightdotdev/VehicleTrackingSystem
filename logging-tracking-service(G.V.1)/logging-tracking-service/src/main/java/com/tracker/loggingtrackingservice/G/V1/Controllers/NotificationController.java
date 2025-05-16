@@ -23,7 +23,7 @@ public class NotificationController {
      */
     @PostMapping("/dispatch-created")
     public ResponseEntity<String> sendDispatchCreatedNotification(
-           @Valid @RequestBody UtilRecords.dispatchRequestBody dispatchRequestBody
+           @Valid @RequestBody UtilRecords.dispatchRequestBodyDTO dispatchRequestBody
     ) {
         notificationService.sendCreatedDispatchNotification(dispatchRequestBody);
         return ResponseEntity.ok("Notification sent successfully.");

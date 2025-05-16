@@ -15,6 +15,33 @@ import java.util.List;
 @Service
 public class UtilRecords {
 
+
+
+
+
+
+
+
+
+    public record DispatchEndedDTO(
+
+            Boolean wasCancelled,
+            @NotBlank(message = "Timestamp is required")
+            LocalDateTime timeStamp,
+            @NotBlank(message = "VIN is required")
+            String vehicleIdentificationNumber,
+
+            @NotBlank(message = "VIN is required")
+            String receiver,
+
+            @NotBlank(message = "VIN is required")
+            String vehicleName,
+            Long dispatchId) {}
+
+
+
+
+
     public record ValidatedDispatch(
             @NotBlank(message = "the dispatch id is needed")
             Long dispatchId,
@@ -64,37 +91,27 @@ public class UtilRecords {
             List<VehicleHealthAttributeModel> healthAttributes
     ) {}
 
+    public record dispatchRequestBodyDTO(
 
-    public record dispatchRequestBody(
-
+            @NotNull
+            String vehicleName,
             @NotNull(message = "Uhm what type of vehicle is being dispatched")
             String vehicleIdentificationNumber,
 
             @NotNull(message = "Uhm what type of vehicle class is being dispatched")
             @Enumerated(EnumType.STRING)
             VehicleEnums.VehicleStatus vehicleClass,
-            String dispatchRequester,
 
             @NotNull(message = "Uhm what type of vehicle is being dispatched")
             @Enumerated(EnumType.STRING)
             VehicleEnums.DispatchReason dispatchReason,
 
+            String dispatchRequester,
+
             @NotNull(message = "When do you plan to end the dispatch boy")
             LocalDateTime dispatchEndTime
-
     ){}
 
 
-
-
-    public record DispatchCompletedEvent(
-
-            @NotBlank(message = "VIN is required")
-            String vehicleIdentificationNumber,
-            @NotBlank(message = "Name is required")
-            String userName,
-            Long dispatchId,
-            LocalDateTime endTime
-    ) {}
 
 }

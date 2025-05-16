@@ -11,8 +11,10 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class RabbitMqReceiverService {
 
-    private final Logger logger = LoggerFactory.getLogger(RabbitMqReceiverService.class);
-        private final String COMPLETED_DISPATCH_FAN_OUT_QUEUE = "completed.dispatch.service.dispatch.fanOut";
+    private static final Logger logger = LoggerFactory.getLogger(RabbitMqReceiverService.class);
+
+    // -- Queue name constant --
+    private static final String COMPLETED_DISPATCH_QUEUE = "completed.dispatch.service.dispatch.fanOut";
 
     private final UserDispatchService userDispatchService;
 
@@ -20,15 +22,16 @@ public class RabbitMqReceiverService {
         this.userDispatchService = userDispatchService;
     }
 
-        @Transactional
-        @RabbitListener(queues = COMPLETED_DISPATCH_FAN_OUT_QUEUE)
-        public void 
-        handleDispatchToVehicleQueue(UtilRecords.DispatchCompletedEvent dispatchEvent) {
+    /**
+     * ✅ Listener method to handle completed dispatch events.
+     */
+    @Transactional
+    @RabbitListener(queues = COMPLETED_DISPATCH_QUEUE)
+    public void handleDispatchCompleted(UtilRecords.DispatchCompletedEvent dispatchEvent) {
         try {
             userDispatchService.completeDispatch(dispatchEvent);
         } catch (Exception e) {
             logger.error("Error processing dispatch message: {}", e.getMessage());
         }
     }
-
 }

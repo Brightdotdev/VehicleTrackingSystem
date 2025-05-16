@@ -52,11 +52,28 @@ public class UtilRecords {
             LocalDateTime endTime
     ) {}
 
+    public record DispatchEndedDTO(
+
+            Boolean wasCancelled,
+            @NotBlank(message = "Timestamp is required")
+            LocalDateTime timeStamp,
+            @NotBlank(message = "VIN is required")
+            String vehicleIdentificationNumber,
+
+            @NotBlank(message = "VIN is required")
+            String receiver,
+
+            @NotBlank(message = "VIN is required")
+            String vehicleName,
+            Long dispatchId) {}
 
 
 
 
-public record dispatchRequestBody(
+
+
+
+    public record dispatchRequestBody(
 
         @NotNull
         String vehicleName,
@@ -79,6 +96,27 @@ public record dispatchRequestBody(
 
 ){}
 
+    public record dispatchRequestBodyDTO(
+
+            @NotNull
+            String vehicleName,
+            @NotNull(message = "Uhm what type of vehicle is being dispatched")
+            String vehicleIdentificationNumber,
+
+            @NotNull(message = "Uhm what type of vehicle class is being dispatched")
+            @Enumerated(EnumType.STRING)
+            DispatchEnums.VehicleStatus vehicleClass,
+
+            @NotNull(message = "Uhm what type of vehicle is being dispatched")
+            @Enumerated(EnumType.STRING)
+            DispatchEnums.DispatchReason dispatchReason,
+
+            String dispatchRequester,
+
+            @NotNull(message = "When do you plan to end the dispatch boy")
+            LocalDateTime dispatchEndTime
+
+    ){}
 
 
     public record DispatchResponseDTO(
