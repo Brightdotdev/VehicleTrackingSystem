@@ -153,3 +153,5 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+/views/**/.next/
+/views/**/.vscode/

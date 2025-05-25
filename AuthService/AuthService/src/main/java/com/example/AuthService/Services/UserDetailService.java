@@ -64,6 +64,17 @@ public class CustomUserDetailsService implements UserDetailsService {
       return new UtilRecords.LoginServiceResponse(authUser,auth);
     }
 
+    @Transactional
+    public UtilRecords.LoginServiceResponse handleOath2UserLogIn(String email) {
+        UserModel authUser = userService.logInFromAuth(email);
+
+        Authentication auth = new UsernamePasswordAuthenticationToken(
+                authUser, // principal
+                null, // no credentials for OAuth
+                authUser.getAuthorities() // roles/authorities
+        );
+        return new UtilRecords.LoginServiceResponse(authUser,auth);
+    }
 
 
 
