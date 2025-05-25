@@ -1,0 +1,77 @@
+// 1) DispatchEndedDTO
+{
+  "wasCancelled": true,                               // Boolean, must be provided
+  "timeStamp": "2025-05-18T17:00:00",                  // ISO-8601 LocalDateTime
+  "vehicleIdentificationNumber": "1FTNE2CM0FKA12345",  // non-blank VIN
+  "receiver": "depot_manager",                        // non-blank
+  "vehicleName": "Volvo FH",                          // non-blank
+  "dispatchId": 456                                   // Long, must be provided
+}
+jsonc
+Copy
+Edit
+// 2) ValidatedDispatch
+{
+  "dispatchId": 456,                                  // Long, required
+  "vehicleName": "Volvo FH",                          // non-blank
+  "dispatchReason": "DELIVERY",                       // one of VehicleEnums.DispatchReason
+  "vehicleIdentificationNumber": "1FTNE2CM0FKA12345", // non-blank VIN
+  "dispatchRequester": "john.doe@example.com",        // non-blank
+  "dispatchAdmin": "admin_user"                       // non-blank
+}
+jsonc
+Copy
+Edit
+// 3) VehicleDTO
+{
+  "model": "FH16",                                    // non-blank
+  "engineType": "DIESEL",                             // VehicleEnums.EngineType
+  "vehicleType": "TRUCK",                             // VehicleEnums.VehicleType
+  "vehicleStatus": "ACTIVE",                          // VehicleEnums.VehicleStatus
+  "vehicleMetadata": "{\"color\":\"red\",\"year\":2021}", // arbitrary JSON string
+  "vehicleImages": [                                  // list must be non-null (can be empty)
+    "https://cdn.example.com/volvo1.jpg",
+    "https://cdn.example.com/volvo2.jpg"
+  ]
+}
+jsonc
+Copy
+Edit
+// 4) VehicleApiData
+{
+  "vehicleIdentificationNumber": "1FTNE2CM0FKA12345",  // non-blank
+  "licensePlate": "ABC-1234",                          // non-blank
+  "model": "FH16",                                     // non-blank
+  "engineType": "DIESEL",                              // enum
+  "vehicleType": "TRUCK",                              // enum
+  "vehicleStatus": "ACTIVE",                           // enum
+  "dispatchStatus": "IN_TRANSIT",                      // VehicleEnums.VehicleDispatchStatus
+  "dispatchHistory": [123, 456, 789],                  // non-null list of Longs
+  "vehicleImages": [                                   // non-null list of Strings
+    "https://cdn.example.com/volvo1.jpg"
+  ],
+  "safetyScore": 0.92,                                  // primitive double
+  "vehicleMetadata": "{\"color\":\"blue\",\"year\":2022}", // non-blank
+  "healthAttributes": [                                // non-null list of models
+    {
+      "attributeName": "oilLevel",
+      "value": 0.75
+    },
+    {
+      "attributeName": "tirePressure",
+      "value": 32.5
+    }
+  ]
+}
+jsonc
+Copy
+Edit
+// 5) dispatchRequestBodyDTO
+{
+  "vehicleName": "Volvo FH16",                        // non-blank
+  "vehicleIdentificationNumber": "1FTNE2CM0FKA12345", // non-blank
+  "vehicleClass": "ACTIVE",                           // VehicleEnums.VehicleStatus
+  "dispatchReason": "DELIVERY",                       // VehicleEnums.DispatchReason
+  "dispatchRequester": "john.doe@example.com",        // optional
+  "dispatchEndTime": "2025-05-20T09:00:00"             // ISO-8601 LocalDateTime
+}

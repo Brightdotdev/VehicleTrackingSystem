@@ -5,10 +5,11 @@ spring:
   application:
     name: authService
   datasource :
-    url : jdbc:mysql://localhost:3306/taskApplication?createDatabaseIfNotExist=true
-    username : root
+    url : jdbc:postgresql://localhost:5432/VEHICLE_AUTH_DB
+    username : postgres
     password : bomboclat
   jpa :
+    open-in-view: false
     show-sql : true
     hibernate :
       ddl-auto : update
@@ -16,7 +17,7 @@ spring:
 auth:
  jwt:
     secret: 6715c78c9a1d53f358dafd68da12c40c95780b0d00486f9d725672b7bf95eea89d682826b22883dd592b45b6ee2f79d4d4372d0c136b2e6fb1935c04f7593d05
-    expiration: 86400000
+    expiration: 604800000
     issuer: auth-service
 
 

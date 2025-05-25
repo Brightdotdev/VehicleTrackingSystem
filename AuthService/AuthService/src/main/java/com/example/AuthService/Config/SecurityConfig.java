@@ -1,6 +1,6 @@
 package com.example.AuthService.Config;
 
-import com.example.AuthService.Services.CustomUserDetailsService;
+import com.example.AuthService.Services.UserDetailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,7 +24,7 @@ public class SecurityConfig {
 
     @Autowired
     @Lazy
-    private CustomUserDetailsService userService;
+    private UserDetailService userDetailService;
 
     // BCrypt encoder for encoding/storing passwords
     @Bean
@@ -36,7 +36,7 @@ public class SecurityConfig {
     @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-        provider.setUserDetailsService(userService);
+        provider.setUserDetailsService(userDetailService);
         provider.setPasswordEncoder(passwordEncoder());
         return provider;
     }

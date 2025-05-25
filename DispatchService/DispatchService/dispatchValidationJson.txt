@@ -1,0 +1,71 @@
+// 1) ValidatedDispatch
+{
+  "dispatchId": 123,                    // must be a non-null Long
+  "vehicleName": "Ford Transit",        // non-blank String
+  "dispatchReason": "MAINTENANCE",      // one of DispatchEnums.DispatchReason
+  "vehicleIdentificationNumber": "1FTNE2CM0FKA12345", // non-blank VIN
+  "dispatchRequester": "jane.doe@example.com",        // non-blank requester
+  "dispatchAdmin": "admin_user"         // non-blank admin
+}
+jsonc
+Copy
+Edit
+// 2) DispatchCompletedEvent
+{
+  "vehicleIdentificationNumber": "1FTNE2CM0FKA12345", // non-blank VIN
+  "userName": "jane.doe@example.com",                  // non-blank user
+  "dispatchId": 123,                                   // non-null Long
+  "endTime": "2025-05-18T16:30:00"                     // ISO-8601 LocalDateTime
+}
+jsonc
+Copy
+Edit
+// 3) DispatchEndedDTO
+{
+  "wasCancelled": false,                               // non-null Boolean
+  "timeStamp": "2025-05-18T17:00:00",                  // ISO-8601 LocalDateTime
+  "vehicleIdentificationNumber": "1FTNE2CM0FKA12345",  // non-blank VIN
+  "receiver": "warehouse_manager",                     // non-blank receiver
+  "vehicleName": "Ford Transit",                       // non-blank name
+  "dispatchId": 123                                    // non-null Long
+}
+jsonc
+Copy
+Edit
+// 4) dispatchRequestBody
+{
+  "vehicleName": "Ford Transit",                      // non-blank String
+  "vehicleIdentificationNumber": "1FTNE2CM0FKA12345", // non-blank VIN
+  "vehicleClass": "ACTIVE",                           // one of DispatchEnums.VehicleStatus
+  "dispatchReason": "DELIVERY",                       // one of DispatchEnums.DispatchReason
+  "dispatchRequester": "jane.doe@example.com",        // optional String
+  "dispatchEndTime": "2025-05-20T09:00:00"            // ISO-8601 LocalDateTime
+}
+jsonc
+Copy
+Edit
+// 5) dispatchRequestBodyDTO
+{
+  "vehicleName": "Mercedes Sprinter",                 // non-blank String
+  "vehicleIdentificationNumber": "WD3PE7CC3B1234567", // non-blank VIN
+  "vehicleClass": "INACTIVE",                         // one of DispatchEnums.VehicleStatus
+  "dispatchReason": "MAINTENANCE",                    // one of DispatchEnums.DispatchReason
+  "dispatchRequester": "john.doe@example.com",        // optional String
+  "dispatchEndTime": "2025-05-21T14:30:00"            // ISO-8601 LocalDateTime
+}
+json
+Copy
+Edit
+// 6) DispatchResponseDTO
+{
+  "wildCards": [
+    { "overSpeed": true },
+    { "engineFault": false }
+  ],                                                  // non-null List<Map<String,Boolean>>
+  "safetyScore": 0.85,                                // double between 0.0 and 1.0
+  "healthAttributes": [
+    { "oilLevel": 0.75 },
+    { "tirePressure": 32.5 }
+  ],                                                  // non-null List<Map<String,Double>>
+  "canDispatch": true                                 // primitive boolean
+}

@@ -15,6 +15,8 @@ public class NotificationSseController {
     }
 
     // Client subscribes to this endpoint (can be user or admin)
+
+    //  :: http://localhost:8104/v1/sse/subscribe
     @GetMapping("/subscribe")
     public SseEmitter subscribe(@RequestParam String clientId) {
         return notificationSseService.subscribe(clientId);

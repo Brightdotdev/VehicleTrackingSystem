@@ -1,0 +1,107 @@
+/ 1) DispatchEndedDTO
+{
+  "wasCancelled": false,                                // non-null Boolean
+  "timeStamp": "2025-05-18T17:00:00",                   // ISO-8601 LocalDateTime
+  "vehicleIdentificationNumber": "1FTNE2CM0FKA12345",   // non-blank VIN
+  "receiver": "warehouse_manager",                      // non-blank
+  "vehicleName": "Ford Transit",                        // non-blank
+  "dispatchId": 123                                     // non-null Long
+}
+jsonc
+Copy
+Edit
+// 2) DispatchCompletedEvent
+{
+  "vehicleIdentificationNumber": "1FTNE2CM0FKA12345",   // non-blank VIN
+  "userName": "jane.doe@example.com",                   // non-blank
+  "dispatchId": 123,                                    // non-null Long
+  "endTime": "2025-05-18T16:30:00"                      // ISO-8601 LocalDateTime
+}
+jsonc
+Copy
+Edit
+// 3) CheckPoint
+{
+  "latitude": "6.5244N",                                // non-blank
+  "longitude": "3.3792E",                               // non-blank
+  "timeStamp": "2025-05-18T15:45:00"                     // non-null LocalDateTime
+}
+jsonc
+Copy
+Edit
+// 4) TrackingModelDTO
+{
+  "vehicleIdentificationNumber": "1FTNE2CM0FKA12345",   // non-blank VIN
+  "dispatchRequester": "jane.doe@example.com",          // non-blank
+  "dispatchId": 123,                                    // non-null Long
+  "dispatchedBy": "admin_user",                         // non-blank
+  "dispatchReason": "DELIVERY",                         // non-blank String
+  "checkpoints": [                                      // non-null list of maps
+    { "lat": "6.5244N", "lng": "3.3792E" },
+    { "lat": "6.5250N", "lng": "3.3800E" }
+  ],
+  "currentLocation": {                                  // non-null map
+    "lat": "6.5250N",
+    "lng": "3.3800E"
+  },
+  "dispatchStatus": "IN_TRANSIT",                       // valid DispatchStatus enum
+  "dispatchEndTime": "2025-05-18T20:00:00",              // non-null LocalDateTime
+  "createdAt": "2025-05-18T10:00:00"                     // non-null LocalDateTime
+}
+jsonc
+Copy
+Edit
+// 5) TrackingModel
+{
+  "vehicleIdentificationNumber": "1FTNE2CM0FKA12345",
+  "dispatchRequester": "jane.doe@example.com",
+  "dispatchId": 123,
+  "dispatchedBy": "admin_user",
+  "dispatchReason": "DELIVERY",                         // DispatchEnums.DispatchReason
+  "checkpoints": [                                      // list of CheckPoint
+    { "latitude": "6.5244N", "longitude": "3.3792E", "timeStamp": "2025-05-18T15:45:00" }
+  ],
+  "currentLocation":                                   // single CheckPoint
+    { "latitude": "6.5250N", "longitude": "3.3800E", "timeStamp": "2025-05-18T16:00:00" },
+  "dispatchStatus": "IN_TRANSIT",                       // DispatchEnums.DispatchStatus
+  "dispatchEndTime": "2025-05-18T20:00:00",
+  "createdAt": "2025-05-18T10:00:00"
+}
+jsonc
+Copy
+Edit
+// 6) dispatchRequestBodyDTO
+{
+  "vehicleName": "Ford Transit",
+  "vehicleIdentificationNumber": "1FTNE2CM0FKA12345",   
+  "vehicleClass": "ACTIVE",                             // DispatchEnums.VehicleStatus
+  "dispatchReason": "DELIVERY",                         // DispatchEnums.DispatchReason
+  "dispatchRequester": "jane.doe@example.com",          
+  "dispatchEndTime": "2025-05-20T09:00:00"              
+}
+jsonc
+Copy
+Edit
+// 7) NotificationRecord
+{
+  "id": "notif-001",                                     // optional ID
+  "receiver": "jane.doe@example.com",                    // non-blank
+  "message": "Your dispatch has ended",                  // non-blank
+  "read": false,                                         // non-null Boolean
+  "description": "Vehicle arrived at destination",       // non-blank
+  "type": "INFO",                                        // valid NotificationType enum
+  "createdAt": "2025-05-18T17:05:00",                     // optional datetime
+  "readAt": null                                         // optional datetime
+}
+jsonc
+Copy
+Edit
+// 8) ValidatedDispatch
+{
+  "dispatchId": 123,
+  "vehicleName": "Ford Transit",
+  "dispatchReason": "DELIVERY",                         // DispatchEnums.DispatchReason
+  "vehicleIdentificationNumber": "1FTNE2CM0FKA12345",
+  "dispatchRequester": "jane.doe@example.com",
+  "dispatchAdmin": "admin_user"
+}

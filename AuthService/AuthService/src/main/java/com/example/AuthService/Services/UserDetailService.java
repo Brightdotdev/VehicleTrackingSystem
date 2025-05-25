@@ -1,5 +1,6 @@
 package com.example.AuthService.Services;
 
+import com.example.AuthService.Exceptions.AccessException;
 import com.example.AuthService.Exceptions.ConflictException;
 import com.example.AuthService.Exceptions.NotFoundException;
 import com.example.AuthService.Models.UserModel;
@@ -20,13 +21,12 @@ import java.util.List;
 
 
 @Service("userDetailsService")
-public class CustomUserDetailsService implements UserDetailsService {
+public class UserDetailService implements UserDetailsService {
 
 
 
-    @Autowired
-    private  UserService userService;
-
+    private final UserService userService;
+    private final AdminService adminService;
 
     private final PasswordEncoder passwordEncoder;
 
@@ -34,11 +34,12 @@ public class CustomUserDetailsService implements UserDetailsService {
     private final AuthenticationManager authenticationManager;
 
     @Autowired
-    public CustomUserDetailsService(@Lazy AuthenticationManager authenticationManager, @Lazy PasswordEncoder passwordEncoder) {
+    public UserDetailService(UserService userService, AdminService adminService, @Lazy AuthenticationManager authenticationManager, @Lazy PasswordEncoder passwordEncoder) {
+        this.userService = userService;
+        this.adminService = adminService;
         this.authenticationManager = authenticationManager;
         this.passwordEncoder = passwordEncoder;
     }
-
 
 
     @Override
@@ -47,9 +48,9 @@ public class CustomUserDetailsService implements UserDetailsService {
 
 
 
-
     @Transactional
     public UtilRecords.LoginServiceResponse handleOath2UserSignIn(UtilRecords.UserGoogleSignUp oAuth2User) {
+
         String email = oAuth2User.email();
         String name = oAuth2User.name();
         String imageUrl = oAuth2User.picture();
@@ -65,7 +66,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     }
 
     @Transactional
-    public UtilRecords.LoginServiceResponse handleOath2UserLogIn(String email) {
+    public UtilRecords.LoginServiceResponse handleUserOath2UserLogIn(String email) {
         UserModel authUser = userService.logInFromAuth(email);
 
         Authentication auth = new UsernamePasswordAuthenticationToken(
@@ -76,37 +77,24 @@ public class CustomUserDetailsService implements UserDetailsService {
         return new UtilRecords.LoginServiceResponse(authUser,auth);
     }
 
-
-
     @Transactional
-    public UtilRecords.LoginServiceResponse handleLocalSignUp(UtilRecords.UserLocalSignUp request) {// Check if the user already exists by email
+    public UtilRecords.LoginServiceResponse handleUserSignUp(UtilRecords.UserLocalSignUp request) {
 
         if (userService.existsByEmail(request.email())) {
             throw new ConflictException("User with email Already exists");
         }
-
-        // Prepare user roles
-        List<String> finalRoles = new ArrayList<>();
-        if (request.roles() != null && !request.roles().isEmpty()) {
-            for (String role : request.roles()) {
-                finalRoles.add(role.trim().toUpperCase());
-            }
-        } else {
-            finalRoles.add("ROLE_USER");
-        }
+        Authentication auth;
 
         // Create new user object
         UserModel user = new UserModel();
         user.setName(request.name().trim());
         user.setEmail(request.email().trim());
-        user.setPassword(passwordEncoder.encode(request.password().trim())); // hash the password
+        user.setPassword(passwordEncoder.encode(request.password().trim()));
         user.setProvider("LOCAL_USER");
-        user.setRoles(finalRoles);
-
+        user.setRoles(List.of("ROLE_USER"));
+        user.setUserImage(request.image());
         UserModel newUser = userService.save(user);
 
-
-        Authentication auth;
         try {
             auth = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(request.email(), request.password()));
@@ -122,7 +110,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
 
     @Transactional
-    public UtilRecords.LoginServiceResponse handleLocalLogIn(UtilRecords.LocalLogin request) {
+    public UtilRecords.LoginServiceResponse handleUserLocalLogIn(UtilRecords.LocalLogin request) {
 
 
         if (!userService.existsByEmail(request.email())) {
@@ -140,5 +128,85 @@ public class CustomUserDetailsService implements UserDetailsService {
         return new UtilRecords.LoginServiceResponse(user, auth);
 
     }
+
+
+
+    // ADMIN STUFF
+
+
+    @Transactional
+    public UtilRecords.LoginServiceResponse handleOath2AdminLogIn(UtilRecords.AdminGoogleLogIn adminReqKey) {
+
+        UserModel authUser = adminService.logInFromOauth(adminReqKey);
+
+        Authentication auth = new UsernamePasswordAuthenticationToken(
+                authUser, // principal
+                null, // no credentials for OAuth
+                authUser.getAuthorities() // roles/authorities
+        );
+        return new UtilRecords.LoginServiceResponse(authUser,auth);
+    }
+
+
+    @Transactional
+    public UtilRecords.LoginServiceResponse handleAdminLocalSignUp(UtilRecords.AdminLocalSignUp request) {
+
+
+        if (!adminService.isValidAdminRequest(request)) {
+            throw new AccessException("Invalid Admin request");
+        }
+
+        Authentication auth;
+
+        // Create new user object
+        UserModel user = new UserModel();
+        user.setName(request.name().trim());
+        user.setEmail(request.email().trim());
+        user.setPassword(passwordEncoder.encode(request.password().trim()));
+        user.setProvider("LOCAL_ADMIN_USER");
+        user.setRoles(List.of("ROLE_ADMIN"));
+
+        UserModel newUser = userService.save(user);
+
+        try {
+            auth = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(request.email(), request.password()));
+        } catch (Exception e) {
+            throw new ConflictException("Authentication failed after save");
+        }
+
+        // Return both user info and authentication token
+        return new UtilRecords.LoginServiceResponse(newUser, auth);
+    }
+
+
+
+    @Transactional
+    public UtilRecords.LoginServiceResponse handleAdminLogIn(UtilRecords.AdminLocalLogin adminReq) {
+
+        UserModel user = adminService.localAdminLogin(adminReq);
+        Authentication auth;
+        try {
+            auth = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(adminReq.email(), adminReq.password()));
+
+        } catch (Exception e) {
+            throw new ConflictException("Authentication failed after save");
+        }
+        return new UtilRecords.LoginServiceResponse(user, auth);
+    }
+    @Transactional
+    public UtilRecords.LoginServiceResponse handleOath2AdminSignUp(UtilRecords.AdminGoogleSignUp adminRequest) {
+
+        UserModel authUser = adminService.handleOath2AdminSignUp(adminRequest);
+
+        Authentication auth = new UsernamePasswordAuthenticationToken(
+                authUser, // principal
+                null, // no credentials for OAuth
+                authUser.getAuthorities() // roles/authorities
+        );
+        return new UtilRecords.LoginServiceResponse(authUser,auth);
+    }
+
 
 }

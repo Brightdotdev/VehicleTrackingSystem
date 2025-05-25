@@ -21,4 +21,16 @@ public class CookieGenerationHandler {
                 .build()
                 .toString();
     }
+
+    public String createAdminCooke (String jwt) {
+
+        return ResponseCookie.from("adminDeskCookie", jwt)
+                .httpOnly(true)
+                .secure(true) //  :: in production  make this true in development false
+                .sameSite("None") // :: in production  make this None in development Lax
+                .path("/")                // ✅ allow full-path access
+                .maxAge(Duration.ofDays(3))
+                .build()
+                .toString();
+    }
 }

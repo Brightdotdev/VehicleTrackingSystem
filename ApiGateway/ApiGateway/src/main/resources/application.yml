@@ -14,11 +14,11 @@ spring:
         - id: authService
           uri: http://localhost:8103
           predicates:
-            - Path=/v1/auth/**
+            - Path=/v1/auth/admin/** , /v1/auth/user/**
         - id: loggingService
           uri: http://localhost:8104
           predicates:
-            - Path=/v1/user/notifications/** , /v1/sse/**,/v1/user/tracking
+            - Path=/v1/user/notifications/** , /v1/sse/**, /v1/user/tracking/**
         - id: dispatchService
           uri: http://localhost:8105
           predicates:
@@ -47,7 +47,7 @@ spring:
 auth:
   jwt:
     secret: ${JWT_SECRET:6715c78c9a1d53f358dafd68da12c40c95780b0d00486f9d725672b7bf95eea89d682826b22883dd592b45b6ee2f79d4d4372d0c136b2e6fb1935c04f7593d05}
-    expiration: 86400000
+    expiration: 604800000
 
 logging:
   level:

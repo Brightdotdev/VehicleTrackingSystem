@@ -21,6 +21,7 @@ public class UserService {
     }
 
 
+
     public UserModel findByEmail(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new NotFoundException("User not found"));
@@ -30,9 +31,12 @@ public class UserService {
         return userRepository.save(user);
     }
 
+
+
     public boolean existsByEmail(String email) {
         return userRepository.existsByEmail(email);
     }
+
 
     public List<UserModel> findAll() {
         return userRepository.findAll();
@@ -56,21 +60,29 @@ public class UserService {
                 });
     }
 
-    @Transactional
-    public UserModel signUpFromOath(String email, String name, String imageUrl, String provider, boolean email_verified
-    ) {
-        UserModel user = new UserModel();
-                    user.setEmail(email);
-                    user.setName(name);
-                    user.setUserImage(imageUrl);
-                    user.setProvider(provider);
-                    user.setValidated(email_verified);
-                    user.setRoles(List.of("ROLE_USER", "ROLE_GOOGLE"));
-                    return userRepository.save(user);}
+
+
 
 
     @Transactional
     public UserModel logInFromAuth(String email
+    ) {
+
+        Optional<UserModel> foundUser =  userRepository.findByEmail(email);
+
+        if(foundUser.isEmpty()){
+           throw new NotFoundException("Google user not found");
+        }
+            if(
+                    !foundUser.get().getRoles().contains("ROLE_GOOGLE")
+            ){
+                throw new ConflictException("This is not a valid google user");
+            }
+        return foundUser.get();
+    }
+
+    @Transactional
+    public UserModel localLogIn(String email
     ) {
 
         Optional<UserModel> foundUser =  userRepository.findByEmail(email);

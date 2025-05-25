@@ -1,180 +1,301 @@
 package com.tracker.loggingtrackingservice.G.V1.Utils;
 
-
 import com.tracker.loggingtrackingservice.G.V1.Exceptions.NotFoundException;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.*;
 import org.springframework.stereotype.Service;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
-
 @Service
 public class UtilRecords {
 
+    // -------------------------------
+    // DTO for signalling that a dispatch ended
+    // -------------------------------
     public record DispatchEndedDTO(
-
             Boolean wasCancelled,
-            @NotBlank(message = "Timestamp is required")
             LocalDateTime timeStamp,
-            @NotBlank(message = "VIN is required")
             String vehicleIdentificationNumber,
-
-            @NotBlank(message = "VIN is required")
             String receiver,
-
-            @NotBlank(message = "VIN is required")
             String vehicleName,
-            Long dispatchId) {}
+            Long dispatchId
+    ) {
+        public DispatchEndedDTO {
+            // wasCancelled must be provided
+            if (wasCancelled == null) {
+                throw new IllegalArgumentException("wasCancelled flag is required");
+            }
+            // timestamp must be provided
+            if (timeStamp == null) {
+                throw new IllegalArgumentException("Timestamp is required");
+            }
+            // VIN, receiver, vehicleName must be non-null, non-blank
+            if (vehicleIdentificationNumber == null || vehicleIdentificationNumber.isBlank()) {
+                throw new IllegalArgumentException("VIN is required");
+            }
+            if (receiver == null || receiver.isBlank()) {
+                throw new IllegalArgumentException("Receiver is required");
+            }
+            if (vehicleName == null || vehicleName.isBlank()) {
+                throw new IllegalArgumentException("Vehicle name is required");
+            }
+            // dispatchId must be provided
+            if (dispatchId == null) {
+                throw new IllegalArgumentException("dispatchId is required");
+            }
+        }
+    }
 
 
-
-
+    // -------------------------------
+    // Event published when a dispatch completes
+    // -------------------------------
     public record DispatchCompletedEvent(
-
-            @NotBlank(message = "VIN is required")
             String vehicleIdentificationNumber,
-            @NotBlank(message = "Name is required")
             String userName,
             Long dispatchId,
             LocalDateTime endTime
-    ) {}
+    ) {
+        public DispatchCompletedEvent {
+            if (vehicleIdentificationNumber == null || vehicleIdentificationNumber.isBlank()) {
+                throw new IllegalArgumentException("VIN is required");
+            }
+            if (userName == null || userName.isBlank()) {
+                throw new IllegalArgumentException("User name is required");
+            }
+            if (dispatchId == null) {
+                throw new IllegalArgumentException("dispatchId is required");
+            }
+            if (endTime == null) {
+                throw new IllegalArgumentException("endTime is required");
+            }
+        }
+    }
 
+
+    // -------------------------------
+    // A single geographic/time checkpoint
+    // -------------------------------
     public record CheckPoint(
-            @NotNull(message = "Where was the checkpoint set")
             String latitude,
-            @NotNull(message = "Where was the checkpoint set")
             String longitude,
-            @NotNull(message = "When was the checkpoint check pointed")
             LocalDateTime timeStamp
-            ){}
+    ) {
+        public CheckPoint {
+            if (latitude == null || latitude.isBlank()) {
+                throw new IllegalArgumentException("Latitude is required");
+            }
+            if (longitude == null || longitude.isBlank()) {
+                throw new IllegalArgumentException("Longitude is required");
+            }
+            if (timeStamp == null) {
+                throw new IllegalArgumentException("timeStamp is required");
+            }
+        }
+    }
 
 
+    // -------------------------------
+    // DTO for exposing tracking data to clients
+    // -------------------------------
     public record TrackingModelDTO(
-            @NotNull(message = "What vehicle are we tracking")
             String vehicleIdentificationNumber,
-
-            @NotNull(message = "Who is requesting the vehicle")
             String dispatchRequester,
-
-            @NotNull(message = "Which dispatch are we tracking")
             Long dispatchId,
-
-            @NotNull(message = "Who validated the dispatch")
             String dispatchedBy,
-
             String dispatchReason,
-
             List<Map<String, String>> checkpoints,
             Map<String, String> currentLocation,
             LogEnums.DispatchStatus dispatchStatus,
             LocalDateTime dispatchEndTime,
             LocalDateTime createdAt
-            ) {
+    ) {
+        public TrackingModelDTO {
+            if (vehicleIdentificationNumber == null || vehicleIdentificationNumber.isBlank()) {
+                throw new IllegalArgumentException("vehicleIdentificationNumber is required");
+            }
+            if (dispatchRequester == null || dispatchRequester.isBlank()) {
+                throw new IllegalArgumentException("dispatchRequester is required");
+            }
+            if (dispatchId == null) {
+                throw new IllegalArgumentException("dispatchId is required");
+            }
+            if (dispatchedBy == null || dispatchedBy.isBlank()) {
+                throw new IllegalArgumentException("dispatchedBy is required");
+            }
+            if (dispatchReason == null || dispatchReason.isBlank()) {
+                throw new IllegalArgumentException("dispatchReason is required");
+            }
+            if (checkpoints == null) {
+                throw new IllegalArgumentException("checkpoints list is required");
+            }
+            if (currentLocation == null) {
+                throw new IllegalArgumentException("currentLocation is required");
+            }
+            if (dispatchStatus == null) {
+                throw new IllegalArgumentException("dispatchStatus is required");
+            }
+            if (dispatchEndTime == null) {
+                throw new IllegalArgumentException("dispatchEndTime is required");
+            }
+            if (createdAt == null) {
+                throw new IllegalArgumentException("createdAt is required");
+            }
+        }
     }
 
 
+    // -------------------------------
+    // Internal model for tracking
+    // -------------------------------
     public record TrackingModel(
-            @NotNull(message = "What vehicle are we tracking")
             String vehicleIdentificationNumber,
-
-            @NotNull(message = "Who is requesting the vehicle")
             String dispatchRequester,
-
-            @NotNull(message = "Which dispatch are we tracking")
             Long dispatchId,
-
-            @NotNull(message = "Who validated the dispatch")
             String dispatchedBy,
-
             LogEnums.DispatchReason dispatchReason,
-
             List<UtilRecords.CheckPoint> checkpoints,
             UtilRecords.CheckPoint currentLocation,
             LogEnums.DispatchStatus dispatchStatus,
             LocalDateTime dispatchEndTime,
             LocalDateTime createdAt
-    ){}
-
-
-    public record dispatchRequestBodyDTO(
-
-            @NotNull
-            String vehicleName,
-            @NotNull(message = "Uhm what type of vehicle is being dispatched")
-            String vehicleIdentificationNumber,
-
-            @NotNull(message = "Uhm what type of vehicle class is being dispatched")
-            @Enumerated(EnumType.STRING)
-            LogEnums.VehicleStatus vehicleClass,
-
-            @NotNull(message = "Uhm what type of vehicle is being dispatched")
-            @Enumerated(EnumType.STRING)
-            LogEnums.DispatchReason dispatchReason,
-
-            String dispatchRequester,
-
-            @NotNull(message = "When do you plan to end the dispatch boy")
-            LocalDateTime dispatchEndTime
-
-    ){}
-
-
-
-
-    public record NotificationRecord(
-            String id,
-
-            @NotNull(message = "Who are we sending the notification to")
-            String receiver,
-
-            @NotNull(message = "The Notification must have a message")
-            String message,
-
-            @NotNull(message = "The task must have a title")
-            Boolean read,
-
-            @NotNull(message = "The task must have a title")
-            String description,
-
-            LogEnums.NotificationType type,
-
-            LocalDateTime createdAt,
-
-            LocalDateTime readAt
     ) {
-        // Default constructor with null checks
-        public NotificationRecord {
-            if (receiver == null) throw new NotFoundException("Who are we sending the notification to");
-            if (message == null) throw new NotFoundException("The Notification must have a message");
-            if (read == null) throw new NotFoundException("The task must have a title");
-            if (description == null) throw new NotFoundException("The task must have a description");
+        public TrackingModel {
+            if (vehicleIdentificationNumber == null || vehicleIdentificationNumber.isBlank()) {
+                throw new IllegalArgumentException("vehicleIdentificationNumber is required");
+            }
+            if (dispatchRequester == null || dispatchRequester.isBlank()) {
+                throw new IllegalArgumentException("dispatchRequester is required");
+            }
+            if (dispatchId == null) {
+                throw new IllegalArgumentException("dispatchId is required");
+            }
+            if (dispatchedBy == null || dispatchedBy.isBlank()) {
+                throw new IllegalArgumentException("dispatchedBy is required");
+            }
+            if (dispatchReason == null) {
+                throw new IllegalArgumentException("dispatchReason is required");
+            }
+            if (checkpoints == null) {
+                throw new IllegalArgumentException("checkpoints list is required");
+            }
+            if (currentLocation == null) {
+                throw new IllegalArgumentException("currentLocation is required");
+            }
+            if (dispatchStatus == null) {
+                throw new IllegalArgumentException("dispatchStatus is required");
+            }
+            if (dispatchEndTime == null) {
+                throw new IllegalArgumentException("dispatchEndTime is required");
+            }
+            if (createdAt == null) {
+                throw new IllegalArgumentException("createdAt is required");
+            }
         }
     }
 
 
-
-    public record ValidatedDispatch(
-            @NotBlank(message = "the dispatch id is needed")
-            Long dispatchId,
-
-
-            @NotNull
+    // -------------------------------
+    // Body for creating a new dispatch
+    // -------------------------------
+    public record dispatchRequestBodyDTO(
             String vehicleName,
-
-            @NotNull
-            LogEnums.DispatchReason dispatchReason,
-            @NotBlank(message = "Vehicle identification is needed")
             String vehicleIdentificationNumber,
-
-            @NotBlank(message = "Who requested for the dispatch?? is needed")
+            @Enumerated(EnumType.STRING)
+            LogEnums.VehicleStatus vehicleClass,
+            @Enumerated(EnumType.STRING)
+            LogEnums.DispatchReason dispatchReason,
             String dispatchRequester,
+            LocalDateTime dispatchEndTime
+    ) {
+        public dispatchRequestBodyDTO {
+            if (vehicleName == null || vehicleName.isBlank()) {
+                throw new IllegalArgumentException("vehicleName is required");
+            }
+            if (vehicleIdentificationNumber == null || vehicleIdentificationNumber.isBlank()) {
+                throw new IllegalArgumentException("vehicleIdentificationNumber is required");
+            }
+            if (vehicleClass == null) {
+                throw new IllegalArgumentException("vehicleClass is required");
+            }
+            if (dispatchReason == null) {
+                throw new IllegalArgumentException("dispatchReason is required");
+            }
+            // dispatchRequester may be optional—only check null if you want to enforce it
+            if (dispatchEndTime == null) {
+                throw new IllegalArgumentException("dispatchEndTime is required");
+            }
+        }
+    }
 
-            @NotBlank(message = "Vehicle identification is needed")
-            String dispatchAdmin) {}
+
+    // -------------------------------
+    // Notification structure
+    // -------------------------------
+    public record NotificationRecord(
+            String id,
+            String receiver,
+            String message,
+            Boolean read,
+            String description,
+            LogEnums.NotificationType type,
+            LocalDateTime createdAt,
+            LocalDateTime readAt
+    ) {
+        public NotificationRecord {
+            // Using NotFoundException here per your original
+            if (receiver == null || receiver.isBlank()) {
+                throw new NotFoundException("Receiver is required");
+            }
+            if (message == null || message.isBlank()) {
+                throw new NotFoundException("Message is required");
+            }
+            if (read == null) {
+                throw new NotFoundException("Read flag is required");
+            }
+            if (description == null || description.isBlank()) {
+                throw new NotFoundException("Description is required");
+            }
+            // type, createdAt, readAt can be null if that's acceptable
+        }
+    }
 
 
+    // -------------------------------
+    // After validation of a dispatch
+    // -------------------------------
+    public record ValidatedDispatch(
+            Long dispatchId,
+            String vehicleName,
+            LogEnums.DispatchReason dispatchReason,
+            String vehicleIdentificationNumber,
+            String dispatchRequester,
+            String dispatchAdmin
+    ) {
+        public ValidatedDispatch {
+            if (dispatchId == null) {
+                throw new IllegalArgumentException("dispatchId is required");
+            }
+            if (vehicleName == null || vehicleName.isBlank()) {
+                throw new IllegalArgumentException("vehicleName is required");
+            }
+            if (dispatchReason == null) {
+                throw new IllegalArgumentException("dispatchReason is required");
+            }
+            if (vehicleIdentificationNumber == null || vehicleIdentificationNumber.isBlank()) {
+                throw new IllegalArgumentException("vehicleIdentificationNumber is required");
+            }
+            if (dispatchRequester == null || dispatchRequester.isBlank()) {
+                throw new IllegalArgumentException("dispatchRequester is required");
+            }
+            if (dispatchAdmin == null || dispatchAdmin.isBlank()) {
+                throw new IllegalArgumentException("dispatchAdmin is required");
+            }
+        }
+    }
 
 }

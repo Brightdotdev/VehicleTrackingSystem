@@ -37,6 +37,7 @@ public class UserModel implements UserDetails {
     @NotNull(message = "We gotta call you something right....We're not strangers here")
     private String name;
 
+
     // === Constructors ===
 
     public UserModel(int id, String email, List<String> roles, String password, String name, boolean isValidated) {
@@ -104,6 +105,8 @@ public class UserModel implements UserDetails {
     public void setProvider(String provider) {
         this.provider = provider;
     }
+
+
 
     public void setPassword(String password) {
         this.password = password;

@@ -91,7 +91,7 @@ public class JwtConfig {
         return getClaims(token).getExpiration().before(new Date());
     }
 
-    private Claims getClaims(String token) {
+    public Claims getClaims(String token) {
         return Jwts.parser()
                 .verifyWith(getSecretKey())
                 .build()
