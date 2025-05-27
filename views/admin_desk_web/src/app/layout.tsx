@@ -4,6 +4,7 @@ import { GoogleOAuthProvider } from "@react-oauth/google";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { GlobalContextProvider } from "@/contexts/GlobalContext";
 
 export const metadata: Metadata = {
   title: "Weclome to your desk",
@@ -25,7 +26,9 @@ export default function RootLayout({
         
         <ThemeProvider>
           <AuthProvider>
+            <GlobalContextProvider>
         {children}
+        </GlobalContextProvider>  
         </AuthProvider>
         </ThemeProvider>
       </GoogleOAuthProvider>
