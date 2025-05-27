@@ -115,7 +115,8 @@ public class UserDispatchService {
         dispatch.setDispatchRequestApproveTime(LocalDateTime.now());
         UtilRecords.DispatchEndedDTO dispatchEnded = new UtilRecords.DispatchEndedDTO(true,LocalDateTime.now(),dispatch.getDispatchVehicleId(),userName,dispatch.getVehicleName(),dispatchId);
 
-        rabbitMqSenderService.sendDispatchCanceledOrCompletedEventNoResponse(dispatchEnded);
+        rabbitMqSenderService.sendDispatchCompletedFanoutFromDispatchService(
+                dispatchEnded);
         return dispatchRepository.save(dispatch);
     }
 

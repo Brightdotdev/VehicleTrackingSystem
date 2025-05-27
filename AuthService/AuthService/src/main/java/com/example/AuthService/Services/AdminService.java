@@ -22,7 +22,7 @@ public class AdminService {
      Integer adminKey = 223344;
 
 
-    public AdminService(UserRepository userRepository, UserService userService) {
+    public AdminService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
@@ -43,8 +43,11 @@ public class AdminService {
         List<UserModel> foundAdmins = userRepository.findAllByEmail(email);
 
         for (UserModel user : foundAdmins){
-            if(user.getEmail().equals(email)){
+            if(user.getEmail().equals(email) && user.getRoles().contains("ROLE_ADMIN")){
                 return true;
+            }
+            else if(user.getEmail().equals(email) && !user.getRoles().contains("ROLE_ADMIN")){
+                throw new ConflictException("User already exists with that emaiil...not an admin");
             }
         }
         return false;

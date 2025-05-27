@@ -1,78 +1,23 @@
-# .dockerignore at monorepo root
+# .dockerignore
 
-### Universal Exclusions ###
-**/.git
-**/.gitignore
-**/.gitmodules
-**/.github/
-**/README.md
-**/LICENSE
-
-### Build Artifacts ###
-**/build/
-**/bin/
-**/out/
-**/target/
-**/dist/
-**/.settings/
-**/*.jar
-**/*.war
-
-### Dependency Caches ###
-**/.gradle/
-**/gradle/
-**/node_modules/
-**/.next/
-**/.nuxt/
-**/venv/
-**/__pycache__/
-
-### IDE & Editor ###
+# Exclude IDE files
 **/.idea/
-**/.vscode/
 **/*.iml
-**/*.swp
-**/*.swo
-**/.history/
+**/.vscode/
 
-### Logs & Temp Files ###
-**/*.log
-**/logs/
-**/temp/
-**/tmp/
-**/hs_err_pid*
+# Exclude build outputs
+**/build/
+**/.gradle/
 
-### Environment Secrets ###
-**/.env
-**/.env.local
-**/secrets/
-**/config/credentials/
-**/*.key
-**/*.pem
+# Exclude Git
+**/.git/
+**/.gitignore
 
-### Documentation ###
-**/docs/
-**/examples/
-**/CHANGELOG.md
+# Exclude local configs
+**/*.properties
+**/*.env
 
-### OS Specific ###
-**/.DS_Store
-**/Thumbs.db
-
-### Frontend Specific ###
-**/.cache/
-**/.svelte-kit/
-**/storybook-static/
-**/public/build/
-**/coverage/
-
-### Docker Specific ###
-**/docker-compose.yml
-**/Dockerfile*
-**/.dockerignore
-**/docker-compose.override.yml
-
-### Special Case: Allow Service-Specific Files ###
-!services/**/build.gradle
-!services/**/settings.gradle
-!services/**/src/
+# BUT ALLOW Gradle Wrapper files (DO NOT exclude these!)
+# !gradle/wrapper/gradle-wrapper.jar  <-- Don't uncomment this (just showing it should NOT be ignored)
+# !gradlew                           <-- Don't uncomment this
+# !gradlew.bat                       <-- Don't uncomment this

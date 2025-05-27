@@ -4,12 +4,13 @@ package com.tracker.loggingtrackingservice.G.V1.Models;
 import com.tracker.loggingtrackingservice.G.V1.Utils.LogEnums;
 import com.tracker.loggingtrackingservice.G.V1.Utils.UtilRecords;
 import jakarta.persistence.*;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
-@Entity
+@Document
 public class TrackingModel {
 
     @Id

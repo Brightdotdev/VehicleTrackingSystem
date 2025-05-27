@@ -165,7 +165,6 @@ public class UserDetailService implements UserDetailsService {
         user.setPassword(passwordEncoder.encode(request.password().trim()));
         user.setProvider("LOCAL_ADMIN_USER");
         user.setRoles(List.of("ROLE_ADMIN"));
-
         UserModel newUser = userService.save(user);
 
         try {

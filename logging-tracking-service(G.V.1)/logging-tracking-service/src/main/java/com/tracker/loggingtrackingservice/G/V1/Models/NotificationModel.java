@@ -8,10 +8,11 @@ import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.NotNull;
 import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
 
-@Entity
+@Document
 public class NotificationModel {
     @Id
     private String id;

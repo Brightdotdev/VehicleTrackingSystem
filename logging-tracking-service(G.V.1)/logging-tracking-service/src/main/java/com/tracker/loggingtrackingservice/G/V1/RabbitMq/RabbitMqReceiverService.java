@@ -1,7 +1,6 @@
 package com.tracker.loggingtrackingservice.G.V1.RabbitMq;
 
 import com.tracker.loggingtrackingservice.G.V1.Services.NotificationService;
-import com.tracker.loggingtrackingservice.G.V1.Services.TrackingService;
 import com.tracker.loggingtrackingservice.G.V1.Utils.UtilRecords;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,36 +12,28 @@ import org.springframework.transaction.annotation.Transactional;
 public class RabbitMqReceiverService {
 
     // Queue Names (used for RabbitListener bindings)
-    private static final String CREATED_DISPATCH_QUEUE = "created.dispatch.fanout.log.queue";
-    private static final String END_DISPATCH_QUEUE = "end.dispatch.service.logs";
-    private static final String VALIDATED_DISPATCH_QUEUE = "dispatch.validated.queue.service.logs";
+
+    private static final String DISPATCH_CREATED_FANOUT_LOG_QUEUE = "log.service.dispatch.created.fanout.queue";
+
+    private final String DISPATCH_COMPLETED_FANOUT_LOGS_QUEUE = "completed.dispatch.fanOut.provider.dispatch.service.queue.logs.service";
+
+    private final String DISPATCH_VALIDATED_FANOUT_LOGS_QUEUE = "validated.dispatch.fanOut.provider.dispatch.service.queue.logs.service";
+
+    // cool stuff
 
     private static final Logger logger = LoggerFactory.getLogger(RabbitMqReceiverService.class);
 
     private final NotificationService notificationService;
-    private final TrackingService trackingService;
-
-    public RabbitMqReceiverService(NotificationService notificationService, TrackingService trackingService) {
+    public RabbitMqReceiverService(NotificationService notificationService) {
         this.notificationService = notificationService;
-        this.trackingService = trackingService;
     }
 
-    // Handle validated dispatch notifications
-    @Transactional
-    @RabbitListener(queues = VALIDATED_DISPATCH_QUEUE)
-    public void handleDispatchValidated(UtilRecords.ValidatedDispatch dispatchValidatedEvent) {
-        try {
-            logger.info("Received validated dispatch event: {}", dispatchValidatedEvent);
-            notificationService.handleValidatedDispatchNotif(dispatchValidatedEvent);
-        } catch (Exception e) {
-            logger.error("Error processing validated dispatch message: {}", e.getMessage());
-        }
-    }
 
     // Handle created dispatch notifications
+
     @Transactional
-    @RabbitListener(queues = CREATED_DISPATCH_QUEUE)
-    public void handleDispatchToVehicleQueue(UtilRecords.dispatchRequestBodyDTO dispatchEvent) {
+    @RabbitListener(queues = DISPATCH_CREATED_FANOUT_LOG_QUEUE)
+    public void handleDispatchCreatedNoResponseFanout(UtilRecords.dispatchRequestBodyDTO dispatchEvent) {
         try {
             logger.info("Received created dispatch event: {}", dispatchEvent);
             notificationService.sendCreatedDispatchNotification(dispatchEvent);
@@ -52,14 +43,30 @@ public class RabbitMqReceiverService {
     }
 
     // Handle completed or cancelled dispatch notifications
+
     @Transactional
-    @RabbitListener(queues = END_DISPATCH_QUEUE)
-    public void handleDispatchCreatedOrCancelled(UtilRecords.DispatchEndedDTO dispatchEvent) {
+    @RabbitListener(queues = DISPATCH_COMPLETED_FANOUT_LOGS_QUEUE)
+    public void handleDispatchCompleted(UtilRecords.DispatchEndedDTO dispatchEvent) {
         try {
-            logger.info("Received ended dispatch event: {}", dispatchEvent);
+            logger.info("Received completed : {}", dispatchEvent);
             notificationService.completedDispatchNotification(dispatchEvent);
         } catch (Exception e) {
-            logger.error("Error processing ended dispatch message: {}", e.getMessage());
+            logger.error("Error processing completed dispatch: {}", e.getMessage());
+        }
+    }
+
+
+
+
+    // Handle validated dispatch notifications
+    @Transactional
+    @RabbitListener(queues = DISPATCH_VALIDATED_FANOUT_LOGS_QUEUE)
+    public void handleDispatchValidated(UtilRecords.ValidatedDispatch dispatchValidatedEvent) {
+        try {
+            logger.info("Received validated dispatch event: {}", dispatchValidatedEvent);
+            notificationService.handleValidatedDispatchNotif(dispatchValidatedEvent);
+        } catch (Exception e) {
+            logger.error("Error processing validated dispatch message: {}", e.getMessage());
         }
     }
 }

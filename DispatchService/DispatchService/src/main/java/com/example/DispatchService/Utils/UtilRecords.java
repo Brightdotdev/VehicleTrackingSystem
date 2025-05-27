@@ -159,6 +159,9 @@ public class UtilRecords {
             if (vehicleName == null || vehicleName.isBlank()) {
                 throw new IllegalArgumentException("vehicleName is required");
             }
+            if (dispatchRequester == null || dispatchRequester.isBlank()) {
+                throw new IllegalArgumentException("Who is requesting the dispatch");
+            }
             if (vehicleIdentificationNumber == null || vehicleIdentificationNumber.isBlank()) {
                 throw new IllegalArgumentException("vehicleIdentificationNumber is required");
             }
@@ -188,8 +191,8 @@ public class UtilRecords {
                 throw new IllegalArgumentException("wildCards list is required");
             }
             // safetyScore is primitive double; you can enforce a range if desired:
-            if (safetyScore < 0.0 || safetyScore > 1.0) {
-                throw new IllegalArgumentException("safetyScore must be between 0.0 and 1.0");
+            if (safetyScore < 0.0 || safetyScore > 100.0) {
+                throw new IllegalArgumentException("safetyScore must be between 0.0 and 100.0");
             }
             if (healthAttributes == null) {
                 throw new IllegalArgumentException("healthAttributes list is required");

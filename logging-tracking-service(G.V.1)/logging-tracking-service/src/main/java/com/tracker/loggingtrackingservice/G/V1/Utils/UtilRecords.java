@@ -216,6 +216,9 @@ public class UtilRecords {
             if (vehicleName == null || vehicleName.isBlank()) {
                 throw new IllegalArgumentException("vehicleName is required");
             }
+            if (dispatchRequester == null || dispatchRequester.isBlank()) {
+                throw new IllegalArgumentException("Who is requesting the dispatch");
+            }
             if (vehicleIdentificationNumber == null || vehicleIdentificationNumber.isBlank()) {
                 throw new IllegalArgumentException("vehicleIdentificationNumber is required");
             }
@@ -225,7 +228,6 @@ public class UtilRecords {
             if (dispatchReason == null) {
                 throw new IllegalArgumentException("dispatchReason is required");
             }
-            // dispatchRequester may be optional—only check null if you want to enforce it
             if (dispatchEndTime == null) {
                 throw new IllegalArgumentException("dispatchEndTime is required");
             }

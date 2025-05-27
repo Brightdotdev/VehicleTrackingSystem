@@ -33,7 +33,7 @@ public class AdminController {
 
 
     @Autowired
-    CookieGenerationHandler cookieHandler;
+    private CookieGenerationHandler cookieHandler;
     @Autowired
     private UserDetailService userDetailService;
 

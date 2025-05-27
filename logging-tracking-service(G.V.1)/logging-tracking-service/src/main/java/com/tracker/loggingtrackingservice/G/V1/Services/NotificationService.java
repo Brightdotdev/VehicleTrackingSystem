@@ -1,6 +1,7 @@
     package com.tracker.loggingtrackingservice.G.V1.Services;
 
     import com.tracker.loggingtrackingservice.G.V1.Config.UserHandler;
+    import com.tracker.loggingtrackingservice.G.V1.Exceptions.InvalidTaskRequestException;
     import com.tracker.loggingtrackingservice.G.V1.Models.NotificationModel;
     import com.tracker.loggingtrackingservice.G.V1.RabbitMq.RabbitMqSenderService;
     import com.tracker.loggingtrackingservice.G.V1.Repositories.NotificationRepository;
@@ -28,16 +29,18 @@
 
 
         public void sendCreatedDispatchNotification(UtilRecords.dispatchRequestBodyDTO dispatchEvent) {
+
             String receiver = dispatchEvent.dispatchRequester();
+
+            if (receiver == null) {
+                throw new InvalidTaskRequestException("The dispatch must have someone that requested for it");
+            }
 
             String message = "Vehicle of VIN " + dispatchEvent.vehicleIdentificationNumber()
                     + " is requested for dispatch from " + receiver
                     + " for " + dispatchEvent.dispatchReason();
             System.out.println(message);
-            if (receiver == null) {
-                System.err.println("❌ Dispatch requester is null, cannot send notification.");
-                return;
-            }
+
 
             NotificationModel notificationModel = new NotificationModel();
 

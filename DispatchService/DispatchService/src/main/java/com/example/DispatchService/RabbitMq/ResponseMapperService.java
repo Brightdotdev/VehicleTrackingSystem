@@ -31,7 +31,6 @@ public class ResponseMapperService {
                 : 0.0;
 
         boolean canDispatch = dispatchResponse.get("canDispatch") instanceof Boolean && (Boolean) dispatchResponse.get("canDispatch");
-
         // Return a new DTO instance
         return new UtilRecords.DispatchResponseDTO(wildCards, safetyScore, healthAttributes, canDispatch);
     }

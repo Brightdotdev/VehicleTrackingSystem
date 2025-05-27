@@ -20,6 +20,5 @@ public interface DispatchRepository extends JpaRepository<DispatchModel, Long> {
     DispatchModel findByDispatchIdAndDispatchRequester(Long dispatchId, String dispatchRequester);
 
 
-    List<DispatchModel> findAllByDispatchIdAndDispatchRequester(Long dispatchId, String dispatchRequester);
 
 }

@@ -43,12 +43,15 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             FilterChain filterChain
     ) throws ServletException, IOException {
 
+        final String path = request.getRequestURI();
         final String headerEmail = request.getHeader("x-user-email");
         String email = null;
-        final  List<String> headerRoles = Collections.singletonList(request.getHeader("x-user-role"));
-        final  List<String> roles = new ArrayList<>();
+        final List<String> headerRoles = Collections.singletonList(request.getHeader("x-user-roles"));
+        final List<String> roles = new ArrayList<>();
+
         String token = request.getHeader("x-user-token");
 
+        // Fallback to Authorization header if x-user-token is missing
         if (token == null) {
             String authHeader = request.getHeader("Authorization");
             if (authHeader != null && authHeader.startsWith("Bearer ")) {
@@ -57,48 +60,40 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             }
         }
 
-        // 3. Fallback to Cookie if Authorization header is also missing
+        // Fallback to cookie
         if (token == null && request.getCookies() != null) {
+            // Check if the path is under /v1/admin
+            boolean isAdminPath = path.startsWith("/v1/admin");
+
             for (Cookie cookie : request.getCookies()) {
-                if ("userDeskToken".equals(cookie.getName())) { // Assumes cookie name is "jwt"
+                if (isAdminPath && "adminDeskCookie".equals(cookie.getName())) {
+                    // Use admin cookie for admin routes
                     token = cookie.getValue();
-                    logger.debug("JWT extracted from Cookie");
+                    logger.debug("Admin JWT extracted from adminDeskCookie cookie");
+                    break;
+                } else if (!isAdminPath && "userDeskToken".equals(cookie.getName())) {
+                    // Use regular user cookie for non-admin routes
+                    token = cookie.getValue();
+                    logger.debug("User JWT extracted from userDeskToken cookie");
                     break;
                 }
             }
         }
 
-
         logger.info("Processing request: {} {}", request.getMethod(), request.getRequestURI());
-
-
 
         // If JWT is found, validate it
         if (token != null) {
-
             try {
                 if (jwtConfig.validateToken(token)) {
                     logger.debug("JWT is valid");
 
                     Claims claims = jwtConfig.getClaims(token);
                     email = claims.getSubject();
-
-
-                    ;
                     logger.info("Token subject (email): {}", email);
                     logger.info("Token subject (header email): {}", headerEmail);
 
-
-//                    if (email != null && !email.equals(headerEmail)) {
-//                        logger.warn("Email from token doesn't match header email");
-//                        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-//                        response.setContentType("application/json");
-//                        response.getWriter().write("{\"error\": \"Unauthorized Request: Email mismatch\"}");
-//                        return;
-//                    }
-
                     Object rawRoles = claims.get("roles");
-
                     if (rawRoles instanceof List<?>) {
                         for (Object role : (List<?>) rawRoles) {
                             roles.add(String.valueOf(role));
@@ -128,23 +123,23 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             return;
         }
 
-        // Set authentication in Spring Security if user info is extracted
+        // Set authentication if user info is extracted
         if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             List<SimpleGrantedAuthority> authorities = roles.stream()
+                    .map(role -> role.startsWith("ROLE_") ? role : "ROLE_" + role)
                     .map(SimpleGrantedAuthority::new)
                     .collect(Collectors.toList());
 
             UsernamePasswordAuthenticationToken authToken =
                     new UsernamePasswordAuthenticationToken(email, null, authorities);
 
-
             authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
             SecurityContextHolder.getContext().setAuthentication(authToken);
             logger.info("SecurityContext set for user: {}", email);
         }
 
-
         filterChain.doFilter(request, response);
     }
+
 
 }

@@ -28,7 +28,7 @@ public class UserAuthController {
 
 
     @Autowired
-    CookieGenerationHandler cookieHandler;
+    private CookieGenerationHandler cookieHandler;
     @Autowired
     private UserDetailService userDetailService;
 

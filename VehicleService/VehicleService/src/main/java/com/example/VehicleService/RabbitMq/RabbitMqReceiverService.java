@@ -23,10 +23,9 @@ import java.util.Map;
 @Service
 public class RabbitMqReceiverService {
 
+    private final String DISPATCH_COMPLETED_FANOUT_VEHICLE_QUEUE = "completed.dispatch.fanOut.provider.dispatch.service.queue.vehicle.service";
 
-    private final String COMPLETE_DISPATCH_FAN_OUT_QUEUE = "completed.dispatch.service.vehicle.fanOut";
-
-    private final String VEHICLE_QUEUE = "vehicle.service.created.dispatch.queue";
+    private final String DISPATCH_CREATED_DIRECT_EXCHANGE_QUEUE = "vehicle.service.created.dispatch.queue";
     private final String END_DISPATCH_FAN_OUT_QUEUE_VEHICLE =  "end.dispatch.service.vehicle";
 
 
@@ -51,7 +50,7 @@ public class RabbitMqReceiverService {
 
 
     @Transactional
-    @RabbitListener(queues = VEHICLE_QUEUE)
+    @RabbitListener(queues = DISPATCH_CREATED_DIRECT_EXCHANGE_QUEUE)
     public Map<String, Object> handleDispatchToVehicleQueue(UtilRecords.dispatchRequestBodyDTO dispatchEvent) {
         try {
             VehicleModel vehicle = vehicleRepository.findByVehicleIdentificationNumber(dispatchEvent.vehicleIdentificationNumber());
@@ -74,7 +73,7 @@ public class RabbitMqReceiverService {
     }
 
     @Transactional
-    @RabbitListener(queues = COMPLETE_DISPATCH_FAN_OUT_QUEUE)
+    @RabbitListener(queues = DISPATCH_COMPLETED_FANOUT_VEHICLE_QUEUE)
     public void
     handleDispatchToVehicleQueue(UtilRecords.DispatchEndedDTO dispatchEvent) {
         try {
@@ -83,6 +82,8 @@ public class RabbitMqReceiverService {
             logger.error("Error processing dispatch message for fanout queue for complete dispatch: {}", e.getMessage());
         }
     }
+
+
 
     @RabbitListener(queues = DISPATCH_VALIDATED_FAN_OUT_QUEUE_VEHICLE)
     public void

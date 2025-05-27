@@ -56,7 +56,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(InvalidTaskRequestException.class)
     public ResponseEntity<ApiResponse<Void>> handleInvalidTask(InvalidTaskRequestException ex) {
         ApiResponse<Void> response = ApiResponse.error(
-                ex.getErrorCode(),
+                403,
                 ex.getMessage()
         );
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);

@@ -11,18 +11,28 @@ import java.util.Map;
 @Service
 public class RabbitMqSenderService {
 
-    // -- Exchanges --
+
+    // -- Stuff --
+    private static final Logger logger = LoggerFactory.getLogger(RabbitMqSenderService.class);
+    private final RabbitTemplate rabbitTemplate;
+
+
+    // === exchanges and stuff ===
+
     private static final String DISPATCH_CREATED_DIRECT_EXCHANGE = "dispatch.created.exchange";
-    private static final String DISPATCH_CREATED_FANOUT_EXCHANGE = "dispatch.created.fanOut";
-    private static final String DISPATCH_COMPLETED_OR_CANCELLED_FANOUT_EXCHANGE = "end.dispatch.fanout";
-    private static final String DISPATCH_VALIDATED_FANOUT_EXCHANGE = "dispatch.validated.fanOut";
+
+    private static final String DISPATCH_CREATED_FANOUT = "dispatch.created.fanOut";
+
+    private final String DISPATCH_COMPLETED_FANOUT = "completed.dispatch.fanOut.provider.dispatch.service";
+
+    private final String DISPATCH_VALIDATED_FANOUT = "dispatch.validated.fanOut.provider.dispatch";
+
 
     // -- Routing keys --
-    private static final String DISPATCH_CREATED_ROUTING_KEY = "dispatch.created.key";
 
-    private static final Logger logger = LoggerFactory.getLogger(RabbitMqSenderService.class);
+    private static final String DISPATCH_CREATED_DIRECT_EXCHANGE_KEY = "dispatch.created.key";
 
-    private final RabbitTemplate rabbitTemplate;
+
 
     public RabbitMqSenderService(RabbitTemplate rabbitTemplate) {
         this.rabbitTemplate = rabbitTemplate;
@@ -34,9 +44,9 @@ public class RabbitMqSenderService {
     public Map<String, Object> sendDispatchCreatedEvent(UtilRecords.dispatchRequestBodyDTO event) {
         try {
             @SuppressWarnings("unchecked")
-            Map<String, Object> response = (Map<String, Object>) rabbitTemplate.convertSendAndReceive(
+            Map<String, Object>     response = (Map<String, Object>) rabbitTemplate.convertSendAndReceive(
                     DISPATCH_CREATED_DIRECT_EXCHANGE,
-                    DISPATCH_CREATED_ROUTING_KEY,
+                    DISPATCH_CREATED_DIRECT_EXCHANGE_KEY,
                     event
             );
 
@@ -54,15 +64,16 @@ public class RabbitMqSenderService {
     /**
      * ✅ Fanout — dispatch created event sent without waiting for a response
      */
+
     public void sendDispatchCreatedEventNoResponse(UtilRecords.dispatchRequestBodyDTO event) {
         try {
             rabbitTemplate.convertAndSend(
-                    DISPATCH_CREATED_FANOUT_EXCHANGE,
-                    "", // Fanout ignores routing key
+                    DISPATCH_CREATED_FANOUT,
+                    "",
                     event
             );
         } catch (Exception e) {
-            logger.error("Failed to send dispatch created event: {}", e.getMessage());
+            logger.error("Failed to send dispatch created event that expects no response from the dispatch service: {}", e.getMessage());
             throw new RuntimeException("Failed to send dispatch created event", e);
         }
     }
@@ -70,15 +81,16 @@ public class RabbitMqSenderService {
     /**
      * ✅ Fanout — notify that a dispatch was either completed or cancelled
      */
-    public void sendDispatchCanceledOrCompletedEventNoResponse(UtilRecords.DispatchEndedDTO event) {
+
+    public void sendDispatchCompletedFanoutFromDispatchService(UtilRecords.DispatchEndedDTO event) {
         try {
             rabbitTemplate.convertAndSend(
-                    DISPATCH_COMPLETED_OR_CANCELLED_FANOUT_EXCHANGE,
+                    DISPATCH_COMPLETED_FANOUT,
                     "",
                     event
             );
         } catch (Exception e) {
-            logger.error("Failed to send dispatch completed or cancelled event: {}", e.getMessage());
+            logger.error("Failed to send dispatch completed event from the dispatch service: {}", e.getMessage());
             throw new RuntimeException("Failed to send dispatch event", e);
         }
     }
@@ -89,7 +101,7 @@ public class RabbitMqSenderService {
     public void sendDispatchValidatedNoResponse(UtilRecords.ValidatedDispatch dispatchValidatedBroadcast) {
         try {
             rabbitTemplate.convertAndSend(
-                    DISPATCH_VALIDATED_FANOUT_EXCHANGE,
+                    DISPATCH_VALIDATED_FANOUT,
                     "",
                     dispatchValidatedBroadcast
             );
