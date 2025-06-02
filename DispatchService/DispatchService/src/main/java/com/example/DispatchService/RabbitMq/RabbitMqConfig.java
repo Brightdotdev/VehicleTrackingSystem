@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RabbitMqConfig {
 
+    /**  Sender config   **/
 
     // === Direct Exchange ===
     private final String DISPATCH_DIRECT_EXCHANGE = "dispatch.created.exchange";
@@ -23,6 +24,7 @@ public class RabbitMqConfig {
 
 
     // ---------- Dispatch created fanout ----------
+
     private final String DISPATCH_CREATED_FANOUT = "dispatch.created.fanOut";
 
     @Bean
@@ -48,6 +50,57 @@ public class RabbitMqConfig {
     public FanoutExchange dispatchCompletedFanOutFromDispatchService() {
         return new FanoutExchange(DISPATCH_COMPLETED_FANOUT, true, false);
     }
+
+
+    /**  Receiver config   **/
+
+
+    // === dispatch validated from logs service ===
+
+    private final String DISPATCH_COMPLETED_FROM_LOGS = "completed.dispatch.fanOut.provider.logs";
+
+    private final String DISPATCH_COMPLETED_FROM_LOGS_QUEUE = "completed.dispatch.fanOut.provider.logs.queue.service.dispatch";
+
+    @Bean
+    public FanoutExchange completedDispatchFromLogs() {
+        return new FanoutExchange(DISPATCH_COMPLETED_FROM_LOGS,  true, false);
+    }
+
+    @Bean
+    public Queue completedDispatchFromLogsQueue() {
+        return new Queue(DISPATCH_COMPLETED_FROM_LOGS_QUEUE, true, false, false);
+    }
+
+    @Bean
+    public Binding completedDispatchFromLogsBonding(FanoutExchange completedDispatchFromLogs , Queue completedDispatchFromLogsQueue) {
+        return BindingBuilder.bind(completedDispatchFromLogsQueue)
+                .to(completedDispatchFromLogs);
+    }
+
+
+    // === start tracking from logs service ===
+
+    private static final String DISPATCH_TRACKING_FANOUT_EXCHANGE_FOR_RECEIVING = "start.tracking.fanOut.provider.logs";
+
+    private final String DISPATCH_TRACKING_FANOUT_EXCHANGE_FOR_RECEIVING_LOGS_QUEUE = "start.tracking.fanOut.provider.logs.queue.dispatch";
+
+    @Bean
+    public FanoutExchange startTrackingFromTrackingService() {
+        return new FanoutExchange(DISPATCH_TRACKING_FANOUT_EXCHANGE_FOR_RECEIVING);
+    }
+
+    @Bean
+    public Queue startTrackingFromTrackingServiceQueue() {
+        return new Queue(DISPATCH_TRACKING_FANOUT_EXCHANGE_FOR_RECEIVING_LOGS_QUEUE ,true, false, false);
+    }
+
+    @Bean
+    public Binding startTrackingFromTrackingServiceBinding(FanoutExchange startTrackingFromTrackingService,Queue startTrackingFromTrackingServiceQueue) {
+        return BindingBuilder.bind(startTrackingFromTrackingServiceQueue)
+                .to(startTrackingFromTrackingService);
+    }
+
+ /** Normal config **/
 
 
     // ---------- Converter & Template ----------

@@ -197,13 +197,36 @@ public class VehicleService {
         ){
             throw new ConflictException("The vehicle is not staged for dispatch");
         }
-            if(!dispatchedVehicle.getDispatchHistory().contains(dispatchEvent.dispatchId())){
-                dispatchedVehicle.addDispatchHistoryEntry(dispatchEvent.dispatchId());
-            }
+
 
         dispatchedVehicle.setDispatchStatus(VehicleEnums.VehicleDispatchStatus.AVAILABLE);
         vehicleRepository.save(dispatchedVehicle);
         System.out.println("Were good here too Yayyy");
+    }
+
+    public void handleDispatchTracking(UtilRecords.StartTrackingDTO trackingEvent){
+
+        VehicleModel dispatchedVehicle = vehicleRepository.
+                findByVehicleIdentificationNumber(trackingEvent.vehicleIdentificationNumber());
+
+        if (dispatchedVehicle == null){
+            throw new NotFoundException("The vehicle doesn't even exist boss");
+        }
+        if(
+                dispatchedVehicle.getDispatchStatus() != VehicleEnums.VehicleDispatchStatus.IN_PROGRESS
+                        ||
+                        dispatchedVehicle.getDispatchStatus() != VehicleEnums.VehicleDispatchStatus.PENDING
+        ){
+            throw new ConflictException("The vehicle is not staged for dispatch");
+        }
+        if(!dispatchedVehicle.getDispatchHistory().contains(trackingEvent.dispatchId())){
+            dispatchedVehicle.addDispatchHistoryEntry(trackingEvent.dispatchId());
+        }
+
+        dispatchedVehicle.setDispatchStatus(VehicleEnums.VehicleDispatchStatus.IN_PROGRESS);
+        vehicleRepository.save(dispatchedVehicle);
+        System.out.println("Were good here too Yayyy");
+
     }
 }
 

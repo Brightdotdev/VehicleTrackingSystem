@@ -22,15 +22,6 @@ public class NotificationSseController {
         return notificationSseService.subscribe(clientId);
     }
 
-    // Example endpoint to simulate user notification
-    @PostMapping("/send-to-user")
-    public void testUserNotify(@RequestParam String userId, @RequestBody String message) {
-        notificationSseService.sendUserNotification(userId, message);
-    }
 
-    // Example endpoint to simulate admin notification
-    @PostMapping("/send-to-admin")
-    public void testAdminNotify(@RequestParam String adminId, @RequestBody String message) {
-        notificationSseService.sendAdminNotification(adminId, message);
-    }
+
 }

@@ -22,7 +22,7 @@ public class TrackingModel {
     @Column(unique = true)
     private Long dispatchId;
 
-    private String dispatchedBy;
+    private String dispatchAdmin;
 
     @Enumerated(EnumType.STRING)
     private LogEnums.DispatchReason dispatchReason;
@@ -41,18 +41,18 @@ public class TrackingModel {
     private String vehicleName;
 
 
-    public void addToCheckPoint(UtilRecords.CheckPoint cp) {
-            checkpoints.add(cp);}
+    public void addToCheckPoint(UtilRecords.CheckPoint checkpoint) {
+            checkpoints.add(checkpoint);}
 
     public TrackingModel() {
     }
 
-    public TrackingModel(String id, String vehicleIdentificationNumber, String dispatchRequester, Long dispatchId, String dispatchedBy, LogEnums.DispatchReason dispatchReason, List<UtilRecords.CheckPoint> checkpoints, UtilRecords.CheckPoint currentLocation, LogEnums.DispatchStatus dispatchStatus, LocalDateTime dispatchEndTime, LocalDateTime createdAt, LocalDateTime endedAt, String vehicleName) {
+    public TrackingModel(String id, String vehicleIdentificationNumber, String dispatchRequester, Long dispatchId, String dispatchAdmin, LogEnums.DispatchReason dispatchReason, List<UtilRecords.CheckPoint> checkpoints, UtilRecords.CheckPoint currentLocation, LogEnums.DispatchStatus dispatchStatus, LocalDateTime dispatchEndTime, LocalDateTime createdAt, LocalDateTime endedAt, String vehicleName) {
         this.id = id;
         this.vehicleIdentificationNumber = vehicleIdentificationNumber;
         this.dispatchRequester = dispatchRequester;
         this.dispatchId = dispatchId;
-        this.dispatchedBy = dispatchedBy;
+        this.dispatchAdmin = dispatchAdmin;
         this.dispatchReason = dispatchReason;
         this.checkpoints = checkpoints;
         this.currentLocation = currentLocation;
@@ -95,12 +95,12 @@ public class TrackingModel {
         this.dispatchId = dispatchId;
     }
 
-    public String getDispatchedBy() {
-        return dispatchedBy;
+    public String getDispatchAdmin() {
+        return dispatchAdmin;
     }
 
-    public void setDispatchedBy(String dispatchedBy) {
-        this.dispatchedBy = dispatchedBy;
+    public void setDispatchAdmin(String dispatchAdmin) {
+        this.dispatchAdmin = dispatchAdmin;
     }
 
     public LogEnums.DispatchReason getDispatchReason() {

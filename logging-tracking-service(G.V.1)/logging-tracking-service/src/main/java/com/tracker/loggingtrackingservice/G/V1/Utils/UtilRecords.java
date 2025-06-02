@@ -276,7 +276,8 @@ public class UtilRecords {
             LogEnums.DispatchReason dispatchReason,
             String vehicleIdentificationNumber,
             String dispatchRequester,
-            String dispatchAdmin
+            String dispatchAdmin,
+            LocalDateTime dispatchEndTime
     ) {
         public ValidatedDispatch {
             if (dispatchId == null) {
@@ -297,7 +298,88 @@ public class UtilRecords {
             if (dispatchAdmin == null || dispatchAdmin.isBlank()) {
                 throw new IllegalArgumentException("dispatchAdmin is required");
             }
+            if (LocalDateTime.now().isAfter(dispatchEndTime)) {
+                throw new IllegalArgumentException("The date is not dating bro");
+            }
+        }}
+
+
+        // -------------------------------
+        // Creatign a new admin
+        // -------------------------------
+    public record adminCreatedRequestBodyDto(
+            String email
+          ) {
+        public adminCreatedRequestBodyDto {
+                      if (email == null || email.isBlank()) {
+                throw new IllegalArgumentException("email is required");
+            }
         }
     }
 
+
+
+    // -------------------------------
+    // Start dispatch tracking
+    // -------------------------------
+    public record StartTrackingDTO(
+            Long dispatchId,
+            String vehicleName,
+            LogEnums.DispatchReason dispatchReason,
+            String vehicleIdentificationNumber,
+            String dispatchRequester,
+            String dispatchAdmin
+    ) {
+        public StartTrackingDTO {
+            if (dispatchId == null) {
+                throw new IllegalArgumentException("dispatchId is required");
+            }
+            if (vehicleName == null || vehicleName.isBlank()) {
+                throw new IllegalArgumentException("vehicleName is required");
+            }
+            if (dispatchReason == null) {
+                throw new IllegalArgumentException("dispatchReason is required");
+            }
+            if (vehicleIdentificationNumber == null || vehicleIdentificationNumber.isBlank()) {
+                throw new IllegalArgumentException("vehicleIdentificationNumber is required");
+            }
+            if (dispatchRequester == null || dispatchRequester.isBlank()) {
+                throw new IllegalArgumentException("dispatchRequester is required");
+            }
+            if (dispatchAdmin == null || dispatchAdmin.isBlank()) {
+                throw new IllegalArgumentException("dispatchAdmin is required");
+            }
+        }}
+    // -------------------------------
+    // Start dispatch tracking
+    // -------------------------------
+    public record NotificationDto(
+            String message,
+            String title,
+            String notificationId,
+            Boolean isActionNotification,
+            Map<String, Object>  badCta,
+            Map<String, Object>  goodCta,
+            String receiver,
+            Boolean isRead
+    ) {
+        public NotificationDto {
+            if (message == null || message.isBlank()) {
+                throw new IllegalArgumentException("message is required");
+            }
+            if (isRead == null) {
+                throw new IllegalArgumentException("Is it read or not");
+            }
+            if (title == null || title.isBlank()) {
+                throw new IllegalArgumentException("title is required");
+            }
+            if (notificationId == null || notificationId.isBlank()) {
+                throw new IllegalArgumentException("notificationId is required");
+            }
+
+        }}
+
+
+
+    public record setReadRecord (String notifId) {}
 }

@@ -12,44 +12,44 @@ import java.util.Map;
 @Service
 public class UtilRecords {
 
-    // ---------------------------------------------
+
+    // -------------------------------
     // After validation of a dispatch
-    // ---------------------------------------------
+    // -------------------------------
     public record ValidatedDispatch(
             Long dispatchId,
             String vehicleName,
             DispatchEnums.DispatchReason dispatchReason,
             String vehicleIdentificationNumber,
             String dispatchRequester,
-            String dispatchAdmin
+            String dispatchAdmin,
+            LocalDateTime dispatchEndTime
     ) {
         public ValidatedDispatch {
-            // dispatchId must be provided
             if (dispatchId == null) {
                 throw new IllegalArgumentException("dispatchId is required");
             }
-            // vehicleName must not be null or blank
             if (vehicleName == null || vehicleName.isBlank()) {
                 throw new IllegalArgumentException("vehicleName is required");
             }
-            // dispatchReason must be provided
             if (dispatchReason == null) {
                 throw new IllegalArgumentException("dispatchReason is required");
             }
-            // VIN must not be null or blank
             if (vehicleIdentificationNumber == null || vehicleIdentificationNumber.isBlank()) {
                 throw new IllegalArgumentException("vehicleIdentificationNumber is required");
             }
-            // dispatchRequester must not be null or blank
             if (dispatchRequester == null || dispatchRequester.isBlank()) {
                 throw new IllegalArgumentException("dispatchRequester is required");
             }
-            // dispatchAdmin must not be null or blank
             if (dispatchAdmin == null || dispatchAdmin.isBlank()) {
                 throw new IllegalArgumentException("dispatchAdmin is required");
             }
-        }
-    }
+            if (LocalDateTime.now().isAfter(dispatchEndTime)) {
+                throw new IllegalArgumentException("The date is not dating bro");
+            }
+        }}
+
+
 
     // ---------------------------------------------
     // Event published when a dispatch completes
@@ -75,6 +75,7 @@ public class UtilRecords {
             }
         }
     }
+
 
     // ---------------------------------------------
     // DTO for signalling that a dispatch ended
@@ -200,4 +201,39 @@ public class UtilRecords {
             // canDispatch is primitive boolean; always present
         }
     }
+
+
+    // -------------------------------
+    // Start dispatch tracking
+    // -------------------------------
+    public record StartTrackingDTO(
+            Long dispatchId,
+            String vehicleName,
+            DispatchEnums.DispatchReason dispatchReason,
+            String vehicleIdentificationNumber,
+            String dispatchRequester,
+            String dispatchAdmin
+    ) {
+        public StartTrackingDTO {
+            if (dispatchId == null) {
+                throw new IllegalArgumentException("dispatchId is required");
+            }
+            if (vehicleName == null || vehicleName.isBlank()) {
+                throw new IllegalArgumentException("vehicleName is required");
+            }
+            if (dispatchReason == null) {
+                throw new IllegalArgumentException("dispatchReason is required");
+            }
+            if (vehicleIdentificationNumber == null || vehicleIdentificationNumber.isBlank()) {
+                throw new IllegalArgumentException("vehicleIdentificationNumber is required");
+            }
+            if (dispatchRequester == null || dispatchRequester.isBlank()) {
+                throw new IllegalArgumentException("dispatchRequester is required");
+            }
+            if (dispatchAdmin == null || dispatchAdmin.isBlank()) {
+                throw new IllegalArgumentException("dispatchAdmin is required");
+            }
+
+
+        }}
 }

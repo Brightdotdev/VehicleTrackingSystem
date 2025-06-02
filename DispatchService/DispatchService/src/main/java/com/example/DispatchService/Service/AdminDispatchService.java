@@ -54,7 +54,7 @@ public class AdminDispatchService {
         dispatch.setDispatchStatus(DispatchEnums.DispatchStatus.IN_PROGRESS);
         dispatch.setDispatchRequestApproveTime(LocalDateTime.now());
 
-        UtilRecords.ValidatedDispatch dispatchValidatedBroadcast = new UtilRecords.ValidatedDispatch(dispatch.getDispatchId(), dispatch.getVehicleName(), dispatch.getDispatchReason(),dispatch.getDispatchVehicleId(),dispatch.getDispatchRequester(),dispatch.getDispatchAdmin());
+        UtilRecords.ValidatedDispatch dispatchValidatedBroadcast = new UtilRecords.ValidatedDispatch(dispatch.getDispatchId(), dispatch.getVehicleName(), dispatch.getDispatchReason(),dispatch.getDispatchVehicleId(),dispatch.getDispatchRequester(),dispatch.getDispatchAdmin(),dispatch.getDispatchEndTime());
 
         rabbitMqSenderService.sendDispatchValidatedNoResponse(dispatchValidatedBroadcast);
 

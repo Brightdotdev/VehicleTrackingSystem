@@ -90,6 +90,7 @@ public class UserDispatchService {
     }
 
 
+
     /** canceling a dispatch (user(dispatch requester)) **/
 
     @Transactional
@@ -159,9 +160,15 @@ public class UserDispatchService {
                 // dispatch just got expired
                 dispatch.setDispatchStatus(DispatchEnums.DispatchStatus.EXPIRED);
                 dispatch.addToDispatchMetadata("DispatchStatus", "Dispatch Is Expired");
+
+                UtilRecords.DispatchEndedDTO dispatchEnded = new UtilRecords.DispatchEndedDTO(false,LocalDateTime.now(),dispatch.getDispatchVehicleId(),user,dispatch.getVehicleName(),dispatch.getDispatchId());
+
+                rabbitMqSenderService.sendDispatchCompletedFanoutFromDispatchService(dispatchEnded);
+
                 dispatchRepository.save(dispatch);
-                allMyDispatches.add(dispatch);
-            }
+                allMyDispatches.add(dispatch);}
+
+
 
             if (expiry.isAfter(now)) {
                 // Still active — calculate time remaining
@@ -226,10 +233,10 @@ public class UserDispatchService {
 
 
     @Transactional
-    public DispatchModel completeDispatch(UtilRecords.DispatchCompletedEvent completedEvent){
+    public DispatchModel completeDispatch(UtilRecords.DispatchEndedDTO dispatchEnded){
 
         DispatchModel dispatch = dispatchRepository
-            .findByDispatchIdAndDispatchRequester(completedEvent.dispatchId(),completedEvent.userName());
+            .findByDispatchIdAndDispatchRequester(dispatchEnded.dispatchId(),dispatchEnded.receiver());
 
 
         if(!isStillValidDispatch(dispatch)){
@@ -237,17 +244,34 @@ public class UserDispatchService {
             return null;
         }
 
-        if(!dispatch.getDispatchRequester().equals(completedEvent.userName())){
-            System.out.println(completedEvent.userName());
+        if(!dispatch.getDispatchRequester().equals(dispatchEnded.receiver())){
+            System.out.println(dispatchEnded.receiver());
             System.out.println(dispatch.getDispatchRequester());
             throw new InvalidRequestException("Uhm how did this even happen", 400);
         }
         dispatch.addToDispatchMetadata("dispatchCompleteStatus", "Your dispatch has been completed");
         dispatch.setDispatchStatus(DispatchEnums.DispatchStatus.COMPLETED);
-        dispatch.setDispatchEndTime(completedEvent.endTime());
+        dispatch.setDispatchEndTime(dispatchEnded.timeStamp());
         return dispatchRepository.save(dispatch);
     }
 
+
+    public void handleDispatchTracking(UtilRecords.StartTrackingDTO trackingEvent) {
+        DispatchModel foundUserDispatch = dispatchRepository.findByDispatchId(trackingEvent.dispatchId());
+
+        if(foundUserDispatch == null){
+            throw new NotFoundException("Dispatch not found");
+        }
+
+        if (!isStillValidDispatch(foundUserDispatch)) {
+        throw new ConflictException("The dispatch is not valid");
+        }
+
+
+        foundUserDispatch.setDispatchStatus(DispatchEnums.DispatchStatus.IN_PROGRESS);
+        foundUserDispatch.setDispatchStartTime(LocalDateTime.now());
+        dispatchRepository.save(foundUserDispatch);
+    }
 
 
 
@@ -300,4 +324,6 @@ public class UserDispatchService {
         }
         return true;
     }
+
+
 }

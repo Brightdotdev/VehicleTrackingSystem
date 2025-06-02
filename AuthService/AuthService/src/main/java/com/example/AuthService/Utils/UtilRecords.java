@@ -226,4 +226,19 @@ public class UtilRecords {
             }
         }
     }
+
+
+
+    // -------------------------------
+    // Creatign a new admin
+    // -------------------------------
+    public record adminCreatedRequestBodyDto(
+            String email
+    ) {
+        public adminCreatedRequestBodyDto {
+            if (email == null || email.isBlank()) {
+                throw new IllegalArgumentException("email is required");
+            }
+        }
+    }
 }

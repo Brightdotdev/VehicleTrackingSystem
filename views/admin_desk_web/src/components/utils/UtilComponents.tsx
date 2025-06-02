@@ -9,7 +9,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 
 
-export const GoogleButton = ({ loading, setGoogleLoading, authType }: { loading: boolean, setGoogleLoading: (loading: boolean) => 
+export const  GoogleButton = ({ loading, setGoogleLoading, authType }: { loading: boolean, setGoogleLoading: (loading: boolean) => 
   void, authType : string }) => {
     const router = useRouter();
     const {setGoogleUserData} = useAuth();
@@ -34,8 +34,8 @@ export const GoogleButton = ({ loading, setGoogleLoading, authType }: { loading:
             ) : (
                 <Button
                     variant="outline"
-                    className="w-full cursor-pointer bg-background2
-                        relative overflow-hidden group rounded-lg bg-blue-600 text-foreground font-semibold shadow-md transition duration-300 hover:shadow-lg focus:outline-none"
+                    className="w-full cursor-pointer bg-chart-1
+                        relative overflow-hidden group rounded-lg  text-background dark:text-foreground font-semibold shadow-md transition duration-300 hover:shadow-lg focus:outline-none"
                   onClick={async (e) => {
     e.preventDefault();
     if (authType === 'google-sign-up') {

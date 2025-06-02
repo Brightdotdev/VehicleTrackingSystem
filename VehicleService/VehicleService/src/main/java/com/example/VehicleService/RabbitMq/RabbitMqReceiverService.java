@@ -25,12 +25,13 @@ public class RabbitMqReceiverService {
 
     private final String DISPATCH_COMPLETED_FANOUT_VEHICLE_QUEUE = "completed.dispatch.fanOut.provider.dispatch.service.queue.vehicle.service";
 
+
+
     private final String DISPATCH_CREATED_DIRECT_EXCHANGE_QUEUE = "vehicle.service.created.dispatch.queue";
     private final String END_DISPATCH_FAN_OUT_QUEUE_VEHICLE =  "end.dispatch.service.vehicle";
 
-
     private final String DISPATCH_VALIDATED_FAN_OUT_QUEUE_VEHICLE = "dispatch.validated.queue.service.vehicle";
-
+    private final String DISPATCH_TRACKING_FANOUT_EXCHANGE_FOR_RECEIVING_LOGS_QUEUE = "start.tracking.fanOut.provider.logs.queue.vehicle";
     private final Logger logger = LoggerFactory.getLogger(RabbitMqReceiverService.class);
     private final VehicleRepository vehicleRepository;
     private final VehicleHealthService vehicleHealthService;
@@ -106,6 +107,30 @@ public class RabbitMqReceiverService {
             vehicleService.completedDispatch(dispatchEvent);
         } catch (Exception e) {
             logger.error("Error processing completed dispatch dispatch message: {}", e.getMessage());
+        }
+    }
+
+
+
+    @Transactional
+    @RabbitListener(queues = DISPATCH_COMPLETED_FANOUT_VEHICLE_QUEUE)
+    public void handleDispatchCompletedFromLogs(UtilRecords.DispatchEndedDTO dispatchEvent) {
+        try {
+            vehicleService.completedDispatch(dispatchEvent);
+        } catch (Exception e) {
+            logger.error("Error processing dispatch message: {}", e.getMessage());
+        }
+    }
+
+    // Handle Tracking notification
+    @Transactional
+    @RabbitListener(queues = DISPATCH_TRACKING_FANOUT_EXCHANGE_FOR_RECEIVING_LOGS_QUEUE)
+    public void handleDispatchTrackingQueue(UtilRecords.StartTrackingDTO trackingEvent) {
+        try {
+            logger.info("Received Tracking notification: {}", trackingEvent);
+            vehicleService.handleDispatchTracking(trackingEvent);
+        } catch (Exception e) {
+            logger.error("Error processing Tracking notification: {}", e.getMessage());
         }
     }
 }

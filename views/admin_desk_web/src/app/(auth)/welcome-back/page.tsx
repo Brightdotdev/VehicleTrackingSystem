@@ -2,7 +2,7 @@
 
 import { GalleryVerticalEnd } from "lucide-react"
 
-import { LoginForm } from "@/components/login-form"
+import { LoginForm } from "@/components/ComponentBlocks/login-form"
 import ToggleTier from "@/components/utils/Toggler"
 import { useSearchParams } from "next/navigation";
 import { useEffect } from "react";

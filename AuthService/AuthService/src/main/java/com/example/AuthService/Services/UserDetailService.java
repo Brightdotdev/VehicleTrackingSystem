@@ -4,6 +4,7 @@ import com.example.AuthService.Exceptions.AccessException;
 import com.example.AuthService.Exceptions.ConflictException;
 import com.example.AuthService.Exceptions.NotFoundException;
 import com.example.AuthService.Models.UserModel;
+import com.example.AuthService.RabbitMq.RabbitMqSenderService;
 import com.example.AuthService.Utils.UtilRecords;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 
 @Service("userDetailsService")
@@ -29,16 +31,18 @@ public class UserDetailService implements UserDetailsService {
     private final AdminService adminService;
 
     private final PasswordEncoder passwordEncoder;
+    private final RabbitMqSenderService rabbitMqSenderService;
 
 
     private final AuthenticationManager authenticationManager;
 
     @Autowired
-    public UserDetailService(UserService userService, AdminService adminService, @Lazy AuthenticationManager authenticationManager, @Lazy PasswordEncoder passwordEncoder) {
+    public UserDetailService(UserService userService, AdminService adminService, @Lazy AuthenticationManager authenticationManager, @Lazy PasswordEncoder passwordEncoder, RabbitMqSenderService rabbitMqSenderService) {
         this.userService = userService;
         this.adminService = adminService;
         this.authenticationManager = authenticationManager;
         this.passwordEncoder = passwordEncoder;
+        this.rabbitMqSenderService = rabbitMqSenderService;
     }
 
 
@@ -149,6 +153,21 @@ public class UserDetailService implements UserDetailsService {
 
 
     @Transactional
+    public UtilRecords.LoginServiceResponse handleOath2AdminSignUp(UtilRecords.AdminGoogleSignUp adminRequest) {
+
+        UserModel authUser = adminService.handleOath2AdminSignUp(adminRequest);
+
+        Authentication auth = new UsernamePasswordAuthenticationToken(
+                authUser, // principal
+                null, // no credentials for OAuth
+                authUser.getAuthorities() // roles/authorities
+        );
+        return new UtilRecords.LoginServiceResponse(authUser,auth);
+    }
+
+
+
+    @Transactional
     public UtilRecords.LoginServiceResponse handleAdminLocalSignUp(UtilRecords.AdminLocalSignUp request) {
 
 
@@ -165,17 +184,27 @@ public class UserDetailService implements UserDetailsService {
         user.setPassword(passwordEncoder.encode(request.password().trim()));
         user.setProvider("LOCAL_ADMIN_USER");
         user.setRoles(List.of("ROLE_ADMIN"));
-        UserModel newUser = userService.save(user);
 
-        try {
-            auth = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(request.email(), request.password()));
-        } catch (Exception e) {
-            throw new ConflictException("Authentication failed after save");
+        UtilRecords.adminCreatedRequestBodyDto adminReq = new UtilRecords.adminCreatedRequestBodyDto(request.email().trim());
+
+        Map<String , Object> logAdminCreatedResponse = rabbitMqSenderService.sendAdminCreated(adminReq);
+
+        if(!logAdminCreatedResponse.containsKey("createdNew")){
+            throw new ConflictException("Unable to synchronize admin data Try signing up again");
         }
 
-        // Return both user info and authentication token
-        return new UtilRecords.LoginServiceResponse(newUser, auth);
+
+        UserModel newUser = userService.save(user);
+
+            try {
+                auth = authenticationManager.authenticate(
+                        new UsernamePasswordAuthenticationToken(request.email(), request.password()));
+            } catch (Exception e) {
+                throw new ConflictException("Authentication failed after save");
+            }
+
+            // Return both user info and authentication token
+            return new UtilRecords.LoginServiceResponse(newUser, auth);
     }
 
 
@@ -193,18 +222,6 @@ public class UserDetailService implements UserDetailsService {
             throw new ConflictException("Authentication failed after save");
         }
         return new UtilRecords.LoginServiceResponse(user, auth);
-    }
-    @Transactional
-    public UtilRecords.LoginServiceResponse handleOath2AdminSignUp(UtilRecords.AdminGoogleSignUp adminRequest) {
-
-        UserModel authUser = adminService.handleOath2AdminSignUp(adminRequest);
-
-        Authentication auth = new UsernamePasswordAuthenticationToken(
-                authUser, // principal
-                null, // no credentials for OAuth
-                authUser.getAuthorities() // roles/authorities
-        );
-        return new UtilRecords.LoginServiceResponse(authUser,auth);
     }
 
 

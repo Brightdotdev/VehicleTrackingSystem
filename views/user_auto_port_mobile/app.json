@@ -4,26 +4,78 @@
     "slug": "auto-port",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "scheme": "autoport",
+    "notification": {
+      "icon": "./assets/androidIcon.png",
+      "color": "#151718",
+      "androidMode": "default",
+      "androidCollapsedTitle": "New notifications"
+    },
+    "permissions": [
+      "NOTIFICATIONS",
+      "CAMERA",
+      "LOCATION"
+    ],
+    "icon": "./assets/androidIcon.png",
+    "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/splash-icon.png",
+      "image": "./assets/splashScreenLight.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#ecedee",
+      "dark": {
+        "image": "./assets/splashScreenDark.png",
+        "backgroundColor": "#151718"
+      }
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "splash": {
+        "image": "./assets/splashScreenLight.png",
+        "resizeMode": "contain",
+        "backgroundColor": "#ecedee",
+        "dark": {
+          "image": "./assets/splashScreenDark.png",
+          "backgroundColor": "#151718"
+        }
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#ecedee"
+      },
+      "splash": {
+        "image": "./assets/android-splash.png",
+        "resizeMode": "contain",
+        "backgroundColor": "#ecedee",
+        "dark": {
+          "image": "./assets/android-splash-dark.png",
+          "backgroundColor": "#151718"
+        }
       },
       "edgeToEdgeEnabled": true
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "bundler": "metro",
+      "favicon": "./assets/androidIcon.png"
+    },
+    "platforms": [
+      "ios",
+      "android",
+      "web"
+    ],
+    "privacy": "public",
+    "description": "Auto-port vehicle tracking app.",
+    "assetBundlePatterns": [
+      "assets/*",
+      "assets/fonts/*"
+    ],
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
+    "extra": {
+      "apiUrl": "https://your-api.com"
     },
     "plugins": [
       "expo-font"

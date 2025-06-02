@@ -9,10 +9,6 @@ import org.springframework.stereotype.Service;
 @Service
 public class RabbitMqSenderService {
 
-    // Exchange name (not queue!)
-    private static final String COMPLETED_DISPATCH_EXCHANGE = "completed.dispatch.fanOut";
-
-    // Logger setup
     private static final Logger logger = LoggerFactory.getLogger(RabbitMqSenderService.class);
     private final RabbitTemplate rabbitTemplate;
 
@@ -20,14 +16,35 @@ public class RabbitMqSenderService {
         this.rabbitTemplate = rabbitTemplate;
     }
 
+
+    private static final String COMPLETED_DISPATCH_FANOUT_EXCHANGE = "completed.dispatch.fanOut.provider.logs";
+
+    private static final String DISPATCH_TRACKING_FANOUT_EXCHANGE = "start.tracking.fanOut.provider.logs";
+
+
     // Send event to completed dispatch exchange
     public void sendCompletedDispatchFanOut(UtilRecords.DispatchEndedDTO completedEvent) {
         try {
-            logger.info("Sending completed dispatch event: {}", completedEvent);
+            logger.info("Sending completed dispatch event rom the logs ofc: {}", completedEvent);
             rabbitTemplate.convertAndSend(
-                    COMPLETED_DISPATCH_EXCHANGE, // exchange
+                    COMPLETED_DISPATCH_FANOUT_EXCHANGE, // exchange
                     "",                          // routing key (empty for fanout)
                     completedEvent               // message
+            );
+        } catch (Exception e) {
+            logger.error("Failed to send dispatch completed event: {}", e.getMessage());
+            throw new RuntimeException("Failed to send dispatch completed event", e);
+        }
+    }
+
+
+    public void sendTrackingInitializationFanout(UtilRecords.StartTrackingDTO trackingDTO) {
+        try {
+            logger.info("Sending intialized tracking dispatch event rom the logs ofc: {}", trackingDTO);
+            rabbitTemplate.convertAndSend(
+                    DISPATCH_TRACKING_FANOUT_EXCHANGE, // exchange
+                    "",                          // routing key (empty for fanout)
+                    trackingDTO               // message
             );
         } catch (Exception e) {
             logger.error("Failed to send dispatch completed event: {}", e.getMessage());

@@ -6,7 +6,7 @@ import HomeButton from "@/components/utils/HomeButton";
 import { useAuth } from "@/contexts/AuthContext";
 import Loading from "@/components/ui/Loading";
 
-export default function PrivacyPolicy() {
+export default function Me() {
 
   const { userData, authLoading } = useAuth();
 

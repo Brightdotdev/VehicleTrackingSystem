@@ -52,45 +52,43 @@ public class UtilRecords {
         }
     }
 
-
-    // ------------------------------------------------
+    // -------------------------------
     // After validation of a dispatch
-    // ------------------------------------------------
+    // -------------------------------
     public record ValidatedDispatch(
             Long dispatchId,
             String vehicleName,
             VehicleEnums.DispatchReason dispatchReason,
             String vehicleIdentificationNumber,
             String dispatchRequester,
-            String dispatchAdmin
+            String dispatchAdmin,
+            LocalDateTime dispatchEndTime
     ) {
         public ValidatedDispatch {
-            // dispatchId must be provided
             if (dispatchId == null) {
                 throw new IllegalArgumentException("dispatchId is required");
             }
-            // vehicleName must be non-blank
             if (vehicleName == null || vehicleName.isBlank()) {
                 throw new IllegalArgumentException("vehicleName is required");
             }
-            // dispatchReason enum must be non-null
             if (dispatchReason == null) {
                 throw new IllegalArgumentException("dispatchReason is required");
             }
-            // VIN must be non-blank
             if (vehicleIdentificationNumber == null || vehicleIdentificationNumber.isBlank()) {
                 throw new IllegalArgumentException("vehicleIdentificationNumber is required");
             }
-            // dispatchRequester must be non-blank
             if (dispatchRequester == null || dispatchRequester.isBlank()) {
                 throw new IllegalArgumentException("dispatchRequester is required");
             }
-            // dispatchAdmin must be non-blank
             if (dispatchAdmin == null || dispatchAdmin.isBlank()) {
                 throw new IllegalArgumentException("dispatchAdmin is required");
             }
-        }
-    }
+            if (LocalDateTime.now().isAfter(dispatchEndTime)) {
+                throw new IllegalArgumentException("The date is not dating bro");
+            }
+        }}
+
+
 
 
     // ------------------------------------------------
@@ -224,4 +222,39 @@ public class UtilRecords {
             }
         }
     }
+
+
+    // -------------------------------
+    // Start dispatch tracking
+    // -------------------------------
+    public record StartTrackingDTO(
+            Long dispatchId,
+            String vehicleName,
+            VehicleEnums.DispatchReason dispatchReason,
+            String vehicleIdentificationNumber,
+            String dispatchRequester,
+            String dispatchAdmin
+    ) {
+        public StartTrackingDTO {
+            if (dispatchId == null) {
+                throw new IllegalArgumentException("dispatchId is required");
+            }
+            if (vehicleName == null || vehicleName.isBlank()) {
+                throw new IllegalArgumentException("vehicleName is required");
+            }
+            if (dispatchReason == null) {
+                throw new IllegalArgumentException("dispatchReason is required");
+            }
+            if (vehicleIdentificationNumber == null || vehicleIdentificationNumber.isBlank()) {
+                throw new IllegalArgumentException("vehicleIdentificationNumber is required");
+            }
+            if (dispatchRequester == null || dispatchRequester.isBlank()) {
+                throw new IllegalArgumentException("dispatchRequester is required");
+            }
+            if (dispatchAdmin == null || dispatchAdmin.isBlank()) {
+                throw new IllegalArgumentException("dispatchAdmin is required");
+            }
+
+
+        }}
 }

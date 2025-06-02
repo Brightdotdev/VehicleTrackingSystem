@@ -11,7 +11,32 @@ import org.springframework.context.annotation.Configuration;
 public class RabbitConfig {
 
 
-    // -- created dispatch fanout exchange
+    /***  Receiver config   **/
+
+
+    // === created admin direct exchange ====
+
+    private final String ADMIN_CREATED_DIRECT_EXCHANGE = "admin.created.exchange";
+    private final String ADMIN_CREATED_DIRECT_EXCHANGE_KEY = "admin.created.key";
+    private final String ADMIN_CREATED_DIRECT_EXCHANGE_QUEUE = "logs.service.created.admin.queue";
+
+    @Bean
+    public Queue adminCreatedDirectExchangeQueue() {
+        return new Queue(ADMIN_CREATED_DIRECT_EXCHANGE_QUEUE, true,false,false);
+    }
+
+    @Bean
+    public DirectExchange adminCreatedDirectExchange() {
+        return new DirectExchange(ADMIN_CREATED_DIRECT_EXCHANGE);
+    }
+
+    @Bean
+    public Binding adminCreatedDirectExchangeBinding(DirectExchange adminCreatedDirectExchange,Queue adminCreatedDirectExchangeQueue) {
+        return BindingBuilder.bind(adminCreatedDirectExchangeQueue).to(adminCreatedDirectExchange).with(ADMIN_CREATED_DIRECT_EXCHANGE_KEY);
+    }
+
+
+    // -- created dispatch fanout exchange from disatch service
 
     private static final String DISPATCH_CREATED_FANOUT = "dispatch.created.fanOut";
 
@@ -62,6 +87,29 @@ public class RabbitConfig {
     }
 
 
+    // === start tracking from logs service ===
+
+    private static final String DISPATCH_TRACKING_FANOUT_EXCHANGE_FOR_RECEIVING = "start.tracking.fanOut.provider.logs";
+
+    private final String DISPATCH_TRACKING_FANOUT_EXCHANGE_FOR_RECEIVING_LOGS_QUEUE = "start.tracking.fanOut.provider.logs.queue.logs";
+
+    @Bean
+    public FanoutExchange startTrackingFromTrackingService() {
+        return new FanoutExchange(DISPATCH_TRACKING_FANOUT_EXCHANGE_FOR_RECEIVING);
+    }
+
+    @Bean
+    public Queue startTrackingFromTrackingServiceQueue() {
+        return new Queue(DISPATCH_TRACKING_FANOUT_EXCHANGE_FOR_RECEIVING_LOGS_QUEUE ,true, false, false);
+    }
+
+    @Bean
+    public Binding startTrackingFromTrackingServiceBinding(FanoutExchange startTrackingFromTrackingService,Queue startTrackingFromTrackingServiceQueue) {
+        return BindingBuilder.bind(startTrackingFromTrackingServiceQueue)
+                .to(startTrackingFromTrackingService);
+    }
+
+
 
     // === dispatch validated from dispatch service ===
 
@@ -86,8 +134,26 @@ public class RabbitConfig {
     }
 
 
+    /**  sender config   **/
 
-    // ==== Normal config ===
+    // ==== completed dispatch fanout  to everyone from logs ====
+
+    private static final String COMPLETED_DISPATCH_FANOUT_EXCHANGE = "completed.dispatch.fanOut.provider.logs";
+
+    @Bean
+    public FanoutExchange dispatchCompletedFromFanout() {
+        return new FanoutExchange(COMPLETED_DISPATCH_FANOUT_EXCHANGE, true, false);
+    }
+
+    // ==== stating tracking of dispatch fanout  to everyone from logs ====
+
+    private static final String DISPATCH_TRACKING_FANOUT_EXCHANGE = "start.tracking.fanOut.provider.logs";
+    @Bean
+    public FanoutExchange startTrackingFromLogsFanoutExchange() {
+        return new FanoutExchange(DISPATCH_TRACKING_FANOUT_EXCHANGE, true, false);
+    }
+
+    /***  Normal config   **/
 
     @Bean
     public Jackson2JsonMessageConverter jackson2JsonMessageConverter() {

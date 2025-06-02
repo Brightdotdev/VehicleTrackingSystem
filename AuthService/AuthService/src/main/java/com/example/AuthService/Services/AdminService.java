@@ -5,6 +5,7 @@ import com.example.AuthService.Exceptions.AccessException;
 import com.example.AuthService.Exceptions.ConflictException;
 import com.example.AuthService.Exceptions.NotFoundException;
 import com.example.AuthService.Models.UserModel;
+import com.example.AuthService.RabbitMq.RabbitMqSenderService;
 import com.example.AuthService.Repositories.UserRepository;
 import com.example.AuthService.Utils.UtilRecords;
 import jakarta.transaction.Transactional;
@@ -14,16 +15,19 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class AdminService {
 
     private final UserRepository userRepository;
+    private final RabbitMqSenderService rabbitMqSenderService;
      Integer adminKey = 223344;
 
 
-    public AdminService(UserRepository userRepository) {
+    public AdminService(UserRepository userRepository, RabbitMqSenderService rabbitMqSenderService) {
         this.userRepository = userRepository;
+        this.rabbitMqSenderService = rabbitMqSenderService;
     }
 
     public UserModel findAdmin(String email) {
@@ -157,8 +161,18 @@ public class AdminService {
         user.setProvider("GOOGLE_USER_" + oAuth2User.sub());
         user.setValidated(oAuth2User.email_verified());
         user.setRoles(List.of("ROLE_USER","ROLE_ADMIN",  "ROLE_GOOGLE"));
+
+        UtilRecords.adminCreatedRequestBodyDto adminReq = new UtilRecords.adminCreatedRequestBodyDto(email);
+
+        Map<String , Object> logAdminCreatedResponse = rabbitMqSenderService.sendAdminCreated(adminReq);
+
+        if(!logAdminCreatedResponse.containsKey("createdNew")){
+        throw new ConflictException("Unable to synchronize admin data Try signing up again");
+        }
+
         return userRepository.save(user);
     }
+
 
     public Integer getAdminKey() {
         return this.adminKey;

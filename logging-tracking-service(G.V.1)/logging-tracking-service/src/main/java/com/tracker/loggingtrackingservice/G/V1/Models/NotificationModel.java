@@ -23,11 +23,19 @@ public class NotificationModel {
 
     @NotNull(message = "The Notification must have a message")
     private String message;
-    @NotNull(message = "The task must have a title")
+
+    @NotNull(message = "Read or not read??")
     private Boolean read;
 
-    @NotNull(message = "The task must have a description")
-    private String description;
+    @NotNull(message = "Is it an action notification or not???")
+    private Boolean isActionNotif;
+
+    private String goodNotificationCta;
+
+    private String badNotificationCta;
+
+    @NotNull(message = "The notification must have a title")
+    private String title;
 
     @Enumerated(EnumType.STRING)
     private LogEnums.NotificationType type;
@@ -41,15 +49,20 @@ public class NotificationModel {
     public NotificationModel() {
     }
 
-    public NotificationModel(String id, String receiver, String message, Boolean read, String description, LogEnums.NotificationType type, LocalDateTime createdAt, LocalDateTime readAt) {
+    public NotificationModel(String id, String receiver, String message, Boolean read, String title,
+                             String goodNotificationCta, String badNotificationCta, Boolean isActionNotif,
+                             LogEnums.NotificationType type, LocalDateTime createdAt, LocalDateTime readAt) {
         this.id = id;
         this.receiver = receiver;
         this.message = message;
         this.read = read;
-        this.description = description;
+        this.title = title;
         this.type = type;
         this.createdAt = createdAt;
         this.readAt = readAt;
+        this.badNotificationCta = badNotificationCta;
+        this.goodNotificationCta = goodNotificationCta;
+        this.isActionNotif = isActionNotif;
     }
 
     public String getId() {
@@ -84,12 +97,12 @@ public class NotificationModel {
         this.read = read;
     }
 
-    public String getDescription() {
-        return description;
+    public String getTitle() {
+        return title;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public LogEnums.NotificationType getType() {
@@ -114,5 +127,30 @@ public class NotificationModel {
 
     public void setReadAt(LocalDateTime readAt) {
         this.readAt = readAt;
+    }
+
+
+    public Boolean getActionNotif() {
+        return isActionNotif;
+    }
+
+    public void setActionNotif(Boolean actionNotif) {
+        isActionNotif = actionNotif;
+    }
+
+    public String getGoodNotificationCta() {
+        return goodNotificationCta;
+    }
+
+    public void setGoodNotificationCta(String goodNotificationCta) {
+        this.goodNotificationCta = goodNotificationCta;
+    }
+
+    public String getBadNotificationCta() {
+        return badNotificationCta;
+    }
+
+    public void setBadNotificationCta(String badNotificationCta) {
+        this.badNotificationCta = badNotificationCta;
     }
 }

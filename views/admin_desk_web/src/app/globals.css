@@ -64,7 +64,8 @@
 
 
   /* my values */
-
+ --gradientLines: oklch(20.46% 0.000 89.88);
+ --gradientLine: #e5e7eb;
   /* Fonts */
 
 
@@ -169,6 +170,9 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+
+  --gradientLines :  oklch(93.10% 0.000 89.88);
+  --gradientLine :  #171717;
 }
 
 @theme inline {
@@ -214,6 +218,8 @@
 
 
   /* my custom values */
+  --color-gradientLines: var(--gradientLines);
+  --color-gradientLine: var(--gradientLine);
 
   --font-roboto: var(--font-roboto);
   --font-futura-medium: var(--font-futura-medium);
@@ -245,6 +251,9 @@
   --gap-xxl: min(12vw, 12rem);
   --gap-xxxl: min(14vw, 14rem);
 
+/* animationssssss */
+
+  --animate-spotlight: spotlight 2s ease 0.75s 1 forwards;
 
 }
 
@@ -307,15 +316,21 @@
           font-family: var(--font-futura-medium);
           line-height: var(--line-tight);
         }
-
-           .subTitleText2{
+        
+        .subTitleText2{
           color: var(--foreground);
           font-size: var(--font-medium);
           font-weight: 400;
           font-family: var(--font-futura-medium);
           line-height: var(--line-tight);
         }
-
+        
+        .subTitleTextGradient{
+          font-size: var(--font-subheading);
+          font-weight: 600;
+          font-family: var(--font-futura-medium);
+          line-height: var(--line-tight);
+        }
 
         .bodyText{
           color: var(--foreground);
@@ -334,8 +349,14 @@
         .smallText{
           font-size: var(--font-small);}
 
-
-
+     .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+          }
+          .no-scrollbar::-webkit-scrollbar {
+            display: none;
+          }
+     
           
 .gradient {
   width: 10rem;
@@ -351,28 +372,6 @@
   z-index: 40;
 }
 
-@keyframes orbit {
-  0% {
-    top: 0%;
-    left: 0%;
-  }
-  25% {
-    top: 0%;
-    left: 80%;
-  }
-  50% {
-    top: 80%;
-    left: 80%;
-  }
-  75% {
-    top: 80%;
-    left: 0%;
-  }
-  100% {
-    top: 0%;
-    left: 0%;
-  }
-}
 
 @keyframes sheen {
   0% {
@@ -395,7 +394,16 @@
   animation: sheen 1s linear forwards;
 }
 }
-
+@keyframes spotlight {
+  0% {
+    opacity: 0;
+    transform: translate(-72%, -62%) scale(0.5);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -40%) scale(1);
+  }
+}
 
 .leaflet-container {
   width: 100%;
@@ -420,3 +428,5 @@
   width: 100%;
   border-radius: 140px;
 }
+
+ 

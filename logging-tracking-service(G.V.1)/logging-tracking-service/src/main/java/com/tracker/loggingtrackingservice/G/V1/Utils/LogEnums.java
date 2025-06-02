@@ -8,7 +8,6 @@ public class LogEnums {
         WARNING,
         SUCCESS,
         DANGER
-
     }
 
     public static enum VehicleType {
