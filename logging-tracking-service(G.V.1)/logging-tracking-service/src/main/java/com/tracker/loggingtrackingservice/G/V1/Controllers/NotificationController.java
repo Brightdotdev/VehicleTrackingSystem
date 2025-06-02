@@ -27,8 +27,7 @@ public class NotificationController {
      * Endpoint to set the read notifications to read grah
      */
 
-
-
+    //  :: http://localhost:8104/v1/user/notifications/set-read
     @PostMapping("/set-read")
     public ResponseEntity<ApiResponse<List<UtilRecords.NotificationDto>>> setNotificationToRead(
             @Valid @RequestParam String user,
@@ -50,12 +49,12 @@ public class NotificationController {
      */
 
 
-    @PostMapping("/get-all-me")
+    @GetMapping("/get-all-me")
     public ResponseEntity<ApiResponse<List<NotificationModel>>> getAllMyNotification(
-            @Valid @RequestParam String user) {
+            @Valid @RequestParam String clientId) {
 
 
-      List<NotificationModel>  myNotifications = notificationService.getAllMyNotifications(user);
+      List<NotificationModel>  myNotifications = notificationService.getAllMyNotifications(clientId);
 
 
       return ResponseEntity.ok(

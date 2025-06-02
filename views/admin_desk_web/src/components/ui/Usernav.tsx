@@ -3,6 +3,7 @@ import { Bell, X } from 'lucide-react';
 import React, { useEffect, useState } from 'react'
 import { Button } from './button';
 import { cn } from '@/lib/utils';
+import { getMyNotifications, subscribeUserToSse } from '@/lib/handleUserNotiications';
 
 
 
@@ -150,7 +151,8 @@ const Usernav = () => {
     if (!userData) return;
 
     const eventSource = subscribeUserToSse({ user: userData.email });
-
+    const myNofitications  = getMyNotifications({ user: userData.email });
+    console.log(myNofitications)
     return () => {
       eventSource.close();
       console.log('SSE connection closed');

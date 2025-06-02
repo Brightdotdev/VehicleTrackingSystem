@@ -49,7 +49,9 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         final List<String> headerRoles = Collections.singletonList(request.getHeader("x-user-roles"));
         final List<String> roles = new ArrayList<>();
 
-        String token = request.getHeader("x-user-token");
+        String token = null;
+
+            token =  request.getHeader("x-user-token");
 
         // Fallback to Authorization header if x-user-token is missing
         if (token == null) {

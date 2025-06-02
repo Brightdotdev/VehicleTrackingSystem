@@ -29,7 +29,6 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
 
     @Value("${auth.jwt.secret}")
     private String jwtSecret;
-        String token = null;
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
@@ -37,6 +36,7 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
         String path = request.getURI().getPath();
 
         logger.info("Incoming request: {} {}", request.getMethod(), path);
+        String token = null;
 
         // Skip JWT check for public auth endpoints
         if (path.contains("/v1/auth/") || path.contains("/v1/oauth/")) {
