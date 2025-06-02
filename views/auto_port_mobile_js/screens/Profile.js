@@ -16,7 +16,7 @@ import NotificationDrawer from "../components/NotificationDrawer";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Profile = () => {
-  const [selected, setSelected] = React.useState("Profile");
+  const [selected, setSelected] = React.useState("profile");
   const navigation = useNavigation();
   const [drawerVisible, setDrawerVisible] = useState(false);
   const route = useRoute();
@@ -124,19 +124,26 @@ const Profile = () => {
           <Text style={styles.historyTitle}>HISTORY</Text>
         </View>
 
-        <View style={styles.tableRow}>
-          <Text style={styles.tableHeader}>Car name</Text>
-          <Text style={styles.tableHeader}>Dispatch Status</Text>
-          <Text style={styles.tableHeader}>Dispatch Score</Text>
-        </View>
-
-        {[1, 2, 3].map((_, index) => (
-          <View key={index} style={styles.tableRow}>
-            <Text style={styles.tableCell}>Car name</Text>
-            <Text style={styles.tableCell}>Dispatch Status</Text>
-            <Text style={styles.tableCell}>Dispatch Score</Text>
-          </View>
-        ))}
+        <TouchableOpacity style={styles.tableHeader} onPress={()=>{navigation.navigate('ActiveDispatch')}}>
+                  <Text style={styles.tableHeaderText}>Car name</Text>
+                  <Text style={styles.tableHeaderText}>Dispatch Status</Text>
+                  <Text style={styles.tableHeaderText}>dispatch Score</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.tableRow} onPress={()=>{navigation.navigate('PendingDispatch')}}>
+                  <Text style={styles.tableRowText}>Car name</Text>
+                  <Text style={styles.tableRowText}>Dispatch Status</Text>
+                  <Text style={styles.tableRowText}>dispatch Score</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.tableRow} onPress={()=>{navigation.navigate('CompletedDispatch')}}>
+                  <Text style={styles.tableRowText}>Car name</Text>
+                  <Text style={styles.tableRowText}>Dispatch Status</Text>
+                  <Text style={styles.tableRowText}>dispatch Score</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.tableRow}onPress={()=>{navigation.navigate('ActiveDispatch')}}>
+                  <Text style={styles.tableRowText}>Car name</Text>
+                  <Text style={styles.tableRowText}>Dispatch Status</Text>
+                  <Text style={styles.tableRowText}>dispatch Score</Text>
+                </TouchableOpacity>
       </View>
 
       <Modal
@@ -190,10 +197,10 @@ const Profile = () => {
 
       <View style={styles.footerNav}>
         <TouchableOpacity
-          style={selected === "home" ? styles.activeNav : styles.nav}
+          style={selected === "screen1" ? styles.activeNav : styles.nav}
           onPress={() => {
-            setSelected("home");
-            navigation.navigate("DispatchRecord", { name });
+            setSelected("screen1");
+            navigation.navigate("Screen1", { name });
           }}
         >
           <Image
@@ -203,10 +210,10 @@ const Profile = () => {
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={selected === "screen1" ? styles.activeNav : styles.nav}
+          style={selected === "home" ? styles.activeNav : styles.nav}
           onPress={() => {
-            setSelected("screen1");
-            navigation.navigate("Screen1", { name });
+            setSelected("home");
+            navigation.navigate("DispatchRecord", { name });
           }}
         >
           <Image
@@ -319,24 +326,37 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     textDecorationLine: "underline",
   },
+  tableHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingHorizontal: "3%",
+    paddingVertical: 10,
+    backgroundColor: "#f1f1f1",
+    borderTopWidth: 0,
+    borderBottomWidth: 1,
+    borderColor: "#000000",
+  },
+  tableHeaderText: {
+    fontWeight: "600",
+    fontSize: 14,
+    width: "30%",
+    textAlign: "center",
+  },
+  tableBody: {
+    flexGrow: 0,
+  },
   tableRow: {
     flexDirection: "row",
     justifyContent: "space-between",
+    paddingHorizontal: "3%",
+    paddingVertical: 12,
     borderBottomWidth: 1,
-    paddingVertical: 8,
-    paddingHorizontal: 5,
-    backgroundColor: "#F5F5F5",
+    borderColor: "#000000",
   },
-  tableHeader: {
-    fontWeight: "600",
-    fontSize: 14,
-    flex: 1,
+  tableRowText: {
+    width: "30%",
     textAlign: "center",
-  },
-  tableCell: {
     fontSize: 14,
-    flex: 1,
-    textAlign: "center",
     fontWeight: "600",
   },
   footerNav: {

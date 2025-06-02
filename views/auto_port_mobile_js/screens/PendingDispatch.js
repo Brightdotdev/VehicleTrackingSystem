@@ -23,7 +23,7 @@ const PendingDispatch = () => {
           <TouchableOpacity
             style={styles.backCircle}
             onPress={() => {
-              navigation.navigate("ActiveDispatch");
+              navigation.navigate("DispatchRecord");
             }}
           >
             <Image

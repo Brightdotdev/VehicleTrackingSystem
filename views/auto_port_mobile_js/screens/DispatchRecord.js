@@ -40,26 +40,26 @@ const DispatchRecord = () => {
       </View>
 
       <ScrollView style={styles.tableBody}>
-        <View style={styles.tableHeader}>
+        <TouchableOpacity style={styles.tableHeader} onPress={()=>{navigation.navigate('ActiveDispatch')}}>
           <Text style={styles.tableHeaderText}>Car name</Text>
           <Text style={styles.tableHeaderText}>Dispatch Status</Text>
           <Text style={styles.tableHeaderText}>dispatch Score</Text>
-        </View>
-        <View style={styles.tableRow}>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.tableRow} onPress={()=>{navigation.navigate('PendingDispatch')}}>
           <Text style={styles.tableRowText}>Car name</Text>
           <Text style={styles.tableRowText}>Dispatch Status</Text>
           <Text style={styles.tableRowText}>dispatch Score</Text>
-        </View>
-        <View style={styles.tableRow}>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.tableRow} onPress={()=>{navigation.navigate('CompletedDispatch')}}>
           <Text style={styles.tableRowText}>Car name</Text>
           <Text style={styles.tableRowText}>Dispatch Status</Text>
           <Text style={styles.tableRowText}>dispatch Score</Text>
-        </View>
-        <View style={styles.tableRow}>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.tableRow}onPress={()=>{navigation.navigate('ActiveDispatch')}}>
           <Text style={styles.tableRowText}>Car name</Text>
           <Text style={styles.tableRowText}>Dispatch Status</Text>
           <Text style={styles.tableRowText}>dispatch Score</Text>
-        </View>
+        </TouchableOpacity>
       </ScrollView>
 
       <Text style={styles.bottomText}>
@@ -68,10 +68,10 @@ const DispatchRecord = () => {
 
       <View style={styles.footerNav}>
         <TouchableOpacity
-          style={selected === "home" ? styles.activeNav : styles.nav}
+          style={selected === "screen1" ? styles.activeNav : styles.nav}
           onPress={() => {
-            setSelected("home");
-            navigation.navigate("DispatchRecord", { name });
+            setSelected("screen1");
+            navigation.navigate("Screen1", { name });
           }}
         >
           <Image
@@ -81,10 +81,10 @@ const DispatchRecord = () => {
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={selected === "screen1" ? styles.activeNav : styles.nav}
+          style={selected === "home" ? styles.activeNav : styles.nav}
           onPress={() => {
-            setSelected("screen1");
-            navigation.navigate("Screen1", { name });
+            setSelected("home");
+            navigation.navigate("DispatchRecord", { name });
           }}
         >
           <Image

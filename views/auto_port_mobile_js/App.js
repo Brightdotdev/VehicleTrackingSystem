@@ -15,9 +15,7 @@ import ActiveDispatch from "./screens/ActiveDispatch";
 import PendingDispatch from "./screens/PendingDispatch";
 import CompletedDispatch from "./screens/CompletedDispatch";
 import Profile from "./screens/Profile";
-import notification from "./screens/Notification";
 import CarInfo from "./screens/CarInfo";
-import CarInfo2 from "./screens/CarInfo2";
 import CarRequest from "./screens/CarRequest";
 
 const Stack = createNativeStackNavigator();
@@ -38,7 +36,7 @@ const App = () => {
     <SafeAreaView style={styles.container}>
       <NavigationContainer>
         <Stack.Navigator
-          initialRouteName="RegisterLocally1"
+          initialRouteName="CarInfo"
           screenOptions={{ headerShown: false }}
         >
           <Stack.Screen name="Register" component={Register} />
@@ -52,7 +50,6 @@ const App = () => {
           <Stack.Screen name="CompletedDispatch" component={CompletedDispatch} />
           <Stack.Screen name="Profile" component={Profile} />
           <Stack.Screen name="CarInfo" component={CarInfo} />
-          <Stack.Screen name="CarInfo2" component={CarInfo2} />
           <Stack.Screen name="CarRequest" component={CarRequest} />
         </Stack.Navigator>
       </NavigationContainer>

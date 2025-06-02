@@ -15,7 +15,7 @@ const Screen1 = () => {
   const route = useRoute();
   const { name } = route.params || {};
   const navigation = useNavigation();
-  const [selected, setSelected] = React.useState("Screen1");
+  const [selected, setSelected] = React.useState("screen1");
   const [drawerVisible, setDrawerVisible] = useState(false);
 
   return (
@@ -55,10 +55,10 @@ const Screen1 = () => {
               <Text style={styles.infoSubTitle}>Location</Text>
               <Text style={styles.infoSubTitle}>Vehicle Metadata</Text>
               <View style={styles.buttonRow}>
-                <TouchableOpacity style={styles.dispatchBtn}>
+                <TouchableOpacity style={styles.dispatchBtn} onPress={()=>{navigation.navigate('CarInfo')}}>
                   <Text style={styles.btnText}>Request Dispatch</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.infoBtn}>
+                <TouchableOpacity style={styles.infoBtn} onPress={()=>{navigation.navigate('CarInfo')}}>
                   <Image source={require("../assets/Vector.png")} />
                   <Text style={styles.infoBtnText}>Vehicle Info</Text>
                 </TouchableOpacity>
@@ -75,10 +75,10 @@ const Screen1 = () => {
 
       <View style={styles.footerNav}>
         <TouchableOpacity
-          style={selected === "home" ? styles.activeNav : styles.nav}
+          style={selected === "screen1" ? styles.activeNav : styles.nav}
           onPress={() => {
-            setSelected("home");
-            navigation.navigate("DispatchRecord", { name });
+            setSelected("screen1");
+            navigation.navigate("Screen1", { name });
           }}
         >
           <Image
@@ -88,10 +88,10 @@ const Screen1 = () => {
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={selected === "Screen1" ? styles.activeNav : styles.nav}
+          style={selected === "home" ? styles.activeNav : styles.nav}
           onPress={() => {
-            setSelected("Screen1");
-            navigation.navigate("Screen1", { name });
+            setSelected("home");
+            navigation.navigate("DispatchRecord", { name });
           }}
         >
           <Image

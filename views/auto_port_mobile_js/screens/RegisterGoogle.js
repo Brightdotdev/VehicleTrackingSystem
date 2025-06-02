@@ -22,7 +22,7 @@ const RegisterLocally1 = () => {
   const handleContinue = () => {
     if (name.trim().length > 0) {
       setError("");
-      navigation.navigate("RegisterLocally2", { name });
+      navigation.navigate("Screen1", { name });
     } else {
       setError("Please enter your name");
     }

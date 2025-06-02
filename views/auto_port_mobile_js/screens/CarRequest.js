@@ -150,11 +150,11 @@ const dispatchReasonLabels = {
         <View style={styles.buttonRow}>
           <TouchableOpacity
             style={styles.backButton}
-            onPress={() => navigation.goBack()}
+            onPress={() => navigation.navigate('CarInfo')}
           >
             <Text style={styles.backButtonText}>Go Back</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.getButton}>
+          <TouchableOpacity style={styles.getButton}onPress={()=>{navigation.navigate('DispatchRecord')}}>
             <Text style={styles.getButtonText}>Get Vehicle</Text>
           </TouchableOpacity>
         </View>

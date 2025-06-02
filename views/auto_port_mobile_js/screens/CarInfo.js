@@ -1,10 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import NotificationDrawer from "../components/NotificationDrawer";
-import { useState } from "react";
 
-const CarInfo = () => {
+const CarInfo2 = () => {
   const navigation = useNavigation();
   const [drawerVisible, setDrawerVisible] = useState(false);
 
@@ -18,32 +17,32 @@ const CarInfo = () => {
             onClose={() => setDrawerVisible(false)}
           />
         </View>
+
         <View style={styles.imageContainer}>
           <Text style={styles.carImageText}>car image</Text>
         </View>
 
-        <View style={styles.statusContainer}>
-          <View style={styles.activeStatus}>
-            <View style={styles.dot} />
-            <Text style={styles.statusText}>Active</Text>
-          </View>
-
-          <View style={styles.dispatchableStatus}>
-            <Text style={styles.statusTextDark}>Dispatchable</Text>
-            <View style={styles.checkIconContainer}>
-              <View style={styles.checkIconContain}>
-                <Image
-                  source={require("../assets/check-check2.png")}
-                  style={styles.checkIcon}
-                />
-              </View>
+        <View style={styles.dispatchableStatus}>
+          <Text style={styles.statusTextDark}>Dispatchable</Text>
+          <View style={styles.checkIconContainer}>
+            <View style={styles.checkIconContain}>
+              <Image
+                source={require("../assets/check-check2.png")}
+                style={styles.checkIcon}
+              />
             </View>
           </View>
         </View>
       </View>
 
-      <View style={styles.infoSection}>
-        <Text style={styles.infoTitle}>Vehicle metadata</Text>
+      <View style={styles.bottomSection}>
+        <View style={styles.activeStatus}>
+          <View style={styles.dot} />
+          <Text style={styles.statusText}>Active</Text>
+        </View>
+
+        <Text style={styles.metaTitle}>Vehicle metadata</Text>
+
         <View style={styles.metaItem}>
           <Image
             source={require("../assets/location.png")}
@@ -51,6 +50,23 @@ const CarInfo = () => {
           />
           <Text style={styles.metaText}>In Transit</Text>
         </View>
+
+        <View style={styles.metaItem}>
+          <Image
+            source={require("../assets/engine.png")}
+            style={styles.metaIcon}
+          />
+          <Text style={styles.metaText}>Engine Type: Diesel</Text>
+        </View>
+
+        <View style={styles.metaItem}>
+          <Image
+            source={require("../assets/car.png")}
+            style={styles.metaIcon}
+          />
+          <Text style={styles.metaText}>Vehicle Type: Sedan</Text>
+        </View>
+
         <View style={styles.metaItem}>
           <Image
             source={require("../assets/shield.png")}
@@ -60,16 +76,14 @@ const CarInfo = () => {
             Health Score : <Text style={{ color: "#FF9900" }}>64%</Text>
           </Text>
         </View>
-        <Text style={styles.infoItem}>Engine Type: Diesel</Text>
-        <Text style={styles.infoItem}>Vehicle Type: Sedan</Text>
       </View>
       <View style={styles.buttonRow}>
-        <TouchableOpacity style={styles.requestButton}>
+        <TouchableOpacity style={styles.requestButton} onPress={()=>{navigation.navigate('CarRequest')}}>
           <Text style={styles.requestButtonText}>Request Dispatch</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.backButton}
-          onPress={() => navigation.goBack()}
+          onPress={() => navigation.navigate('Screen1')}
         >
           <Text style={styles.backButtonText}>Go Back</Text>
           <Image
@@ -82,7 +96,7 @@ const CarInfo = () => {
   );
 };
 
-export default CarInfo;
+export default CarInfo2;
 
 const styles = StyleSheet.create({
   container: {
@@ -90,7 +104,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   topSection: {
-    // flex: 1,
     backgroundColor: "#AFAFAF",
     padding: "5%",
     height: "50%",
@@ -116,38 +129,33 @@ const styles = StyleSheet.create({
     width: 18,
     height: 18,
     tintColor: "#fff",
-    resizeMode: "contain",
   },
   imageContainer: {
+    flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    height: "60%",
   },
   carImageText: {
     fontSize: 24,
     fontWeight: "700",
     color: "#000",
   },
-  statusContainer: {
-    flexDirection: "column",
-    gap: 10,
-    alignItems: "flex-end",
-  },
   activeStatus: {
     flexDirection: "row",
     width: "30%",
     alignItems: "center",
     justifyContent: "space-around",
-    backgroundColor: "#69C96B",
+    backgroundColor: "#1EFF0042",
     paddingHorizontal: 10,
-    paddingVertical: 6,
+    paddingVertical: 3,
     borderRadius: 20,
+    alignSelf: "flex-end",
   },
   dot: {
     width: 10,
     height: 10,
     borderRadius: 5,
-    backgroundColor: "#D4FAD2",
+    backgroundColor: "#FFFFFF4F",
     marginRight: 6,
   },
   dispatchableStatus: {
@@ -159,6 +167,7 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     borderRadius: 20,
     width: "50%",
+    alignSelf: "flex-end",
   },
   dispatchableStatusContain: {},
 
@@ -193,20 +202,42 @@ const styles = StyleSheet.create({
     height: 20,
     // tintColor: '#1E4620',
   },
-  infoSection: {
-    flex: 1,
+  bottomSection: {
     backgroundColor: "#fff",
     padding: "5%",
+    flex: 1,
   },
-  infoTitle: {
-    fontSize: 18,
+  statusToggle: {
+    flexDirection: "row",
+    alignItems: "center",
+    alignSelf: "flex-end",
+    backgroundColor: "#D4FAD2",
+    paddingVertical: 6,
+    paddingHorizontal: 16,
+    borderRadius: 20,
+    marginBottom: 16,
+  },
+  statusToggleCircle: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    backgroundColor: "#69C96B",
+    marginRight: 8,
+  },
+  statusToggleText: {
+    color: "#1E4620",
+    fontWeight: "700",
+    fontSize: 14,
+  },
+  metaTitle: {
+    fontSize: 24,
     fontWeight: "700",
     marginBottom: 16,
   },
   metaItem: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 15,
+    marginBottom: 12,
   },
   metaIcon: {
     width: 18,
@@ -215,14 +246,8 @@ const styles = StyleSheet.create({
     tintColor: "#000",
   },
   metaText: {
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: "600",
-  },
-  infoItem: {
-    fontSize: 14,
-    fontWeight: "600",
-    marginBottom: 10,
-    marginLeft: 25,
   },
   buttonRow: {
     flexDirection: "row",

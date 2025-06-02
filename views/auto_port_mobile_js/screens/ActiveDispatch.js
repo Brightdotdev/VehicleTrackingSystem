@@ -10,15 +10,17 @@ import {
 import { ScrollView } from "react-native-web";
 import NotificationDrawer from "../components/NotificationDrawer";
 import { useState } from "react";
+import { useNavigation } from "@react-navigation/native";
 
 const ActiveDispatch = () => {
+  const navigation = useNavigation();
   const [drawerVisible, setDrawerVisible] = useState(false);
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <View style={styles.headerHolder}>
-          <TouchableOpacity style={styles.backCircle}>
+          <TouchableOpacity style={styles.backCircle} onPress={()=>{navigation.navigate('DispatchRecord')}}>
             <Image
               source={require("../assets/back-arrow.png")}
               style={styles.backArrow}
