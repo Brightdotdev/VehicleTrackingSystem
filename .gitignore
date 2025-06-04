@@ -114,7 +114,8 @@ secrets/
 # dependencies
 
 /node_modules
-
+views/**/node_modules
+views/**/node_modules/**
 /node_modules/**
 /.pnp
 .pnp.*
