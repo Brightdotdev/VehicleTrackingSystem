@@ -53,7 +53,7 @@ public class AdminController {
 
         UtilRecords.LoginServiceResponse userDatabaseSignIn = userDetailService.handleAdminLocalSignUp(request);
 
-        String jwt = jwtConfig.generateToken(userDatabaseSignIn.auth());
+        String jwt = jwtConfig.generateToken(userDatabaseSignIn.auth(), userDatabaseSignIn.userImage());
         System.out.println("---- jwt token -----");
         System.out.println(jwt);
         String cookie = cookieHandler.createAdminCooke(jwt);
@@ -82,7 +82,7 @@ public class AdminController {
 
         UtilRecords.LoginServiceResponse userDatabaseSignIn = userDetailService.handleOath2AdminSignUp(request);
 
-        String jwt = jwtConfig.generateToken(userDatabaseSignIn.auth());
+        String jwt = jwtConfig.generateToken(userDatabaseSignIn.auth(),request.picture());
 
         String cookie = cookieHandler.createAdminCooke(jwt);
         System.out.println("---- jwt cookie -----");
@@ -111,7 +111,7 @@ public class AdminController {
 
         UtilRecords.LoginServiceResponse userDatabaseSignIn = userDetailService.handleOath2AdminLogIn(adminLoginReq);
 
-        String jwt = jwtConfig.generateToken(userDatabaseSignIn.auth());
+        String jwt = jwtConfig.generateToken(userDatabaseSignIn.auth(),userDatabaseSignIn.userImage());
 
         String cookie = cookieHandler.createAdminCooke(jwt);
         System.out.println("---- jwt cookie -----");
@@ -141,7 +141,7 @@ public class AdminController {
 
         UtilRecords.LoginServiceResponse userDatabaseLogin = userDetailService.handleAdminLogIn(request);
 
-        String jwt = jwtConfig.generateToken(userDatabaseLogin.auth());
+        String jwt = jwtConfig.generateToken(userDatabaseLogin.auth(), userDatabaseLogin.userImage());
         String cookie = cookieHandler.createAdminCooke(jwt);
 
         response.setHeader(HttpHeaders.SET_COOKIE, cookie);

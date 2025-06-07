@@ -32,9 +32,10 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/public/**").permitAll()
                         .requestMatchers("/v1/user/notifications/**").authenticated()
+                        .requestMatchers("/v1/sse/**").authenticated()
                         .requestMatchers("/v1/user/tracking/**").authenticated()
                         .requestMatchers("/v1/admin/notifications/**").hasRole("ADMIN")
-                        .requestMatchers("/v1/admin/tracking/**").hasRole("ADMIN")
+                        .requestMatchers("/v1/user/tracking/**").hasRole("ADMIN")
                         .requestMatchers("/error").permitAll()
                         .anyRequest().authenticated()
                 )

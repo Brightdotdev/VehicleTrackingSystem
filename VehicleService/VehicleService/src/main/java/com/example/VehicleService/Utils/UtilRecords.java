@@ -101,6 +101,7 @@ public class UtilRecords {
             VehicleEnums.VehicleStatus vehicleStatus,
             String vehicleMetadata,
             List<String> vehicleImages
+
     ) {
         public VehicleDTO {
             // model must be non-blank
@@ -193,7 +194,7 @@ public class UtilRecords {
             String vehicleName,
             String vehicleIdentificationNumber,
             @Enumerated(EnumType.STRING)
-            VehicleEnums.VehicleStatus vehicleClass,
+            VehicleEnums.VehicleStatus vehicleStatus,
             @Enumerated(EnumType.STRING)
             VehicleEnums.DispatchReason dispatchReason,
             String dispatchRequester,
@@ -209,8 +210,8 @@ public class UtilRecords {
                 throw new IllegalArgumentException("vehicleIdentificationNumber is required");
             }
             // enums must be non-null
-            if (vehicleClass == null) {
-                throw new IllegalArgumentException("vehicleClass is required");
+            if (vehicleStatus == null) {
+                throw new IllegalArgumentException("vehicleStatus is required");
             }
             if (dispatchReason == null) {
                 throw new IllegalArgumentException("dispatchReason is required");

@@ -117,7 +117,7 @@ public class UtilRecords {
             String vehicleName,
             String vehicleIdentificationNumber,
             @Enumerated(EnumType.STRING)
-            DispatchEnums.VehicleStatus vehicleClass,
+            DispatchEnums.VehicleStatus vehicleStatus,
             @Enumerated(EnumType.STRING)
             DispatchEnums.DispatchReason dispatchReason,
             String dispatchRequester,
@@ -130,8 +130,8 @@ public class UtilRecords {
             if (vehicleIdentificationNumber == null || vehicleIdentificationNumber.isBlank()) {
                 throw new IllegalArgumentException("vehicleIdentificationNumber is required");
             }
-            if (vehicleClass == null) {
-                throw new IllegalArgumentException("vehicleClass is required");
+            if (vehicleStatus == null) {
+                throw new IllegalArgumentException("vehicleStatus is required");
             }
             if (dispatchReason == null) {
                 throw new IllegalArgumentException("dispatchReason is required");
@@ -143,41 +143,42 @@ public class UtilRecords {
         }
     }
 
-    // ---------------------------------------------
-    // Alternate DTO for dispatch request (identical fields)
-    // ---------------------------------------------
+    // ------------------------------------------------
+    // DTO for dispatch request bodies
+    // ------------------------------------------------
     public record dispatchRequestBodyDTO(
             String vehicleName,
             String vehicleIdentificationNumber,
             @Enumerated(EnumType.STRING)
-            DispatchEnums.VehicleStatus vehicleClass,
+            DispatchEnums.VehicleStatus vehicleStatus,
             @Enumerated(EnumType.STRING)
             DispatchEnums.DispatchReason dispatchReason,
             String dispatchRequester,
             LocalDateTime dispatchEndTime
     ) {
         public dispatchRequestBodyDTO {
+            // vehicleName must be non-blank
             if (vehicleName == null || vehicleName.isBlank()) {
                 throw new IllegalArgumentException("vehicleName is required");
             }
-            if (dispatchRequester == null || dispatchRequester.isBlank()) {
-                throw new IllegalArgumentException("Who is requesting the dispatch");
-            }
+            // VIN must be non-blank
             if (vehicleIdentificationNumber == null || vehicleIdentificationNumber.isBlank()) {
                 throw new IllegalArgumentException("vehicleIdentificationNumber is required");
             }
-            if (vehicleClass == null) {
-                throw new IllegalArgumentException("vehicleClass is required");
+            // enums must be non-null
+            if (vehicleStatus == null) {
+                throw new IllegalArgumentException("vehicleStatus is required");
             }
             if (dispatchReason == null) {
                 throw new IllegalArgumentException("dispatchReason is required");
             }
+            // dispatchRequester may be optional
+            // dispatchEndTime must be non-null
             if (dispatchEndTime == null) {
                 throw new IllegalArgumentException("dispatchEndTime is required");
             }
         }
     }
-
     // ---------------------------------------------
     // Response for a dispatch, including metrics
     // ---------------------------------------------
@@ -185,7 +186,8 @@ public class UtilRecords {
             List<Map<String, Boolean>> wildCards,
             double safetyScore,
             List<Map<String, Double>> healthAttributes,
-            boolean canDispatch
+            boolean canDispatch,
+            Map<String, Object> logicErrors
     ) {
         public DispatchResponseDTO {
             if (wildCards == null) {
@@ -198,7 +200,11 @@ public class UtilRecords {
             if (healthAttributes == null) {
                 throw new IllegalArgumentException("healthAttributes list is required");
             }
-            // canDispatch is primitive boolean; always present
+            if (logicErrors == null) {
+                throw new IllegalArgumentException("healthAttributes list is required");
+            }
+
+
         }
     }
 

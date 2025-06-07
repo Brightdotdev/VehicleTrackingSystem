@@ -30,7 +30,6 @@ public class VehicleService {
     }
 
 
-
     public VehicleModel findVehicleByIdentificationNumber(String vin) {
 
         VehicleModel foundVehicle = vehicleRepository.findByVehicleIdentificationNumber(vin);
@@ -61,7 +60,6 @@ public class VehicleService {
         vehicle.setVehicleIdentificationNumber(vehicleDataGenerator.generateRandomVIN());
         vehicle.setLicensePlate(vehicleDataGenerator.generateRandomLicensePlate());
         vehicle.setVehicleAcquiredYear(vehicleDataGenerator.generateRandomAcquiredYear());
-
         List<VehicleHealthAttributeModel> healthAttributes = new ArrayList<>();
 
         for (VehicleEnums.VehicleHealthAttributeType type : VehicleEnums.VehicleHealthAttributeType.values()) {

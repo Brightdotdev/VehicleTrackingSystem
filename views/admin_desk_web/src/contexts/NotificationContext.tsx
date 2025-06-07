@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, {
@@ -8,12 +7,22 @@ import React, {
   useRef,
   useState,
 } from 'react';
+import { useAuth } from './AuthContext';
+import { dotEnv } from '@/lib/dotEnv';
+
 
 
 interface NotificationData {
-  type: string; // The event name (e.g., "USER_NOTIFICATION")
-  data: any;    // The actual event payload
-  timestamp: number;
+  dispatchId? : string | null ;
+  notiicationId : string;
+  isActionNotif: boolean;
+  title: string;
+  type: string;
+  body: string;
+  read: boolean;
+  goodCta?: string;
+  badCta?: string;
+
 }
 
 interface NotificationType {
@@ -24,25 +33,33 @@ interface NotificationType {
 
 const NotificationContext = createContext<NotificationType | undefined>(undefined);
 
-export const SSEProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const NotificationProvider : React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const  {userData } = useAuth()
   const [latestEvent, setLatestEvent] = useState<NotificationData | null>(null);
   const [queue, setQueue] = useState<NotificationData[]>([]);
   const eventSourceRef = useRef<EventSource | null>(null);
 
-  const clientId = 'some-user-id-or-email'; // Get this dynamically e.g., from auth/user context
-
+  
+  
   useEffect(() => {
+
+    
     const eventSource = new EventSource(
-      `http://localhost:8080/v1/sse/subscribe?clientId=${clientId}`
+       dotEnv.sseSubscribeUrl,{
+         withCredentials: true
+      }
     );
     eventSourceRef.current = eventSource;
 
     // Generic handler for known events
     const handleSSE = (event: MessageEvent, eventType: string) => {
+      
+      const parsedData = JSON.parse(event.data); // This should match your NotificationData interface
+      console.log("Parsed Data:", parsedData);
       const parsed: NotificationData = {
+        ...parsedData,
         type: eventType,
-        data: event.data,
-        timestamp: Date.now(),
+        
       };
 
       // Push to UI or queue depending on focus
@@ -64,15 +81,30 @@ export const SSEProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       handleSSE(e as MessageEvent, 'ADMIN_NOTIFICATION')
     );
 
+    eventSource.onmessage = (event) => {
+      console.log("Generic SSE message:", event.data);
+    };
+
     eventSource.onerror = (err) => {
       console.error('SSE Error', err);
       eventSource.close();
     };
 
+    // Handler for when the window regains focus
+    const handleFocus = () => {
+      if (queue.length > 0) {
+        setLatestEvent(queue[0]);
+        setQueue((prev) => prev.slice(1));
+      }
+    };
+
+    window.addEventListener("focus", handleFocus);
+
     return () => {
       eventSource.close();
+      window.removeEventListener("focus", handleFocus);
     };
-  }, [clientId]);
+  }, [queue]);
 
   const dequeue = () => {
     setLatestEvent(queue[0] || null);
@@ -80,9 +112,11 @@ export const SSEProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   return (
+    userData &&(
     <NotificationContext.Provider value={{ latestEvent, queue, dequeue }}>
       {children}
     </NotificationContext.Provider>
+    )
   );
 };
 

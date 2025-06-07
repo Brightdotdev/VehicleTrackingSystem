@@ -162,7 +162,7 @@ public class AdminDispatchService {
         finalDispatchBody.setDispatchRequester(adminEmail);
         finalDispatchBody.setDispatchReason(requestBody.dispatchReason());
         finalDispatchBody.setDispatchStatus(DispatchEnums.DispatchStatus.PENDING);
-        finalDispatchBody.setVehicleClass(requestBody.vehicleClass());
+        finalDispatchBody.setVehicleClass(requestBody.vehicleStatus());
         finalDispatchBody.setDispatchEndTime(requestBody.dispatchEndTime());
         return finalDispatchBody;
     }

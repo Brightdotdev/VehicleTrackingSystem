@@ -15,7 +15,7 @@ public class UtilRecords {
     // -------------------------------
     // Response record: no validation
     // -------------------------------
-    public record LoginServiceResponse(UserModel user, Authentication auth) {}
+    public record LoginServiceResponse(UserModel user, Authentication auth,String userImage) {}
 
 
     // -------------------------------

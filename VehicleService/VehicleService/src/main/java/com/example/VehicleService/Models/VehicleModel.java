@@ -54,6 +54,7 @@ public class VehicleModel {
     private VehicleEnums.VehicleDispatchStatus dispatchStatus;
 
 
+
     @ElementCollection
     private List<Long> dispatchHistory;
 
@@ -77,12 +78,26 @@ public class VehicleModel {
     private List<VehicleWildcardAttributeModel> wildcardAttributes;
 
 
-    public VehicleModel() {
+    public void addDispatchHistoryEntry(Long entry) {
+        this.dispatchHistory.add(entry);
     }
 
-    public VehicleModel(Long id, String vehicleIdentificationNumber, String licensePlate, String model, int vehicleAcquiredYear, VehicleEnums.EngineType engineType, VehicleEnums.VehicleType vehicleType, VehicleEnums.VehicleStatus vehicleStatus, VehicleEnums.VehicleDispatchStatus dispatchStatus, List<Long> dispatchHistory, List<String> vehicleImages, Double safetyScore, String vehicleMetadata, List<VehicleHealthAttributeModel> healthAttributes,
-                        List<VehicleWildcardAttributeModel> wildcardAttributes
-    ) {
+    // Add multiple entries to dispatchHistory
+    public void addDispatchHistoryEntries(List<Long> entries) {
+        this.dispatchHistory.addAll(entries);
+    }
+
+    // Add a single vehicle image without overwriting the list
+    public void addVehicleImage(String image) {
+        this.vehicleImages.add(image);
+    }
+
+    // Add multiple vehicle images
+    public void addVehicleImages(List<String> images) {
+        this.vehicleImages.addAll(images);
+    }
+
+    public VehicleModel(Long id, String vehicleIdentificationNumber, String licensePlate, String model, int vehicleAcquiredYear, VehicleEnums.EngineType engineType, VehicleEnums.VehicleType vehicleType, VehicleEnums.VehicleStatus vehicleStatus, VehicleEnums.VehicleDispatchStatus dispatchStatus, List<Long> dispatchHistory, List<String> vehicleImages, Double safetyScore, String vehicleMetadata, List<VehicleHealthAttributeModel> healthAttributes, List<VehicleWildcardAttributeModel> wildcardAttributes) {
         this.id = id;
         this.vehicleIdentificationNumber = vehicleIdentificationNumber;
         this.licensePlate = licensePlate;
@@ -92,6 +107,7 @@ public class VehicleModel {
         this.vehicleType = vehicleType;
         this.vehicleStatus = vehicleStatus;
         this.dispatchStatus = dispatchStatus;
+
         this.dispatchHistory = dispatchHistory;
         this.vehicleImages = vehicleImages;
         this.safetyScore = safetyScore;
@@ -100,7 +116,9 @@ public class VehicleModel {
         this.wildcardAttributes = wildcardAttributes;
     }
 
-    // Getters and setters for all fields
+    public VehicleModel() {
+    }
+
     public Long getId() {
         return id;
     }
@@ -171,25 +189,6 @@ public class VehicleModel {
 
     public void setDispatchStatus(VehicleEnums.VehicleDispatchStatus dispatchStatus) {
         this.dispatchStatus = dispatchStatus;
-    }
-
-    public void addDispatchHistoryEntry(Long entry) {
-        this.dispatchHistory.add(entry);
-    }
-
-    // Add multiple entries to dispatchHistory
-    public void addDispatchHistoryEntries(List<Long> entries) {
-        this.dispatchHistory.addAll(entries);
-    }
-
-    // Add a single vehicle image without overwriting the list
-    public void addVehicleImage(String image) {
-        this.vehicleImages.add(image);
-    }
-
-    // Add multiple vehicle images
-    public void addVehicleImages(List<String> images) {
-        this.vehicleImages.addAll(images);
     }
 
     public List<Long> getDispatchHistory() {

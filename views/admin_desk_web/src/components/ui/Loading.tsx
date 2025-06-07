@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { Progress } from "./progress";
-import { Lamp, LampDesk } from "lucide-react";
+import { LampDesk } from "lucide-react";
 
 const Loading = ({ loadingPage }: { loadingPage?: string }) => {
 
@@ -11,7 +11,7 @@ const Loading = ({ loadingPage }: { loadingPage?: string }) => {
   useEffect(() => {
     const interval = setInterval(() => {
       setProgress((old) => {
-        if (old < 95) return old + 5; // Simulate progress up to 95%
+        if (old < 95) return old + 5; 
         return old;
       });
     }, 100);
@@ -28,7 +28,7 @@ const Loading = ({ loadingPage }: { loadingPage?: string }) => {
    <LampDesk className='size-12 stroke-muted-foreground hover:stroke-sidebar-accent-foreground cursor-pointer' />
 
         <h3 className="text-foreground-muted text-normal">
-          {`${loadingPage  ?  loadingPage : "Desk"} Loading....`}</h3>
+          {`${loadingPage ||  "Desk"} Loading....`}</h3>
 
         <Progress value={progress} />
       </div>

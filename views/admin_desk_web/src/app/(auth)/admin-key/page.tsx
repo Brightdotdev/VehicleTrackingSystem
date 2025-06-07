@@ -22,11 +22,10 @@ export default function Home() {
     )) {
     toast.error("Uhm who sent you here boss");
 
-    if(!isAuthenticated){
-      router.replace("/welcome-back")
+    if(isAuthenticated){
+      router.replace("/")
       return;
     }
-    router.replace("/")
   }
   }, [searchParams, router]);
 

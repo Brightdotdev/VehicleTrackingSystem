@@ -38,7 +38,8 @@ public class NotificationSseService {
 
         // Optional initial event
         try {
-            emitter.send(SseEmitter.event().name("INIT").data("Connected to notification stream."));
+            emitter.send(SseEmitter.event().name("INIT")
+                    .data("{\"message\": \"Connected to notification stream.\"}"));
         } catch (IOException e) {
             emitter.completeWithError(e);
         }

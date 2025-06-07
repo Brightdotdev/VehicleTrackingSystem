@@ -50,6 +50,8 @@ public class UserDispatchService {
 
         List<DispatchModel> foundVehicleDispatches = dispatchRepository.findByDispatchVehicleId(requestBody.vehicleIdentificationNumber());
 
+
+
         for (DispatchModel dispatchModel : foundVehicleDispatches) {
             if (
                     dispatchModel.getDispatchStatus() == DispatchEnums.DispatchStatus.COMPLETED ||
@@ -70,7 +72,7 @@ public class UserDispatchService {
         }
 
         UtilRecords.dispatchRequestBodyDTO requestBodyDTO
-                = new UtilRecords.dispatchRequestBodyDTO(requestBody.vehicleName(),requestBody.vehicleIdentificationNumber(),requestBody.vehicleClass(),requestBody.dispatchReason(),userName,requestBody.dispatchEndTime());
+                = new UtilRecords.dispatchRequestBodyDTO(requestBody.vehicleName(),requestBody.vehicleIdentificationNumber(),requestBody.vehicleStatus(),requestBody.dispatchReason(),userName,requestBody.dispatchEndTime());
 
         Map<String, Object> dispatchResult = (Map<String, Object>) rabbitMqSenderService.sendDispatchCreatedEvent(requestBodyDTO);
 
@@ -303,7 +305,7 @@ public class UserDispatchService {
         finalDispatchBody.setDispatchReason(dispatchRequestBody.dispatchReason());
         finalDispatchBody.setDispatchStatus(DispatchEnums.DispatchStatus.PENDING);
         finalDispatchBody.setDispatchRequestTime(LocalDateTime.now());
-        finalDispatchBody.setVehicleClass(dispatchRequestBody.vehicleClass());
+        finalDispatchBody.setVehicleClass(dispatchRequestBody.vehicleStatus());
         finalDispatchBody.setDispatchEndTime(dispatchRequestBody.dispatchEndTime());
         finalDispatchBody.setVehicleName(dispatchRequestBody.vehicleName());
         finalDispatchBody.setCanDispatch(requestBody.canDispatch());

@@ -2,9 +2,9 @@ import { EventSourcePolyfill } from 'event-source-polyfill';
 
 export const subscribeUserToSse = ({ user }: { user: string }): EventSource => {
  
-    const sseUrl = `http://localhost:8102/v1/sse/subscribe?clientId=${user}`;
-    const eventSource = new EventSourcePolyfill(sseUrl, {
-      withCredentials: true,
+    const sseUrl = `http://localhost:8102/v1/sse/subscribe`;
+    const eventSource =    new EventSource(sseUrl, {
+      withCredentials: true // Essential for sending cookies
     });
  
 
@@ -29,7 +29,7 @@ export const subscribeUserToSse = ({ user }: { user: string }): EventSource => {
     console.log('Admin notification received:', adminNotification);
   });
 
-  eventSource.onerror = (err: Event) => {
+  eventSource.onerror = (err) => {
     console.error('SSE connection error:', err);
   };
 

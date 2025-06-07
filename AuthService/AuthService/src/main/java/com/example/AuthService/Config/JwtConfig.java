@@ -38,11 +38,12 @@ public class JwtConfig {
 
 
     // 🔑 Used for token generation
-    public String generateToken(Authentication auth) {
+    public String generateToken(Authentication auth, String userImage) {
 
         Object principal = auth.getPrincipal();
         String username;
         List<String> roles;
+
 
 
         if (principal instanceof UserDetails userDetails) {
@@ -60,6 +61,7 @@ public class JwtConfig {
         return Jwts.builder()
                 .subject(username)
                 .claim("roles", roles)
+                .claim("userImage", userImage)
                 .expiration(new Date(System.currentTimeMillis() + getExpiration()))
                 .signWith(getSecretKey())
                 .compact();

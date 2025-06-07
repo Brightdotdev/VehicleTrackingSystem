@@ -22,11 +22,7 @@ export function middleware(request: NextRequest) {
           url.searchParams.set('redirected', 'already-logged-in')
           return NextResponse.redirect(url)
       }
-
-      
-      const url = new URL('/welcome-back', request.url)
-    url.searchParams.set('redirected', 'invalidPageRequest')
-    return NextResponse.redirect(url)}}
+    }}
 
 
 

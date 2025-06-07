@@ -199,41 +199,43 @@ public class UtilRecords {
     }
 
 
-    // -------------------------------
-    // Body for creating a new dispatch
-    // -------------------------------
+
+    // ------------------------------------------------
+    // DTO for dispatch request bodies
+    // ------------------------------------------------
     public record dispatchRequestBodyDTO(
             String vehicleName,
             String vehicleIdentificationNumber,
             @Enumerated(EnumType.STRING)
-            LogEnums.VehicleStatus vehicleClass,
+            LogEnums.VehicleStatus vehicleStatus,
             @Enumerated(EnumType.STRING)
             LogEnums.DispatchReason dispatchReason,
             String dispatchRequester,
             LocalDateTime dispatchEndTime
     ) {
         public dispatchRequestBodyDTO {
+            // vehicleName must be non-blank
             if (vehicleName == null || vehicleName.isBlank()) {
                 throw new IllegalArgumentException("vehicleName is required");
             }
-            if (dispatchRequester == null || dispatchRequester.isBlank()) {
-                throw new IllegalArgumentException("Who is requesting the dispatch");
-            }
+            // VIN must be non-blank
             if (vehicleIdentificationNumber == null || vehicleIdentificationNumber.isBlank()) {
                 throw new IllegalArgumentException("vehicleIdentificationNumber is required");
             }
-            if (vehicleClass == null) {
-                throw new IllegalArgumentException("vehicleClass is required");
+            // enums must be non-null
+            if (vehicleStatus == null) {
+                throw new IllegalArgumentException("vehicleStatus is required");
             }
             if (dispatchReason == null) {
                 throw new IllegalArgumentException("dispatchReason is required");
             }
+            // dispatchRequester may be optional
+            // dispatchEndTime must be non-null
             if (dispatchEndTime == null) {
                 throw new IllegalArgumentException("dispatchEndTime is required");
             }
         }
     }
-
 
     // -------------------------------
     // Notification structure

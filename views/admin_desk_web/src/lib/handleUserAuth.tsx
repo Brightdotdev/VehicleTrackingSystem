@@ -156,6 +156,32 @@ export const handleGoogleLogIn = async (
 
 
 
+// validate the user outside the context again
+        export  const isValidatedUser  = async  (
+    setLoading : (loading : boolean) => void ,
+    setValidated : (isValidated : boolean) => void) => {
+ try {
+    const response = await fetch(dotEnv.cookieValidationLink, {
+   method: "GET", headers: { "Content-Type": "application/json"},credentials: "include"});
+
+
+  const userResponseData  = await response.json();
+  console.log(userResponseData)
+  
+  const {code , success , data : { valid, user  }} = userResponseData;
+  
+        if(valid && code === 200 && user.email !== null && success === true ){
+          return setValidated(true);
+        } 
+        return setValidated(false);
+      } catch (error) {
+        console.log(error)
+        return setValidated(false);
+    } finally {
+      setLoading(false)}};
+
+
+
 // log in with local form
  export const handleAdminLocalLogInSubmit = async (
     userInfo  : AdminLocalLogIn,
@@ -241,8 +267,7 @@ export const handleGoogleLogIn = async (
 
       // Optionally parse the response
       const data = await response.json();
-      
-    if (data.status !== 200 || data.code !== 200 || !data.data) {
+    if (data.code !== 201 && !data.data) {
         setLoading(false)
         
         throw new Error("Sign up failed...trying again")}
@@ -285,6 +310,7 @@ export const handleGoogleLogIn = async (
             }
           );
           const accessToken = tokenResponse.data.access_token;
+
           const googleResponse = await axios.get(
             dotEnv.versionInfoLink,
             {

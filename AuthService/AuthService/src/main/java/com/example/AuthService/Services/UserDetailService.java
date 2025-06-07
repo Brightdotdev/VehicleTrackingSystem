@@ -66,7 +66,7 @@ public class UserDetailService implements UserDetailsService {
                 null, // no credentials for OAuth
                 authUser.getAuthorities() // roles/authorities
         );
-      return new UtilRecords.LoginServiceResponse(authUser,auth);
+      return new UtilRecords.LoginServiceResponse(authUser,auth,authUser.getUserImage());
     }
 
     @Transactional
@@ -78,7 +78,7 @@ public class UserDetailService implements UserDetailsService {
                 null, // no credentials for OAuth
                 authUser.getAuthorities() // roles/authorities
         );
-        return new UtilRecords.LoginServiceResponse(authUser,auth);
+        return new UtilRecords.LoginServiceResponse(authUser,auth,authUser.getUserImage());
     }
 
     @Transactional
@@ -107,7 +107,7 @@ public class UserDetailService implements UserDetailsService {
         }
 
         // Return both user info and authentication token
-        return new UtilRecords.LoginServiceResponse(newUser, auth);
+        return new UtilRecords.LoginServiceResponse(newUser, auth, newUser.getUserImage());
     }
 
 
@@ -129,7 +129,7 @@ public class UserDetailService implements UserDetailsService {
         } catch (Exception e) {
             throw new ConflictException("Authentication failed after save");
         }
-        return new UtilRecords.LoginServiceResponse(user, auth);
+        return new UtilRecords.LoginServiceResponse(user, auth,user.getUserImage());
 
     }
 
@@ -148,7 +148,7 @@ public class UserDetailService implements UserDetailsService {
                 null, // no credentials for OAuth
                 authUser.getAuthorities() // roles/authorities
         );
-        return new UtilRecords.LoginServiceResponse(authUser,auth);
+        return new UtilRecords.LoginServiceResponse(authUser,auth,authUser.getUserImage());
     }
 
 
@@ -162,7 +162,7 @@ public class UserDetailService implements UserDetailsService {
                 null, // no credentials for OAuth
                 authUser.getAuthorities() // roles/authorities
         );
-        return new UtilRecords.LoginServiceResponse(authUser,auth);
+        return new UtilRecords.LoginServiceResponse(authUser,auth,authUser.getUserImage());
     }
 
 
@@ -187,11 +187,13 @@ public class UserDetailService implements UserDetailsService {
 
         UtilRecords.adminCreatedRequestBodyDto adminReq = new UtilRecords.adminCreatedRequestBodyDto(request.email().trim());
 
+/*
         Map<String , Object> logAdminCreatedResponse = rabbitMqSenderService.sendAdminCreated(adminReq);
 
         if(!logAdminCreatedResponse.containsKey("createdNew")){
             throw new ConflictException("Unable to synchronize admin data Try signing up again");
         }
+*/
 
 
         UserModel newUser = userService.save(user);
@@ -204,7 +206,7 @@ public class UserDetailService implements UserDetailsService {
             }
 
             // Return both user info and authentication token
-            return new UtilRecords.LoginServiceResponse(newUser, auth);
+            return new UtilRecords.LoginServiceResponse(newUser, auth,newUser.getUserImage());
     }
 
 
@@ -221,7 +223,7 @@ public class UserDetailService implements UserDetailsService {
         } catch (Exception e) {
             throw new ConflictException("Authentication failed after save");
         }
-        return new UtilRecords.LoginServiceResponse(user, auth);
+        return new UtilRecords.LoginServiceResponse(user, auth,user.getUserImage());
     }
 
 

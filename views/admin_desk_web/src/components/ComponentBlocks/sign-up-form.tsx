@@ -184,7 +184,7 @@ export function SignUpForm({
                 </div>
                       <Button type="submit" className="relative overflow-hidden px-6 py-2 transition group">
                   <span className="block transition-transform duration-300 group-hover:translate-x-[1000%]">
-    Login
+    Sign Up
   </span>
   <span className="absolute left-0 top-0 w-full h-full flex items-center justify-center transition-transform duration-300 translate-x-[-200%] group-hover:translate-x-0">
     JOIN US!

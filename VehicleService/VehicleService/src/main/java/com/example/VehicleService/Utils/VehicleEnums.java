@@ -20,11 +20,8 @@ public class VehicleEnums {
         OTHER
     }
 
-    static enum VehicleClass {
-        TRANSPORT,
-        CLASSIFIED,
-        DELIVERY
-    }
+
+
 
     public static enum VehicleDispatchStatus {
 

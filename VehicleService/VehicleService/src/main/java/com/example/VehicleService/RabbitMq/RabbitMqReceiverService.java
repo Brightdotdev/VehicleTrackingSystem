@@ -65,7 +65,7 @@ public class RabbitMqReceiverService {
 
             Hibernate.initialize(vehicle.getDispatchHistory());
 
-            return vehicleHealthService.vehicleDispatchStatus(vehicle);
+            return vehicleHealthService.vehicleDispatchStatus(vehicle,dispatchEvent);
 
         } catch (Exception e) {
             logger.error("Error processing dispatch message: {}", e.getMessage(), e);

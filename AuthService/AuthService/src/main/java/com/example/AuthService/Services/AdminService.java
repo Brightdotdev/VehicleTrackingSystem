@@ -163,12 +163,14 @@ public class AdminService {
         user.setRoles(List.of("ROLE_USER","ROLE_ADMIN",  "ROLE_GOOGLE"));
 
         UtilRecords.adminCreatedRequestBodyDto adminReq = new UtilRecords.adminCreatedRequestBodyDto(email);
+/*
 
         Map<String , Object> logAdminCreatedResponse = rabbitMqSenderService.sendAdminCreated(adminReq);
 
         if(!logAdminCreatedResponse.containsKey("createdNew")){
         throw new ConflictException("Unable to synchronize admin data Try signing up again");
         }
+*/
 
         return userRepository.save(user);
     }

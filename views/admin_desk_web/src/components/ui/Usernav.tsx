@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react'
 import { Button } from './button';
 import { cn } from '@/lib/utils';
 import { getMyNotifications, subscribeUserToSse } from '@/lib/handleUserNotiications';
+import { useSSE } from '@/contexts/NotificationContext';
 
 
 
@@ -38,8 +39,8 @@ const NotificationCard = ({notificationItem} : {notificationItem : notification}
   
   <article className={cn(
     "w-full rounded-sm flex flex-col items-start justify-center gap-xs p-[var(--space-sm)]",
-    notificationItem.isActionNotif ? "bg-blue-500/10" : "",
-    notificationItem.read ? "bg-blue-500/5" : "bg-blue-500/10"
+    notificationItem.isActionNotif ? "bg-blue-950/10" : "",
+    notificationItem.read ? "bg-blue-950/5" : "bg-blue-950/10"
   )}>
     <h4 className="text-normal">{notificationItem.title}</h4>
     <p className="text-muted-foreground text-body">{notificationItem.body}</p>
@@ -136,29 +137,24 @@ const NotifPopUp = ({ setVisible, isvisible, user, notifications }:
    </div>
 
     </article>
-    </div>
-    )
-    )
-}
+    </div>))}
 
 
 
-const Usernav = () => {
+
+const Usernav = ({classNames} : {classNames? : string}) => {
   const { isAuthenticated, userData} = useAuth();
 
-  useEffect(() => {
-    
-    if (!userData) return;
+/*   const { latestEvent, queue, dequeue } = useSSE();
 
-    const eventSource = subscribeUserToSse({ user: userData.email });
-    const myNofitications  = getMyNotifications({ user: userData.email });
-    console.log(myNofitications)
-    return () => {
-      eventSource.close();
-      console.log('SSE connection closed');
-    };
-    
-  }, [userData])
+  
+  useEffect(() => {
+    if (latestEvent) {
+      console.log("New SSE event:", latestEvent);
+      
+    }
+  }, [latestEvent]); */
+
 
     const [notifIsVisible, setNotifIsVisible] = useState(false);
     const [notifications, setNotifications] = useState([
@@ -168,18 +164,19 @@ const Usernav = () => {
 
   return (
     isAuthenticated ? (
-      <nav className='fixed top-4 flex items-center justify-between w-screen h-[var(--size-sm)] p-[var(--size-sm-3)]'>
+      <nav className={'fixed top-4 flex items-center justify-between w-screen h-[var(--size-sm)] p-[var(--size-sm-3)] ' + classNames} >
 
         <article className="flex items-center justify-start gap-4  p-[var(--space-xs)] bg-accent rounded-lg cursor-pointer">
                 {
                     userData?.picture  && (<img src={userData.picture} className='size-8 rounded-full object-cover' />)
                 }
-                 <h3 className='subtitleText'>
+                <div className='size-8 rounded-full object-cover bg-red-400' />
+                 <h3 className='hidden  md:subtitleText'>
                 {`${userData?.username || "Nobody" }'s Desk`}  
             </h3>
         </article>
         
-        <Button onClick={() => setNotifIsVisible(true)} variant="outline" className="relative  flex items-center justify-center rounded-full p-[var(--space-sm)] bg-accent">
+        <Button onClick={() => setNotifIsVisible(true)} variant="outline" className="relative  flex items-center justify-center rounded-full p-[var(--space-sm-1)] h-[var(--space-sm-3)] bg-accent">
             
              {/* 
              this is supposed to like get the data from the loggin service and show the notifications

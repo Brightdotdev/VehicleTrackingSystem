@@ -45,7 +45,7 @@ public class UserAuthController {
 
         UtilRecords.LoginServiceResponse userDatabaseSignIn = userDetailService.handleUserSignUp(request);
 
-        String jwt = jwtConfig.generateToken(userDatabaseSignIn.auth());
+        String jwt = jwtConfig.generateToken(userDatabaseSignIn.auth(), "");
         System.out.println("---- jwt token -----");
         System.out.println(jwt);
         String cookie = cookieHandler.createJwtCookie(jwt);
@@ -73,7 +73,7 @@ public class UserAuthController {
 
         UtilRecords.LoginServiceResponse userDatabaseSignIn = userDetailService.handleOath2UserSignIn(request);
 
-        String jwt = jwtConfig.generateToken(userDatabaseSignIn.auth());
+        String jwt = jwtConfig.generateToken(userDatabaseSignIn.auth(),request.picture());
 
         String cookie = cookieHandler.createJwtCookie(jwt);
         System.out.println("---- jwt cookie -----");
@@ -99,7 +99,7 @@ public class UserAuthController {
 
         UtilRecords.LoginServiceResponse userDatabaseSignIn = userDetailService.handleUserOath2UserLogIn(request);
 
-        String jwt = jwtConfig.generateToken(userDatabaseSignIn.auth());
+        String jwt = jwtConfig.generateToken(userDatabaseSignIn.auth(),"");
 
         String cookie = cookieHandler.createJwtCookie(jwt);
         System.out.println("---- jwt cookie -----");
@@ -129,7 +129,7 @@ public class UserAuthController {
 
         UtilRecords.LoginServiceResponse userDatabaseLogin = userDetailService.handleUserLocalLogIn(request);
 
-        String jwt = jwtConfig.generateToken(userDatabaseLogin.auth());
+        String jwt = jwtConfig.generateToken(userDatabaseLogin.auth(),"");
         String cookie = cookieHandler.createJwtCookie(jwt);
 
         response.setHeader(HttpHeaders.SET_COOKIE, cookie);

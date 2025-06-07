@@ -66,8 +66,7 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
             // If not in header, fallback to user cookie
             if (token == null) {
                 token = getJwtFromCookies(request, "userDeskToken");
-
-                if(token == null && getJwtFromCookies(request, "adminDeskCookie") != null ){
+            } if(token == null && getJwtFromCookies(request, "adminDeskCookie") != null ){
                     logger.debug("Yeah this is an admin");
                     token = getJwtFromCookies(request, "adminDeskCookie");
                 }
@@ -76,7 +75,7 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
                     logger.debug("Extracted user JWT token from Cookies: {}", token);
                 }
             }
-        }
+
 
         // If still no token, return unauthorized
         if (token == null) {
