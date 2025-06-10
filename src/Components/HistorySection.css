@@ -1,0 +1,32 @@
+.history {
+  padding: 20px;
+
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 50px;
+}
+
+th, td {
+  padding: 10px;
+  border-bottom: 1px solid #ccc;
+  text-align: left;
+}
+
+.note {
+  font-size: 12px;
+  text-align: center;
+  margin-top: 10px;
+}
+
+.hisicon {
+  margin-top: 25px;
+  margin-left: 15px;
+}
+
+.hissicon {
+  position: relative;
+  bottom: -2px;
+}

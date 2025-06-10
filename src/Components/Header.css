@@ -1,0 +1,33 @@
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #ddd;
+  padding: 10px 20px;
+}
+
+.logout {
+    font-size: 14px;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.logoutarrow {
+    padding-top: 30px;
+}
+
+.notification {
+  width: 36px;
+  height: 36px;
+  background: #333;
+  color: white;
+  border-radius: 50%;
+  text-align: center;
+  line-height: 24px;
+  cursor: pointer;
+}
+
+.bell {
+    margin-top: 10px;
+}
