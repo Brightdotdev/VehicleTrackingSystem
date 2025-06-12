@@ -43,7 +43,7 @@ public class UserDispatchService {
     @Transactional
     public
     //UtilRecords.DispatchResponseDTO
-            DispatchModel requestVehicleDispatch(UtilRecords.dispatchRequestBody requestBody, String userName , List<String> userRole) {
+            DispatchModel requestVehicleDispatch(UtilRecords.dispatchRequestBody requestBody, String userName,String userImage , List<String> userRole) {
 
         DispatchModel dispatchFinalModel = new DispatchModel();
         Boolean canDispatch = false;
@@ -83,7 +83,7 @@ public class UserDispatchService {
 
         UtilRecords.DispatchResponseDTO finalResponse = mapperService.dispatchResponseMapper(dispatchResult);
 
-        DispatchModel finalDispatchModel = getDispatchModel(finalResponse,userName,userRole,requestBody);
+        DispatchModel finalDispatchModel = getDispatchModel(finalResponse,userName,userRole,userImage,requestBody);
         rabbitMqSenderService.sendDispatchCreatedEventNoResponse(requestBodyDTO);
 
         dispatchRepository.save(finalDispatchModel);
@@ -189,25 +189,27 @@ public class UserDispatchService {
 
 
     @Transactional
-    public Map<String, Object>  revalidateDispatchById(String user,Long dispatchId){
+    public DispatchModel  revalidateDispatchByIdUserAndVehicleId(String user,Long dispatchId,String vehicleId){
 
-
-        DispatchModel dispatch = dispatchRepository.findByDispatchRequesterAndDispatchId(user, dispatchId);
+        DispatchModel dispatch = dispatchRepository.findByDispatchRequesterAndDispatchIdAndDispatchVehicleId(user, dispatchId, vehicleId);
 
 
         if(dispatch.getDispatchStatus() == DispatchEnums.DispatchStatus.EXPIRED){
             dispatch.addToDispatchMetadata("DispatchStatus", "Dispatch Is Expired");
-            return dispatch.getDispatchMetadata();
+            dispatchRepository.save(dispatch);
+            return dispatch;
         }
 
         if(dispatch.getDispatchStatus() == DispatchEnums.DispatchStatus.CANCELLED){
             dispatch.addToDispatchMetadata("DispatchStatus", "Dispatch Is Cancelled");
-            return dispatch.getDispatchMetadata();
+            dispatchRepository.save(dispatch);
+            return dispatch;
         }
 
         if(dispatch.getDispatchStatus() == DispatchEnums.DispatchStatus.COMPLETED){
             dispatch.addToDispatchMetadata("DispatchStatus", "Dispatch Is Completed");
-            return dispatch.getDispatchMetadata();
+            dispatchRepository.save(dispatch);
+            return dispatch;
         }
 
         LocalDateTime expiry = dispatch.getDispatchEndTime();
@@ -217,7 +219,8 @@ public class UserDispatchService {
             // dispatch just got expired
             dispatch.setDispatchStatus(DispatchEnums.DispatchStatus.EXPIRED);
             dispatch.addToDispatchMetadata("DispatchStatus", "Dispatch Is Expired");
-            return dispatch.getDispatchMetadata();
+            dispatchRepository.save(dispatch);
+            return dispatch;
         }
 
         if (expiry.isAfter(now)) {
@@ -228,8 +231,9 @@ public class UserDispatchService {
              dispatch.addToDispatchMetadata("expiresInMinutes", remainingTime.toMinutes());
             dispatch.addToDispatchMetadata("expiresInHours", remainingTime.toHours());
             dispatchRepository.save(dispatch);
+              return dispatch;
         }
-        return dispatch.getDispatchMetadata();
+        return dispatch;
     }
 
 
@@ -295,12 +299,14 @@ public class UserDispatchService {
 
     private static DispatchModel getDispatchModel(
     UtilRecords.DispatchResponseDTO requestBody,
-    String userName, List<String> roles,
+    String userName, List<String> roles,String userImage,
     UtilRecords.dispatchRequestBody dispatchRequestBody) {
 
         DispatchModel finalDispatchBody = new DispatchModel();
         finalDispatchBody.setDispatchVehicleId(dispatchRequestBody.vehicleIdentificationNumber());
         finalDispatchBody.setDispatchRequesterRole(roles);
+        finalDispatchBody.setUserImage(userImage);
+        finalDispatchBody.setVehicleImage(requestBody.vehicleImage().get(1));
         finalDispatchBody.setDispatchRequester(userName);
         finalDispatchBody.setDispatchReason(dispatchRequestBody.dispatchReason());
         finalDispatchBody.setDispatchStatus(DispatchEnums.DispatchStatus.PENDING);

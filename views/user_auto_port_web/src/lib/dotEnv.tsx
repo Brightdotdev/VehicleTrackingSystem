@@ -19,9 +19,23 @@
 
 
     const adminCookieName = process.env.NEXT_PUBLIC_ADMIN_COOKIE_NAME || "";
+    const validateDispatchLink = process.env.NEXT_PUBLIC_VALIDATE_DISPATCH_URL || "";
+    const cancelDispatchLink = process.env.NEXT_PUBLIC_CANCEL_DISPATCH_URL || "";
+    const sseSubscribeUrl = process.env.NEXT_PUBLIC_SSE_SUBSCRIBE_URL || "";
+    const getAllDispatchUrl = process.env.NEXT_PUBLIC_GET_ALL_DISPATCH_ADMIN_URL || "";
+    const markForMentainanceUrl = process.env.NEXT_PUBLIC_MARK_FOR_MAINTENANCE || "";
+    const adminVehicleBaseUrl = process.env.NEXT_PUBLIC_ADMIN_VEHICLE_BASE_URL || "";
+    const adminDispatchesBaseUrl = process.env.NEXT_PUBLIC_ADMIN_DISPATCH_BASE_URL || "";
 
 
   export const dotEnv = {
+    adminDispatchesBaseUrl,
+     adminVehicleBaseUrl,
+    markForMentainanceUrl,
+    sseSubscribeUrl,
+    getAllDispatchUrl,
+    cancelDispatchLink,
+    validateDispatchLink,
       adminKeyValidationLink,
         adminLocalLogInLink,
         adminGoogleLogInLink,

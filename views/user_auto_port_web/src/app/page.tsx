@@ -1,34 +1,41 @@
 "use client"
-import AdminHomePage from '@/components/ComponentBlocks/AdminHomePage';
-import WelcomPage from '@/components/ComponentBlocks/WelcomPage';
+
+import Loading from '@/components/ui/Loading';
 import { useAuth } from '@/contexts/AuthContext';
-import { LampDesk } from 'lucide-react'
-import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
+import dynamic from 'next/dynamic';
+import {useSearchParams } from 'next/navigation';
 import React, { useEffect } from 'react'
 import { toast } from 'sonner';
 
 
+const AdminHomePage = dynamic(() => import('@/components/ComponentBlocks/AdminHomePage'), {
+  loading: () => <Loading/>,
+});
 
-export default function page() {
-  const {isAuthenticated, userData, authLoaing} = useAuth();
+const AdminWelcomePage = dynamic(() => import('@/components/ComponentBlocks/AdminWelcomePage'), {
+  loading: () => <Loading/>
+});
+
+
+export default function Page() {
+  const {isAuthenticated, authLoading} = useAuth();
   
     const searchParams = useSearchParams();
   const redirected = searchParams.get("redirected");
 
   useEffect(() => {
     if (redirected && (redirected === "already-logged-in")) {
-      toast.error(`You're already logged in`);
+      toast.error(`You're already logged in ode`);
     }
   }, [redirected]);
 
 
-  return (
-    <main className="w-screen h-screen flex items-center justify-center">
-   
-      {authLoaing ? <h2>Loading....</h2>   :   ( isAuthenticated ?  <AdminHomePage/>  : <WelcomPage/>)}
-  
-    </main>
+  if(authLoading && !isAuthenticated) return <></>
 
-  )
+  if(!isAuthenticated && !authLoading) return <AdminWelcomePage/>
+  if(!isAuthenticated && !authLoading) return <AdminWelcomePage/>
+
+  if(isAuthenticated && !authLoading) return <AdminHomePage/>
+
+  
 }

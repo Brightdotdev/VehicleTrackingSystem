@@ -10,111 +10,111 @@ import java.util.List;
 @Entity
 @Table(name = "vehicles")
 public class VehicleModel {
-    @Id
-    @SequenceGenerator(
-            name = "user_sequence",
-            sequenceName =  "user_id_sequence",
-            allocationSize = 1
-    )
-    @GeneratedValue(
-            strategy = GenerationType.SEQUENCE,
-            generator = "user_id_sequence"
-    )
-    private Long id;
-
-    @Column(nullable = false, unique = true)
-    private String vehicleIdentificationNumber;
-
-    // License plate number
-    @Column(nullable = false, unique = true)
-    private String licensePlate;
-
-    @Column(nullable = false)
-    private String model;
-
-
-    @Column(nullable = false)
-    private int vehicleAcquiredYear;
-
-    // Engine type: GAS, DIESEL, ELECTRIC, HYBRID
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private VehicleEnums.EngineType engineType;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private VehicleEnums.VehicleType vehicleType;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private VehicleEnums.VehicleStatus vehicleStatus;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private VehicleEnums.VehicleDispatchStatus dispatchStatus;
-
-
-
-    @ElementCollection
-    private List<Long> dispatchHistory;
-
-    @ElementCollection
-    private List<String> vehicleImages;
-
-    // Vehicle's safety score (out of 100)
-    @Column(nullable = false)
-    private Double safetyScore;
-
-    @Column(nullable = false)
-    private String vehicleMetadata;
-
-
-
-    @OneToMany(mappedBy = "vehicle", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<VehicleHealthAttributeModel> healthAttributes;
-
-    // Relationship to Vehicle Wildcards (if needed)
-    @OneToMany(mappedBy = "vehicle", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<VehicleWildcardAttributeModel> wildcardAttributes;
-
-
-    public void addDispatchHistoryEntry(Long entry) {
-        this.dispatchHistory.add(entry);
-    }
-
-    // Add multiple entries to dispatchHistory
-    public void addDispatchHistoryEntries(List<Long> entries) {
-        this.dispatchHistory.addAll(entries);
-    }
-
-    // Add a single vehicle image without overwriting the list
-    public void addVehicleImage(String image) {
-        this.vehicleImages.add(image);
-    }
-
-    // Add multiple vehicle images
-    public void addVehicleImages(List<String> images) {
-        this.vehicleImages.addAll(images);
-    }
-
-    public VehicleModel(Long id, String vehicleIdentificationNumber, String licensePlate, String model, int vehicleAcquiredYear, VehicleEnums.EngineType engineType, VehicleEnums.VehicleType vehicleType, VehicleEnums.VehicleStatus vehicleStatus, VehicleEnums.VehicleDispatchStatus dispatchStatus, List<Long> dispatchHistory, List<String> vehicleImages, Double safetyScore, String vehicleMetadata, List<VehicleHealthAttributeModel> healthAttributes, List<VehicleWildcardAttributeModel> wildcardAttributes) {
-        this.id = id;
-        this.vehicleIdentificationNumber = vehicleIdentificationNumber;
-        this.licensePlate = licensePlate;
-        this.model = model;
-        this.vehicleAcquiredYear = vehicleAcquiredYear;
-        this.engineType = engineType;
-        this.vehicleType = vehicleType;
-        this.vehicleStatus = vehicleStatus;
-        this.dispatchStatus = dispatchStatus;
-
-        this.dispatchHistory = dispatchHistory;
-        this.vehicleImages = vehicleImages;
-        this.safetyScore = safetyScore;
-        this.vehicleMetadata = vehicleMetadata;
-        this.healthAttributes = healthAttributes;
-        this.wildcardAttributes = wildcardAttributes;
-    }
+        @Id
+        @SequenceGenerator(
+                name = "user_sequence",
+                sequenceName =  "user_id_sequence",
+                allocationSize = 1
+        )
+        @GeneratedValue(
+                strategy = GenerationType.SEQUENCE,
+                generator = "user_id_sequence"
+        )
+        private Long id;
+    
+        @Column(nullable = false, unique = true)
+        private String vehicleIdentificationNumber;
+    
+        // License plate number
+        @Column(nullable = false, unique = true)
+        private String licensePlate;
+    
+        @Column(nullable = false)
+        private String model;
+    
+    
+        @Column(nullable = false)
+        private int vehicleAcquiredYear;
+    
+        // Engine type: GAS, DIESEL, ELECTRIC, HYBRID
+        @Enumerated(EnumType.STRING)
+        @Column(nullable = false)
+        private VehicleEnums.EngineType engineType;
+    
+        @Enumerated(EnumType.STRING)
+        @Column(nullable = false)
+        private VehicleEnums.VehicleType vehicleType;
+    
+        @Enumerated(EnumType.STRING)
+        @Column(nullable = false)
+        private VehicleEnums.VehicleStatus vehicleStatus;
+    
+        @Enumerated(EnumType.STRING)
+        @Column(nullable = false)
+        private VehicleEnums.VehicleDispatchStatus dispatchStatus;
+    
+    
+    
+        @ElementCollection
+        private List<Long> dispatchHistory;
+    
+        @ElementCollection
+        private List<String> vehicleImages;
+    
+        // Vehicle's safety score (out of 100)
+        @Column(nullable = false)
+        private Double safetyScore;
+    
+        @Column(nullable = false)
+        private String vehicleMetadata;
+    
+    
+    
+        @OneToMany(mappedBy = "vehicle", cascade = CascadeType.ALL, orphanRemoval = true)
+        private List<VehicleHealthAttributeModel> healthAttributes;
+    
+        // Relationship to Vehicle Wildcards (if needed)
+        @OneToMany(mappedBy = "vehicle", cascade = CascadeType.ALL, orphanRemoval = true)
+        private List<VehicleWildcardAttributeModel> wildcardAttributes;
+    
+    
+        public void addDispatchHistoryEntry(Long entry) {
+            this.dispatchHistory.add(entry);
+        }
+    
+        // Add multiple entries to dispatchHistory
+        public void addDispatchHistoryEntries(List<Long> entries) {
+            this.dispatchHistory.addAll(entries);
+        }
+    
+        // Add a single vehicle image without overwriting the list
+        public void addVehicleImage(String image) {
+            this.vehicleImages.add(image);
+        }
+    
+        // Add multiple vehicle images
+        public void addVehicleImages(List<String> images) {
+            this.vehicleImages.addAll(images);
+        }
+    
+        public VehicleModel(Long id, String vehicleIdentificationNumber, String licensePlate, String model, int vehicleAcquiredYear, VehicleEnums.EngineType engineType, VehicleEnums.VehicleType vehicleType, VehicleEnums.VehicleStatus vehicleStatus, VehicleEnums.VehicleDispatchStatus dispatchStatus, List<Long> dispatchHistory, List<String> vehicleImages, Double safetyScore, String vehicleMetadata, List<VehicleHealthAttributeModel> healthAttributes, List<VehicleWildcardAttributeModel> wildcardAttributes) {
+            this.id = id;
+            this.vehicleIdentificationNumber = vehicleIdentificationNumber;
+            this.licensePlate = licensePlate;
+            this.model = model;
+            this.vehicleAcquiredYear = vehicleAcquiredYear;
+            this.engineType = engineType;
+            this.vehicleType = vehicleType;
+            this.vehicleStatus = vehicleStatus;
+            this.dispatchStatus = dispatchStatus;
+    
+            this.dispatchHistory = dispatchHistory;
+            this.vehicleImages = vehicleImages;
+            this.safetyScore = safetyScore;
+            this.vehicleMetadata = vehicleMetadata;
+            this.healthAttributes = healthAttributes;
+            this.wildcardAttributes = wildcardAttributes;
+        }
 
     public VehicleModel() {
     }

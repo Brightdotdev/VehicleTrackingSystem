@@ -6,6 +6,7 @@ import com.example.DispatchService.Models.DispatchModel;
 import com.example.DispatchService.Service.AdminDispatchService;
 import com.example.DispatchService.Service.UserDispatchService;
 import com.example.DispatchService.Utils.ApiResponse;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -71,10 +72,10 @@ public class AdminDispatchController {
 
     /** Endpoint to revalidate (recalculate) all dispatches **/
 
-    // :: localhost:8105/v1/admin/dispatch/revalidate-all
+    // :: localhost:8105/v1/admin/dispatch/get-all
 
 
-    @GetMapping("/revalidate-all")
+    @GetMapping("/get-all")
     public
     ResponseEntity<ApiResponse<List<DispatchModel>>>
     revalidateAllDispatch() {
@@ -89,30 +90,42 @@ public class AdminDispatchController {
     }
 
 
-    /** Endpoint to get all dispatches (no filters) **/
-
-    // :: localhost:8105/v1/admin/dispatch/all
-    @GetMapping("/all")
-    public List<DispatchModel> getAllDispatches() {
-        return adminDispatchService.getAllDispatch();
-    }
 
 
 
-    // :: localhost:8105/v1/admin/dispatch/revalidate-dispatch
-    @GetMapping("/revalidate-dispatch")
+    // :: localhost:8105/v1/admin/dispatch/get-dispatch-by-id-and-vin
+    @GetMapping("/get-dispatch-by-id-and-vin")
     public
-    ResponseEntity<ApiResponse<Map<String, Object>>>
-    revalidateSingleDispatch(@PathVariable Long dispatchId) {
-        Map<String, Object> metadata = userDispatchService.revalidateDispatchById(userHandler.getCurrentUser(),dispatchId);
+    ResponseEntity<ApiResponse<DispatchModel>>
+    revalidateSingleDispatch(@Valid @RequestParam Long dispatchId,
+                            @Valid @RequestParam String vehicleId) {
+
+        DispatchModel metadata = adminDispatchService.revalidateDispatchByIdAndVehicleId(dispatchId,vehicleId );
 
         return ResponseEntity.ok(
                 ApiResponse.success(
                         201,
                         "Dispatch cancel Success",
                         metadata
+                ));}
+
+    // :: localhost:8105/v1/admin/dispatch/get-vehicle-history
+    @GetMapping("/get-vehicle-history")
+    public
+    ResponseEntity<ApiResponse<List<DispatchModel>>>
+    getVehicleDispatchHistory(@Valid @RequestParam String vehicleVin) {
+
+        List<DispatchModel> vehicleHistory = adminDispatchService.getVehicleHistory(vehicleVin);
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        201,
+                        "Dispatch cancel Success",
+                        vehicleHistory
                 ));
     }
+
+
+
 
     @GetMapping
     public ResponseEntity<?> getCurrentUser() {

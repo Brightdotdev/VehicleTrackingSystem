@@ -20,16 +20,19 @@ export default function RootLayout({
   const googleCleintId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "";
 
   return (
-  <html lang="en" >
-      <body className="antialiased bodyWrapper duration-700 transition-all" >   
+  <html lang="en" suppressHydrationWarning >
+      <body className="antialiased bodyWrapper duration-700 transition-all"  >   
       <GoogleOAuthProvider clientId={googleCleintId}>
       <Toaster position="top-right" />
         
         <ThemeProvider>
           <AuthProvider>
             <GlobalContextProvider>
+              
+          <div vaul-drawer-wrapper="" className="bg-background">
               <BottomNav/>
         {children}
+          </div>
         </GlobalContextProvider>  
         </AuthProvider>
         </ThemeProvider>

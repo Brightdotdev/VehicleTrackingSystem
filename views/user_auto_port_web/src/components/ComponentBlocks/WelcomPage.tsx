@@ -1,19 +1,17 @@
 import { LampDesk } from 'lucide-react'
 import Link from 'next/link'
 import React from 'react'
-
+import { BackgroundBeams } from "../ui/BackgroundBeam";
 export  const WelcomPage = () => {
   return (
   <section className="
     flex flex-col items-center 
-    min-h-2xl 
-    justify-center
-    max-w-md
-    p-[var(--space-sm)]
-    gap-md-2
+    gap-md-2  
     overflow-y-hidden
+    h-[40rem] w-full rounded-md  relative flex flex-col items-center justify-center antialiased
     ">
-      <article className="flexItemsCenter gap-sm  justify-self-center">
+<section className="max-w-2xl mx-auto p-4 z-10">      
+            <article className="flexItemsCenter gap-sm  justify-self-center">
       <LampDesk className='size-12 stroke-muted-foreground hover:stroke-sidebar-accent-foreground cursor-pointer' />
       <div className="flexItemsCenter">
       <h1 className="subTitleText">Welcome to DESK</h1>
@@ -39,6 +37,9 @@ export  const WelcomPage = () => {
           </Link>
           </p>
       </article>
+      </section>
+        <BackgroundBeams />
+
     </section>)
 
 }

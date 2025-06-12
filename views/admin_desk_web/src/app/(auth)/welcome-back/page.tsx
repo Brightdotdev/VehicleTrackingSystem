@@ -1,12 +1,6 @@
 "use client"
 
-import { GalleryVerticalEnd } from "lucide-react"
-
 import { LoginForm } from "@/components/ComponentBlocks/login-form"
-import ToggleTier from "@/components/utils/Toggler"
-import { useSearchParams } from "next/navigation";
-import { useEffect } from "react";
-import { toast } from "sonner";
 import Link from "next/link";
 
 export default function LoginPage() {

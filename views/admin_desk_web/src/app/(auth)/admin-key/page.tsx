@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect } from "react";
-import { AdminKeyForm } from "@/components/ui/AdminKey";
+import { AdminKeyForm } from "@/components/ui/auth/AdminKey";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";

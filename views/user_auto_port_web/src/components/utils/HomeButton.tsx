@@ -7,7 +7,7 @@ const HomeButton = () => {
     <Button
       asChild
       variant="link"
-      className="fixed bottom-6 right-6 z-50 subTitleText rounded shadow-lg transition"
+      className="fixed bottom-6 right-6 z-50 bodyText rounded shadow-lg transition"
     >
       <Link href="/">
         Go Back Home

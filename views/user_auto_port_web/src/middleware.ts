@@ -5,8 +5,7 @@ export function middleware(request: NextRequest) {
   const token = request.cookies.get('adminDeskCookie')?.value
   const { pathname, searchParams } = request.nextUrl
 
-console.log("MIDDLEWARE IS RUNNING");
-  console.log("middleware token:", token, "pathname:", pathname);
+  
 
   if (pathname.startsWith("/admin-key")) {
     const pageSender = searchParams.get("sender");
@@ -23,12 +22,56 @@ console.log("MIDDLEWARE IS RUNNING");
           url.searchParams.set('redirected', 'already-logged-in')
           return NextResponse.redirect(url)
       }
+    }}
 
+
+ if (pathname.startsWith("/vehicles")) {
+
+      if(!token) {
+            const url = new URL('/', request.url)
+          url.searchParams.set('redirected', 'unauthorized')
+          return NextResponse.redirect(url)
+      }}
+
+
+ if (pathname.startsWith("/vehicles/request")) {
+
+      if(!token) {
+            const url = new URL('/', request.url)
+          url.searchParams.set('redirected', 'unauthorized')
+          return NextResponse.redirect(url)
+      }
+     
+      const vehicleRequest = searchParams.get("vehicleReq");
+     const vehicle = searchParams.get('vehicle');
+
+     if (!vehicleRequest  || !vehicle) {
+        const url = new URL('/vehicles', request.url)
+        return NextResponse.redirect(url)
+      }
+
+    }
+  
+
+  if (pathname.startsWith("/vehicles/info")) {
+
+      if(!token) {
+            const url = new URL('/', request.url)
+          url.searchParams.set('redirected', 'unauthorized')
+          return NextResponse.redirect(url)
+      }
+     
       
-      const url = new URL('/welcome-back', request.url)
-    url.searchParams.set('redirected', 'invalidPageRequest')
-    return NextResponse.redirect(url)}}
+     const vehicle = searchParams.get('vehicle');
 
+     if (!vehicle) {
+        const url = new URL('/vehicles', request.url)
+        return NextResponse.redirect(url)
+      }
+
+    }
+  
+  
 
 
   // Redirect logged-in users away from /login or /
@@ -42,4 +85,4 @@ console.log("MIDDLEWARE IS RUNNING");
 }
 
 export const config = {
-matcher: ['/', '/join-us', '/welcome-back', '/admin-key(.*)', '/dashboard/:path*'],}
+matcher: ['/', '/join-us', '/welcome-back', '/admin-key(.*)', '/vehicles/:path*', '/dashboard/:path*'],}

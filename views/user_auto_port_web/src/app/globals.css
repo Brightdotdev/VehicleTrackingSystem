@@ -64,7 +64,8 @@
 
 
   /* my values */
-
+ --gradientLines: oklch(20.46% 0.000 89.88);
+ --gradientLine: #e5e7eb;
   /* Fonts */
 
 
@@ -78,6 +79,7 @@
   --space-sm: min(6vw, 1rem);
   --space-sm-1: min(6vw, 1.2rem);
   --space-sm-2: min(6vw, 1.8rem);
+  --space-sm-3: min(6vw, 2rem);
   --space-md: min(10vw, 3.2rem);
   --space-md-2: min(10vw, 3.8rem);
   --space-md-3: min(10vw, 4rem);
@@ -92,22 +94,29 @@
   --size-sm: min(8vw, 1rem);
   --size-sm-1: min(8vw, 1.2rem);
   --size-sm-2: min(8vw, 1.8rem);
-  --size-md: min(12vw, 3.2rem);
-  --size-md-2: min(12vw, 3.8rem);
-  --size-md-3: min(12vw, 4rem);
+  --size-sm-3: min(8vw, 2rem);
+  --size-md: min(10vw, 3rem);
+  --size-md-2: min(12vw, 3.5rem);
+  --size-md-3: min(12vw, 3.8rem);
+  --size-md-4: min(12vw, 4rem);
   --size-lg: min(10vw, 6rem);
   --size-xl: min(12vw, 8rem);
+  --size-xl2: min(10vw, 10rem);
   --size-xxl: min(14vw, 12rem);
   --size-xxxl: min(16vw, 14rem); 
+  --size-4xl: min(64vh, 24rem); 
+  --size-vehicleCard: min(100vw, 23rem); 
 
   /* Font Sizes */
+  --font-xxs: min(2vw, 0.25rem);
   --font-xs: min(2vw, 0.5rem);
   --font-small: min(4vw, 0.8rem);
   --font-body:  min(4vw, 1rem);
+  --font-title:  min(5vw, 1.6rem);
   --font-normal: min(6vw, 1.8rem);
   --font-medium: min(8vw, 2rem);
   --font-subheading: min(10vw, 2.8rem);
-  --font-heading: min(10vw, 4rem);
+  --font-heading: min(9vw, 4rem);
 
 
   --font-large: min(14vw, 4.8rem);
@@ -166,6 +175,9 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+
+  --gradientLines :  oklch(93.10% 0.000 89.88);
+  --gradientLine :  #171717;
 }
 
 @theme inline {
@@ -211,14 +223,19 @@
 
 
   /* my custom values */
+  --color-gradientLines: var(--gradientLines);
+  --color-gradientLine: var(--gradientLine);
 
   --font-roboto: var(--font-roboto);
   --font-futura-medium: var(--font-futura-medium);
   --font-futura-heavy: var(--font-futura-heavy);
   
+  --text-xs: min(4vw, 0.6rem);
   --text-small: min(4vw, 0.8rem);
   --text-body:  min(4vw, 1rem);
-  --text-normal: min(6vw, 1.5rem);
+  --text-body-2:  min(5vw, 1.2rem);
+  --text-normal: min(5vw, 1.5rem);
+  --text-normal-2: min(6vw, 1.8rem);
   --text-medium: min(8vw, 2rem);
   --text-medium-2: min(8vw, 2.5rem);
   --text-subheading: min(10vw, 2.8rem);
@@ -242,6 +259,9 @@
   --gap-xxl: min(12vw, 12rem);
   --gap-xxxl: min(14vw, 14rem);
 
+/* animationssssss */
+
+  --animate-spotlight: spotlight 2s ease 0.75s 1 forwards;
 
 }
 
@@ -256,8 +276,9 @@
     font-roboto font-medium
   }
   body{
-    @apply  flex flex-col overflow-x-hidden;
+    @apply  flex flex-col overflow-x-hidden overflow-y-hidden;
   }
+
 }
 
 @layer utilities{
@@ -269,7 +290,36 @@
     justify-content: center;
     align-items: center;
   }
+  .flexItemsStart{
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+  .bottomNavButton{
+   @apply w-1/3 h-[var(--size-md)] px-[var(--size-md)]
+  }
+  .topNavButton{
+   @apply w-1/2 h-[var(--size-md)] px-[var(--size-md)]  
+  }
 
+  .vehicleCard{
+    border-radius: .8rem .8rem 0 0;
+    object-fit: cover;
+    object-position : center;
+  }
+  .vehicleCardBody{
+    border-radius: .8rem .8rem .8rem .8rem;
+    object-fit: cover;
+    object-position : center;
+  }
+
+  @media (max-width: 640px) {
+    .vehicleCardBody , .vehicleCard {
+      border-radius: 0;
+    }
+  }
         .bodyWrapper{
           position: relative;
           display: flex;
@@ -300,6 +350,22 @@
         .subTitleText{
           color: var(--foreground);
           font-size: var(--font-subheading);
+          font-weight: 600;
+          font-family: var(--font-futura-medium);
+          line-height: var(--line-tight);
+        }
+        
+        .subTitleText2{
+          color: var(--primary-foreground);
+          font-size: var(--font-medium);
+          font-weight: 400;
+          font-family: var(--font-futura-medium);
+          line-height: var(--line-tight);
+        }
+        
+        .subTitleTextGradient{
+          font-size: var(--font-subheading);
+          font-weight: 600;
           font-family: var(--font-futura-medium);
           line-height: var(--line-tight);
         }
@@ -321,9 +387,61 @@
         .smallText{
           font-size: var(--font-small);}
 
+     .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+          }
+          .no-scrollbar::-webkit-scrollbar {
+            display: none;}
+            
+          .customScrollBar{
+             scrollbar-width: thin;
+             scrollbar-color: var(--background) var(--background2);
+          }
+          .customScrollBar::-webkit-scrollbar {
+             width: 8px;
+             background: var(--background2);
+          }
+          .customScrollBar::-webkit-scrollbar-thumb {
+             background: var(--background);
+             border-radius: 8px;
+          }
+          .customScrollBar::-webkit-scrollbar-thumb:hover {
+             background: var(--foreground);
+          }
+          .scorllebleElement{
+            overflow-y: auto;           
+             overflow: hidden;
+            overflow-y: scroll;
+          }
+          .activeVehicleText{
+           
+            
+            
+            font-size: var(--font-medium);
+            font-family: var(--font-futura-medium);
+            line-height: var(--line-normal);
+            @apply bg-blue-950 hover:bg-blue-900/90  dark:text-foreground text-primary-foreground
+          }
+
+          .unActiveVehicleText{
+           
+            
+            font-size: var(--font-medium);
+            font-family: var(--font-futura-medium);
+            line-height: var(--line-normal);
+
+            @apply  text-foreground dark:text-primary-foreground
+          }
+    .activeVehicleText:hover,  .unActiveVehicleText:hover {
+            color: var(--primary);
+            background: var(--secondary);
+            box-shadow: 0 2px 12px 0 var(--secondary);
+            cursor: pointer;
+            }
 
 
-          
+            
 .gradient {
   width: 10rem;
   height: 10rem;
@@ -338,28 +456,6 @@
   z-index: 40;
 }
 
-@keyframes orbit {
-  0% {
-    top: 0%;
-    left: 0%;
-  }
-  25% {
-    top: 0%;
-    left: 80%;
-  }
-  50% {
-    top: 80%;
-    left: 80%;
-  }
-  75% {
-    top: 80%;
-    left: 0%;
-  }
-  100% {
-    top: 0%;
-    left: 0%;
-  }
-}
 
 @keyframes sheen {
   0% {
@@ -381,8 +477,37 @@
   opacity: 1;
   animation: sheen 1s linear forwards;
 }
+
+.navButtonLeft{
+  border-radius: var(--radius) 0  0 var(--radius) ;
+}
+.navButtonRight{
+  border-radius: 0 var(--radius) var(--radius) 0;
 }
 
+
+.disatchRequestContainer {
+  border-radius:  1rem;
+}
+.disatchRequestImage {
+  border-radius : 1rem 1rem 0 0;
+
+}
+
+
+
+
+}
+@keyframes spotlight {
+  0% {
+    opacity: 0;
+    transform: translate(-72%, -62%) scale(0.5);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -40%) scale(1);
+  }
+}
 
 .leaflet-container {
   width: 100%;
@@ -407,3 +532,5 @@
   width: 100%;
   border-radius: 140px;
 }
+
+ 

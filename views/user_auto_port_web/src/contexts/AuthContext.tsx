@@ -3,7 +3,6 @@
 import { dotEnv } from "@/lib/dotEnv";
 import { deleteCookie, getCookie } from "@/lib/utils";
 import React, { createContext, useContext, useEffect, useState, ReactNode } from "react";
-import { set } from "react-hook-form";
 
 type User = {
   email: string;
@@ -15,7 +14,7 @@ type User = {
 type AuthContextType = {
   isAuthenticated: boolean;
   userData: User;
-  authLoaing: boolean;
+  authLoading: boolean;
 
   logout: () => Promise<void>;
   logInData :  { email : string, password  : string, pageExpTime : number } ,
@@ -43,7 +42,7 @@ const AuthContext = createContext<AuthContextType>({
   isAuthenticated: false,
   userData: null,
   
-  authLoaing: true,
+  authLoading: true,
   logout: async () => {},
   
   logInData : { email : "", password  : "" , pageExpTime : Date.now()},
@@ -92,7 +91,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     });
 
     const [userData, setUser] = useState<User>(null);
-  const [authLoaing, setAuthLoading] = useState(true);
+  const [authLoading, setAuthLoading] = useState(true);
 
 
   // Validate and fetch user info
@@ -105,12 +104,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           "Content-Type": "application/json"},credentials: "include"});
         const userResponseData  = await response.json();
         const {code , data : { valid, user  }} = userResponseData;
+          console.log(userResponseData)
         
-        console.log(code,valid,user)
         if(valid && code === 200){
           setUser(user);
-          console.log(user)
-          console.log(userData)
           setIsAuthenticated(valid)
         }
         
@@ -127,7 +124,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setAuthLoading(true);
     try {
       const authCookie = getCookie(dotEnv.adminCookieName)
-      console.log(authCookie);
       if(authCookie){
           const response = await fetch(dotEnv.adminLogOutLink, {
           method: "GET",
@@ -149,7 +145,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setIsAuthenticated(false);
     }
   };
-
+  
 
 const  isPageExpTimeExpired =  (pageExpTime: number): boolean => {
   return Date.now() > pageExpTime;
@@ -165,7 +161,7 @@ const  isPageExpTimeExpired =  (pageExpTime: number): boolean => {
       value={{
       isAuthenticated,
       userData,
-      authLoaing,
+      authLoading,
      logout,
   logInData,
   setLogInData,
@@ -186,4 +182,11 @@ const  isPageExpTimeExpired =  (pageExpTime: number): boolean => {
   );
 };
 
-export const useAuth = () => useContext(AuthContext);
+
+export const useAuth = () => {
+  const context = useContext(AuthContext)
+  if (!context) {
+    throw new Error('use auth must be used within a ThemeProvider')
+  }
+  return context
+}

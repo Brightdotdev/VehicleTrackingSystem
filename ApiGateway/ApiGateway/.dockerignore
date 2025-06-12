@@ -8,6 +8,11 @@
 **/README.md
 **/LICENSE
 
+.git
+.gradle
+build
+*.iml
+
 ### Build Artifacts ###
 **/build/
 **/bin/

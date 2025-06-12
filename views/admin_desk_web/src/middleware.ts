@@ -25,6 +25,54 @@ export function middleware(request: NextRequest) {
     }}
 
 
+ if (pathname.startsWith("/vehicles")) {
+
+      if(!token) {
+            const url = new URL('/', request.url)
+          url.searchParams.set('redirected', 'unauthorized')
+          return NextResponse.redirect(url)
+      }}
+
+
+ if (pathname.startsWith("/vehicles/request")) {
+
+      if(!token) {
+            const url = new URL('/', request.url)
+          url.searchParams.set('redirected', 'unauthorized')
+          return NextResponse.redirect(url)
+      }
+     
+      const vehicleRequest = searchParams.get("vehicleReq");
+     const vehicle = searchParams.get('vehicle');
+
+     if (!vehicleRequest  || !vehicle) {
+        const url = new URL('/vehicles', request.url)
+        return NextResponse.redirect(url)
+      }
+
+    }
+  
+
+  if (pathname.startsWith("/vehicles/info")) {
+
+      if(!token) {
+            const url = new URL('/', request.url)
+          url.searchParams.set('redirected', 'unauthorized')
+          return NextResponse.redirect(url)
+      }
+     
+      
+     const vehicle = searchParams.get('vehicle');
+
+     if (!vehicle) {
+        const url = new URL('/vehicles', request.url)
+        return NextResponse.redirect(url)
+      }
+
+    }
+  
+  
+
 
   // Redirect logged-in users away from /login or /
   if ((pathname === '/join-us' || pathname === '/welcome-back') && token) {
@@ -37,4 +85,4 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-matcher: ['/', '/join-us', '/welcome-back', '/admin-key(.*)', '/dashboard/:path*'],}
+matcher: ['/', '/join-us', '/welcome-back', '/admin-key(.*)', '/vehicles/:path*', '/dashboard/:path*'],}

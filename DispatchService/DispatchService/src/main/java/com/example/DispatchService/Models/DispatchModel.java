@@ -74,20 +74,22 @@ public class DispatchModel {
 
 
     private Double dispatchReviewScore;
+    private String userImage;
+    private String vehicleImage;
 
 
     private String vehicleName;
 
     @Convert(converter = ListMapStringBooleanConverter.class)
     @Column(columnDefinition = "TEXT")
-    List<Map<String, Boolean>> wildCards;
+    private List<Map<String, Boolean>> wildCards;
 
     @Convert(converter = ListMapStringDoubleConverter.class)
     @Column(columnDefinition = "TEXT")
     List<Map<String, Double>> healthAttributes;
-    Double safetyScore;
+    private Double safetyScore;
 
-    Boolean canDispatch;
+    private Boolean canDispatch;
 
     public void addToDispatchMetadata(String key, Object value) {
         if (this.dispatchMetadata == null) {
@@ -99,7 +101,7 @@ public class DispatchModel {
     public DispatchModel() {
     }
 
-    public DispatchModel(Long dispatchId, String dispatchRequester, String dispatchAdmin, String dispatchVehicleId, List<String> dispatchRequesterRole, DispatchEnums.VehicleStatus vehicleClass, LocalDateTime dispatchRequestTime, LocalDateTime dispatchRequestApproveTime, LocalDateTime dispatchStartTime, LocalDateTime dispatchEndTime, DispatchEnums.DispatchReason dispatchReason, DispatchEnums.DispatchStatus dispatchStatus, Map<String, Object> dispatchMetadata, Double dispatchReviewScore, String vehicleName, List<Map<String, Boolean>> wildCards, List<Map<String, Double>> healthAttributes, Double safetyScore, Boolean canDispatch) {
+    public DispatchModel(Long dispatchId, String dispatchRequester, String dispatchAdmin, String dispatchVehicleId, List<String> dispatchRequesterRole, DispatchEnums.VehicleStatus vehicleClass, LocalDateTime dispatchRequestTime, LocalDateTime dispatchRequestApproveTime, LocalDateTime dispatchStartTime, LocalDateTime dispatchEndTime, DispatchEnums.DispatchReason dispatchReason, DispatchEnums.DispatchStatus dispatchStatus, Map<String, Object> dispatchMetadata, Double dispatchReviewScore, String vehicleName, List<Map<String, Boolean>> wildCards, String userImage,List<Map<String, Double>> healthAttributes, Double safetyScore, String vehicleImage, Boolean canDispatch) {
         this.dispatchId = dispatchId;
         this.dispatchRequester = dispatchRequester;
         this.dispatchAdmin = dispatchAdmin;
@@ -112,12 +114,14 @@ public class DispatchModel {
         this.dispatchEndTime = dispatchEndTime;
         this.dispatchReason = dispatchReason;
         this.dispatchStatus = dispatchStatus;
+        this.userImage = userImage;
         this.dispatchMetadata = dispatchMetadata;
         this.dispatchReviewScore = dispatchReviewScore;
         this.vehicleName = vehicleName;
         this.wildCards = wildCards;
         this.healthAttributes = healthAttributes;
         this.safetyScore = safetyScore;
+        this.vehicleImage = vehicleImage;
         this.canDispatch = canDispatch;
     }
 
@@ -145,12 +149,28 @@ public class DispatchModel {
         this.dispatchAdmin = dispatchAdmin;
     }
 
+    public String getVehicleImage() {
+        return vehicleImage;
+    }
+
+    public void setVehicleImage(String vehicleImage) {
+        this.vehicleImage = vehicleImage;
+    }
+
     public String getDispatchVehicleId() {
         return dispatchVehicleId;
     }
 
     public void setDispatchVehicleId(String dispatchVehicleId) {
         this.dispatchVehicleId = dispatchVehicleId;
+    }
+
+    public String getUserImage() {
+        return userImage;
+    }
+
+    public void setUserImage(String userImage) {
+        this.userImage = DispatchModel.this.userImage;
     }
 
     public List<String> getDispatchRequesterRole() {

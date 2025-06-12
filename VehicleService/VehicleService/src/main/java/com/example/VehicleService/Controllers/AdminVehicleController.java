@@ -51,8 +51,8 @@ public class AdminVehicleController {
                 ));
     }
 
-    // :: localhost:8106/v1/admin/vehicle - Save a new vehicle
-    @PostMapping
+    // :: localhost:8106/v1/admin/vehicle/new - Save a new vehicle
+    @PostMapping("/new")
     public ResponseEntity<ApiResponse<VehicleModel>> saveVehicle(@Valid @RequestBody UtilRecords.VehicleDTO vehicle) {
         VehicleModel savedVehicle = vehicleService.saveVehicle(vehicle);
 
@@ -67,8 +67,8 @@ public class AdminVehicleController {
 
 
 
-    // :: localhost:8106/v1/admin/vehicle/bad - Save a new vehicle
-    @PostMapping("/bad")
+    // :: localhost:8106/v1/admin/vehicle/new/bad - Save a new vehicle
+    @PostMapping("/new/bad")
     public ResponseEntity<ApiResponse<VehicleModel>> saveBadVehicle(@Valid @RequestBody UtilRecords.VehicleDTO vehicle) {
         VehicleModel savedVehicle = vehicleService.saveBadVehicle(vehicle);
 
@@ -80,4 +80,21 @@ public class AdminVehicleController {
                 ));
 
     }
+
+
+    // :: localhost:8106/v1/admin/vehicle/mark-for-maintenance - mark for maintnacne
+    @PostMapping("/mark-for-maintenance")
+    public  ResponseEntity<ApiResponse<VehicleModel>> setVehicleInMaintenance(@RequestParam String vin) {
+
+     VehicleModel maintainedVehicle  =  vehicleService.markVehicleForMaintenance(vin);
+
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        201,
+                        "Vehicle Saved successfully",
+                        maintainedVehicle
+                ));
+    }
+
+
 }

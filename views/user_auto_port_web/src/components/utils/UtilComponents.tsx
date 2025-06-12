@@ -9,20 +9,17 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 
 
-export const GoogleLogInButton = ({ loading, setGoogleLoading, authType }: { loading: boolean, setGoogleLoading: (loading: boolean) => 
+export const  GoogleButton = ({ loading, setGoogleLoading, authType }: { loading: boolean, setGoogleLoading: (loading: boolean) => 
   void, authType : string }) => {
     const router = useRouter();
     const {setGoogleUserData} = useAuth();
 
-    const login = useAdminLogInGoogle(setGoogleUserData, setGoogleLoading
-        ,
-        () => {
+    const login = useAdminLogInGoogle(setGoogleUserData, setGoogleLoading,() => {
   toast.success("Login successful!");
   router.replace("/admin-key?sender=google-log-in");
 }
     );
-    const signUp = useAdminSignUpGoogle(setGoogleUserData, setGoogleLoading,
-        () => {
+    const signUp = useAdminSignUpGoogle(setGoogleUserData, setGoogleLoading,() => {
   toast.success("Sign Up successful!");
   router.replace("/admin-key?sender=google-sign-up");});
 
@@ -31,14 +28,14 @@ export const GoogleLogInButton = ({ loading, setGoogleLoading, authType }: { loa
         <>
             {loading ? (
                 <Button disabled className="w-full cursor-pointer bg-background2 text-foreground ">
-                    <Loader2 className="animate-spin fill-foreground" />
+                    <Loader2 className="animate-spin " />
                     {authType === 'google-sign-up' ? "Google Sign Up Coming Up" : "Google Log In Coming Up"}
                 </Button>
             ) : (
                 <Button
                     variant="outline"
-                    className="w-full cursor-pointer bg-background2
-                        relative overflow-hidden group rounded-lg bg-blue-600 text-foreground font-semibold shadow-md transition duration-300 hover:shadow-lg focus:outline-none"
+                    className="w-full cursor-pointer bg-chart-1
+                        relative overflow-hidden group rounded-lg  text-background dark:text-foreground font-semibold shadow-md transition duration-300 hover:shadow-lg focus:outline-none"
                   onClick={async (e) => {
     e.preventDefault();
     if (authType === 'google-sign-up') {
@@ -79,3 +76,25 @@ export const GoogleLogInButton = ({ loading, setGoogleLoading, authType }: { loa
         </>
     );
 };
+
+
+
+
+export const HealthText = ({value} : {value : number}) =>{
+  if(value === 100 ) 
+  return <p className='text-body-2 text-green-900'>{value}</p> 
+  else if(value >= 95)
+  return <p className='text-body-2 text-green-800'>{value}</p> 
+  else if(value >= 90)
+  return <p className='text-body-2 text-blue-800'>{value}</p>
+  else if(value >= 85 ) 
+  return <p className='text-body-2 text-blue-500'>{value}</p>
+  else if (value >= 80)
+  return <p className='text-body-2 text-orange-400'>{value}</p> 
+   else if (value >= 75)
+  return <p className='text-body-2 text-orange-600'>{value}</p> 
+  else if ( value >= 63 ) 
+  return <p className='text-body-2 text-yellow-900'>{value}</p> 
+ else
+  return <p className='text-body-2 text-red-900'>{value}</p>  
+}

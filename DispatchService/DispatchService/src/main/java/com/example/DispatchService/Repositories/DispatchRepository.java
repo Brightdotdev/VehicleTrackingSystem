@@ -20,5 +20,10 @@ public interface DispatchRepository extends JpaRepository<DispatchModel, Long> {
     DispatchModel findByDispatchIdAndDispatchRequester(Long dispatchId, String dispatchRequester);
 
 
+    DispatchModel findByDispatchRequesterAndDispatchIdAndDispatchVehicleId(String dispatchRequester, Long dispatchId, String dispatchVehicleId);
+
+
+    DispatchModel findByDispatchIdAndDispatchVehicleId(Long dispatchId, String dispatchVehicleId);
+
 
 }

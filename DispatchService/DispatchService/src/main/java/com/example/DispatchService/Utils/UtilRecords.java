@@ -166,13 +166,13 @@ public class UtilRecords {
                 throw new IllegalArgumentException("vehicleIdentificationNumber is required");
             }
             // enums must be non-null
+            // dispatchRequester may be optional
             if (vehicleStatus == null) {
                 throw new IllegalArgumentException("vehicleStatus is required");
             }
             if (dispatchReason == null) {
                 throw new IllegalArgumentException("dispatchReason is required");
             }
-            // dispatchRequester may be optional
             // dispatchEndTime must be non-null
             if (dispatchEndTime == null) {
                 throw new IllegalArgumentException("dispatchEndTime is required");
@@ -187,7 +187,8 @@ public class UtilRecords {
             double safetyScore,
             List<Map<String, Double>> healthAttributes,
             boolean canDispatch,
-            Map<String, Object> logicErrors
+            Map<String, Object> logicErrors,
+            List<String>  vehicleImage
     ) {
         public DispatchResponseDTO {
             if (wildCards == null) {
@@ -198,9 +199,6 @@ public class UtilRecords {
                 throw new IllegalArgumentException("safetyScore must be between 0.0 and 100.0");
             }
             if (healthAttributes == null) {
-                throw new IllegalArgumentException("healthAttributes list is required");
-            }
-            if (logicErrors == null) {
                 throw new IllegalArgumentException("healthAttributes list is required");
             }
 

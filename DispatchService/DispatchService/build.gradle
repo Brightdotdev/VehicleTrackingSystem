@@ -21,6 +21,8 @@ ext {
 	set('springCloudVersion', "2024.0.1")
 }
 
+
+
 dependencies {
 
 	implementation 'org.springframework.boot:spring-boot-starter-amqp'
@@ -53,7 +55,7 @@ dependencies {
 	implementation "io.github.resilience4j:resilience4j-spring-boot3:2.2.0"
 
 
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 

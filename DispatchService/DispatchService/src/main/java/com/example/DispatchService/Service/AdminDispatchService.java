@@ -10,6 +10,7 @@ import com.example.DispatchService.Repositories.DispatchRepository;
 import com.example.DispatchService.Utils.DispatchEnums;
 import com.example.DispatchService.Utils.UtilRecords;
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -45,6 +46,9 @@ public class AdminDispatchService {
 
         DispatchModel dispatch = dispatchRepository.findByDispatchId(dispatchId);
 
+        if(dispatch == null){
+            throw new NotFoundException("Dispatch Not found ooo");
+        }
 
         if(!isStillValidDispatch(dispatch)){
             return null;
@@ -77,12 +81,21 @@ public class AdminDispatchService {
 
         DispatchModel dispatch = dispatchRepository.findByDispatchId(dispatchId);
 
+
+        if(dispatch == null){
+            throw new NotFoundException("Dispatch NNof found ooo");
+        }
+
+
         if(!isStillValidDispatch(dispatch)){
             return null;}
 
         if(dispatchCancelReason.isEmpty()){
             dispatch.addToDispatchMetadata("dispatchApprovalStatus", "Dispatch cancelled by admin");
         }
+        UtilRecords.DispatchEndedDTO dispatchEndedDTO = new UtilRecords.DispatchEndedDTO(true,LocalDateTime.now(),dispatch.getDispatchVehicleId(),dispatch.getDispatchRequester(),dispatch.getVehicleName(),dispatchId);
+
+        rabbitMqSenderService.sendDispatchCompletedFanoutFromDispatchService(dispatchEndedDTO);
 
         dispatch.addToDispatchMetadata("dispatchApprovalStatus", dispatchCancelReason);
         dispatch.setDispatchAdmin(adminEmail);
@@ -139,7 +152,57 @@ public class AdminDispatchService {
 
 
 
+    @Transactional
+    public DispatchModel revalidateDispatchByIdAndVehicleId(@Valid Long dispatchId, String vehicleId) {
+        DispatchModel dispatch = dispatchRepository.findByDispatchIdAndDispatchVehicleId( dispatchId, vehicleId);
 
+        if(dispatch == null){
+            throw new NotFoundException("Dispatch Not found ooo");
+        }
+
+        if(dispatch.getDispatchStatus() == DispatchEnums.DispatchStatus.EXPIRED){
+            dispatch.addToDispatchMetadata("DispatchStatus", "Dispatch Is Expired");
+            dispatchRepository.save(dispatch);
+            return dispatch;
+        }
+
+        if(dispatch.getDispatchStatus() == DispatchEnums.DispatchStatus.CANCELLED){
+            dispatch.addToDispatchMetadata("DispatchStatus", "Dispatch Is Cancelled");
+            dispatchRepository.save(dispatch);
+            return dispatch;
+        }
+
+        if(dispatch.getDispatchStatus() == DispatchEnums.DispatchStatus.COMPLETED){
+            dispatch.addToDispatchMetadata("DispatchStatus", "Dispatch Is Completed");
+            dispatchRepository.save(dispatch);
+            return dispatch;
+        }
+
+        LocalDateTime expiry = dispatch.getDispatchEndTime();
+        LocalDateTime now = LocalDateTime.now();
+
+        if (expiry.isBefore(now)) {
+            // dispatch just got expired
+            dispatch.setDispatchStatus(DispatchEnums.DispatchStatus.EXPIRED);
+            dispatch.addToDispatchMetadata("DispatchStatus", "Dispatch Is Expired");
+            dispatchRepository.save(dispatch);
+            return dispatch;
+        }
+
+        if (expiry.isAfter(now)) {
+            // Still active — calculate time remaining
+            Duration remainingTime = Duration.between(now, expiry);
+
+            // Add metadata to result list
+            dispatch.addToDispatchMetadata("expiresInMinutes", remainingTime.toMinutes());
+            dispatch.addToDispatchMetadata("expiresInHours", remainingTime.toHours());
+            dispatchRepository.save(dispatch);
+            return dispatch;
+        }
+        return dispatch;
+
+
+    }
 
 
 
@@ -147,6 +210,14 @@ public class AdminDispatchService {
     public List<DispatchModel> getAllDispatch(){
         return   dispatchRepository.findAll();
     }
+
+
+
+    public List<DispatchModel> getVehicleHistory(String vehicleId){
+
+        return   dispatchRepository.findByDispatchVehicleId(vehicleId);
+    }
+
 
 
 
@@ -183,8 +254,6 @@ public class AdminDispatchService {
         }
         return true;
     }
-
-
 
 
 

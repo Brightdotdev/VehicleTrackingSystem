@@ -6,6 +6,7 @@ import com.example.DispatchService.Models.DispatchModel;
 import com.example.DispatchService.Service.UserDispatchService;
 import com.example.DispatchService.Utils.ApiResponse;
 import com.example.DispatchService.Utils.UtilRecords;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,7 +38,7 @@ public class UserDispatchController {
     @RequestBody UtilRecords.dispatchRequestBody requestBody) {
 
     //  UtilRecords.DispatchResponseDTO
-        DispatchModel  dispatchResponse =  userDispatchService.requestVehicleDispatch(requestBody, userHandler.getCurrentUser(), userHandler.getRoles());
+        DispatchModel  dispatchResponse =  userDispatchService.requestVehicleDispatch(requestBody, userHandler.getCurrentUser(),userHandler.getUserImage(), userHandler.getRoles());
 
         if (dispatchResponse == null) {
             return ResponseEntity
@@ -63,7 +64,7 @@ public class UserDispatchController {
 
     // :: localhost:8105/v1/user/dispatch/user-cancel
     @PutMapping("/user-cancel")
-    public ResponseEntity<ApiResponse<DispatchModel>> userCancelDispatch(@RequestParam Long dispatchId) {
+    public ResponseEntity<ApiResponse<DispatchModel>> userCancelDispatch(@RequestParam Long dispatchId, @RequestParam String vin) {
 
 
        DispatchModel dispatchModel =  userDispatchService.userCancelingDispatch(userHandler.getCurrentUser(), userHandler.getRoles(), dispatchId);
@@ -78,9 +79,9 @@ public class UserDispatchController {
 
     /** Endpoint to fetch all dispatches for a specific user **/
 
-    // :: localhost:8105/v1/user/dispatch/revalidate-me
+    // :: localhost:8105/v1/user/dispatch/revalidate-all-me
 
-    @GetMapping("/revalidate-me")
+    @GetMapping("/revalidate-all-me")
     public ResponseEntity<ApiResponse<List<DispatchModel>>> getAllMyDispatches() {
 
 
@@ -94,5 +95,24 @@ public class UserDispatchController {
                         myDispatchModels
                 ));
     }
+
+
+    // :: localhost:8105/v1/user/dispatch/revalidate-dispatch-by-me-with-id
+    @GetMapping("/revalidate-dispatch-by-me-with-id")
+    public
+    ResponseEntity<ApiResponse<DispatchModel>>
+    revalidateSingleDispatch(@Valid @RequestParam Long dispatchId,
+                             @RequestParam String vehicleId) {
+
+        DispatchModel metadata = userDispatchService.revalidateDispatchByIdUserAndVehicleId(userHandler.getCurrentUser(),dispatchId,vehicleId );
+
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        201,
+                        "Dispatch cancel Success",
+                        metadata
+                ));
+    }
+
 
 }

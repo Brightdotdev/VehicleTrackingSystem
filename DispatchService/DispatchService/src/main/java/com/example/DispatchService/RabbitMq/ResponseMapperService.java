@@ -26,6 +26,8 @@ public class ResponseMapperService {
 
     Map<String, Object> logicErrors = (Map<String, Object>) dispatchResponse.getOrDefault("logicErrors", new ArrayList<>());
 
+        List<String> vehicleImage = (List<String>) dispatchResponse.getOrDefault("vehicleImage", new ArrayList<>());
+
         List<Map<String, Double>> healthAttributes = (List<Map<String, Double>>) dispatchResponse.getOrDefault("healthAttributes", new ArrayList<>());
 
         double safetyScore = dispatchResponse.get("safetyScore") instanceof Number
@@ -34,7 +36,7 @@ public class ResponseMapperService {
 
         boolean canDispatch = dispatchResponse.get("canDispatch") instanceof Boolean && (Boolean) dispatchResponse.get("canDispatch");
         // Return a new DTO instance
-        return new UtilRecords.DispatchResponseDTO(wildCards, safetyScore, healthAttributes, canDispatch,logicErrors);
+        return new UtilRecords.DispatchResponseDTO(wildCards, safetyScore, healthAttributes, canDispatch,logicErrors,vehicleImage);
     }
 
 

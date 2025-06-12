@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class VehicleService {
@@ -38,6 +39,31 @@ public class VehicleService {
         }
 
         return foundVehicle;
+    }
+
+
+    public VehicleModel markVehicleForMaintenance(String vin) {
+
+        VehicleModel foundVehicle =   findVehicleByIdentificationNumber(vin);
+
+        Optional<VehicleWildcardAttributeModel> existing = foundVehicle.getWildcardAttributes().stream()
+                .filter(attr -> attr.getWildcardKey() == VehicleEnums.VehicleWildCardType.IN_MAINTENANCE)
+                .findFirst();
+
+        if (existing.isPresent()) {
+
+            existing.get().setWildcardValue(true);
+        } else {
+            System.out.println("Aahhhhhhh");
+
+            VehicleWildcardAttributeModel wildcard = new VehicleWildcardAttributeModel(
+                    foundVehicle,
+                    VehicleEnums.VehicleWildCardType.IN_MAINTENANCE,
+                    true
+            );
+            foundVehicle.getWildcardAttributes().add(wildcard);
+        }
+        return vehicleRepository.save(foundVehicle);
     }
 
 

@@ -64,6 +64,7 @@ public class VehicleHealthService {
             }}
 
         safetyScoreResult.put("safetyScore",  safetyScore);
+        safetyScoreResult.put("vehicleImage",  vehicle.getVehicleImages());
         safetyScoreResult.put("canDispatch",canDispatch);
         safetyScoreResult.put("wildCards", wildCards);
         safetyScoreResult.put("healthAttributes", healthAttributes);

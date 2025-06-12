@@ -1,25 +1,10 @@
 "use client"
 
-import { GalleryVerticalEnd } from "lucide-react"
-
-import { LoginForm } from "@/components/login-form"
-import ToggleTier from "@/components/utils/Toggler"
-import { useSearchParams } from "next/navigation";
-import { useEffect } from "react";
-import { toast } from "sonner";
+import { LoginForm } from "@/components/ComponentBlocks/login-form"
 import Link from "next/link";
 
 export default function LoginPage() {
-
-    const searchParams = useSearchParams();
-  const redirected = searchParams.get("redirected");
-
-  useEffect(() => {
-    if (redirected && (redirected === "invalidPageRequest")) {
-      toast.error("You're do not have proper access to that page...try logging in");
-    }
-  }, [redirected]);
-
+  
   return (
   <div className="flex items-center justify-center w-screen h-screen md:py-[var(--space-xs)]">
         <LoginForm />

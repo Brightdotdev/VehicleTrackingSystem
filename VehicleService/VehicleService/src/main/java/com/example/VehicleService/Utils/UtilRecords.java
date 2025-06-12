@@ -120,10 +120,8 @@ public class UtilRecords {
             if (vehicleStatus == null) {
                 throw new IllegalArgumentException("vehicleStatus is required");
             }
-            // vehicleImages list must be non-null (can be empty)
-            if (vehicleImages == null) {
-                throw new IllegalArgumentException("vehicleImages list is required");
-            }
+
+
             // vehicleMetadata may be optional; no check here
         }
     }

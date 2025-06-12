@@ -20,9 +20,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
@@ -46,6 +44,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         final String path = request.getRequestURI();
         final String headerEmail = request.getHeader("x-user-email");
         String email = null;
+        Object image = null;
         final List<String> headerRoles = Collections.singletonList(request.getHeader("x-user-roles"));
         final List<String> roles = new ArrayList<>();
 
@@ -92,7 +91,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                     email = claims.getSubject();
                     logger.info("Token subject (email): {}", email);
                     logger.info("Token subject (header email): {}", headerEmail);
-
+                    image = claims.get("userImage");
                     Object rawRoles = claims.get("roles");
                     if (rawRoles instanceof List<?>) {
                         for (Object role : (List<?>) rawRoles) {
@@ -130,11 +129,21 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                     .map(SimpleGrantedAuthority::new)
                     .collect(Collectors.toList());
 
+
             UsernamePasswordAuthenticationToken authToken =
                     new UsernamePasswordAuthenticationToken(email, null, authorities);
 
             authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
+            Map<String, Object> details = new HashMap<>();
+            details.put("userImage", image);
+
+
+            authToken.setDetails(details);
             SecurityContextHolder.getContext().setAuthentication(authToken);
+
+
+
             logger.info("SecurityContext set for user: {}", email);
         }
 
