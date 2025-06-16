@@ -14,7 +14,7 @@ spring :
   data :
     mongodb:
       auto-index-creation : true
-      uri : mongodb://localhost:27017/logger?retryWrites=true&w=majority&appName=SpringApplication54
+      uri : mongodb+srv://Bright:bomboclat@springapplication.slpgf31.mongodb.net/VEHCILE_LOGGING_SERVICE?retryWrites=true&w=majority&appName=SpringApplication54
   rabbitmq:
     host: vehicletrackingsystem.railway.internal
     port: 5672
