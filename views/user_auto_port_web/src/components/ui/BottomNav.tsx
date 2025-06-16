@@ -42,7 +42,8 @@ const BottomNav = () => {
   }, [pathName])
   useEffect(() => {
     const checkOngoingDispatch = async () => {
-      const onGoingDispatch = await getMyValidDIspatches()
+        if(isValidated){
+                const onGoingDispatch = await getMyValidDIspatches()
       if (onGoingDispatch && onGoingDispatch.length > 0) {
         setPath("dispatch")
         router.push("/")
@@ -50,8 +51,15 @@ const BottomNav = () => {
         setPath("vehicles")
         router.push("/vehicles")
       }
+
+        }else {
+          return
+        }
     }
+
     checkOngoingDispatch()
+  
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
