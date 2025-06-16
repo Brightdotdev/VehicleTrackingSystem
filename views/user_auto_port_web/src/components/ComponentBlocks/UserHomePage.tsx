@@ -1,13 +1,35 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Usernav from '../ui/Usernav'
 import { useAuth } from '@/contexts/AuthContext'
+import { useUserValidation } from '@/hooks/useUserValidation'
+import { getMyValidDIspatches } from '@/lib/handleUserDispatchPage'
+import { useRouter } from 'next/navigation'
 
 
 
 
 const UserHomePage = () => {
-  const {userData} = useAuth()
+  const router = useRouter();
+  const {isValidated, checkValidation} = useUserValidation()
 
+
+useEffect(() => {
+    const checkOngoingDispatch = async () => {
+        
+      await  checkValidation();
+
+      if(isValidated){
+                const onGoingDispatch = await getMyValidDIspatches()
+        if (!onGoingDispatch && onGoingDispatch.length > 0) {
+        router.push("/vehicles")}
+        }else {  return}
+    }
+
+    checkOngoingDispatch()
+  
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   return (
 
