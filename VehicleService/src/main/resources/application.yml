@@ -17,7 +17,7 @@ spring:
     hibernate :
       ddl-auto : update
   rabbitmq:
-    host: localhost
+    host: vehicletrackingsystem.railway.internal
     port: 5672
     username: bright
     password: secret123

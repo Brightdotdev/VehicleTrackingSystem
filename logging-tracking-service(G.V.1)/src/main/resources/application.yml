@@ -16,7 +16,7 @@ spring :
       auto-index-creation : true
       uri : mongodb://localhost:27017/logger?retryWrites=true&w=majority&appName=SpringApplication54
   rabbitmq:
-    host: localhost
+    host: vehicletrackingsystem.railway.internal
     port: 5672
     username: bright
     password: secret123
