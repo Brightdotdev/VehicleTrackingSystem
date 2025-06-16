@@ -17,40 +17,65 @@ spring:
           lower-case-service-id: true
       routes:
         - id: authService
-          uri:  https://auth-service-production-4bef.up.railway.app
+          uri: https://auth-service-production-4bef.up.railway.app
           predicates:
-            - Path=/v1/auth/admin/** , /v1/auth/user/**
+            - Path=/v1/auth/admin/**, /v1/auth/user/**
+          filters:
+            - name: DedupeResponseHeader
+              args:
+                name: Access-Control-Allow-Origin
+                strategy: RETAIN_FIRST
         - id: loggingService
           uri: https://logging-service-production-610d.up.railway.app
           predicates:
-            - Path=/v1/user/notifications/** , /v1/sse/**, /v1/user/tracking/**
+            - Path=/v1/user/notifications/**, /v1/sse/**, /v1/user/tracking/**
+          filters:
+            - name: DedupeResponseHeader
+              args:
+                name: Access-Control-Allow-Origin
+                strategy: RETAIN_FIRST
         - id: dispatchService
           uri: https://dispatch-service-production-b46e.up.railway.app
           predicates:
-            - Path=/v1/admin/dispatch/** , /v1/user/dispatch/**
+            - Path=/v1/admin/dispatch/**, /v1/user/dispatch/**
+          filters:
+            - name: DedupeResponseHeader
+              args:
+                name: Access-Control-Allow-Origin
+                strategy: RETAIN_FIRST
         - id: vehicleService
           uri: https://vehicle-service-production.up.railway.app
           predicates:
-            - Path=/v1/admin/vehicle/** , /v1/user/vehicle/**
+            - Path=/v1/admin/vehicle/**, /v1/user/vehicle/**
+          filters:
+            - name: DedupeResponseHeader
+              args:
+                name: Access-Control-Allow-Origin
+                strategy: RETAIN_FIRST
       globalcors:
-        corsConfigurations:
+        cors-configurations:
           '[/**]':
-            allowedOrigins:
-              - "https://user-auto-port-web.vercel.app"
+            allowed-origins:
               - "https://vehicle-tracking-system-sandy.vercel.app"
-              - "http://localhost:3001"
+              - "https://user-auto-port-rn7j2nld3-brights-projects-3bbf8d8c.vercel.app"
               - "http://localhost:3000"
-            allowedMethods:
-              - GET
-              - POST
-              - PUT
-              - DELETE
-              - PATCH
-            allowedHeaders:
-              - Content-Type
-              - Authorization
-              - X-Requested-With
-            allowCredentials: true
+              - "http://localhost:3001"
+            allowed-methods:
+              - "GET"
+              - "POST"
+              - "PUT"
+              - "DELETE"
+              - "PATCH"
+              - "OPTIONS"
+            allowed-headers:
+              - "Content-Type"
+              - "Authorization"
+              - "X-Requested-With"
+              - "Origin"
+              - "Accept"
+              - "X-XSRF-TOKEN"
+            allow-credentials: true
+            max-age: 3600
 
 auth:
   jwt:
