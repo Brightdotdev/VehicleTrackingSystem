@@ -167,7 +167,7 @@ export const handleGoogleLogIn = async (
 
   const userResponseData  = await response.json();
   const {code , success , data : { valid, user  }} = userResponseData;
-  
+      console.log(userResponseData);
         if(valid && code === 200 && user.email !== null && success === true ){
           return setValidated(true);
         } 

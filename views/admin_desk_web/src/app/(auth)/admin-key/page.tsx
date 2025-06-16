@@ -1,34 +1,17 @@
 "use client";
-import React, { useEffect } from "react";
+
+import React from "react";
 import { AdminKeyForm } from "@/components/ui/auth/AdminKey";
-import { useRouter, useSearchParams } from "next/navigation";
-import { toast } from "sonner";
+import { useSearchParams } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import Loading from "@/components/ui/Loading";
 
 export default function Home() {
-  const { isAuthenticated, authLoading } = useAuth()
-  const router = useRouter()
+  const { authLoading } = useAuth()
   const searchParams = useSearchParams();
   const pageSender : string  | null = searchParams.get("sender");
 
-  useEffect(() => {
-
-  if (!pageSender ||
-     (pageSender !== "local-sign-up" &&
-      pageSender !== "local-log-in" &&
-      pageSender !== "google-log-in" &&
-      pageSender !== "google-sign-up"
-    )) {
-    toast.error("Uhm who sent you here boss");
-
-    if(isAuthenticated){
-      router.replace("/")
-      return;
-    }
-  }
-  }, [searchParams, router]);
-
+  
   
 
 

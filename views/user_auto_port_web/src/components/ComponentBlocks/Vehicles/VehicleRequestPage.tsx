@@ -5,7 +5,6 @@ import {handleDispatchRequest } from '@/lib/handleUserDispatchPage';
 import { HealthText } from '../../utils/UtilComponents';
 import { VehicleInfoPageStatusPills } from '@/components/utils/VehiclePageUtilComponent';
 import { format } from "date-fns";
-import { useRouter } from 'next/navigation';
 import { DateTimePicker } from '@/components/ui/DateTimePicker';
 import { Button } from "@/components/ui/button"
 import {
@@ -141,7 +140,7 @@ const VehicleNamePill = (
 
 
 const VehicleRequestPage = ({vehicleVin} : {vehicleVin : string}) => {
-  const router = useRouter();
+  
     const { user } = useUserValidation()
   const [vehicleData, setVehicleData] = useState<VehicleDTO | undefined>(undefined);
   // Form state

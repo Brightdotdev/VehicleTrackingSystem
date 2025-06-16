@@ -3,6 +3,7 @@ import { Credenza, CredenzaBody, CredenzaClose, CredenzaContent, CredenzaDescrip
 import { Button } from '../button'
 import { DispatchRequestDto, VehicleDTO } from '@/types/VehicleTypes'
 import { toast } from 'sonner';
+import { handleDispatchAccept } from '@/lib/handleDsiaptchRequestPage';
 
 
 interface AcceptDispatchModalProps {
@@ -14,14 +15,10 @@ interface AcceptDispatchModalProps {
 
 const handleAcceptDispatch = (vehicleData: VehicleDTO, dispatchData: DispatchRequestDto, setLoading : (loading: boolean) => void) => {
 
-  setLoading(true)
-  console.log("accepting dispatch")
-  console.log(vehicleData)
-  console.log(dispatchData)
-  vehicleData.dispatchStatus = 'IN_PROGRESS' as VehicleDTO['dispatchStatus']
-  dispatchData.dispatchAdmin = "me"
-  dispatchData.dispatchStartTime = new Date().toISOString()
-  
+
+
+
+  handleDispatchAccept(dispatchData.dispatchId);
   toast.info("Yup the dispatch is accepted")
   setLoading(false);
   toast.info("Redirecting now")

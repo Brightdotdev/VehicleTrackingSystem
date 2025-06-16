@@ -41,7 +41,7 @@ export default function page() {
                    <Loader2 className="animate-spin ml-2 stroke-foreground" />
         Dispatch Request Loading...
         </div>}>
-          <DispatchRequestPage vehicleVin={vehicle} vehicleReqid={Number(vehicleReqid)} />
+          <DispatchRequestPage vehicleVin={vehicle} dispatchReqId={Number(vehicleReqid)} />
         </Suspense>
       );
     

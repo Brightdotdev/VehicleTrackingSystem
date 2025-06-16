@@ -1,4 +1,4 @@
-import { FormProps, SaveNewVehiclePopUpProps, VehicleDTO } from "@/types/VehicleTypes";
+import { DispatchRequestDto, FormProps, SaveNewVehiclePopUpProps, VehicleDTO } from "@/types/VehicleTypes";
 import { dotEnv } from "./dotEnv";
 import { toast } from "sonner";
 
@@ -37,10 +37,10 @@ import { toast } from "sonner";
           body: JSON.stringify(vehicleApiData), 
         });
         const data  = await response.json();
-        
+        console.log(data)
         toast.info("Yeah We saved the new Vehicle")
         setOpen(false)
-    } catch (error) {    
+    } catch {    
         toast.error("Somethinggg went wrong")}};
 
 
@@ -56,7 +56,7 @@ import { toast } from "sonner";
         const data  = await response.json();
         toast.info("The vehicle Data are ready")
         return data.data;
-    } catch (error) {  
+    } catch {  
         toast.error("Somethinggg went wrong");
         return [];
     }};
@@ -75,7 +75,28 @@ export const getVehicleByVin  = async (vin : string)  : Promise<VehicleDTO | und
         const data  = await response.json();
         toast.info("Vehicle Retrival Successful")
         return data.data;
-    } catch (error) {   
+    } catch {   
+        toast.error("Somethinggg went wrong")
+        return undefined;
+    }
+  };
+
+
+
+
+        // get the dispatch by it's id
+export const getDispatchRequest  = async (dispatchRequstid : number, vehcileId : string)  : Promise<DispatchRequestDto | undefined>  => {
+         try {
+    const response =  await fetch(`${dotEnv.adminDispatchesBaseUrl}/get-dispatch-by-id-and-vin?dispatchId=${dispatchRequstid}&vehicleId=${vehcileId}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json"},
+          credentials: "include"});
+
+        const data  = await response.json();
+        toast.info("Vehicle Retrival Successful")
+        return data.data;
+    } catch {   
         toast.error("Somethinggg went wrong")
         return undefined;
     }
@@ -99,7 +120,7 @@ export const getVehicleByVin  = async (vin : string)  : Promise<VehicleDTO | und
         const data  = await response.json();
         toast.info("Yeah these are all the Dispatches")
         return data;
-    } catch (error) {   
+    } catch {   
         toast.error("Somethinggg went wrong")}};
         
 
@@ -118,5 +139,5 @@ export const getVehicleByVin  = async (vin : string)  : Promise<VehicleDTO | und
         
         toast.info("Yeah this is the single dispatch you reqquested for boss")
         return data;
-    } catch (error) {  
+    } catch {  
        toast.error("Somethinggg went wrong")}};

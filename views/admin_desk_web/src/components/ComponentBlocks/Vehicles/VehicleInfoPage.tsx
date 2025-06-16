@@ -5,6 +5,8 @@ import { getVehicleDispatchHistoryApi } from '@/lib/handleDsiaptchRequestPage';
 import { HealthText } from '../../utils/UtilComponents';
 import { VehicleInfoPagePropsPills, VehicleInfoPageStatusPills } from '@/components/utils/VehiclePageUtilComponent';
 import { getVehicleByVin } from '@/lib/handleVehiclePage';
+import { dotEnv } from '@/lib/dotEnv';
+import { toast } from 'sonner';
 
 
 
@@ -12,19 +14,19 @@ import { getVehicleByVin } from '@/lib/handleVehiclePage';
           
       console.log("Mentainingggg grahhh")
   
-        // try {
-        //       const response = await fetch(`${dotEnv.markForMentainanceUrl}/?vin=${vehicleVin}`, {
-        //   method: 'POST',
-        //   headers: { 'Content-Type': 'application/json' },
-        //       });
-        //       if (response.ok) {
-        //   toast.info('Vehicle marked for maintenance successfully!');
-        //       } else {
-        //   toast.error('Failed to mark vehicle for maintenance.');
-        //       }
-        //     } catch (error) {
-        //       toast.error('Network error. Please try again.');
-        //     }
+        try {
+              const response = await fetch(`${dotEnv.adminVehicleBaseUrl}/mark-for-maintenance?vin=${vehicleVin}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+              });
+              if (response.ok) {
+          toast.info('Vehicle marked for maintenance successfully!');
+              } else {
+          toast.error('Failed to mark vehicle for maintenance.');
+              }
+            } catch {
+              toast.error('Somethingg went wrong');
+            }
           }
 
 

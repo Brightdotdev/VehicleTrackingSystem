@@ -17,7 +17,7 @@ export default function page() {
   const vehicle = searchParams.get('vehicle');
 
   const {loading, isValidated, checkValidation} = useUserValidation();
-  const DispatchRequestPage = lazy(() => import('../../../../components/ComponentBlocks/Vehicles/DispatchRequestPage'));
+  const VehicleRequestPage = lazy(() => import('../../../../components/ComponentBlocks/Vehicles/VehicleRequestPage'));
   
   
   useEffect(() => {
@@ -41,7 +41,7 @@ export default function page() {
                    <Loader2 className="animate-spin ml-2 stroke-foreground" />
         Dispatch Request Loading...
         </div>}>
-          <DispatchRequestPage vehicleVin={vehicle} vehicleReqid={Number(vehicleReqid)} />
+          <VehicleRequestPage vehicleVin={vehicle} />
         </Suspense>
       );
     

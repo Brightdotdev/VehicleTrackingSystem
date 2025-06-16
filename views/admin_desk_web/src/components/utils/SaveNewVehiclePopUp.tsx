@@ -14,7 +14,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { SaveNewVehiclePopUpProps, EngineType, VehicleType, VehicleStatus, FormProps } from "@/types/VehicleTypes";
+import { EngineType, VehicleType, VehicleStatus, FormProps } from "@/types/VehicleTypes";
 import { handleSaveVehicleForm } from "@/lib/handleVehiclePage";
 
 

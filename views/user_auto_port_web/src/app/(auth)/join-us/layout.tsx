@@ -1,6 +1,5 @@
-import { Toaster } from "@/components/ui/sonner";
-import type { Metadata } from "next";
 
+import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Sign up to Access to your fleet",
   description: "Sign up page for Auto Port",

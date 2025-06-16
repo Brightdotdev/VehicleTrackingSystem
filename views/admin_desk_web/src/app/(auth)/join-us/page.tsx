@@ -3,9 +3,6 @@
 import { SignUpForm } from "@/components/ComponentBlocks/sign-up-form";
 import Link from "next/link";
 
-
-
-
 export default function Home() {
 
 

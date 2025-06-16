@@ -1,12 +1,8 @@
 import { useAuth } from '@/contexts/AuthContext'
 import { Bell, X } from 'lucide-react';
-import React, { useEffect, useState } from 'react'
+import React, {  useState } from 'react'
 import { Button } from './button';
 import { cn } from '@/lib/utils';
-import { getMyNotifications, subscribeUserToSse } from '@/lib/handleUserNotiications';
-import { useSSE } from '@/contexts/NotificationContext';
-
-
 
 
 //// utilitiesssss grah
@@ -24,13 +20,6 @@ interface notification {
 
 }
 
-
-const handleNotifClose =  ({notifications, user } : {notifications : notification[], user : string})=>  {
-
-
-
-  return ;
-}
 
 
 // notification card
@@ -131,7 +120,7 @@ const NotifPopUp = ({ setVisible, isvisible, user, notifications }:
    <div className="w-full flex flex-col gap-2 items-center justify-start pt-2  overflow-y-scroll no-scrollbar">
        {
           notifications.map((notification,index)  => (
-              <NotificationCard  notificationItem={notification} />
+              <NotificationCard key={index}  notificationItem={notification} />
           ))
         }
    </div>
@@ -157,10 +146,10 @@ const Usernav = ({classNames} : {classNames? : string}) => {
 
 
     const [notifIsVisible, setNotifIsVisible] = useState(false);
-    const [notifications, setNotifications] = useState([
+/*     const [notifications, setNotifications] = useState([
   { id: 1, title: "Notification 1", body: "Lorem ipsum...", isAction: false, read: false },
   { id: 2, title: "Action Notification", body: "Do something!", isAction: true, read: false , goodCta : "Good Cta", badCta : "Bad Cta" },
-]);
+]); */
 
   return (
     isAuthenticated ? (

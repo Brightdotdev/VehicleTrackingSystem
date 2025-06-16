@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import Link from "next/link";
 import HomeButton from "@/components/utils/HomeButton";
 
 export default function PrivacyPolicy() {

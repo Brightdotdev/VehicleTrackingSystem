@@ -4,7 +4,7 @@ import {  Check,
    CircleHelp, 
    GitCommitVertical, 
  Loader2, 
- Minus, Shield, Timer, TriangleAlertIcon } from 'lucide-react';
+ Minus, Shield, Timer } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
  

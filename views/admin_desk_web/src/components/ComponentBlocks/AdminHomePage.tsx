@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import Usernav from '../ui/Usernav'
 import { useAuth } from '@/contexts/AuthContext'
 

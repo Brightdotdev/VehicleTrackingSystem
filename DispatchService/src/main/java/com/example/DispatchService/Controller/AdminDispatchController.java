@@ -35,7 +35,7 @@ public class AdminDispatchController {
 
     /** Endpoint for admins to validate (approve) a dispatch **/
     // :: localhost:8105/v1/admin/dispatch/validate
-
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/validate")
     public ResponseEntity<ApiResponse<DispatchModel>> validateDispatch(
             @RequestParam Long dispatchId) {
@@ -52,14 +52,17 @@ public class AdminDispatchController {
 
     /** Endpoint for admins to cancel a dispatch **/
 
+
+    public record dispatchReason ( String dispatchReason) {}
+
     // :: localhost:8105/v1/admin/dispatch/admin-cancel
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/admin-cancel")
     public ResponseEntity<ApiResponse<DispatchModel>> adminCancelDispatch(
             @RequestParam Long dispatchId,
-            @RequestBody String dispatchCancelReason) {
+            @RequestBody dispatchReason dispatchCancelReason ) {
 
-        DispatchModel dispatchModel =  adminDispatchService.cancelDispatch(userHandler.getCurrentUser(), userHandler.getRoles(), dispatchId, dispatchCancelReason);
+        DispatchModel dispatchModel =  adminDispatchService.cancelDispatch(userHandler.getCurrentUser(), userHandler.getRoles(), dispatchId, dispatchCancelReason.dispatchReason());
 
 
         return ResponseEntity.ok(

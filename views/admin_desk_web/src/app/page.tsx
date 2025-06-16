@@ -25,7 +25,7 @@ export default function Page() {
 
   useEffect(() => {
     if (redirected && (redirected === "already-logged-in")) {
-      toast.error(`You're already logged in ode`);
+      toast.error(`You're already logged`);
     }
   }, [redirected]);
 

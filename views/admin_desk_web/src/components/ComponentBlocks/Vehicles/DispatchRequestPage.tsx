@@ -1,12 +1,12 @@
 import { DispatchRequestDto, VehicleDTO } from '@/types/VehicleTypes';
 import { ArrowLeft,  CarFront,  CircleHelp, Cog, GitCommitVertical, Info,  Shield, TriangleAlertIcon} from 'lucide-react'
 import React, { useEffect, useState } from 'react'
-import { getAllDispatchRequests, getVehicleDispatchHistoryApi} from '@/lib/handleDsiaptchRequestPage';
+import { getVehicleDispatchHistoryApi} from '@/lib/handleDsiaptchRequestPage';
 import { HealthText } from '../../utils/UtilComponents';
 import { DispatchRequestPageStatusPills, DispatchRequestPageStatusPillsProps } from '../../utils/RequestPageUtilComponents';
 import RejectDispatchModal from '../../ui/Requests/RejectDispatchModal';
 import AcceptDispatchModal from '../../ui/Requests/AcceptDispatchModal';
-import { getVehicleByVin } from '@/lib/handleVehiclePage';
+import { getDispatchRequest, getVehicleByVin } from '@/lib/handleVehiclePage';
 
 
 
@@ -53,7 +53,7 @@ items-center justify-start shadow-xl
 
 
 
-const DispatchRequestPage = ({vehicleReqid ,  vehicleVin} : {vehicleReqid : number, vehicleVin : string}) => {
+const DispatchRequestPage = ({vehicleVin, dispatchReqId} : {vehicleVin : string, dispatchReqId : number}) => {
 
   
   const [dispatchData, setDispatchData] = useState<DispatchRequestDto | undefined>(undefined);
@@ -68,9 +68,12 @@ const DispatchRequestPage = ({vehicleReqid ,  vehicleVin} : {vehicleReqid : numb
     
     const handleVehiclePage = async () =>{
          const vData = await getVehicleByVin(vehicleVin);
+         const dispatchRequest = await getDispatchRequest(dispatchReqId, vehicleVin);
         console.log("Vehicle Dataaa")
          console.log(vData)
-      setVehicleData(vData);
+         console.log(dispatchRequest)
+      setVehicleData(vData)
+      setDispatchData(dispatchRequest);
       if (vData) {
         const dispatchHistoryApi =  await getVehicleDispatchHistoryApi(vData.vehicleIdentificationNumber)
         console.log("Vehicle hisory")
@@ -213,7 +216,7 @@ const DispatchRequestPage = ({vehicleReqid ,  vehicleVin} : {vehicleReqid : numb
 
 
     {
-      dispatchHistory && dispatchHistory.length > 0 && dispatchHistory !== null ? dispatchHistory.map((dispatch, index) => {
+      dispatchHistory && dispatchHistory.length > 0 ? dispatchHistory.map((dispatch, index) => {
         // Map dispatchStatus to valid DispatchRequestPageStatusPillsProps["statusName"]
         const statusMap: Record<string, DispatchRequestPageStatusPillsProps["statusName"]> = {
           "EXPIRED": "EXPIRED",
@@ -240,7 +243,7 @@ const DispatchRequestPage = ({vehicleReqid ,  vehicleVin} : {vehicleReqid : numb
 
 <div className="flex items-center justify-center gap-2">
         {
-          dispatch.userImage ? <img src={dispatch.userImage} className="w-6 h-6 bg-white/30 dark:bg-black/30 rounded-full object-center object-cover" /> : 
+          dispatch.userImage ? <img src={dispatch.userImage} className="w-6 h-6 bg-white/30 dark:bg-black/30 rounded-full object-center object-cover" alt='Requester image' /> : 
           <div className="w-2 h-2 bg-white/30 dark:bg-black/30 rounded-full">
           </div>
         }

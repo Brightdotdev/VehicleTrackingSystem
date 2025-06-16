@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { Progress } from "./progress";
-import { LampDesk, Loader2 } from "lucide-react";
+import { LampDesk } from "lucide-react";
 
 const Loading = ({ loadingPage }: { loadingPage?: string }) => {
 

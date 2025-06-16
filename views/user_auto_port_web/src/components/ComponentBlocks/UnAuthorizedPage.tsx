@@ -11,7 +11,7 @@ const UnAuthorizedPage = () => {
         </h3>
 
         <h1 className='md:w-1/2 titleText'>
-            Youre not allowed to see this page fine boy shoo
+            Youre not allowed to see this page  shoo
         </h1>
       </div>
 

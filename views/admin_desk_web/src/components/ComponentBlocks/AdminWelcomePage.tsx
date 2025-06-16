@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { cn } from "@/lib/utils";
 import { Spotlight } from "../ui/Spotlight";
-import { LampDesk, Loader, Loader2,  } from "lucide-react";
+import { LampDesk, Loader2,  } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 

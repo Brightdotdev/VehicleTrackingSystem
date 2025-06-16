@@ -1,7 +1,6 @@
-import { DispatchRequestDto, VehicleDTO } from '@/types/VehicleTypes';
+import { VehicleDTO } from '@/types/VehicleTypes';
 import { ArrowLeft,  CarFront,  CircleHelp, Cog, HeartPulse, IdCard, Info,  Shield, TimerIcon} from 'lucide-react'
 import React, { useEffect, useState } from 'react'
-import {getVehicleDataByVin, getVehicleDispatchHistory } from '@/lib/handleUserDispatchPage';
 import { HealthText } from '../../utils/UtilComponents';
 import { VehicleInfoPageStatusPills } from '@/components/utils/VehiclePageUtilComponent';
 
@@ -227,7 +226,7 @@ flex flex-col lg:bg-card lg:p-2 rounded-sm items-center h-fit  justify-start gap
    min-h-full md:max-h-[20rem] overflow-hidden overflow-y-auto no-scrollbar md:p-4 p-2">
 
 
- im supposed to like dispaty a map here or sum if i cant do it i delet it
+ im supposed to like dispaty a map here or sum
 
 </div></div>
 
