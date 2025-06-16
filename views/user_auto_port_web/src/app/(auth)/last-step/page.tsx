@@ -2,7 +2,6 @@
 import React, { useEffect } from "react";
 import {  LastStep } from "@/components/ui/auth/LastStepForm";
 import { useRouter, useSearchParams } from "next/navigation";
-import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import Loading from "@/components/ui/Loading";
 

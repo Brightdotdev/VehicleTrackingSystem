@@ -1,7 +1,7 @@
 "use client"
 
 import Loading from '@/components/ui/Loading';
-import { useAuth } from '@/contexts/AuthContext';
+import { useUserValidation } from '@/hooks/useUserValidation';
 import dynamic from 'next/dynamic';
 import {useSearchParams } from 'next/navigation';
 import React, { useEffect } from 'react'
@@ -18,24 +18,24 @@ const UserWelcomePage = dynamic(() => import('@/components/ComponentBlocks/UserA
 
 
 export default function Page() {
-  const {isAuthenticated, authLoading} = useAuth();
+  const {checkValidation, isValidated, loading} = useUserValidation();
   
     const searchParams = useSearchParams();
   const redirected = searchParams.get("redirected");
 
   useEffect(() => {
+    checkValidation();
     if (redirected && (redirected === "already-logged-in")) {
       toast.error(`You're already logged in`);
     }
   }, [redirected]);
 
 
-  if(authLoading && !isAuthenticated) return <></>
+  if(loading && !isValidated) return <></>
 
-  if(!isAuthenticated && !authLoading) return <UserWelcomePage/>
-  if(!isAuthenticated && !authLoading) return <UserWelcomePage/>
+  if(!isValidated && !loading) return <UserWelcomePage/>
 
-  if(isAuthenticated && !authLoading) return <UserHomePage/>
+  if(isValidated && !loading) return <UserHomePage/>
 
   
 }

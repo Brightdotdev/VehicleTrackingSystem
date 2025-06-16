@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import Usernav from '../ui/Usernav'
-import { useAuth } from '@/contexts/AuthContext'
 import { useUserValidation } from '@/hooks/useUserValidation'
 import { getMyValidDIspatches } from '@/lib/handleUserDispatchPage'
 import { useRouter } from 'next/navigation'

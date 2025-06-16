@@ -2,8 +2,8 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Input the admin key for verification",
-  description: "Admin key verfication page for desk",
+  title: "Validate your sign up",
+  description: "Last step verification",
   authors: [
     {
       name: "Akinola Bright",
