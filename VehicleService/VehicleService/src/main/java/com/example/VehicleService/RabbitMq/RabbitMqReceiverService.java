@@ -25,6 +25,7 @@ public class RabbitMqReceiverService {
 
     private final String DISPATCH_COMPLETED_FANOUT_VEHICLE_QUEUE = "completed.dispatch.fanOut.provider.dispatch.service.queue.vehicle.service";
 
+    private static final String DISPATCH_TRACKING_CHECKPOINT_FANOUT_EXCHANGE_QUEUE = "tracking.checkPoint.fanOut.provider.logs.queue.vehicle.service";
 
 
     private final String DISPATCH_CREATED_DIRECT_EXCHANGE_QUEUE = "vehicle.service.created.dispatch.queue";
@@ -32,8 +33,13 @@ public class RabbitMqReceiverService {
 
     private final String DISPATCH_VALIDATED_FAN_OUT_QUEUE_VEHICLE = "dispatch.validated.queue.service.vehicle";
     private final String DISPATCH_TRACKING_FANOUT_EXCHANGE_FOR_RECEIVING_LOGS_QUEUE = "start.tracking.fanOut.provider.logs.queue.vehicle";
+    ;
+
     private final Logger logger = LoggerFactory.getLogger(RabbitMqReceiverService.class);
+
+
     private final VehicleRepository vehicleRepository;
+
     private final VehicleHealthService vehicleHealthService;
 
     private final VehicleService vehicleService;
@@ -79,6 +85,17 @@ public class RabbitMqReceiverService {
     handleDispatchToVehicleQueue(UtilRecords.DispatchEndedDTO dispatchEvent) {
         try {
             vehicleService.completedDispatch(dispatchEvent);
+        } catch (Exception e) {
+            logger.error("Error processing dispatch message for fanout queue for complete dispatch: {}", e.getMessage());
+        }
+    }
+
+   @Transactional
+    @RabbitListener(queues = DISPATCH_TRACKING_CHECKPOINT_FANOUT_EXCHANGE_QUEUE)
+    public void
+    handleVehicleDispatchLocation(UtilRecords.vehicleLocationUpdate update) {
+        try {
+            vehicleService.handleVehicleLocationUpdate(update);
         } catch (Exception e) {
             logger.error("Error processing dispatch message for fanout queue for complete dispatch: {}", e.getMessage());
         }

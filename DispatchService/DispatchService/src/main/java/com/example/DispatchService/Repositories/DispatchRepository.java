@@ -4,6 +4,7 @@ import com.example.DispatchService.Models.DispatchModel;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface DispatchRepository extends JpaRepository<DispatchModel, Long> {
 
@@ -25,5 +26,8 @@ public interface DispatchRepository extends JpaRepository<DispatchModel, Long> {
 
     DispatchModel findByDispatchIdAndDispatchVehicleId(Long dispatchId, String dispatchVehicleId);
 
+
+
+    Optional<DispatchModel> findByDispatchIdAndDispatchRequesterAndDispatchVehicleId(Long dispatchId, String dispatchRequester, String dispatchVehicleId);
 
 }

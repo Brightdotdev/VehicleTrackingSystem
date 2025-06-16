@@ -44,7 +44,7 @@ const handleSave = (vehicle: SaveNewVehiclePopUpProps) => {
     <main className='relative w-screen h-screen flex items-center justify-center'>
 
       
-<SaveNewVehiclePopUp open={open} setOpen={setOpen} onSave={handleSave} />
+<SaveNewVehiclePopUp open={open} setOpen={setOpen} />
 <Button className='absolute top-4 right-4' onClick={() => setOpen(true)}>Add Vehicle</Button>
       <TopVehiclesRouteNav setVisibleComponent={setVisibleComponent} visibleComponent={visibleComponent} />
       <Suspense fallback={<div className='flex items-center justify-center gap-2'>

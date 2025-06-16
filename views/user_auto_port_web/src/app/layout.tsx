@@ -8,8 +8,8 @@ import { GlobalContextProvider } from "@/contexts/GlobalContext";
 import BottomNav from "@/components/ui/BottomNav";
 
 export const metadata: Metadata = {
-  title: "Weclome to your desk",
-  description: "Set up your admin level control of your fleet",
+  title: "Weclome to your Fleet",
+  description: "Access vehicles from your fingertips",
 };
 
 export default function RootLayout({

@@ -2,18 +2,16 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
 export function middleware(request: NextRequest) {
-  const token = request.cookies.get('adminDeskCookie')?.value
+  const token = request.cookies.get('userDeskToken')?.value
   const { pathname, searchParams } = request.nextUrl
 
   
 
-  if (pathname.startsWith("/admin-key")) {
+  if (pathname.startsWith("/last-step")) {
     const pageSender = searchParams.get("sender");
   
     if (!pageSender || (
       pageSender !== "local-sign-up" &&
-      pageSender !== "local-log-in" &&
-      pageSender !== "google-log-in" &&
       pageSender !== "google-sign-up"
     )) {
       
@@ -22,6 +20,11 @@ export function middleware(request: NextRequest) {
           url.searchParams.set('redirected', 'already-logged-in')
           return NextResponse.redirect(url)
       }
+
+            const url = new URL('/', request.url)
+          url.searchParams.set('redirected', 'invalid-request')
+          return NextResponse.redirect(url)
+      
     }}
 
 
@@ -34,7 +37,7 @@ export function middleware(request: NextRequest) {
       }}
 
 
- if (pathname.startsWith("/vehicles/request")) {
+ if (pathname.startsWith("/vehicles/get")) {
 
       if(!token) {
             const url = new URL('/', request.url)
@@ -42,10 +45,10 @@ export function middleware(request: NextRequest) {
           return NextResponse.redirect(url)
       }
      
-      const vehicleRequest = searchParams.get("vehicleReq");
-     const vehicle = searchParams.get('vehicle');
+   
+      const vehicle = searchParams.get('vehicle');
 
-     if (!vehicleRequest  || !vehicle) {
+     if (!vehicle) {
         const url = new URL('/vehicles', request.url)
         return NextResponse.redirect(url)
       }

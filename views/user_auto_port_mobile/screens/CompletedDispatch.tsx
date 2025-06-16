@@ -28,19 +28,19 @@ const completedDispatch = () => {
             onPress={() => {
               navigation.navigate("pendingDispatch");
             }}
-          >
+          >{/* 
             <Image
               source={require("../assets/back-arrow.png")}
               style={styles.backArrow}
-            />
+            /> */}
           </TouchableOpacity>
           <Text style={styles.headerText}>Your Dispatch</Text>
         </View>
         <View style={styles.bellIconCircle}>
-          <Image
+         {/*  <Image
             source={require("../assets/bell-icon.png")}
             style={styles.bellIcon}
-          />
+          /> */}
         </View>
       </View>
 

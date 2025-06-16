@@ -9,6 +9,7 @@ import com.example.VehicleService.Repositories.VehicleRepository;
 import com.example.VehicleService.Utils.UtilRecords;
 import com.example.VehicleService.Utils.VehicleDataGenerator;
 import com.example.VehicleService.Utils.VehicleEnums;
+import com.example.VehicleService.VehicleServiceApplication;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -42,6 +43,7 @@ public class VehicleService {
     }
 
 
+    @Transactional
     public VehicleModel markVehicleForMaintenance(String vin) {
 
         VehicleModel foundVehicle =   findVehicleByIdentificationNumber(vin);
@@ -68,12 +70,26 @@ public class VehicleService {
 
 
     @Transactional
+    public List<Long> getVehicleDispatchHistory(String vin) {
+
+        VehicleModel foundVehicle =   findVehicleByIdentificationNumber(vin);
+
+        return foundVehicle.getDispatchHistory();
+    }
+
+
+
+    @Transactional
     public VehicleModel saveVehicle(UtilRecords.VehicleDTO vehicleDTO) {
 
         VehicleModel vehicle = new VehicleModel();
 
+
+
+
         vehicle.setModel(vehicleDTO.model());
         vehicle.setEngineType(vehicleDTO.engineType());
+        vehicle.setVehicleLocation(vehicleDTO.vehicleLocation());
 
         vehicle.setVehicleType(vehicleDTO.vehicleType());
         vehicle.setVehicleStatus(vehicleDTO.vehicleStatus());
@@ -129,6 +145,7 @@ public class VehicleService {
 
         vehicle.setDispatchStatus(VehicleEnums.VehicleDispatchStatus.AVAILABLE);
 
+        vehicle.setVehicleLocation(vehicleDTO.vehicleLocation());
 
 
         vehicle.setVehicleMetadata(vehicleDTO.vehicleMetadata());
@@ -141,7 +158,7 @@ public class VehicleService {
 
         for (VehicleEnums.VehicleHealthAttributeType type : VehicleEnums.VehicleHealthAttributeType.values()) {
             VehicleHealthAttributeModel attr = new VehicleHealthAttributeModel();
-            double score = type.getScore() - 10;
+            double score = type.getScore() - Math.floor(Math.random() * 10) + 1;
             attr.setAttributeName(type);
             attr.setScore(score);
             vehicleScore += score;
@@ -171,13 +188,15 @@ public class VehicleService {
 
 
     @Transactional
-    public List<UtilRecords.VehicleApiData> findAllVehicles() {
-        List<VehicleModel> foundVehicles =   vehicleRepository.findAll();
+    public
+   List<UtilRecords.VehicleApiData>
+    findAllVehicles() {
+       List<VehicleModel> foundVehicles =  vehicleRepository.findAll();
         List<UtilRecords.VehicleApiData> vehicles =   new ArrayList<>();
 
         for (VehicleModel vehicle : foundVehicles){
             UtilRecords.VehicleApiData vehicleApi = new UtilRecords.VehicleApiData(
-                vehicle.getVehicleIdentificationNumber(),vehicle.getLicensePlate(),vehicle.getModel(),vehicle.getEngineType(),vehicle.getVehicleType(),vehicle.getVehicleStatus(),vehicle.getDispatchStatus(),vehicle.getDispatchHistory(),vehicle.getVehicleImages(),vehicle.getSafetyScore(),vehicle.getVehicleMetadata(),vehicle.getHealthAttributes()
+                vehicle.getVehicleIdentificationNumber(),vehicle.getLicensePlate(),vehicle.getModel(),vehicle.getEngineType(),vehicle.getVehicleType(),vehicle.getVehicleStatus(),vehicle.getDispatchStatus(),vehicle.getDispatchHistory(),vehicle.getVehicleImages(),vehicle.getSafetyScore(),vehicle.getVehicleMetadata(),vehicle.getVehicleAcquiredYear(),vehicle.getHealthAttributes(),vehicle.getWildcardAttributes()
             );
             vehicles.add(vehicleApi);
         }
@@ -186,6 +205,16 @@ public class VehicleService {
 
 
 
+    @Transactional
+    public UtilRecords.VehicleApiData getVehicleByVin(String vin) {
+       VehicleModel foundVehicle =   vehicleRepository.findByVehicleIdentificationNumber(vin);
+
+
+
+            UtilRecords.VehicleApiData vehicleApi = new UtilRecords.VehicleApiData(
+                    foundVehicle.getVehicleIdentificationNumber(),foundVehicle.getLicensePlate(),foundVehicle.getModel(),foundVehicle.getEngineType(),foundVehicle.getVehicleType(),foundVehicle.getVehicleStatus(),foundVehicle.getDispatchStatus(),foundVehicle.getDispatchHistory(),foundVehicle.getVehicleImages(),foundVehicle.getSafetyScore(),foundVehicle.getVehicleMetadata(),foundVehicle.getVehicleAcquiredYear(),foundVehicle.getHealthAttributes(),foundVehicle.getWildcardAttributes());
+        return vehicleApi;
+    }
 
 
     @Transactional
@@ -206,6 +235,7 @@ public class VehicleService {
         System.out.println("Were good here too");
     }
 
+    @Transactional
     public void completedDispatch(UtilRecords.DispatchEndedDTO dispatchEvent) {
 
         VehicleModel dispatchedVehicle = vehicleRepository.
@@ -228,6 +258,8 @@ public class VehicleService {
         System.out.println("Were good here too Yayyy");
     }
 
+
+    @Transactional
     public void handleDispatchTracking(UtilRecords.StartTrackingDTO trackingEvent){
 
         VehicleModel dispatchedVehicle = vehicleRepository.
@@ -251,6 +283,21 @@ public class VehicleService {
         vehicleRepository.save(dispatchedVehicle);
         System.out.println("Were good here too Yayyy");
 
+    }
+
+
+    @Transactional
+    public void handleVehicleLocationUpdate(UtilRecords.vehicleLocationUpdate locationUpdate){
+
+        VehicleModel foundVehicle = vehicleRepository.findByVehicleIdentificationNumber(locationUpdate.vehicleIdentificationNumber());
+
+        if(foundVehicle == null){
+            System.out.println("No vehicle found cant update");
+            return;
+        }
+
+        foundVehicle.setVehicleLocation(locationUpdate.checkPoint());
+        vehicleRepository.save(foundVehicle);
     }
 }
 

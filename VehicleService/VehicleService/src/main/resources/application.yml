@@ -6,7 +6,7 @@ spring:
   application:
     name: vehicleService
   datasource :
-    url : jdbc:postgresql://localhost:5432/VEHICLE_VEHICLE_DB
+    url : jdbc:postgresql://localhost:5432/VEHICLE_V2_DB
     username : postgres
     password : bomboclat
   jpa :

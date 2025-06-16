@@ -1,7 +1,6 @@
 "use client";
 
 import { SignUpForm } from "@/components/ComponentBlocks/sign-up-form";
-import dynamic from "next/dynamic";
 import Link from "next/link";
 
 

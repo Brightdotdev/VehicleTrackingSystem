@@ -16,7 +16,9 @@ import { toast } from "sonner"
 import React, { useState } from "react"
 import { GoogleButton } from "../utils/UtilComponents"
 import { useAuth } from "@/contexts/AuthContext";
-import { useRouter } from "next/navigation";
+import { handleUserLocalLogInSubmit } from "@/lib/handleUserAuth";
+import { UserLocalLogIn } from "@/types/authTypes";
+import { Loader2 } from "lucide-react";
 
 
 
@@ -66,14 +68,19 @@ export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
-  const router = useRouter();
+  
+const [showPassword, setShowPassword] = useState(false);
 const  {setLogInData}   = useAuth()
 const [form, setForm] = useState({ email: "", password: "" });
 const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+const [loading,setLoading] = useState(false);
+
+const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
   setForm({ ...form, [e.target.name]: e.target.value });
   setErrors({ ...errors, [e.target.name]: undefined });
 };
+
+
 const handleSubmit = (e: React.FormEvent) => {
   e.preventDefault();
   const result = loginSchema.safeParse(form);
@@ -90,14 +97,15 @@ const handleSubmit = (e: React.FormEvent) => {
 
 
       console.log(result.data)
-      const pageExpTime = Date.now() + 5 * 60 * 1000;
-  
-      const logInData = {
-       ...result.data, pageExpTime
+
+      
+      const logInData : UserLocalLogIn = {
+       ...result.data
       }
       setLogInData(logInData);
-      toast.success("Request data validation successful! Redirecting now....");
-      router.replace(`/admin-key?sender=local-log-in`);
+      toast.success("Request data validation Successful...");
+      toast.success("Validating you with our server...");
+      handleUserLocalLogInSubmit(logInData,setLoading)
 };
   return (
     <div className={cn("flex flex-col gap-sm overflow-hidden relative w-md", className)} {...props}>
@@ -156,25 +164,57 @@ const handleSubmit = (e: React.FormEvent) => {
                       Forgot your password?
                     </a>
                   </div>
+
+<div className="flex items-center justify-center gap-2 w-full relative">
+
+
+
                   <Input
                   id="password"
                   name="password"
-                  type="password"
                   value={form.password}
+                   type={showPassword ? "text" : "password"}
                   onChange={handleChange}
                   required
                   aria-invalid={!!errors.password}
-                />
+                  />
+        <button
+                                      type="button"
+                                      onClick={() => setShowPassword((prev) => !prev)}
+                                      className="absolute right-4
+                                       top-1/2 -translate-y-1/2 text-xs text-muted-foreground"
+                                      tabIndex={-1}
+                                      aria-label={showPassword ? "Hide password" : "Show password"}
+                                    >
+                                      {showPassword ? "Hide" : "Show"}
+                                    </button>  
+
+                  </div>
+                  
+             
                 {errors.password && <span className="text-red-500 text-xs">{errors.password}</span>}
                 </div>
-                <Button type="submit" className="relative overflow-hidden px-6 py-2 transition group">
+               {
+               
+               loading ? 
+                   <Button className="flex items-center justify-center
+    bg-muted-foreground
+    font-bold
+    text-primary-foreground         
+    h-[var(--size-md)]  
+  relative overflow-hidden px-6 py-2">
+    <Loader2 className="animate-spin mr-2" />
+    Loading
+  </Button>
+  :
+   <Button type="submit" className="relative overflow-hidden px-6 py-2 transition group">
                   <span className="block transition-transform duration-300 group-hover:translate-x-[1000%]">
     Login
   </span>
   <span className="absolute left-0 top-0 w-full h-full flex items-center justify-center transition-transform duration-300 translate-x-[-200%] group-hover:translate-x-0">
-    Welcome!
+    Welcome Back!
   </span>
-                </Button>
+                </Button>}
               </div>
 
               <BottomGoogle authType="google-log-in"/>

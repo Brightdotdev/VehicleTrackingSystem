@@ -1,4 +1,4 @@
-import { boolean, z } from "zod";
+import { z } from "zod";
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import Link from "next/link"
 import { toast } from "sonner"
-import React, { useRef, useState } from "react"
+import React, { useState } from "react"
 import { GoogleButton } from "../utils/UtilComponents"
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
@@ -73,6 +73,7 @@ export function SignUpForm({
 }: React.ComponentProps<"div">) {
   const router = useRouter();
   const {setSignUpData, signUpData} = useAuth();
+  const [showPassword, setShowPassword] = useState(false);
 
   const [form, setForm] = useState({ name: signUpData?.name || "" , email: signUpData?.email || "", password: ""});
 
@@ -107,7 +108,7 @@ export function SignUpForm({
     }
     setSignUpData(signUpData);
     toast.success("Request data validation successful! Redirecting now....");
-    router.replace(`/admin-key?sender=form-sign-up`);
+    router.replace(`/last-step?sender=form-sign-up`);
   };
 
   return (
@@ -156,7 +157,7 @@ export function SignUpForm({
                   id="email"
                   name="email"
                   type="email"
-                  placeholder="myemail@example.com"
+                  placeholder="myemail@emailprovider.com"
                   value={form.email}
                   onChange={handleChange}
                   required
@@ -168,15 +169,31 @@ export function SignUpForm({
                 <div className="grid gap-3">
                     <Label htmlFor="password">Password</Label>
        
-                  <Input 
-                  id="password" 
-                  type="password"
-                  name="password"
-                  placeholder="mysecurepass123"
-                  value={form.password}
-                  onChange={handleChange}
-                  required
-                  aria-invalid={!!errors.password} />
+             <div className="flex items-center justify-center gap-2 w-full relative">
+             
+             
+             
+      <Input
+      id="password"
+      name="password"
+      value={form.password}
+      type={showPassword ? "text" : "password"}
+      onChange={handleChange}
+      required
+      aria-invalid={!!errors.password}
+      />
+      <button
+              type="button"
+              onClick={() => setShowPassword((prev) => !prev)}
+              className="absolute right-4
+              top-1/2 -translate-y-1/2 text-xs text-muted-foreground"
+              tabIndex={-1}
+              aria-label={showPassword ? "Hide password" : "Show password"}
+            >
+              {showPassword ? "Hide" : "Show"}
+            </button>  
+
+                               </div>
 
                   {errors.password && <span className="text-red-500 text-xs">{errors.password}</span>}
 

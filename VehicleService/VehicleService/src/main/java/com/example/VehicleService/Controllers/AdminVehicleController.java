@@ -4,6 +4,7 @@ import com.example.VehicleService.Models.VehicleModel;
 import com.example.VehicleService.Services.VehicleService;
 import com.example.VehicleService.Utils.ApiResponse;
 import com.example.VehicleService.Utils.UtilRecords;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +26,7 @@ public class AdminVehicleController {
 
 
     // :: localhost:8106/v1/admin/vehicle - Fetch all vehicles
+    @Transactional
     @GetMapping
     public ResponseEntity<ApiResponse<List<UtilRecords.VehicleApiData>>> getAllVehicles() {
 
@@ -93,6 +95,20 @@ public class AdminVehicleController {
                         201,
                         "Vehicle Saved successfully",
                         maintainedVehicle
+                ));
+    }
+
+    @Transactional
+    @GetMapping("/get-dispatch-history")
+    public  ResponseEntity<ApiResponse<List<Long>>> getVehicleHistory(@RequestParam String vin) {
+
+     List<Long> vehicleHistory  =  vehicleService.getVehicleDispatchHistory(vin);
+
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        201,
+                        "Vehicle Saved successfully",
+                        vehicleHistory
                 ));
     }
 

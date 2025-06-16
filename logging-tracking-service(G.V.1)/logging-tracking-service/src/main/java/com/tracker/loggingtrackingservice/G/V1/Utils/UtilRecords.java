@@ -99,6 +99,13 @@ public class UtilRecords {
     }
 
 
+
+        public record vehicleLocationUpdate (
+                CheckPoint checkPoint,
+                String vehicleIdentificationNumber
+        ){}
+
+
     // -------------------------------
     // DTO for exposing tracking data to clients
     // -------------------------------

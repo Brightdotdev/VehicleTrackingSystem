@@ -1,6 +1,8 @@
 package com.example.VehicleService.Models;
 
+import com.example.VehicleService.Utils.UtilRecords;
 import com.example.VehicleService.Utils.VehicleEnums;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.util.List;
 
@@ -54,11 +56,13 @@ public class VehicleModel {
         private VehicleEnums.VehicleDispatchStatus dispatchStatus;
     
     
-    
-        @ElementCollection
+
+        @ElementCollection(fetch = FetchType.EAGER)
+        @JsonIgnore
+        @Column(name = "dispatch_history")
         private List<Long> dispatchHistory;
-    
-        @ElementCollection
+
+        @ElementCollection(fetch = FetchType.EAGER)
         private List<String> vehicleImages;
     
         // Vehicle's safety score (out of 100)
@@ -67,14 +71,17 @@ public class VehicleModel {
     
         @Column(nullable = false)
         private String vehicleMetadata;
-    
-    
-    
-        @OneToMany(mappedBy = "vehicle", cascade = CascadeType.ALL, orphanRemoval = true)
+
+
+        @Embedded
+        private UtilRecords.LocationCheckPoint vehicleLocation;
+
+        @OneToMany(fetch = FetchType.EAGER,  mappedBy = "vehicle", cascade = CascadeType.ALL, orphanRemoval = true)
+        @ElementCollection(fetch = FetchType.EAGER)
         private List<VehicleHealthAttributeModel> healthAttributes;
     
         // Relationship to Vehicle Wildcards (if needed)
-        @OneToMany(mappedBy = "vehicle", cascade = CascadeType.ALL, orphanRemoval = true)
+        @OneToMany(fetch = FetchType.EAGER, mappedBy = "vehicle", cascade = CascadeType.ALL, orphanRemoval = true)
         private List<VehicleWildcardAttributeModel> wildcardAttributes;
     
     
@@ -149,6 +156,15 @@ public class VehicleModel {
 
     public void setModel(String model) {
         this.model = model;
+    }
+
+
+    public UtilRecords.LocationCheckPoint getVehicleLocation() {
+        return vehicleLocation;
+    }
+
+    public void setVehicleLocation(UtilRecords.LocationCheckPoint vehicleLocation) {
+        this.vehicleLocation = vehicleLocation;
     }
 
     public int getVehicleAcquiredYear() {
@@ -236,6 +252,25 @@ public class VehicleModel {
     }
 
     public void setWildcardAttributes(List<VehicleWildcardAttributeModel> wildcardAttributes) {
+        this.wildcardAttributes = wildcardAttributes;
+    }
+
+    public VehicleModel(Long id, String vehicleIdentificationNumber, String licensePlate, String model, int vehicleAcquiredYear, VehicleEnums.EngineType engineType, VehicleEnums.VehicleType vehicleType, VehicleEnums.VehicleStatus vehicleStatus, VehicleEnums.VehicleDispatchStatus dispatchStatus, List<Long> dispatchHistory, List<String> vehicleImages, Double safetyScore, String vehicleMetadata, UtilRecords.LocationCheckPoint vehicleLocation, List<VehicleHealthAttributeModel> healthAttributes, List<VehicleWildcardAttributeModel> wildcardAttributes) {
+        this.id = id;
+        this.vehicleIdentificationNumber = vehicleIdentificationNumber;
+        this.licensePlate = licensePlate;
+        this.model = model;
+        this.vehicleAcquiredYear = vehicleAcquiredYear;
+        this.engineType = engineType;
+        this.vehicleType = vehicleType;
+        this.vehicleStatus = vehicleStatus;
+        this.dispatchStatus = dispatchStatus;
+        this.dispatchHistory = dispatchHistory;
+        this.vehicleImages = vehicleImages;
+        this.safetyScore = safetyScore;
+        this.vehicleMetadata = vehicleMetadata;
+        this.vehicleLocation = vehicleLocation;
+        this.healthAttributes = healthAttributes;
         this.wildcardAttributes = wildcardAttributes;
     }
 }

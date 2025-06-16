@@ -1,3 +1,4 @@
+import { DispatchReason } from "./VehicleTypes"
 
 
 export type componentTypes  = {
@@ -5,3 +6,7 @@ export type componentTypes  = {
 }
 
 
+export type reasons = {
+  value: DispatchReason
+  label: string
+}

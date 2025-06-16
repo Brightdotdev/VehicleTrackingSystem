@@ -8,11 +8,11 @@ import React, { useEffect } from 'react'
 import { toast } from 'sonner';
 
 
-const AdminHomePage = dynamic(() => import('@/components/ComponentBlocks/AdminHomePage'), {
+const UserHomePage = dynamic(() => import('@/components/ComponentBlocks/UserHomePage'), {
   loading: () => <Loading/>,
 });
 
-const AdminWelcomePage = dynamic(() => import('@/components/ComponentBlocks/AdminWelcomePage'), {
+const UserWelcomePage = dynamic(() => import('@/components/ComponentBlocks/UserAutoPortWelcomePage'), {
   loading: () => <Loading/>
 });
 
@@ -32,10 +32,10 @@ export default function Page() {
 
   if(authLoading && !isAuthenticated) return <></>
 
-  if(!isAuthenticated && !authLoading) return <AdminWelcomePage/>
-  if(!isAuthenticated && !authLoading) return <AdminWelcomePage/>
+  if(!isAuthenticated && !authLoading) return <UserWelcomePage/>
+  if(!isAuthenticated && !authLoading) return <UserWelcomePage/>
 
-  if(isAuthenticated && !authLoading) return <AdminHomePage/>
+  if(isAuthenticated && !authLoading) return <UserHomePage/>
 
   
 }

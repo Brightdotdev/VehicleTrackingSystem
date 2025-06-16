@@ -97,41 +97,23 @@ export interface VehicleWildcardAttribute {
 
 
 // --- Main Vehicle interface ---
-
-
 export interface VehicleDTO {
- 
-  id: number;
- 
+  id?: number; // optional
   vehicleIdentificationNumber: string;
- 
   licensePlate: string;
- 
   model: string;
- 
-  vehicleAcquiredYear: number;
- 
+  vehicleAcquiredYear?: number; // optional
   engineType: EngineType;
- 
   vehicleType: VehicleType;
- 
   vehicleStatus: VehicleStatus;
- 
   dispatchStatus: VehicleDispatchStatus;
- 
   dispatchHistory: number[];
- 
   vehicleImages: string[];
- 
   safetyScore: number;
- 
   vehicleMetadata: string;
- 
   healthAttributes: VehicleHealthAttribute[];
-  
-  wildcardAttributes: VehicleWildcardAttribute[];
+  wildcardAttributes?: VehicleWildcardAttribute[]; // optional
 }
-
 
 
 
@@ -193,4 +175,16 @@ export interface DispatchRequestDto {
   vehicleMetadata?: string;
   vehicleImages: string[];
   isGoodVehicle?: boolean;
+}
+
+
+
+
+ export interface DispatchRequestBody {
+    vehicleName: string; 
+    vehicleIdentificationNumber: string; 
+    vehicleStatus: VehicleStatus; 
+    dispatchReason: DispatchReason;
+    dispatchRequester: string; 
+    dispatchEndTime: string; 
 }

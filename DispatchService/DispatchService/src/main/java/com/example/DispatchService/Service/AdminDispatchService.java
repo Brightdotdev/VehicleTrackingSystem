@@ -126,6 +126,9 @@ public class AdminDispatchService {
 
             if (expiry.isBefore(now)) {
                 dispatch.setDispatchStatus(DispatchEnums.DispatchStatus.EXPIRED);
+            UtilRecords.DispatchEndedDTO dispatchEndedDTO = new UtilRecords.DispatchEndedDTO(false,LocalDateTime.now(),dispatch.getDispatchVehicleId(),dispatch.getDispatchRequester(),dispatch.getVehicleName(),dispatch.getDispatchId());
+                rabbitMqSenderService.sendDispatchCompletedFanoutFromDispatchService(dispatchEndedDTO);
+                dispatchRepository.save(dispatch);
             }
 
             if (expiry.isAfter(now)) {
@@ -148,6 +151,60 @@ public class AdminDispatchService {
         }
         return activeDispatchMetadata;
     }
+
+    @Transactional
+    public List<DispatchModel> revalidateAllDispatch() {
+        List<DispatchModel> allDispatches = dispatchRepository.findAll();
+        List<DispatchModel> returnList = new ArrayList<>();
+
+        for (DispatchModel dispatch : allDispatches) {
+            // Skip status update for completed/cancelled dispatches
+            if (dispatch.getDispatchStatus() != DispatchEnums.DispatchStatus.COMPLETED &&
+                    dispatch.getDispatchStatus() != DispatchEnums.DispatchStatus.CANCELLED) {
+
+                LocalDateTime expiry = dispatch.getDispatchEndTime();
+                LocalDateTime now = LocalDateTime.now();
+
+                if (expiry.isBefore(now)) {
+                    dispatch.setDispatchStatus(DispatchEnums.DispatchStatus.EXPIRED);
+                }
+            }
+
+            // Add metadata for active dispatches (including those just expired)
+            if (dispatch.getDispatchStatus() != DispatchEnums.DispatchStatus.COMPLETED &&
+                    dispatch.getDispatchStatus() != DispatchEnums.DispatchStatus.CANCELLED) {
+
+                LocalDateTime expiry = dispatch.getDispatchEndTime();
+                LocalDateTime now = LocalDateTime.now();
+
+                if (expiry.isAfter(now)) {
+                    Duration remainingTime = Duration.between(now, expiry);
+                    dispatch.addToDispatchMetadata("expiresInMinutes", remainingTime.toMinutes());
+                    dispatch.addToDispatchMetadata("expiresInHours", remainingTime.toHours());
+                } else {
+                    // For expired dispatches, you might want to set these to 0 or negative values
+                    Duration pastTime = Duration.between(expiry, now);
+                    dispatch.addToDispatchMetadata("expiredSinceMinutes", pastTime.toMinutes());
+                    dispatch.addToDispatchMetadata("expiredSinceHours", pastTime.toHours());
+                    dispatch.setDispatchStatus(DispatchEnums.DispatchStatus.EXPIRED);
+                    UtilRecords.DispatchEndedDTO dispatchEndedDTO = new UtilRecords.DispatchEndedDTO(false,LocalDateTime.now(),dispatch.getDispatchVehicleId(),dispatch.getDispatchRequester(),dispatch.getVehicleName(),dispatch.getDispatchId());
+                    rabbitMqSenderService.sendDispatchCompletedFanoutFromDispatchService(dispatchEndedDTO);
+                    dispatchRepository.save(dispatch);
+                }
+
+                dispatch.addToDispatchMetadata("DispatchRequester", dispatch.getDispatchRequester());
+                dispatch.addToDispatchMetadata("DispatchId", dispatch.getDispatchId());
+                dispatch.addToDispatchMetadata("vehicleId", dispatch.getDispatchVehicleId());
+                dispatch.addToDispatchMetadata("status", dispatch.getDispatchStatus().name());
+            }
+
+            dispatchRepository.save(dispatch);
+            returnList.add(dispatch);
+        }
+
+        return returnList;
+    }
+
 
 
 

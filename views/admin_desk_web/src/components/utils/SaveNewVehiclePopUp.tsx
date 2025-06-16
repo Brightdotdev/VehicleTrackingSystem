@@ -14,20 +14,27 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { SaveNewVehiclePopUpProps, EngineType, VehicleType, VehicleStatus } from "@/types/VehicleTypes";
+import { SaveNewVehiclePopUpProps, EngineType, VehicleType, VehicleStatus, FormProps } from "@/types/VehicleTypes";
 import { handleSaveVehicleForm } from "@/lib/handleVehiclePage";
 
+
+
+
+
+
+const getDefaultTimestamp = () => new Date(Date.now()).toISOString().substring(0, 19);
 
 
 
 export default function SaveNewVehiclePopUp({
   open,
   setOpen,
-  
 }: {
   open: boolean;
-  setOpen: (open: boolean) => void;}) {
-  const [form, setForm] = useState<SaveNewVehiclePopUpProps>({
+  setOpen: (open: boolean) => void;
+
+}) {
+  const [form, setForm] = useState<FormProps>({
     model: "",
     engineType: EngineType.GAS,
     vehicleType: VehicleType.CAR,
@@ -35,8 +42,10 @@ export default function SaveNewVehiclePopUp({
     vehicleMetadata: "",
     vehicleImages: [],
     isGoodVehicle: true,
+    location: { latitude: 0, longitude: 0 ,timestamp: getDefaultTimestamp() },
   });
 
+  const [loading, setLoading] = useState(false);
 const [imageInput, setImageInput] = useState("");
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -54,12 +63,38 @@ const [imageInput, setImageInput] = useState("");
     setForm({ ...form, vehicleImages: form.vehicleImages.filter((_, i) => i !== idx) });
   };
 
+  const handleLocationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setForm({
+      ...form,
+      location: {
+        latitude: name === "latitude" ? Number(value) : (form.location?.latitude ?? 0),
+        longitude: name === "longitude" ? Number(value) : (form.location?.longitude ?? 0),
+        timestamp: form.location?.timestamp ?? getDefaultTimestamp(),
+      },
+    });
+  };
 
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    
+    e.preventDefault();
+    setLoading(true);
+    setForm(prev => ({
+      ...prev,
+      location: {
+        ...prev.location,
+        timestamp: getDefaultTimestamp()
+      }
+    }));
+handleSaveVehicleForm(form, setOpen)
+    setLoading(false);
+
+  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className=" flex flex-col gap-4 justify-center items-center bg-background/95 p-0 md:p-4 lg:p-6 max-w-md">
-        <form onSubmit={(e) => handleSaveVehicleForm(e, form,setOpen)} className="w-full rounded-lg shadow-lg flex flex-col gap-4 overflow-y-auto max-h-[30rem]">
+      <DialogContent className="w-screen max-w-full h-screen flex flex-col justify-center items-center bg-background">
+        <form onSubmit={handleSubmit} className="w-full max-w-lg  rounded-lg shadow-lg p-6 space-y-4 scorllebleElement customScrollBar">
           <DialogHeader>
             <DialogTitle className="" >Add New Vehicle</DialogTitle>
           </DialogHeader>
@@ -182,13 +217,48 @@ const [imageInput, setImageInput] = useState("");
             </TooltipProvider>
           </div>
 
+          <div>
+            <Label>Vehicle Location (for map)</Label>
+            <div className="flex gap-2">
+              <Input
+                type="number"
+                step="any"
+                name="latitude"
+                value={form.location?.latitude ?? ""}
+                onChange={handleLocationChange}
+                placeholder="Latitude"
+                required
+              />
+              <Input
+                type="number"
+                step="any"
+                name="longitude"
+                value={form.location?.longitude ?? ""}
+                onChange={handleLocationChange}
+                placeholder="Longitude"
+                required
+              />
+            </div>
+            <span className="text-xs text-muted-foreground">
+              Enter the latitude and longitude for this vehicle's location.
+            </span>
+          </div>
+
           <DialogFooter>
             <DialogClose asChild>
               <Button type="button" variant="outline">
                 Cancel
               </Button>
-            </DialogClose>
-            <Button type="submit">Save Vehicle</Button>
+              </DialogClose>
+            <Button type="submit" disabled={loading}>
+              {loading ? (
+                <svg className="animate-spin h-4 w-4 mr-2 inline-block text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                </svg>
+              ) : null}
+              {loading ? "Saving..." : "Save Vehicle"}
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>

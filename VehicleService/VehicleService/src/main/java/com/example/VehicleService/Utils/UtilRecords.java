@@ -2,6 +2,8 @@ package com.example.VehicleService.Utils;
 
 import com.example.VehicleService.Models.VehicleHealthAttributeModel;
 import com.example.VehicleService.Models.VehicleWildcardAttributeModel;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import jakarta.persistence.Embeddable;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.*;
@@ -18,6 +20,7 @@ public class UtilRecords {
     // ------------------------------------------------
     public record DispatchEndedDTO(
             Boolean wasCancelled,
+            @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
             LocalDateTime timeStamp,
             String vehicleIdentificationNumber,
             String receiver,
@@ -62,6 +65,7 @@ public class UtilRecords {
             String vehicleIdentificationNumber,
             String dispatchRequester,
             String dispatchAdmin,
+            @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
             LocalDateTime dispatchEndTime
     ) {
         public ValidatedDispatch {
@@ -100,7 +104,8 @@ public class UtilRecords {
             VehicleEnums.VehicleType vehicleType,
             VehicleEnums.VehicleStatus vehicleStatus,
             String vehicleMetadata,
-            List<String> vehicleImages
+            List<String> vehicleImages,
+            LocationCheckPoint vehicleLocation
 
     ) {
         public VehicleDTO {
@@ -142,7 +147,9 @@ public class UtilRecords {
             List<String> vehicleImages,
             double safetyScore,
             String vehicleMetadata,
-            List<VehicleHealthAttributeModel> healthAttributes
+            int vehicleAcquiredYear,
+            List<VehicleHealthAttributeModel> healthAttributes,
+            List<VehicleWildcardAttributeModel> wildCardAttributes
     ) {
         public VehicleApiData {
             // VIN must be non-blank
@@ -196,6 +203,7 @@ public class UtilRecords {
             @Enumerated(EnumType.STRING)
             VehicleEnums.DispatchReason dispatchReason,
             String dispatchRequester,
+            @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
             LocalDateTime dispatchEndTime
     ) {
         public dispatchRequestBodyDTO {
@@ -221,6 +229,38 @@ public class UtilRecords {
             }
         }
     }
+
+
+
+    public record vehicleLocationUpdate (
+            LocationCheckPoint checkPoint,
+            String vehicleIdentificationNumber
+    ){}
+
+
+
+
+    // -------------------------------
+    // A single geographic/time checkpoint
+    // -------------------------------
+    @Embeddable
+    public record LocationCheckPoint(
+            Double latitude,
+            Double longitude,
+            @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+            LocalDateTime timeStamp
+            ) {
+        public LocationCheckPoint {
+            if (latitude == null) {
+                throw new IllegalArgumentException("Latitude is required");
+            }
+            if (longitude == null) {
+                throw new IllegalArgumentException("Longitude is required");
+            }
+
+        }
+    }
+
 
 
     // -------------------------------

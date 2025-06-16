@@ -45,7 +45,7 @@ public class UserAuthController {
 
         UtilRecords.LoginServiceResponse userDatabaseSignIn = userDetailService.handleUserSignUp(request);
 
-        String jwt = jwtConfig.generateToken(userDatabaseSignIn.auth(), "");
+        String jwt = jwtConfig.generateToken(userDatabaseSignIn.auth(), "",userDatabaseSignIn.user().getName());
         System.out.println("---- jwt token -----");
         System.out.println(jwt);
         String cookie = cookieHandler.createJwtCookie(jwt);
@@ -67,13 +67,13 @@ public class UserAuthController {
                 ));
     }
 
-    //  :: localhost:8103/v1/auth/user/new-user/google
-    @PostMapping("/new-user/google")
+    //  :: localhost:8103/v1/auth/sign-in/user/google
+    @PostMapping("/sign-in/google")
     public ResponseEntity<ApiResponse<UtilRecords.LogInClientResponse>> signUpGoogle(@Valid @RequestBody UtilRecords.UserGoogleSignUp request, HttpServletResponse response) {
 
         UtilRecords.LoginServiceResponse userDatabaseSignIn = userDetailService.handleOath2UserSignIn(request);
 
-        String jwt = jwtConfig.generateToken(userDatabaseSignIn.auth(),request.picture());
+        String jwt = jwtConfig.generateToken(userDatabaseSignIn.auth(),request.picture(),userDatabaseSignIn.user().getName());
 
         String cookie = cookieHandler.createJwtCookie(jwt);
         System.out.println("---- jwt cookie -----");
@@ -99,7 +99,7 @@ public class UserAuthController {
 
         UtilRecords.LoginServiceResponse userDatabaseSignIn = userDetailService.handleUserOath2UserLogIn(request);
 
-        String jwt = jwtConfig.generateToken(userDatabaseSignIn.auth(),"");
+        String jwt = jwtConfig.generateToken(userDatabaseSignIn.auth(),"",userDatabaseSignIn.user().getName());
 
         String cookie = cookieHandler.createJwtCookie(jwt);
         System.out.println("---- jwt cookie -----");
@@ -129,7 +129,7 @@ public class UserAuthController {
 
         UtilRecords.LoginServiceResponse userDatabaseLogin = userDetailService.handleUserLocalLogIn(request);
 
-        String jwt = jwtConfig.generateToken(userDatabaseLogin.auth(),"");
+        String jwt = jwtConfig.generateToken(userDatabaseLogin.auth(),"",userDatabaseLogin.user().getName());
         String cookie = cookieHandler.createJwtCookie(jwt);
 
         response.setHeader(HttpHeaders.SET_COOKIE, cookie);
@@ -189,11 +189,13 @@ public class UserAuthController {
 
         Map<String, Object> response = new HashMap<>();
 
-        String username = jwtConfig.extractUsername(jwt);
+        String email = jwtConfig.extractUsername(jwt);
         List<String> roles = jwtConfig.getClaims(jwt).get("roles", List.class);
+        String username = jwtConfig.getClaims(jwt).get("name", String.class);
 
         Map<String, Object> user = new HashMap<>();
-        user.put("username", username);
+        user.put("email", email);
+        user.put("username", username );
         user.put("roles", roles);
         response.put("user", user);
         response.put("valid", valid);

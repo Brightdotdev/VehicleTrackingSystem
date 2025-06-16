@@ -1,3 +1,4 @@
+"use client";
 import { VehicleDTO } from '@/types/VehicleTypes';
 import { Badge, BikeIcon,  BusFront, CarFront,
    IdCard, Info, Loader2, Settings, Shield, Truck } from 'lucide-react';
@@ -85,7 +86,7 @@ type StatusPillsProps = {
       } else if (props.statusName === "IN_PROGRESS") {
         return (
           <div
-            className={`${baseClass} w-[8rem] bg-gradient-to-r from-green-900/60 to-green-800/60 pl-4 ${
+            className={`${baseClass} w-[9rem] bg-gradient-to-r from-green-900/60 to-green-800/60 pl-4 ${
               props.className || ""
             }`}
           >
@@ -179,17 +180,18 @@ type StatusPillsProps = {
 
 const VehicleInfoCard = (vehicleInfo : VehicleDTO) => {
 const [loading, setLoading] = React.useState(false);
+const [infoLoading, setInfoLoadingLoading] = React.useState(false);
 
   const router =  useRouter();
   return (
     <article className='relative flex flex-col h-[32rem] pb-4
     items-center  gap-12 vehicleCardBody  shadow-md 
-    w-[var(--size-vehicleCard)]  bg-background'>
+    w-[var(--size-vehicleCard)]  bg-background2 md:bg-background'>
       
 <div className="relative vehicleCard flex items-center justify-center w-full h-[12rem] bg-blue-500 overflow-hidden">
   {/* Placeholder image covering the parent */}
   <img
-    src={vehicleInfo?.vehicleImages[0]}
+    src={vehicleInfo?.vehicleImages[0] || "/placeholer.png" }
     alt="Vehicle Image grah"
     className="absolute inset-0 w-full h-full object-cover"
   />
@@ -222,7 +224,7 @@ items-start justify-start gap-6">
 
 <div className="flex items-center justify-center gap-2">
 <Shield className='text-body-2 text-foreground' /> <span className='text-small pl-2 font-[500] text-foreground' >HEALTH SCORE :</span>
-<HealthText  value={80}/>
+<HealthText  value={vehicleInfo.safetyScore}/>
 </div>
 
 <div className="flex items-center justify-center gap-2">
@@ -236,29 +238,64 @@ items-start justify-start gap-6">
 </div>
 
 
+
+<div className="flex items-center justify-between w-full px-2">
+
 <button
-  onClick={async () => {
+   onClick={ () => {
+    console.log("arrrrrrgggg")
     setLoading(true);
+    router.push(
+      `vehicles/get?vehicle=${vehicleInfo.vehicleIdentificationNumber}`
+    );
+  }}
+  disabled={loading || infoLoading}
+  className={`bg-gradient-to-r from-blue-500 via-blue-400 to-blue-600
+    cursor-pointer  py-2 rounded-sm shadow-md
+    transition-all duration-200
+    hover:from-blue-600 hover:via-blue-500 hover:to-blue-700
+    hover:scale-105 hover:shadow-lg  px-8
+    text-white flex items-center justify-start gap-2
+    ${loading ? "opacity-70 cursor-not-allowed " : ""}
+  `}
+>
+  {loading ? (
+    <Loader2 className="w-4 h-4 animate-spin" />
+
+  ) : null}
+{
+  loading ? "Getting Vehicle" : "Get Vehicle"
+}
+</button>
+
+
+<button
+  onClick={ () => {
+    setInfoLoadingLoading(true);
     router.push(
       `vehicles/info?vehicle=${vehicleInfo.vehicleIdentificationNumber}`
     );
   }}
-  disabled={loading}
-  className={`text-normal bg-gradient-to-r from-blue-500 via-blue-400 to-blue-600
-    cursor-pointer px-14 py-1 rounded-lg shadow-md
+  disabled={infoLoading || loading}
+  className={` border-2 border-blue-200 cursor-pointer  py-2 rounded-lg shadow-md
     transition-all duration-200
     hover:from-blue-600 hover:via-blue-500 hover:to-blue-700
-    hover:scale-105 hover:shadow-lg
-    text-white flex items-center justify-center gap-2
-    ${loading ? "opacity-70 cursor-not-allowed" : ""}
+    hover:scale-105 hover:shadow-lg  px-6
+    text-white flex items-center justify-start gap-2
+    ${infoLoading ? "opacity-70 cursor-not-allowed " : ""}
   `}
 >
-  {loading ? (
-    <Loader2 className="animate-spin ml-2 " />
+  {infoLoading ? (
+    <Loader2 className="w-2 h-2 animate-spin" />
 
   ) : null}
-  Vehicle Info
+  {
+  infoLoading ? "Getting Vehicle Info" : "Vehicle Info"
+  }
 </button>
+
+</div>
+
     </article>
 
 )

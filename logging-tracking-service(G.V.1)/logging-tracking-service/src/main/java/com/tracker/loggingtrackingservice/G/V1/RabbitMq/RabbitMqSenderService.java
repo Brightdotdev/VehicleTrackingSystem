@@ -15,7 +15,7 @@ public class RabbitMqSenderService {
     public RabbitMqSenderService(RabbitTemplate rabbitTemplate) {
         this.rabbitTemplate = rabbitTemplate;
     }
-
+    private static final String DISPATCH_TRACKING_CHECKPOINT_FANOUT_EXCHANGE = "tracking.checkPoint.fanOut.provider.logs";
 
     private static final String COMPLETED_DISPATCH_FANOUT_EXCHANGE = "completed.dispatch.fanOut.provider.logs";
 
@@ -47,7 +47,21 @@ public class RabbitMqSenderService {
                     trackingDTO               // message
             );
         } catch (Exception e) {
-            logger.error("Failed to send dispatch completed event: {}", e.getMessage());
+            logger.error("Failed to send dispatch event: {}", e.getMessage());
+            throw new RuntimeException("Failed to send dispatch completed event", e);
+        }
+    }
+
+    public void sendTrackingCheckPointFanOut(UtilRecords.vehicleLocationUpdate locationUpdate) {
+        try {
+            logger.info("Sending checkpoint update from the logs ofc: {}", locationUpdate);
+            rabbitTemplate.convertAndSend(
+                    DISPATCH_TRACKING_CHECKPOINT_FANOUT_EXCHANGE, // exchange
+                    "",                          // routing key (empty for fanout)
+                    locationUpdate               // message
+            );
+        } catch (Exception e) {
+            logger.error("Failed to send dispatch event: {}", e.getMessage());
             throw new RuntimeException("Failed to send dispatch completed event", e);
         }
     }

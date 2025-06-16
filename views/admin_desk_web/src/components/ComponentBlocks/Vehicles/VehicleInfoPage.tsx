@@ -1,11 +1,10 @@
 import { DispatchRequestDto, VehicleDTO } from '@/types/VehicleTypes';
 import { ArrowLeft,  CarFront,  CircleHelp, Cog, HeartPulse, IdCard, Info,  Shield, TimerIcon, TriangleAlertIcon} from 'lucide-react'
 import React, { useEffect, useState } from 'react'
-import {getVehicleDataByVin, getVehicleDispatchHistory } from '@/lib/handleDsiaptchRequestPage';
+import { getVehicleDispatchHistoryApi } from '@/lib/handleDsiaptchRequestPage';
 import { HealthText } from '../../utils/UtilComponents';
 import { VehicleInfoPagePropsPills, VehicleInfoPageStatusPills } from '@/components/utils/VehiclePageUtilComponent';
-import { dotEnv } from '@/lib/dotEnv';
-import { toast } from 'sonner';
+import { getVehicleByVin } from '@/lib/handleVehiclePage';
 
 
 
@@ -67,14 +66,22 @@ const VehicleInfoPage = ({vehicleVin} : {vehicleVin : string}) => {
   
   useEffect(() =>{
     
-    const vData = getVehicleDataByVin(vehicleVin);
+    const handleVehiclePage = async () =>{
+       const vData = await getVehicleByVin(vehicleVin);
+      console.log("Vehicle Dataaa")
+       console.log(vData)
     setVehicleData(vData);
     if (vData) {
-      setDispatchHistory(getVehicleDispatchHistory(vData.vehicleIdentificationNumber));
+      const dispatchHistoryApi =  await getVehicleDispatchHistoryApi(vData.vehicleIdentificationNumber)
+      console.log("Vehicle hisory")
+      console.log(dispatchHistoryApi)
+      setDispatchHistory(dispatchHistoryApi);
     } else {
       setDispatchHistory(undefined);
     }
-    console.log(vehicleData)
+    } 
+
+handleVehiclePage();
 
   }, [])
   

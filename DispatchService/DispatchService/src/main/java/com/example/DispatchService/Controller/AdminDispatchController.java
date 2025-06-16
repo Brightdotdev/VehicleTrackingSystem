@@ -79,6 +79,21 @@ public class AdminDispatchController {
     public
     ResponseEntity<ApiResponse<List<DispatchModel>>>
     revalidateAllDispatch() {
+        List<DispatchModel> dispatchMetadata =  adminDispatchService.revalidateAllDispatch();
+
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        201,
+                        "Fetched dispatches",
+                        dispatchMetadata
+                ));
+    }
+
+
+    @GetMapping("/get-all/active")
+    public
+    ResponseEntity<ApiResponse<List<DispatchModel>>>
+    revalidateAllActiveDispatches() {
         List<DispatchModel> dispatchMetadata =  adminDispatchService.revalidateAllActiveDispatch();
 
         return ResponseEntity.ok(
@@ -88,6 +103,8 @@ public class AdminDispatchController {
                         dispatchMetadata
                 ));
     }
+
+
 
 
 

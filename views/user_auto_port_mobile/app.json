@@ -14,7 +14,8 @@
     "permissions": [
       "NOTIFICATIONS",
       "CAMERA",
-      "LOCATION"
+      "LOCATION",
+      "BACKGROUND_LOCATION"
     ],
     "icon": "./assets/androidIcon.png",
     "userInterfaceStyle": "automatic",
@@ -38,6 +39,13 @@
           "image": "./assets/splashScreenDark.png",
           "backgroundColor": "#151718"
         }
+      },
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "This app uses your location to track your vehicle.",
+        "NSLocationAlwaysUsageDescription": "This app needs access to your location in the background to track your vehicle.",
+        "UIBackgroundModes": [
+          "location"
+        ]
       }
     },
     "android": {
@@ -54,7 +62,12 @@
           "backgroundColor": "#151718"
         }
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_BACKGROUND_LOCATION"
+      ]
     },
     "web": {
       "bundler": "metro",

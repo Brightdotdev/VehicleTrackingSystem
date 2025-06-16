@@ -4,24 +4,29 @@ import React from 'react'
 import { Button } from '../ui/button';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
-import { useAdminLogInGoogle, useAdminSignUpGoogle } from '@/lib/handleUserAuth';
+import {handleGoogleLogIn, useUserGoogleSignIn } from '@/lib/handleUserAuth';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
+import { UserGoogleLogIn } from '@/types/authTypes';
 
 
 export const  GoogleButton = ({ loading, setGoogleLoading, authType }: { loading: boolean, setGoogleLoading: (loading: boolean) => 
   void, authType : string }) => {
     const router = useRouter();
-    const {setGoogleUserData} = useAuth();
+    const {setGoogleUserData, googleUserData, userData} = useAuth();
 
-    const login = useAdminLogInGoogle(setGoogleUserData, setGoogleLoading,() => {
-  toast.success("Login successful!");
-  router.replace("/admin-key?sender=google-log-in");
-}
-    );
-    const signUp = useAdminSignUpGoogle(setGoogleUserData, setGoogleLoading,() => {
+    const login = useUserGoogleSignIn(setGoogleUserData, setGoogleLoading,() => {
+  
+  toast.success("You have been validated from Google!");
+  const userInfo: UserGoogleLogIn = { email: googleUserData.email};
+
+  handleGoogleLogIn(userInfo,setGoogleLoading)
+});
+
+
+    const signUp = useUserGoogleSignIn(setGoogleUserData, setGoogleLoading,() => {
   toast.success("Sign Up successful!");
-  router.replace("/admin-key?sender=google-sign-up");});
+  router.replace("/last-step?sender=google-sign-up");});
 
 
     return (
@@ -98,3 +103,6 @@ export const HealthText = ({value} : {value : number}) =>{
  else
   return <p className='text-body-2 text-red-900'>{value}</p>  
 }
+
+
+

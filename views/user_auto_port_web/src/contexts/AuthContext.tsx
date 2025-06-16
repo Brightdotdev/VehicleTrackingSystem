@@ -17,22 +17,22 @@ type AuthContextType = {
   authLoading: boolean;
 
   logout: () => Promise<void>;
-  logInData :  { email : string, password  : string, pageExpTime : number } ,
-  setLogInData : (logInInfo : { email : string, password  : string, pageExpTime : number }) => void,
+  logInData :  { email : string, password  : string } ,
+  setLogInData : (logInInfo : { email : string, password  : string }) => void,
 
-  signUpData : { email : string, name : string , password  : string ,pageExpTime : number},
-  setSignUpData : (signUpInfo : { email : string, name : string , password  : string ,pageExpTime : number}) => void,
+  signUpData : { email : string, name : string , password  : string },
+  setSignUpData : (signUpInfo : { email : string, name : string , password  : string }) => void,
   
-  googleLogInData :  { email : string, name : string , pageExpTime : number, picture: string, } ,
-  setGoogleLogInData : (googleLogInInfo : { email : string, name: string, pageExpTime : number, picture : string }) => void,
+  googleLogInData :  { email : string, name : string , picture: string, } ,
+  setGoogleLogInData : (googleLogInInfo : { email : string, name: string, picture : string }) => void,
 
   googleSignUpData :  { email : string, name  : string,  sub: string, 
-    picture: string, email_verified: boolean, pageExpTime : number},
+    picture: string, email_verified: boolean},
   setGoogleSignUpData : (googleSignUpInfo : { email : string, name  : string,  sub: string, 
-    picture: string, email_verified: boolean, pageExpTime : number}) => void,
+    picture: string, email_verified: boolean}) => void,
 
-  googleUserData : { sub: string, given_name: string, picture: string, email: string, email_verified: boolean, pageExpTime : number },
-  setGoogleUserData : (googleUserData : { sub: string, given_name: string, picture: string, email: string, email_verified: boolean, pageExpTime : number }) => void,
+  googleUserData : { sub: string, given_name: string, picture: string, email: string, email_verified: boolean },
+  setGoogleUserData : (googleUserData : { sub: string, given_name: string, picture: string, email: string, email_verified: boolean }) => void,
   isPageExpTimeExpired: (pageExpTime: number) => boolean;
   validate: () => void;
 };
@@ -45,20 +45,20 @@ const AuthContext = createContext<AuthContextType>({
   authLoading: true,
   logout: async () => {},
   
-  logInData : { email : "", password  : "" , pageExpTime : Date.now()},
+  logInData : { email : "", password  : "" },
   setLogInData : () => {},
   
-  signUpData : {email : "", name : "" , password  : "" ,pageExpTime : Date.now()},
+  signUpData : {email : "", name : "" , password  : ""},
   setSignUpData : () => {},
 
-  googleLogInData :  { email : "",name : "", pageExpTime : Date.now(), picture: "" },
+  googleLogInData :  { email : "",name : "", picture: "" },
   setGoogleLogInData : () => {},
   
   googleSignUpData :  { email : "", name  : "",  sub: "", 
-    picture: "", email_verified: false, pageExpTime : Date.now()},
+    picture: "", email_verified: false},
   setGoogleSignUpData : () => {},
 
-  googleUserData : { sub: "", given_name: "", picture: "", email: "", email_verified: false, pageExpTime : Date.now()},
+  googleUserData : { sub: "", given_name: "", picture: "", email: "", email_verified: false},
   setGoogleUserData : () => {},
   isPageExpTimeExpired: () => false,
   validate: () => {},
@@ -68,17 +68,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   const [signUpData, setSignUpData] = useState(
-    {name  : "", email : "", password : "",  pageExpTime : Date.now()})
+    {name  : "", email : "", password : "",})
   
     const [logInData, setLogInData] = useState(
-    { email : "", password : "", pageExpTime : Date.now() })
+    { email : "", password : "" })
   
     const [googleSignUpData, setGoogleSignUpData] = useState({
        email : "", name  : "",  sub: "", 
-    picture: "", email_verified: false, pageExpTime : Date.now()})
+    picture: "", email_verified: false})
 
     const [googleLogInData, setGoogleLogInData] = useState(
-      { email : "", name: "", pageExpTime : Date.now(), picture: "" })
+      { email : "", name: "", picture: "" })
 
       
     const [googleUserData, setGoogleUserData] = useState({
@@ -87,7 +87,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       picture: "",
       email: "",
       email_verified: false,
-      pageExpTime : Date.now()
+  
     });
 
     const [userData, setUser] = useState<User>(null);
@@ -123,9 +123,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const logout = async () => {
     setAuthLoading(true);
     try {
-      const authCookie = getCookie(dotEnv.adminCookieName)
+      const authCookie = getCookie(dotEnv.userCookieName)
       if(authCookie){
-          const response = await fetch(dotEnv.adminLogOutLink, {
+          const response = await fetch(dotEnv.userLogOutLink, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -134,7 +134,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         const data = await response.json();
         setUser(null);
         setAuthLoading(false);
-        deleteCookie(dotEnv.adminCookieName);
+        deleteCookie(dotEnv.userCookieName);
         return data
       }
     } catch (error) {

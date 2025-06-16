@@ -49,7 +49,7 @@ ${userImage ? "pl-1" : "pl-4"}
         className='w-[2rem] h-[2rem] rounded-full object-center object-cover border-white border-2'
       />
     ) : (
-      <div className="bg-red-800 rounded-full w-2 h-2"></div>
+      <div className="bg-white rounded-full w-2 h-2"></div>
     )
   }
   <p className="text-small">

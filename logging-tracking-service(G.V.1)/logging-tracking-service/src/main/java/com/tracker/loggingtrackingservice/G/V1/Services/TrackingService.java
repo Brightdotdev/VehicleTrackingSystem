@@ -55,6 +55,9 @@ public class TrackingService {
         }
         model.addToCheckPoint(model.getCurrentLocation());
         model.setCurrentLocation(checkPoint);
+        UtilRecords.vehicleLocationUpdate update = new UtilRecords.vehicleLocationUpdate(checkPoint,model.getVehicleIdentificationNumber());
+        rabbitMqSenderService.sendTrackingCheckPointFanOut(update);
+        trackingRepository.save(model);
         return model;
     }
 
@@ -82,6 +85,11 @@ public class TrackingService {
                 trackingModel.getVehicleIdentificationNumber(),trackingModel.getDispatchRequester(),trackingModel.getDispatchAdmin());
 
         rabbitMqSenderService.sendTrackingInitializationFanout(trackingDTO);
+
+
+        UtilRecords.vehicleLocationUpdate update = new UtilRecords.vehicleLocationUpdate(checkPoint,trackingModel.getVehicleIdentificationNumber());
+        rabbitMqSenderService.sendTrackingCheckPointFanOut(update);
+
 
 
         trackingRepository.save(trackingModel);

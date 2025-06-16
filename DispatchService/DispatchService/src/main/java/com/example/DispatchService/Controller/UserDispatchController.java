@@ -60,9 +60,49 @@ public class UserDispatchController {
     }
 
 
+
+    // :: localhost:8105/v1/user/dispatch/request-dispatch
+    // :: localhost:8105/v1/user/dispatch/request-dispatch?dispatchId=123&vin=ABC123XYZ
+    @PostMapping("/get-current-dispatch")
+    public
+    ResponseEntity<ApiResponse<
+            // UtilRecords.DispatchResponseDTO
+            DispatchModel
+            >>
+    getDispatchByIdAndVin(
+            @Valid @RequestParam Long dispatchId, @Valid @RequestParam String vin
+    ) {
+
+        //  UtilRecords.DispatchResponseDTO
+        DispatchModel  dispatchResponse =  userDispatchService.getMyDispatchByVinAndId(dispatchId, userHandler.getCurrentUser(), vin);
+
+        if (dispatchResponse == null) {
+            return ResponseEntity
+                    .status(HttpStatus.FORBIDDEN)
+                    .body(ApiResponse.error(
+                            403,
+                            "Your request couldn't be processed"
+                    ));
+        }
+
+        // If the model is not null, return success with the dispatch info
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        201,
+                        "Dispatch request success",
+                        dispatchResponse
+                )
+        );
+    }
+
+
+
+
+
     /** Endpoint for a user to cancel their own dispatch **/
 
     // :: localhost:8105/v1/user/dispatch/user-cancel
+// :: localhost:8105/v1/user/dispatch/user-cancel?dispatchId=123&vin=ABC123XYZ
     @PutMapping("/user-cancel")
     public ResponseEntity<ApiResponse<DispatchModel>> userCancelDispatch(@RequestParam Long dispatchId, @RequestParam String vin) {
 
@@ -77,15 +117,29 @@ public class UserDispatchController {
                 ));
     }
 
+
     /** Endpoint to fetch all dispatches for a specific user **/
 
     // :: localhost:8105/v1/user/dispatch/revalidate-all-me
 
     @GetMapping("/revalidate-all-me")
     public ResponseEntity<ApiResponse<List<DispatchModel>>> getAllMyDispatches() {
-
-
         List<DispatchModel> myDispatchModels = userDispatchService.revalidateMyDispatches(userHandler.getCurrentUser());
+
+
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        201,
+                        "Dispatch cancel Success",
+                        myDispatchModels
+                ));
+    }
+
+
+    // :: localhost:8105/v1/user/dispatch/revalidate-active-dispatch
+    @GetMapping("/revalidate-active-dispatch")
+    public ResponseEntity<ApiResponse<List<DispatchModel>>> getAllMyActiveDispatches() {
+        List<DispatchModel> myDispatchModels = userDispatchService.revalidateMyActiveDispatches(userHandler.getCurrentUser());
 
 
         return ResponseEntity.ok(
@@ -113,6 +167,8 @@ public class UserDispatchController {
                         metadata
                 ));
     }
+
+
 
 
 }

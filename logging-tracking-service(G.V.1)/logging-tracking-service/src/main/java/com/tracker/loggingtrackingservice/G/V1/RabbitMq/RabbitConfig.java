@@ -153,6 +153,17 @@ public class RabbitConfig {
         return new FanoutExchange(DISPATCH_TRACKING_FANOUT_EXCHANGE, true, false);
     }
 
+
+    // ==== sending every checkpoint (yes im a masochist)====
+
+    private static final String DISPATCH_TRACKING_CHECKPOINT_FANOUT_EXCHANGE = "tracking.checkPoint.fanOut.provider.logs";
+    @Bean
+    public FanoutExchange trackingCheckpointFanout() {
+        return new FanoutExchange(DISPATCH_TRACKING_CHECKPOINT_FANOUT_EXCHANGE, true, false);
+    }
+
+
+
     /***  Normal config   **/
 
     @Bean

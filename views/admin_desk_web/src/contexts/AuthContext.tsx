@@ -104,7 +104,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           "Content-Type": "application/json"},credentials: "include"});
         const userResponseData  = await response.json();
         const {code , data : { valid, user  }} = userResponseData;
-          console.log(userResponseData)
         
         if(valid && code === 200){
           setUser(user);

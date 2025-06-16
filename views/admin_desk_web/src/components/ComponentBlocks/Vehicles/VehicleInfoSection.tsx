@@ -1,12 +1,28 @@
 
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import VehicleInfoCard from '../../ui/Vehicles/VehicleInfoCard'
-import { testVehicles } from '../../../../dummyData';
+import { VehicleDTO } from '@/types/VehicleTypes';
+import { getAllVehicles } from '@/lib/handleVehiclePage';
 
 
 
 
 const VehicleInfoSection = () => {
+
+  const [vehicles, setVehicles] = useState<VehicleDTO[]>([]);
+
+
+  useEffect(  () => {
+
+    const getVehicles = async () => {
+      const vehicleApi = await getAllVehicles()
+      setVehicles(vehicleApi);
+    }
+
+    getVehicles()
+
+  }, []);  
+
   return (
     <section 
          className="md:w-[90%] w-full rounded-xl grid gap-4 
@@ -21,7 +37,13 @@ const VehicleInfoSection = () => {
 
 
 {
-    testVehicles.map((vehicle, index) => {
+
+         vehicles === null ? 
+              <div className="flex items-center justify-center">
+                No Vehicle Data
+              </div>
+              :
+    vehicles.map((vehicle: VehicleDTO, index: number) => {
       return (
         <VehicleInfoCard
           key={index}

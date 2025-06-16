@@ -208,7 +208,7 @@ items-start justify-start gap-6">
 <IdCard   className='text-body-2 text-foreground' />
 <p className='text-small pl-2 font-[500] text-foreground'>PLATE NUMBER : </p>
 <span className='text-small text-muted-foreground'>
-{vehicleInfo.licensePlate}
+{vehicleInfo.licensePlate ?? "N/A"}
 </span>
 </div>
 
@@ -216,13 +216,13 @@ items-start justify-start gap-6">
 <Settings className='text-body-2 text-foreground' />
 <p className='text-small pl-2 font-[500] text-foreground'>ENGINE TYPE : </p>
 <span className='text-small text-muted-foreground'>
-{vehicleInfo.engineType}
+{vehicleInfo.engineType ?? "No Engine type" }
 </span>
 </div>
 
 <div className="flex items-center justify-center gap-2">
 <Shield className='text-body-2 text-foreground' /> <span className='text-small pl-2 font-[500] text-foreground' >HEALTH SCORE :</span>
-<HealthText  value={80}/>
+<HealthText  value={vehicleInfo.safetyScore  ?? "No Score"} />
 </div>
 
 <div className="flex items-center justify-center gap-2">

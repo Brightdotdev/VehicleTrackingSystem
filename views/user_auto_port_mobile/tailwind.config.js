@@ -124,8 +124,8 @@ module.exports = {
         loosest: '2',
       },
       fontFamily: {
-        'futura-heavy': ['Futura Heavy', 'sans-serif'],
-        'futura-medium': ['Futura Medium BT', 'sans-serif'],
+        'futuraHeavy': ['Futura Heavy', 'sans-serif'],
+        'futuraMedium': ['Futura Medium BT', 'sans-serif'],
         roboto: ['Roboto', 'sans-serif'],
       },
     },

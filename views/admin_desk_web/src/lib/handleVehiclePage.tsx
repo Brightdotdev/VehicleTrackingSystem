@@ -1,15 +1,30 @@
-import { DispatchRequestDto, SaveNewVehiclePopUpProps, VehicleDTO } from "@/types/VehicleTypes";
+import { FormProps, SaveNewVehiclePopUpProps, VehicleDTO } from "@/types/VehicleTypes";
 import { dotEnv } from "./dotEnv";
 import { toast } from "sonner";
 
 
 // save vehicle a new sexy one too grah
 
-   export  const handleSaveVehicleForm =  async (e: React.FormEvent, form : SaveNewVehiclePopUpProps, setOpen : (open : boolean) => void)  => {
-    e.preventDefault();
+   export  const handleSaveVehicleForm =  async (form : FormProps, setOpen : (open : boolean) => void)  => {
     
     const vehicleUrl = form.isGoodVehicle ? `${dotEnv.adminVehicleBaseUrl}/new` : 
     `${dotEnv.adminVehicleBaseUrl}/new/bad`
+
+
+    
+    const vehicleApiData: SaveNewVehiclePopUpProps = {
+      model: form.model,
+      engineType: form.engineType,
+      vehicleType: form.vehicleType,
+      vehicleStatus: form.vehicleStatus,
+      vehicleMetadata: form.vehicleMetadata,
+      vehicleImages: form.vehicleImages,
+      vehicleLocation: {
+        latitude: form.location.latitude,
+        longitude: form.location.longitude,
+        timeStamp: form.location.timestamp,
+      },
+    };
 
 
     try {    
@@ -19,11 +34,10 @@ import { toast } from "sonner";
             "Content-Type": "application/json",
           },
           credentials: "include", 
-          body: JSON.stringify(form), 
+          body: JSON.stringify(vehicleApiData), 
         });
         const data  = await response.json();
-        console.log(response)
-        console.log(data)
+        
         toast.info("Yeah We saved the new Vehicle")
         setOpen(false)
     } catch (error) {    
@@ -31,7 +45,7 @@ import { toast } from "sonner";
 
 
 
-    export const getAllVehicles  = async () /* : VehicleDTO[]  */ => {
+    export const getAllVehicles  = async () : Promise<VehicleDTO[]>  => {
          try {
     const response =  await fetch(dotEnv.adminVehicleBaseUrl, {
           method: "GET",
@@ -40,18 +54,17 @@ import { toast } from "sonner";
           credentials: "include"});
 
         const data  = await response.json();
-        console.log(response)
-        console.log(data)
-        toast.info("Yeah these are all the vehicles")
-        return data;
+        toast.info("The vehicle Data are ready")
+        return data.data;
     } catch (error) {  
-      console.log(error)  
-        toast.error("Somethinggg went wrong")}};
+        toast.error("Somethinggg went wrong");
+        return [];
+    }};
         
 
 
         // get the vehicle by it's vin
-    export const getVehicleByVin  = async (vin : string)  /* : VehicleDTO  */ => {
+export const getVehicleByVin  = async (vin : string)  : Promise<VehicleDTO | undefined>  => {
          try {
     const response =  await fetch(`${dotEnv.adminVehicleBaseUrl}/${vin}`, {
           method: "GET",
@@ -60,15 +73,14 @@ import { toast } from "sonner";
           credentials: "include"});
 
         const data  = await response.json();
-        console.log(response)
-        console.log(data)
-        toast.info("Yeah these are all the vehicles")
-        return data;
+        toast.info("Vehicle Retrival Successful")
+        return data.data;
     } catch (error) {   
-      console.log(error) 
-        toast.error("Somethinggg went wrong")}};
+        toast.error("Somethinggg went wrong")
+        return undefined;
+    }
+  };
 
-            
 
 
 
@@ -85,12 +97,9 @@ import { toast } from "sonner";
           credentials: "include"});
 
         const data  = await response.json();
-        console.log(response)
-        console.log(data)
         toast.info("Yeah these are all the Dispatches")
         return data;
     } catch (error) {   
-      console.log(error) 
         toast.error("Somethinggg went wrong")}};
         
 
@@ -106,10 +115,8 @@ import { toast } from "sonner";
           credentials: "include"});
 
         const data  = await response.json();
-        console.log(response)
-        console.log(data)
+        
         toast.info("Yeah this is the single dispatch you reqquested for boss")
         return data;
     } catch (error) {  
-      console.log(error)  
-        toast.error("Somethinggg went wrong")}};
+       toast.error("Somethinggg went wrong")}};

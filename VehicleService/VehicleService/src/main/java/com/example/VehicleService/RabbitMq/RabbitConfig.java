@@ -79,6 +79,31 @@ public class RabbitConfig {
     }
 
 
+    // === Vehicle Location Update ===
+
+
+
+    private static final String DISPATCH_TRACKING_CHECKPOINT_FANOUT_EXCHANGE = "tracking.checkPoint.fanOut.provider.logs";
+
+    private static final String DISPATCH_TRACKING_CHECKPOINT_FANOUT_EXCHANGE_QUEUE = "tracking.checkPoint.fanOut.provider.logs.queue.vehicle.service";
+
+    @Bean
+    public FanoutExchange updateVehicleLocation() {
+        return new FanoutExchange(DISPATCH_TRACKING_CHECKPOINT_FANOUT_EXCHANGE,  true, false);
+    }
+
+    @Bean
+    public Queue updateVehicleLocationQueue() {
+        return new Queue(DISPATCH_TRACKING_CHECKPOINT_FANOUT_EXCHANGE_QUEUE, true, false, false);
+    }
+
+    @Bean
+    public Binding updateVehicleLocationBinding(FanoutExchange updateVehicleLocation , Queue updateVehicleLocationQueue) {
+        return BindingBuilder.bind(updateVehicleLocationQueue)
+                .to(updateVehicleLocation);
+    }
+
+
     // === dispatch validated from logs service ===
 
     private final String DISPATCH_COMPLETED_FROM_LOGS = "completed.dispatch.fanOut.provider.logs";

@@ -1,14 +1,14 @@
 import { ActivityIndicator, SafeAreaView, StyleSheet, Text, View } from 'react-native'
 import React from 'react'
-import "./global.css"
-import { ThemeProvider } from './contexts/ThemeProvider'
+import "./global.css"/* 
+import { ThemeProvider } from './contexts/ThemeProvider' */
 import { useFonts } from "expo-font";
-import { NavigationContainer } from '@react-navigation/native';
+/* import { NavigationContainer } from '@react-navigation/native';
 import ActiveDispatch from './screens/ActiveDispatch';
 import CompletedDispatch from './screens/CompletedDispatch';
 import DispatchRecord from './screens/DispatchRecord';
 import PendingDispatch from './screens/PendingDispatch';
-import Register from './screens/Register';
+import Register from './screens/Register'; */
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 const Stack = createNativeStackNavigator();
@@ -16,10 +16,10 @@ const Stack = createNativeStackNavigator();
 const App = () => {
 
     const [fontsLoaded] = useFonts({
-    "Futura Heavy": require("./assets/fonts/Futura-Heavy-font.ttf"),
-    "Futura Medium BT": require("./assets/fonts/futura medium bt.ttf"),
-    "Roboto": require("./assets/fonts/Roboto-VariableFont_wdth,wght.ttf"),
-  });
+      "Futura Heavy": require("./assets/fonts/Futura-Heavy-font.ttf"),
+      "Futura Medium BT": require("./assets/fonts/futura_medium.ttf"),
+      "Roboto": require("./assets/fonts/Roboto-VariableFont.ttf"),
+    });
 
   if (!fontsLoaded) {
     return <ActivityIndicator size="large" style={{ flex: 1 }} />;
@@ -27,7 +27,7 @@ const App = () => {
 
 
   return (
-
+/* 
 <ThemeProvider>
 
     <View>
@@ -50,7 +50,23 @@ const App = () => {
       </NavigationContainer>
     </SafeAreaView>
 
-    </ThemeProvider>
+    </ThemeProvider> */
+
+<>
+
+<Text className="font-futuraHeavy text-lg text-blue-800">
+  Hello with Futura Heavy
+</Text>
+
+<Text className="font-futuraMedium text-base text-gray-700">
+  Hello with Futura Medium
+</Text>
+
+<Text className="font-roboto text-sm text-black">
+  Hello with Roboto
+</Text>
+
+</>
   )
 }
 

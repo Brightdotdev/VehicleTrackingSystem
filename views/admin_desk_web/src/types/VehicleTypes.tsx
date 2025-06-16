@@ -98,40 +98,23 @@ export interface VehicleWildcardAttribute {
 
 // --- Main Vehicle interface ---
 
-
 export interface VehicleDTO {
- 
-  id: number;
- 
+  id?: number; // optional
   vehicleIdentificationNumber: string;
- 
   licensePlate: string;
- 
   model: string;
- 
-  vehicleAcquiredYear: number;
- 
+  vehicleAcquiredYear?: number; // optional
   engineType: EngineType;
- 
   vehicleType: VehicleType;
- 
   vehicleStatus: VehicleStatus;
- 
   dispatchStatus: VehicleDispatchStatus;
- 
   dispatchHistory: number[];
- 
   vehicleImages: string[];
- 
   safetyScore: number;
- 
   vehicleMetadata: string;
- 
   healthAttributes: VehicleHealthAttribute[];
-  
-  wildcardAttributes: VehicleWildcardAttribute[];
+  wildcardAttributes?: VehicleWildcardAttribute[]; // optional
 }
-
 
 
 
@@ -183,14 +166,33 @@ export interface DispatchRequestDto {
   canDispatch: boolean;
 }
 
-
+interface LocationCheckPoint {
+    latitude: number; 
+    longitude: number;
+    timeStamp: string;
+}
 
  export interface SaveNewVehiclePopUpProps {
+
+    model: string; 
+    engineType: EngineType;
+    vehicleType: VehicleType; 
+    vehicleStatus: VehicleStatus;
+    vehicleMetadata: string; 
+    vehicleImages: string[]; 
+    vehicleLocation: LocationCheckPoint; 
+
+}
+
+export interface FormProps {
   model: string;
   engineType: EngineType;
   vehicleType: VehicleType;
   vehicleStatus: VehicleStatus;
-  vehicleMetadata?: string;
+  vehicleMetadata: string;
   vehicleImages: string[];
-  isGoodVehicle?: boolean;
+  isGoodVehicle: boolean;
+  location: { latitude: number; longitude: number; timestamp: string };
 }
+
+

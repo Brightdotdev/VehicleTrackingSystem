@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { Progress } from "./progress";
-import { LampDesk, Loader2 } from "lucide-react";
+import { CableCar, LampDesk, Loader2 } from "lucide-react";
 
 const Loading = ({ loadingPage }: { loadingPage?: string }) => {
 
@@ -25,12 +25,12 @@ const Loading = ({ loadingPage }: { loadingPage?: string }) => {
     <div className="w-screen h-screen flex justify-center items-center">
       <div className="w-md flex flex-col items-center gap-md">
         
-   <LampDesk className='size-12 stroke-muted-foreground hover:stroke-sidebar-accent-foreground cursor-pointer' />
+   <CableCar className='size-12 stroke-muted-foreground hover:stroke-sidebar-accent-foreground cursor-pointer' />
 
         <h3 className="text-foreground-muted text-normal flex items-center justify-center gap-2">
 
           <span>
-            {`${loadingPage ||  "Desk"} Loading....`}
+            {`${loadingPage ||  "Auto Port"} Loading....`}
           </span>
           </h3>
 

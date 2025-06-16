@@ -1,11 +1,12 @@
 import { DispatchRequestDto, VehicleDTO } from '@/types/VehicleTypes';
 import { ArrowLeft,  CarFront,  CircleHelp, Cog, GitCommitVertical, Info,  Shield, TriangleAlertIcon} from 'lucide-react'
 import React, { useEffect, useState } from 'react'
-import { getVehicleByIdAndVinForDispatch, getVehicleDataByVin, getVehicleDispatchHistory } from '@/lib/handleDsiaptchRequestPage';
+import { getAllDispatchRequests, getVehicleDispatchHistoryApi} from '@/lib/handleDsiaptchRequestPage';
 import { HealthText } from '../../utils/UtilComponents';
 import { DispatchRequestPageStatusPills, DispatchRequestPageStatusPillsProps } from '../../utils/RequestPageUtilComponents';
 import RejectDispatchModal from '../../ui/Requests/RejectDispatchModal';
 import AcceptDispatchModal from '../../ui/Requests/AcceptDispatchModal';
+import { getVehicleByVin } from '@/lib/handleVehiclePage';
 
 
 
@@ -57,29 +58,32 @@ const DispatchRequestPage = ({vehicleReqid ,  vehicleVin} : {vehicleReqid : numb
   
   const [dispatchData, setDispatchData] = useState<DispatchRequestDto | undefined>(undefined);
   const [vehicleData, setVehicleData] = useState<VehicleDTO | undefined>(undefined);
-  const [dispatchHistory, setDispatchHistory] = useState<DispatchRequestDto[] | undefined>(undefined);
-
-  
+  const [dispatchHistory, setDispatchHistory] = useState<DispatchRequestDto[] | undefined>(undefined);  
   const [rejectOpen, setRejectOpen] = useState(false) 
   const [acceptOpen, setAcceptOpen] = useState(false) 
 
 
-
+  
   useEffect(() =>{
-    setDispatchData(getVehicleByIdAndVinForDispatch(vehicleReqid, vehicleVin));
-    const vData = getVehicleDataByVin(vehicleVin);
-    setVehicleData(vData);
-    if (vData) {
-      setDispatchHistory(getVehicleDispatchHistory(vData.vehicleIdentificationNumber));
-    } else {
-      setDispatchHistory(undefined);
-    }
-    console.log(dispatchData)
-    console.log(vehicleData)
-
-  }, [])
+    
+    const handleVehiclePage = async () =>{
+         const vData = await getVehicleByVin(vehicleVin);
+        console.log("Vehicle Dataaa")
+         console.log(vData)
+      setVehicleData(vData);
+      if (vData) {
+        const dispatchHistoryApi =  await getVehicleDispatchHistoryApi(vData.vehicleIdentificationNumber)
+        console.log("Vehicle hisory")
+        console.log(dispatchHistoryApi)
+        setDispatchHistory(dispatchHistoryApi);
+      } else {
+        setDispatchHistory(undefined);
+      }
+      } 
   
+  handleVehiclePage();
   
+    }, [])
 
   
   return (

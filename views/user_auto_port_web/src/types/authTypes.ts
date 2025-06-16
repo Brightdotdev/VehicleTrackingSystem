@@ -7,35 +7,36 @@ export interface GoogleUser {
     given_name: string;
     picture: string;
     email: string;
-    email_verified: boolean;
-    pageExpTime: number;
-}
+    email_verified: boolean;}
 
-export interface AdminGoogleLogIn {
-    adminKey : string;
+export interface UserGoogleLogIn {
     email: string;
 }
 
-export interface AdminGoogleSignUp {
+export interface UserGoogleSignUp {
     sub: string;
     name: string;
     picture: string;
     email: string;
     email_verified: boolean;
-    adminKey : string;
 }
 
-
-export interface AdminLocalLogIn {
-    adminKey : string;
+export interface UserLocalLogIn {
     email: string;
     password : string;
 }
 
 
-export interface AdminLocalSignUp {
+export interface UserLocalSignUp {
     name: string;
     email: string;
     password : string;
-    adminKey : string;
 }
+
+ 
+export type User = {
+  email: string;
+  picture: string;
+  username: string;
+  roles: string[];
+} | null;
