@@ -1,8 +1,6 @@
 server:
   port: 8106
   forward-headers-strategy: framework
-
-
 spring:
   main:
     lazy-initialization: true
