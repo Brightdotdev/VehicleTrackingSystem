@@ -8,9 +8,9 @@ spring:
   application:
     name: vehicleService
   datasource :
-    url : jdbc:postgresql://postgres:GEEQvIMwcASQigZzCdeSNEeyifLQmIFY@postgres.railway.internal:5432/VEHICLE_VEHICLE_DB
-    username : postgres
-    password : GEEQvIMwcASQigZzCdeSNEeyifLQmIFY
+    url : jdbc:postgresql://ep-aged-hall-a8rn3qku-pooler.eastus2.azure.neon.tech/VEHICLE_DB?sslmode=require
+    username : VEHICLE_DB_owner
+    password : npg_iF50rcOxtRvA
 
   jpa :
     open-in-view: false
