@@ -56,11 +56,10 @@
             // Save and send notification
             NotificationModel savedNotification = notificationRepository.save(notificationModel);
 
-            System.out.println("✅ Dispatch creation notification saved.");
 
 
             UtilRecords.NotificationDto dispatchCreatedNotif = new UtilRecords.NotificationDto(message, savedNotification.getTitle(),savedNotification.getId(),false,null,null,receiver,false);
-            System.out.println(savedNotification);
+
 
             notificationEmitterService.sendUserNotification(receiver, dispatchCreatedNotif);
         }
@@ -77,7 +76,7 @@
             String message = "Vehicle of VIN " + dispatchEvent.vehicleIdentificationNumber()
                     + " is requested for dispatch from " + receiver
                     + " for " + dispatchEvent.dispatchReason() + " till " + dispatchEvent.dispatchEndTime();
-            System.out.println(message);
+
 
             NotificationModel notificationModel = new NotificationModel();
 
@@ -95,12 +94,10 @@
 
             UtilRecords.NotificationDto dispatchCreatedNotif = new UtilRecords.NotificationDto(message, savedNotification.getTitle()
                     ,savedNotification.getId(),false,null,null,receiver,false);
-            System.out.println(savedNotification);
 
 
 
-            System.out.println("✅ Dispatch creation notification saved.");
-            System.out.println(savedNotification);
+
             notificationEmitterService.sendAdminsNotification(dispatchCreatedNotif);
         }
 
@@ -116,7 +113,7 @@
             String message = "Your request for the " + dispatchValidatedEvent.vehicleName()
                     + " has been validated. We believe you plan to use the vehicle for "
                     + dispatchValidatedEvent.dispatchReason() + ".\nEnjoy your dispatch!(or wtv)";
-            System.out.println(message);
+
 
             NotificationModel notificationModel = new NotificationModel();
 
@@ -141,9 +138,6 @@
             UtilRecords.NotificationDto validatedFroTrackingDto = new UtilRecords.NotificationDto(message, savedNotification.getTitle(),savedNotification.getId(),true,badCta,goodCta,receiver,false);
 
 
-            System.out.println("✅ Validated dispatch notification saved.");
-            System.out.println(savedNotification);
-
             notificationEmitterService.sendUserDispatchNotification(receiver, validatedFroTrackingDto);
 
         }
@@ -161,9 +155,8 @@
             message = "Hello your dispatch fo the" + dispatchEvent.vehicleName()
                     + " is completed and has been expired....thank you for your using Auto Port";
 
-            System.out.println(message);
 
-            NotificationModel notificationModel = new NotificationModel();
+       NotificationModel notificationModel = new NotificationModel();
 
             // Set up the notification model
             notificationModel.setCreatedAt(LocalDateTime.now());
@@ -179,10 +172,7 @@
 
             UtilRecords.NotificationDto dispatchCompletedNotif = new UtilRecords.NotificationDto(message, savedNotification.getTitle()
                     ,savedNotification.getId(),false,null,null,receiver,false);
-            System.out.println(savedNotification);
 
-            System.out.println("✅ Validated dispatch notification saved.");
-            System.out.println(savedNotification);
 
             notificationEmitterService.sendUserNotification(receiver, dispatchCompletedNotif);
             trackingService.stopTracking(dispatchEvent);
@@ -200,21 +190,19 @@
             List<UtilRecords.NotificationDto> finalNotifications = new ArrayList<>();
 
             if (!user.equals(notifReader)){
-                System.out.println("How is this happening  tho");
-                System.out.println(" Notif reader "   + notifReader);
-                System.out.println(" User from user handler "   + user);
-            throw new AccessException("Contradicting user and notifications to be sent to");
+
+        throw new AccessException("Contradicting user and notifications to be sent to");
             }
 
             for (UtilRecords.setReadRecord notification : notificationToRead){
 
                 Optional<NotificationModel> foundNotification = notificationRepository.findById(notification.notifId());
 
-                System.out.println ( "outside the i statement" + foundNotification);
+
 
                 if(foundNotification.isEmpty()){
-                    System.out.println(foundNotification);
-                   throw new NotFoundException("Notification not found...someone tampered with the code");}
+
+                  throw new NotFoundException("Notification not found...someone tampered with the code");}
 
                 NotificationModel notificationToBeSaved = foundNotification.get();
 
@@ -224,7 +212,7 @@
                 UtilRecords.NotificationDto setReadNotif = new UtilRecords.NotificationDto(notificationToBeSaved.getMessage(),
                         notificationToBeSaved.getTitle()
                         ,notificationToBeSaved.getId(),false,null,null,notifReader,true);
-                System.out.println(notificationToBeSaved);
+
 
                 finalNotifications.add(setReadNotif);
                 notificationRepository.save(notificationToBeSaved);}
@@ -271,10 +259,6 @@
             UtilRecords.NotificationDto dispatchTrackingNotif = new UtilRecords.NotificationDto(savedNotification.getMessage(),
                     savedNotification.getTitle()
                     ,savedNotification.getId(),false,null,null,receiver,true);
-
-
-            System.out.println("✅ Dispatch creation notification saved.");
-            System.out.println(savedNotification);
             notificationEmitterService.sendUserNotification(receiver, dispatchTrackingNotif);
         }
     }

@@ -25,14 +25,14 @@ public class RabbitMqSenderService {
     // Send event to completed dispatch exchange
     public void sendCompletedDispatchFanOut(UtilRecords.DispatchEndedDTO completedEvent) {
         try {
-            logger.info("Sending completed dispatch event rom the logs ofc: {}", completedEvent);
+//            logger.info("Sending completed dispatch event rom the logs ofc: {}", completedEvent);
             rabbitTemplate.convertAndSend(
                     COMPLETED_DISPATCH_FANOUT_EXCHANGE, // exchange
                     "",                          // routing key (empty for fanout)
                     completedEvent               // message
             );
         } catch (Exception e) {
-            logger.error("Failed to send dispatch completed event: {}", e.getMessage());
+//            logger.error("Failed to send dispatch completed event: {}", e.getMessage());
             throw new RuntimeException("Failed to send dispatch completed event", e);
         }
     }
@@ -40,7 +40,7 @@ public class RabbitMqSenderService {
 
     public void sendTrackingInitializationFanout(UtilRecords.StartTrackingDTO trackingDTO) {
         try {
-            logger.info("Sending intialized tracking dispatch event rom the logs ofc: {}", trackingDTO);
+//            logger.info("Sending intialized tracking dispatch event rom the logs ofc: {}", trackingDTO);
             rabbitTemplate.convertAndSend(
                     DISPATCH_TRACKING_FANOUT_EXCHANGE, // exchange
                     "",                          // routing key (empty for fanout)
@@ -54,7 +54,7 @@ public class RabbitMqSenderService {
 
     public void sendTrackingCheckPointFanOut(UtilRecords.vehicleLocationUpdate locationUpdate) {
         try {
-            logger.info("Sending checkpoint update from the logs ofc: {}", locationUpdate);
+//            logger.info("Sending checkpoint update from the logs ofc: {}", locationUpdate);
             rabbitTemplate.convertAndSend(
                     DISPATCH_TRACKING_CHECKPOINT_FANOUT_EXCHANGE, // exchange
                     "",                          // routing key (empty for fanout)

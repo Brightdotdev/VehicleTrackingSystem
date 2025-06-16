@@ -42,7 +42,7 @@ public class RabbitMqReceiverService {
     @RabbitListener(queues = DISPATCH_TRACKING_FANOUT_EXCHANGE_FOR_RECEIVING_LOGS_QUEUE)
     public void handleDispatchTrackingQueue(UtilRecords.StartTrackingDTO trackingEvent) {
         try {
-            logger.info("Received Tracking notification: {}", trackingEvent);
+//            logger.info("Received Tracking notification: {}", trackingEvent);
             userDispatchService.handleDispatchTracking(trackingEvent);
         } catch (Exception e) {
             logger.error("Error processing Tracking notification: {}", e.getMessage());

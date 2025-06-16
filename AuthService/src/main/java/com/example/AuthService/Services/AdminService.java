@@ -35,9 +35,7 @@ public class AdminService {
                 .orElseThrow(() -> new NotFoundException("User not found"));
 ;
         if(!foundAdmin.getRoles().contains("ROLE_ADMIN")){
-            System.out.println(foundAdmin.getRoles());
-            System.out.println(foundAdmin.getEmail());
-            System.out.println(foundAdmin.getUsername());
+
             throw new AccessException("Not a valid admin!");
         }
         return foundAdmin;}

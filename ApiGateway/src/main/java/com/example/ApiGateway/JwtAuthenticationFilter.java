@@ -35,58 +35,53 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
         ServerHttpRequest request = exchange.getRequest();
         String path = request.getURI().getPath();
 
-        logger.info("Incoming request: {} {}", request.getMethod(), path);
+
         String token = null;
 
         // Skip JWT check for public auth endpoints
         if (path.contains("/v1/auth/") || path.contains("/v1/oauth/")) {
-            logger.info("Skipping JWT filter for public auth endpoint: {}", path);
+
             return chain.filter(exchange);
         }
 
 
         // Check if this is an admin endpoint
         boolean isAdminEndpoint = path.startsWith("/v1/admin");
-        logger.debug("Is admin endpoint: {}", isAdminEndpoint);
 
         if (isAdminEndpoint) {
             // Extract admin-specific token from cookie
             token = getJwtFromCookies(request, "adminDeskCookie");
-            if (token != null) {
-                logger.debug("Extracted admin JWT token from Cookies: {}", token);
-            }
+
         } else {
             // For regular users, try Authorization header first
             String authHeader = request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
             if (authHeader != null && authHeader.startsWith("Bearer ")) {
                 token = authHeader.substring(7);
-                logger.debug("Extracted user JWT token from Authorization header: {}", token);
             }
 
             // If not in header, fallback to user cookie
             if (token == null) {
                 token = getJwtFromCookies(request, "userDeskToken");
             } if(token == null && getJwtFromCookies(request, "adminDeskCookie") != null ){
-                    logger.debug("Yeah this is an admin");
+
                     token = getJwtFromCookies(request, "adminDeskCookie");
                 }
 
-                if (token != null) {
-                    logger.debug("Extracted user JWT token from Cookies: {}", token);
-                }
+
+
             }
 
 
         // If still no token, return unauthorized
         if (token == null) {
-            logger.warn("Missing or invalid Authorization header and Cookie for endpoint: {}", path);
+
             return unauthorizedResponse(exchange, "Unauthorized: Missing or invalid token");
         }
 
         try {
             // Build the secret key
             SecretKey secretKey = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
-            logger.debug("JWT secret key initialized");
+
 
             // Parse and validate the JWT
             Jws<Claims> jws = Jwts.parser()
@@ -96,13 +91,9 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
 
             Claims claims = jws.getBody();
             String subject = claims.getSubject();
-            logger.info("JWT validated. Subject (email): {}", subject);
 
             Object claim = claims.get("roles");
-            System.out.println("Claim type: " + claim.getClass());
-//
-//            String roles = claims.get("roles", String.class);
-//            logger.info("JWT validated. Roles (roles): {}", roles);
+
 
             // Modify request to include extra headers
             ServerHttpRequest modifiedRequest = request.mutate()
@@ -114,7 +105,6 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
             return chain.filter(exchange.mutate().request(modifiedRequest).build());
 
         } catch (Exception ex) {
-            logger.error("JWT validation failed for endpoint {}: {}", path, ex.getMessage());
             return unauthorizedResponse(exchange, "Unauthorized: Token expired or invalid");
         }
     }

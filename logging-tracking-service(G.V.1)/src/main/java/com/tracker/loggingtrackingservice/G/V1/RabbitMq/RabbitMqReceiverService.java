@@ -87,7 +87,7 @@ public class RabbitMqReceiverService {
     @RabbitListener(queues = DISPATCH_CREATED_FANOUT_LOG_QUEUE)
     public void handleDispatchCreatedNoResponseFanout(UtilRecords.dispatchRequestBodyDTO dispatchEvent) {
         try {
-            logger.info("Received created dispatch event: {}", dispatchEvent);
+//            logger.info("Received created dispatch event: {}", dispatchEvent);
             notificationService.sendCreatedDispatchNotification(dispatchEvent);
             notificationService.sendCreatedDispatchNotificationsForAdmin(dispatchEvent);
         } catch (Exception e) {
@@ -101,7 +101,7 @@ public class RabbitMqReceiverService {
     @RabbitListener(queues = DISPATCH_COMPLETED_FANOUT_LOGS_QUEUE)
     public void handleDispatchCompleted(UtilRecords.DispatchEndedDTO dispatchEvent) {
         try {
-            logger.info("Received completed : {}", dispatchEvent);
+//            logger.info("Received completed : {}", dispatchEvent);
             notificationService.completedDispatchNotification(dispatchEvent);
         } catch (Exception e) {
             logger.error("Error processing completed dispatch: {}", e.getMessage());
@@ -116,7 +116,7 @@ public class RabbitMqReceiverService {
     @RabbitListener(queues = DISPATCH_VALIDATED_FANOUT_LOGS_QUEUE)
     public void handleDispatchValidated(UtilRecords.ValidatedDispatch dispatchValidatedEvent) {
         try {
-            logger.info("Received validated dispatch event: {}", dispatchValidatedEvent);
+//            logger.info("Received validated dispatch event: {}", dispatchValidatedEvent);
             notificationService.handleValidatedDispatchNotif(dispatchValidatedEvent);
             trackingService.handleValidatedDispatchTracking(dispatchValidatedEvent);
         } catch (Exception e) {
@@ -129,7 +129,7 @@ public class RabbitMqReceiverService {
     @RabbitListener(queues = DISPATCH_TRACKING_FANOUT_EXCHANGE_FOR_RECEIVING_LOGS_QUEUE)
     public void handleTrackingODispatchNotif(UtilRecords.StartTrackingDTO trackingEvent) {
         try {
-            logger.info("Received Tracking notification: {}", trackingEvent);
+//            logger.info("Received Tracking notification: {}", trackingEvent);
             notificationService.handleDispatchTracking(trackingEvent);
         } catch (Exception e) {
             logger.error("Error processing Tracking notification: {}", e.getMessage());

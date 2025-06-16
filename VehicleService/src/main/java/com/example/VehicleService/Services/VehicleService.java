@@ -56,7 +56,7 @@ public class VehicleService {
 
             existing.get().setWildcardValue(true);
         } else {
-            System.out.println("Aahhhhhhh");
+
 
             VehicleWildcardAttributeModel wildcard = new VehicleWildcardAttributeModel(
                     foundVehicle,
@@ -232,7 +232,7 @@ public class VehicleService {
         dispatchedVehicle.addDispatchHistoryEntry(dispatchEvent.dispatchId());
         dispatchedVehicle.setDispatchStatus(VehicleEnums.VehicleDispatchStatus.IN_PROGRESS);
         vehicleRepository.save(dispatchedVehicle);
-        System.out.println("Were good here too");
+
     }
 
     @Transactional
@@ -255,7 +255,7 @@ public class VehicleService {
 
         dispatchedVehicle.setDispatchStatus(VehicleEnums.VehicleDispatchStatus.AVAILABLE);
         vehicleRepository.save(dispatchedVehicle);
-        System.out.println("Were good here too Yayyy");
+
     }
 
 
@@ -281,7 +281,7 @@ public class VehicleService {
 
         dispatchedVehicle.setDispatchStatus(VehicleEnums.VehicleDispatchStatus.IN_PROGRESS);
         vehicleRepository.save(dispatchedVehicle);
-        System.out.println("Were good here too Yayyy");
+
 
     }
 
@@ -292,7 +292,7 @@ public class VehicleService {
         VehicleModel foundVehicle = vehicleRepository.findByVehicleIdentificationNumber(locationUpdate.vehicleIdentificationNumber());
 
         if(foundVehicle == null){
-            System.out.println("No vehicle found cant update");
+
             return;
         }
 

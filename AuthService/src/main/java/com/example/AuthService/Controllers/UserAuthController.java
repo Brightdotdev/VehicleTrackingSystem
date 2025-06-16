@@ -46,12 +46,9 @@ public class UserAuthController {
         UtilRecords.LoginServiceResponse userDatabaseSignIn = userDetailService.handleUserSignUp(request);
 
         String jwt = jwtConfig.generateToken(userDatabaseSignIn.auth(), "",userDatabaseSignIn.user().getName());
-        System.out.println("---- jwt token -----");
-        System.out.println(jwt);
-        String cookie = cookieHandler.createJwtCookie(jwt);
 
+     String cookie = cookieHandler.createJwtCookie(jwt);
 
-        System.out.println("Set-Cookie Header: " + cookie);
 
         response.setHeader(HttpHeaders.SET_COOKIE, cookie);
         UtilRecords.LogInClientResponse clientResponse = new UtilRecords.LogInClientResponse(userDatabaseSignIn.user().getName(),
@@ -76,8 +73,7 @@ public class UserAuthController {
         String jwt = jwtConfig.generateToken(userDatabaseSignIn.auth(),request.picture(),userDatabaseSignIn.user().getName());
 
         String cookie = cookieHandler.createJwtCookie(jwt);
-        System.out.println("---- jwt cookie -----");
-        System.out.println(jwt);
+
 
         response.setHeader(HttpHeaders.SET_COOKIE, cookie);
         UtilRecords.LogInClientResponse clientResponse = new UtilRecords.LogInClientResponse(userDatabaseSignIn.user().getName(),
@@ -102,8 +98,7 @@ public class UserAuthController {
         String jwt = jwtConfig.generateToken(userDatabaseSignIn.auth(),"",userDatabaseSignIn.user().getName());
 
         String cookie = cookieHandler.createJwtCookie(jwt);
-        System.out.println("---- jwt cookie -----");
-        System.out.println(jwt);
+
 
         response.setHeader(HttpHeaders.SET_COOKIE, cookie);
         UtilRecords.LogInClientResponse clientResponse = new UtilRecords.LogInClientResponse(userDatabaseSignIn.user().getName(),
@@ -135,9 +130,8 @@ public class UserAuthController {
         response.setHeader(HttpHeaders.SET_COOKIE, cookie);
 
 
-        System.out.println("---- jwt cookie -----");
-        System.out.println(jwt);
-        response.setHeader(HttpHeaders.SET_COOKIE, cookie);
+
+      response.setHeader(HttpHeaders.SET_COOKIE, cookie);
         UtilRecords.LogInClientResponse clientResponse = new UtilRecords.LogInClientResponse(userDatabaseLogin.user().getName(),
                 userDatabaseLogin.user().getEmail(),
                 userDatabaseLogin.user().getRoles(),

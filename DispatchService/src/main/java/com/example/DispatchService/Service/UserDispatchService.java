@@ -317,8 +317,6 @@ public class UserDispatchService {
         }
 
         if(!dispatch.getDispatchRequester().equals(dispatchEnded.receiver())){
-            System.out.println(dispatchEnded.receiver());
-            System.out.println(dispatch.getDispatchRequester());
             throw new InvalidRequestException("Uhm how did this even happen", 400);
         }
         dispatch.addToDispatchMetadata("dispatchCompleteStatus", "Your dispatch has been completed");

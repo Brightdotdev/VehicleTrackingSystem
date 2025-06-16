@@ -56,7 +56,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             String authHeader = request.getHeader("Authorization");
             if (authHeader != null && authHeader.startsWith("Bearer ")) {
                 token = authHeader.substring(7);
-                logger.debug("JWT extracted from Authorization header");
+
             }
         }
 
@@ -69,39 +69,39 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                 if (isAdminPath && "adminDeskCookie".equals(cookie.getName())) {
                     // Use admin cookie for admin routes
                     token = cookie.getValue();
-                    logger.debug("Admin JWT extracted from adminDeskCookie cookie");
+
                     break;
                 } else if (!isAdminPath && "userDeskToken".equals(cookie.getName())) {
                     // Use regular user cookie for non-admin routes
                     token = cookie.getValue();
-                    logger.debug("User JWT extracted from userDeskToken cookie");
+
                     break;
                 }
             }
         }
 
-        logger.info("Processing request: {} {}", request.getMethod(), request.getRequestURI());
+//        logger.info("Processing request: {} {}", request.getMethod(), request.getRequestURI());
 
         // If JWT is found, validate it
         if (token != null) {
             try {
                 if (jwtConfig.validateToken(token)) {
-                    logger.debug("JWT is valid");
+//                    logger.debug("JWT is valid");
 
                     Claims claims = jwtConfig.getClaims(token);
                     email = claims.getSubject();
-                    logger.info("Token subject (email): {}", email);
-                    logger.info("Token subject (header email): {}", headerEmail);
+//                    logger.info("Token subject (email): {}", email);
+//                    logger.info("Token subject (header email): {}", headerEmail);
 
                     Object rawRoles = claims.get("roles");
                     if (rawRoles instanceof List<?>) {
                         for (Object role : (List<?>) rawRoles) {
                             roles.add(String.valueOf(role));
                         }
-                        logger.debug("Extracted roles: {}", roles);
+//                        logger.debug("Extracted roles: {}", roles);
                     }
                 } else {
-                    logger.warn("Token failed validation");
+//                    logger.warn("Token failed validation");
                 }
 
             } catch (ExpiredJwtException e) {
@@ -116,7 +116,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                 logger.warn("Illegal JWT argument: {}", e.getMessage());
             }
         } else {
-            logger.warn("Missing or invalid Authorization header and cookie");
+//            logger.warn("Missing or invalid Authorization header and cookie");
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType("application/json");
             response.getWriter().write("{\"error\": \"Unauthorized Request: You're not allowed here\"}");
@@ -135,7 +135,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
             authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
             SecurityContextHolder.getContext().setAuthentication(authToken);
-            logger.info("SecurityContext set for user: {}", email);
+//            logger.info("SecurityContext set for user: {}", email);
         }
 
         filterChain.doFilter(request, response);

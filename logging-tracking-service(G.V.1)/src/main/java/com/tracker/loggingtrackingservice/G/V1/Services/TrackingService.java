@@ -116,7 +116,6 @@ public class TrackingService {
         rabbitMqSenderService.sendCompletedDispatchFanOut(dispatchEvent);
 
        trackingRepository.save(model);
-        System.out.println("yup it's successfully cancelled");
     }
 
 

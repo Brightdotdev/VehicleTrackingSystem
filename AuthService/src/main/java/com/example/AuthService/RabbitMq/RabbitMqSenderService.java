@@ -50,8 +50,8 @@ public class RabbitMqSenderService {
 
             return response;
         } catch (Exception e) {
-            logger.error("Failed to send dispatch created event: {}", e.getMessage());
-            throw new RuntimeException("Failed to send dispatch created event", e);
+            logger.error("Failed to send admin created event: {}", e.getMessage());
+            throw new RuntimeException("Failed to send admin created event", e);
         }
     }
 
