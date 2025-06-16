@@ -17,19 +17,19 @@ spring:
           lower-case-service-id: true
       routes:
         - id: authService
-          uri: http://localhost:8103
+          uri:  https://auth-service-production-4bef.up.railway.app
           predicates:
             - Path=/v1/auth/admin/** , /v1/auth/user/**
         - id: loggingService
-          uri: http://localhost:8104
+          uri: https://logging-service-production-610d.up.railway.app
           predicates:
             - Path=/v1/user/notifications/** , /v1/sse/**, /v1/user/tracking/**
         - id: dispatchService
-          uri: http://localhost:8105
+          uri: https://dispatch-service-production-b46e.up.railway.app
           predicates:
             - Path=/v1/admin/dispatch/** , /v1/user/dispatch/**
         - id: vehicleService
-          uri: http://localhost:8106
+          uri: https://vehicle-service-production.up.railway.app
           predicates:
             - Path=/v1/admin/vehicle/** , /v1/user/vehicle/**
       globalcors:
