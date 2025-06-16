@@ -1,5 +1,6 @@
 server:
   port: 8102
+  forward-headers-strategy: framework
 
 spring:
   main:
@@ -17,7 +18,7 @@ spring:
           lower-case-service-id: true
       routes:
         - id: authService
-          uri: https://auth-service-production-4bef.up.railway.app
+          uri : https://auth-service-production-4bef.up.railway.app
           predicates:
             - Path=/v1/auth/admin/**, /v1/auth/user/**
           filters:
