@@ -1,0 +1,75 @@
+// 1) UserLocalSignUp
+{
+  "name": "Alice Smith",                // non-blank
+  "email": "alice@example.com",         // valid email
+  "password": "secret123"               // ≥6 chars
+}
+jsonc
+Copy
+Edit
+// 2) AdminLocalSignUp
+{
+  "name": "Bob Admin",                  // non-blank
+  "adminKey": 223344,                   // >0
+  "email": "bob.admin@example.com",     // valid email
+  "password": "adminPass1"              // ≥6 chars
+}
+jsonc
+Copy
+Edit
+// 3) LogInClientResponse
+// (usually returned by your API, not sent in; but for testing Jackson binding...)
+{
+  "name": "Alice Smith",
+  "email": "alice@example.com",
+  "roles": ["ROLE_USER", "ROLE_GOOGLE"],
+  "cookie": "session_token_abc123"
+}
+jsonc
+Copy
+Edit
+// 4) UserGoogleSignUp
+{
+  "name": "Charlie Google",
+  "email": "charlie@gmail.com",
+  "email_verified": true,               // must be true
+  "sub": "google-oauth2-sub-id-12345",  
+  "picture": "https://example.com/pic.png"
+}
+jsonc
+Copy
+Edit
+// 5) AdminGoogleSignUp
+{
+  "name": "Dana Admin",
+  "email": "dana.admin@gmail.com",
+  "email_verified": true,               // must be true
+  "adminKey": 223344,                   // >0
+  "sub": "google-oauth2-sub-id-67890",
+  "picture": "https://example.com/admin-pic.png"
+}
+json
+Copy
+Edit
+// 6) LocalLogin
+{
+  "email": "alice@example.com",         // valid email
+  "password": "secret123"               // non-blank
+}
+jsonc
+Copy
+Edit
+// 7) AdminLocalLogin
+{
+  "requestKey": 223344,                 // >0
+  "email": "bob.admin@example.com",
+  "password": "adminPass1"
+}
+jsonc
+Copy
+Edit
+// 8) AdminGoogleLogIn
+{
+  "requestKey": 223344,                 // >0
+  "email": "dana.admin@gmail.com"
+}

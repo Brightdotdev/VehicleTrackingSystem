@@ -11,30 +11,6 @@ import { dotEnv } from "./dotEnv";
 
 
 
-        // get diaptches..all of them
-    export const getAllDIspatches = async (active? : boolean) => {
-      
-      const baseUrl = active ? `${dotEnv.userDispatchesBaseUrl}/get-all/active` : `${dotEnv.userDispatchesBaseUrl}/get-all`;
-
-      
-      try {
-    const response =  await fetch(baseUrl,{
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json"},
-          credentials: "include"});
-
-        const data  = await response.json();
-        console.log(response)
-        console.log(data)
-        toast.info("Yeah these are all the Dispatches")
-        return data;
-      } catch (error) {
-        console.log(error)
-        toast.error("Somethinggg went wrong...argggghh")
-      }
-    }
-
 
         export const getAllMyDIspatches = async () => {
       try {
