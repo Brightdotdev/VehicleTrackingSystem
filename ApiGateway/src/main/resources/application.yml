@@ -37,6 +37,8 @@ spring:
           '[/**]':
             allowedOrigins:
               - "http://localhost:3000"
+              - "https://user-auto-port-web.vercel.app"
+              - "https://vehicle-tracking-system-sandy.vercel.app"
               - "http://localhost:3001"
             allowedMethods:
               - GET

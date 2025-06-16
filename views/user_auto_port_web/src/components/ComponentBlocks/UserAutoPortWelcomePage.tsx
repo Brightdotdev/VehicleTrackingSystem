@@ -25,13 +25,7 @@ max-w-2xl mx-auto p-12 z-10 bg-background rounded-xl">
       <div className="flex flex-col items-start ml-4">
         <h1 className="subTitleText mb-1">Welcome to Auto Port</h1>
         <p className="mutedText mb-2">Easily request a vehicle and get it dispatched to your location in minutes.</p>
-        <Link
-          href="/request-vehicle"
-          className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg font-semibold shadow hover:bg-primary/90 transition"
-        >
-          <LampDesk className="size-5" />
-          Request a Vehicle Now
-        </Link>
+        
       </div>
       </article>
 
