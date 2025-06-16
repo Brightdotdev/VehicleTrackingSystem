@@ -7,9 +7,9 @@ spring:
   application:
     name: authService
   datasource :
-    url : jdbc:postgresql://localhost:5432/VEHICLE_AUTH_DB
+    url : jdbc:postgresql://postgres:GEEQvIMwcASQigZzCdeSNEeyifLQmIFY@postgres.railway.internal:5432/VEHICLE_AUTH_DB
     username : postgres
-    password : bomboclat
+    password : GEEQvIMwcASQigZzCdeSNEeyifLQmIFY
   jpa :
     open-in-view: false
     show-sql : true

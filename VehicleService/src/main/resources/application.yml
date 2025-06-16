@@ -8,9 +8,10 @@ spring:
   application:
     name: vehicleService
   datasource :
-    url : jdbc:postgresql://localhost:5432/VEHICLE_V2_DB
+    url : jdbc:postgresql://postgres:GEEQvIMwcASQigZzCdeSNEeyifLQmIFY@postgres.railway.internal:5432/VEHICLE_VEHICLE_DB
     username : postgres
-    password : bomboclat
+    password : GEEQvIMwcASQigZzCdeSNEeyifLQmIFY
+
   jpa :
     open-in-view: false
     show-sql : true
@@ -21,6 +22,8 @@ spring:
     port: 5672
     username: bright
     password: secret123
+
+
 
 resilience4j:
   circuitbreaker:

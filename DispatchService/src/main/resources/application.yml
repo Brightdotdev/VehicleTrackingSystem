@@ -7,10 +7,11 @@ spring:
     lazy-initialization: true
   application:
     name: dispatchService
-  datasource:
-    url: jdbc:postgresql://localhost:5432/VEHICLE_DISPATCH_DB
-    username: postgres
-    password: bomboclat
+  datasource :
+    url : jdbc:postgresql://postgres:GEEQvIMwcASQigZzCdeSNEeyifLQmIFY@postgres.railway.internal:5432/VEHICLE_DISPATCH_DB
+    username : postgres
+    password : GEEQvIMwcASQigZzCdeSNEeyifLQmIFY
+
   jpa:
     open-in-view: false
     show-sql: true
@@ -21,7 +22,6 @@ spring:
     port: 5672
     username: bright
     password: secret123
-
 
 
 resilience4j:
