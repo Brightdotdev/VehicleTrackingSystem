@@ -21,6 +21,11 @@ spring:
           predicates:
             - Path=/v1/auth/admin/**, /v1/auth/user/**
           filters:
+            - PreserveHostHeader
+            - SetRequestHeader=Host, auth-service-production-4bef.up.railway.app
+            - RewritePath=/v1/auth/(?<segment>.*), /$\{segment}
+            - SetRequestHeader=Host, auth-service-production-4bef.up.railway.app
+              - AddRequestHeader=Cookie, "$\{request.cookies.adminDeskCookie}, $\{request.cookies.userDeskToken}"
             - name: DedupeResponseHeader
               args:
                 name: Access-Control-Allow-Origin
@@ -75,6 +80,9 @@ spring:
               - "Accept"
               - "X-XSRF-TOKEN"
             allow-credentials: true
+            exposed-headers:
+              - "Set-Cookie"
+              - "Authorization"
             max-age: 3600
 
 auth:
