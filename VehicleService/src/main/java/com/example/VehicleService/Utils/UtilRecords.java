@@ -99,7 +99,7 @@ public class UtilRecords {
     // DTO for creating or updating a vehicle
     // ------------------------------------------------
     public record VehicleDTO(
-            String model,
+          String model,
             VehicleEnums.EngineType engineType,
             VehicleEnums.VehicleType vehicleType,
             VehicleEnums.VehicleStatus vehicleStatus,
@@ -108,7 +108,8 @@ public class UtilRecords {
             LocationCheckPoint vehicleLocation
 
     ) {
-        public VehicleDTO {
+
+            public VehicleDTO {
             // model must be non-blank
             if (model == null || model.isBlank()) {
                 throw new IllegalArgumentException("model is required");

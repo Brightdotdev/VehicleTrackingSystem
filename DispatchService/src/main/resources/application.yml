@@ -18,10 +18,11 @@ spring:
     hibernate:
       ddl-auto: update
   rabbitmq:
-    host: vehicletrackingsystem.railway.internal
-    port: 5672
+    host: shuttle.proxy.rlwy.net
+    port: 55131
     username: bright
     password: secret123
+
 
 
 resilience4j:

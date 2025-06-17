@@ -1,7 +1,7 @@
 "use client"
 
 import Loading from '@/components/ui/Loading';
-import { useUserValidation } from '@/hooks/useUserValidation';
+import { useAuth } from '@/contexts/AuthContext';
 import dynamic from 'next/dynamic';
 import {useSearchParams } from 'next/navigation';
 import React, { useEffect } from 'react'
@@ -18,25 +18,24 @@ const AdminWelcomePage = dynamic(() => import('@/components/ComponentBlocks/Admi
 
 
 export default function Page() {
-  const {loading,checkValidation, isValidated} = useUserValidation();
+  const {isAuthenticated, authLoading} = useAuth();
   
     const searchParams = useSearchParams();
   const redirected = searchParams.get("redirected");
 
   useEffect(() => {
-    checkValidation()
     if (redirected && (redirected === "already-logged-in")) {
       toast.error(`You're already logged`);
     }
   }, [redirected]);
 
 
-  if(loading && !isValidated) return <></>
+  if(authLoading && !isAuthenticated) return <></>
 
-  if(!isValidated && !loading) return <AdminWelcomePage/>
-  if(!isValidated && !loading) return <AdminWelcomePage/>
+  if(!isAuthenticated && !authLoading) return <AdminWelcomePage/>
+  if(!isAuthenticated && !authLoading) return <AdminWelcomePage/>
 
-  if(isValidated && !loading) return <AdminHomePage/>
+  if(isAuthenticated && !authLoading) return <AdminHomePage/>
 
   
 }

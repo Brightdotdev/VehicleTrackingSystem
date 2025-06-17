@@ -18,15 +18,10 @@ spring:
           lower-case-service-id: true
       routes:
         - id: authService
-          uri : http://localhost:8103
+          uri : https://authservice-q4p8.onrender.com/
           predicates:
             - Path=/v1/auth/admin/**, /v1/auth/user/**
           filters:
-            - PreserveHostHeader
-            - SetRequestHeader=Host, auth-service-production-4bef.up.railway.app
-            - RewritePath=/v1/auth/(?<segment>.*), /$\{segment}
-            - SetRequestHeader=Host, auth-service-production-4bef.up.railway.app
-              - AddRequestHeader=Cookie, "$\{request.cookies.adminDeskCookie}, $\{request.cookies.userDeskToken}"
             - name: DedupeResponseHeader
               args:
                 name: Access-Control-Allow-Origin
@@ -41,7 +36,7 @@ spring:
                 name: Access-Control-Allow-Origin
                 strategy: RETAIN_FIRST
         - id: dispatchService
-          uri : http://localhost:8105
+          uri : https://dispatchservice.onrender.com
           predicates:
             - Path=/v1/admin/dispatch/**, /v1/user/dispatch/**
           filters:
@@ -50,7 +45,7 @@ spring:
                 name: Access-Control-Allow-Origin
                 strategy: RETAIN_FIRST
         - id: vehicleService
-          uri: http://localhost:8106
+          uri: https://vehicletrackingsystem-1.onrender.com
           predicates:
             - Path=/v1/admin/vehicle/**, /v1/user/vehicle/**
           filters:

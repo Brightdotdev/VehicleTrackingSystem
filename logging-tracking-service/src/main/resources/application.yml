@@ -17,8 +17,8 @@ spring :
       auto-index-creation : true
       uri : mongodb+srv://Bright:bomboclat@springapplication.slpgf31.mongodb.net/VEHCILE_LOGGING_SERVICE?retryWrites=true&w=majority&appName=SpringApplication54
   rabbitmq:
-    host: vehicletrackingsystem.railway.internal
-    port: 5672
+    host: shuttle.proxy.rlwy.net
+    port: 55131
     username: bright
     password: secret123
 
