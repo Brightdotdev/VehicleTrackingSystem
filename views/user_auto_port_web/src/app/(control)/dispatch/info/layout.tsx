@@ -1,9 +1,8 @@
-
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: " My Dispatch History",
-  description: "Dispatch overview",
+  title: "My dispatch Info",
+  description: "Your dispatch overview",
 };
 
 export default function RootLayout({

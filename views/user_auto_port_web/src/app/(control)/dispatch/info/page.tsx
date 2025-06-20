@@ -14,41 +14,40 @@ export default function page() {
   
   const searchParams = useSearchParams();
   
-  const vehicle = searchParams.get('vehicle');
+  const vehicleReqId = searchParams.get('vehicleReqId');
+  const vehicleId = searchParams.get('vehicleId');
 
   const {loading, isValidated, checkValidation} = useUserValidation();
-  const VehcileInfoPage = lazy(() => import('../../../../components/ComponentBlocks/Vehicles/VehicleInfoPage'));
+  const DispatchInfoPage = lazy(() => import('../../../../components/ComponentBlocks/Dispatches/DispatchInfoPage'));
   
   
   useEffect(() => {
 
-    if(!vehicle){
+    if(!vehicleReqId || !vehicleId) {
       toast.error("No Valid params for page")
       router.replace("/vehicles")}
-
     checkValidation();
-  
-    
   }, []);
 
 
 
-  // ...
+  
   if (loading) return (
     <div className="flex items-center justify-center size-screen">
       <Loader2 className="animate-spin mr-l stroke-foreground" />
-      Loading vehicle information...
+      Loading Dispatch information...
     </div>
   );
   // ...
-    if (isValidated && vehicle)
+    if (isValidated && vehicleReqId && vehicleId) {
       return (
         <Suspense fallback={<div className='flex items-center justify-center size-screen'>
            <Loader2 className="animate-spin mr-l stroke-foreground" />
         Vehicle info page Loading....</div>}>
-        <VehcileInfoPage vehicleVin={vehicle}  />
+        <DispatchInfoPage vehicleVin={vehicleId}  vehicleReqId={Number(vehicleReqId)} />
         </Suspense>
       );
     
       
   }
+}

@@ -44,6 +44,7 @@ const VehicleNamePill = (
 const VehicleInfoPage = ({vehicleVin} : {vehicleVin : string}) => {
   const router = useRouter();
  const [vehicleData, setVehicleData] = useState<VehicleDTO | undefined>(undefined);
+  const [isDispatchable, setDispatchAble] = useState<boolean>(false);
 
  
   
@@ -55,6 +56,15 @@ const VehicleInfoPage = ({vehicleVin} : {vehicleVin : string}) => {
        const vData = await getVehicleByVin(vehicleVin);
       console.log("Vehicle Dataaa")
        console.log(vData)
+
+         const hasWildcardDispatch = vData?.wildcardAttributes?.some(attribute => attribute.wildcardValue === true)  
+const hasLowSafetyScore = (vData?.safetyScore || 0 ) <  63 ;
+
+const canDispatch = hasLowSafetyScore ? false : hasWildcardDispatch  ? false : true
+
+setDispatchAble(canDispatch);
+
+
     setVehicleData(vData)} 
 
 handleVehiclePage();
@@ -62,14 +72,6 @@ handleVehiclePage();
   }, [])
   
   
-
-  
-
-
-  const hasWildcardDispatch = vehicleData?.wildcardAttributes?.some(attr => attr.wildcardValue === true) ?? false;
-const hasLowSafetyScore = (vehicleData?.safetyScore ?? 0) < 63;
-const isDispatchable = hasWildcardDispatch || hasLowSafetyScore;
-
   
   return (
 

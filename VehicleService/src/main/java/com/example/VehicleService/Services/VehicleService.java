@@ -170,10 +170,10 @@ public class VehicleService {
         List<VehicleWildcardAttributeModel> wildcardAttributes = new ArrayList<>();
 
         for (VehicleEnums.VehicleWildCardType type : VehicleEnums.VehicleWildCardType.values()) {
-
+            boolean isTrue = Math.random() * 10 < 5;
             VehicleWildcardAttributeModel wildcard = new VehicleWildcardAttributeModel();
             wildcard.setWildcardKey(type);
-            wildcard.setWildcardValue(true);
+            wildcard.setWildcardValue(isTrue);
             wildcard.setVehicle(vehicle);
             wildcardAttributes.add(wildcard);
         }

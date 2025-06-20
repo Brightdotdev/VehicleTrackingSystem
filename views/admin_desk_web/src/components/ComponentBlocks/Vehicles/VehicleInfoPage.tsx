@@ -62,6 +62,7 @@ const VehicleInfoPage = ({vehicleVin} : {vehicleVin : string}) => {
   
   const [vehicleData, setVehicleData] = useState<VehicleDTO | undefined>(undefined);
   const [dispatchHistory, setDispatchHistory] = useState<DispatchRequestDto[] | undefined>(undefined);
+  const [isDispatchable, setDispatchAble] = useState<boolean>(false);
 
   
 
@@ -78,8 +79,19 @@ const VehicleInfoPage = ({vehicleVin} : {vehicleVin : string}) => {
       console.log("Vehicle hisory")
       console.log(dispatchHistoryApi)
       setDispatchHistory(dispatchHistoryApi);
+
+
+         const hasWildcardDispatch = vData?.wildcardAttributes?.some(attribute => attribute.wildcardValue === true)  
+const hasLowSafetyScore = (vData?.safetyScore || 0 ) <  63 ;
+
+const canDispatch = hasLowSafetyScore ? false : hasWildcardDispatch  ? false : true
+
+setDispatchAble(canDispatch);
+
     } else {
       setDispatchHistory(undefined);
+setDispatchAble(false);
+
     }
     } 
 
@@ -116,7 +128,7 @@ handleVehiclePage();
           }
         
           {
-            vehicleData && vehicleData.safetyScore > 63 ? 
+            isDispatchable ? 
             <VehicleInfoPageStatusPills statusName="DISPATCHABLE" className='absolute bottom-2 right-2 sahdow-lg'  /> :
             <VehicleInfoPageStatusPills statusName="NOT_DISPATCHABLE" className='absolute bottom-2 right-2 sahdow-lg'  /> 
           }

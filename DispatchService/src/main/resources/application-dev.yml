@@ -1,12 +1,14 @@
 server :
-  port : 8103
+  port : 8105
   forward-headers-strategy: framework
 
 spring:
+  main:
+    lazy-initialization: true
   application:
-    name: authService
+    name: dispatchService
   datasource :
-    url : jdbc:postgresql://localhost:5432/VEHICLE_AUTH_DB
+    url : jdbc:postgresql://localhost:5432/VEHICLE_DISPATCH_DB
     username : postgres
     password : bomboclat
   jpa :
@@ -28,7 +30,6 @@ spring:
           initial-interval: 1000
           multiplier: 2.0
           max-interval: 10000
-
 
 
 auth:

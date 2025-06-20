@@ -63,7 +63,7 @@ public class UserDispatchController {
 
     // :: localhost:8105/v1/user/dispatch/request-dispatch
     // :: localhost:8105/v1/user/dispatch/request-dispatch?dispatchId=123&vin=ABC123XYZ
-    @PostMapping("/get-current-dispatch")
+    @GetMapping("/get-current-dispatch")
     public
     ResponseEntity<ApiResponse<
             // UtilRecords.DispatchResponseDTO
@@ -89,7 +89,7 @@ public class UserDispatchController {
         return ResponseEntity.ok(
                 ApiResponse.success(
                         201,
-                        "Dispatch request success",
+                        "Dispatch retrival success",
                         dispatchResponse
                 )
         );
@@ -130,7 +130,7 @@ public class UserDispatchController {
         return ResponseEntity.ok(
                 ApiResponse.success(
                         201,
-                        "Dispatch cancel Success",
+                        "Dispatch retrival Success",
                         myDispatchModels
                 ));
     }
@@ -145,7 +145,7 @@ public class UserDispatchController {
         return ResponseEntity.ok(
                 ApiResponse.success(
                         201,
-                        "Dispatch cancel Success",
+                        "Dispatch retival Success",
                         myDispatchModels
                 ));
     }
@@ -163,7 +163,7 @@ public class UserDispatchController {
         return ResponseEntity.ok(
                 ApiResponse.success(
                         201,
-                        "Dispatch cancel Success",
+                        "Dispatch retrival Success",
                         metadata
                 ));
     }

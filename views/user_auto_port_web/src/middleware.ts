@@ -54,6 +54,26 @@ export function middleware(request: NextRequest) {
       }
 
     }
+ if (pathname.startsWith("/dispatch/info")) {
+
+      if(!token) {
+            const url = new URL('/', request.url)
+          url.searchParams.set('redirected', 'unauthorized')
+          return NextResponse.redirect(url)
+      }
+     
+   
+  const vehicleReqId = searchParams.get('vehicleReqId');
+  const vehicleId = searchParams.get('vehicleId');
+
+  
+
+     if (!vehicleReqId || !vehicleId) {
+        const url = new URL('/vehicles', request.url)
+        return NextResponse.redirect(url)
+      }
+
+    }
   
 
   if (pathname.startsWith("/vehicles/info")) {
@@ -88,4 +108,4 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-matcher: ['/', '/join-us', '/welcome-back', '/admin-key(.*)', '/vehicles/:path*', '/dashboard/:path*'],}
+matcher: ['/', '/join-us', '/welcome-back', '/vehicles/:path*', '/dispatch/:path*'],}

@@ -146,7 +146,7 @@ export const VehicleInfoPageStatusPills = (props: VehicleInfoPagePropsPills) => 
         tabIndex={-1}
         aria-disabled="true"
       >
-        <p className="text-small lg:text-body">DISPATCHABLE</p>
+        <p className="text-small lg:text-small-2">DISPATCHABLE</p>
         <div className="p-1 rounded-full bg-green-100/20">
           <Check className="size-3 lg:size-4" />
         </div>
@@ -165,7 +165,7 @@ export const VehicleInfoPageStatusPills = (props: VehicleInfoPagePropsPills) => 
         tabIndex={-1}
         aria-disabled="true"
       >
-        <p className="text-small lg:text-body">NOT DISPATCHABLE</p>
+        <p className="text-small lg:text-small-2">NOT DISPATCHABLE</p>
         <div className="p-1 rounded-full bg-red-100/40">
           <Minus className="size-3 lg:size-4" />
         </div>

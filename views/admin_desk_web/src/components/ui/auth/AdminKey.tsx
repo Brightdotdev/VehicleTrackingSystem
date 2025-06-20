@@ -57,8 +57,6 @@ if (pageSender === "google-log-in") {
 
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
-    toast.info("You submitted the following values")
-    toast.info( JSON.stringify(data, null, 2))
     setLoading(true);
 
     if (pageSender === "form-log-in") {

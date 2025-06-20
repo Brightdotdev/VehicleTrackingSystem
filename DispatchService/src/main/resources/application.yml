@@ -1,38 +1,33 @@
-server:
-  port: 8105
+server :
+  port : 8105
   forward-headers-strategy: framework
 
-
 spring:
-  main:
-    lazy-initialization: true
   application:
     name: dispatchService
   datasource :
-    url : jdbc:postgresql://ep-aged-hall-a8rn3qku-pooler.eastus2.azure.neon.tech/VEHICLE_DISPATCH_DB?sslmode=require
-    username : VEHICLE_DB_owner
-    password : npg_iF50rcOxtRvA
-  jpa:
+    url : jdbc:postgresql://localhost:5432/VEHICLE_DISPATCH_DB
+    username : postgres
+    password : bomboclat
+  jpa :
     open-in-view: false
-    show-sql: true
-    hibernate:
-      ddl-auto: update
+    show-sql : true
+    hibernate :
+      ddl-auto : update
   rabbitmq:
-    host: shuttle.proxy.rlwy.net
-    port: 55131
+    host: localhost
+    port: 5672
     username: bright
     password: secret123
-
-
-
-resilience4j:
-  circuitbreaker:
-    instances:
-      inventoryCB:
-        registerHealthIndicator: true
-        slidingWindowSize: 10
-        failureRateThreshold: 50
-        waitDurationInOpenState: 5s
+    listener:
+      simple:
+        default-requeue-rejected: false  # Don’t keep retrying forever
+        retry:
+          enabled: true
+          max-attempts: 3
+          initial-interval: 1000
+          multiplier: 2.0
+          max-interval: 10000
 
 
 auth:
@@ -40,6 +35,7 @@ auth:
     secret: 6715c78c9a1d53f358dafd68da12c40c95780b0d00486f9d725672b7bf95eea89d682826b22883dd592b45b6ee2f79d4d4372d0c136b2e6fb1935c04f7593d05
     expiration: 604800000
     issuer: auth-service
+
 
 logging:
   level:
@@ -49,4 +45,14 @@ logging:
     com.example.UserService: DEBUG
 
 
-
+resilience4j:
+  circuitbreaker:
+    instances:
+      myServiceCircuitBreaker:
+        registerHealthIndicator: true
+        slidingWindowSize: 15
+        minimumNumberOfCalls: 10
+        failureRateThreshold: 80
+        waitDurationInOpenState: 22s
+        permittedNumberOfCallsInHalfOpenState: 7
+        automaticTransitionFromOpenToHalfOpenEnabled: true

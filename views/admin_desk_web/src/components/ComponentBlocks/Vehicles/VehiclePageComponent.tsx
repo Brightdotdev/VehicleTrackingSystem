@@ -34,11 +34,6 @@ const [open, setOpen] = useState(false);
   }, [visibleComponent]);
 
 
-const handleSave = (vehicle: SaveNewVehiclePopUpProps) => {
-  console.log(vehicle);
-  // send to backend or update state
-};
-
 
   return (
     <main className='relative w-screen h-screen flex items-center justify-center'>

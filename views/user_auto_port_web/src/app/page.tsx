@@ -31,7 +31,7 @@ export default function Page() {
   }, [redirected]);
 
 
-  if(loading && !isValidated) return <></>
+  if(loading && !isValidated) return <>Validating...</>
 
   if(!isValidated && !loading) return <UserWelcomePage/>
 

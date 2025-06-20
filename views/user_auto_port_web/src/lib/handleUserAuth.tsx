@@ -42,7 +42,6 @@ export const handleGoogleSignUp = async ( userInfo : UserGoogleSignUp,
         credentials: "include", body: JSON.stringify(userInfo)});
 
         const data = await response.json();
-        console.log(data);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -94,7 +93,6 @@ export const handleGoogleLogIn = async (
 
           if (!response.ok) {
           const data = await response.json();
-          console.log(data)
             throw new Error(`HTTP error! status: ${response.status}`);
           }
 
@@ -126,12 +124,12 @@ export const handleGoogleLogIn = async (
     const response = await fetch(dotEnv.cookieValidationLink, {
    method: "GET", headers: { "Content-Type": "application/json"},credentials: "include"});
 
-
+console.log(response)
   const userResponseData  = await response.json();
-  console.log(userResponseData)
   
   const {code , success , data : { valid, user  }} = userResponseData;
-  
+  console.log(userResponseData);
+      
         if(valid && code === 201 && user.email !== null && success === true ){
           setUser(user);
           return setValidated(true);
@@ -180,7 +178,6 @@ export const handleGoogleLogIn = async (
 
         if (!data.success || data.code !== 201 || !data.data) {
         setLoading(false)
-        console.log(data)
         throw new Error("Login failed...trying again")}
 
       

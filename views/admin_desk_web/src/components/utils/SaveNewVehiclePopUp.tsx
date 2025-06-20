@@ -16,6 +16,7 @@ import { Switch } from "@/components/ui/switch";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { EngineType, VehicleType, VehicleStatus, FormProps } from "@/types/VehicleTypes";
 import { handleSaveVehicleForm } from "@/lib/handleVehiclePage";
+import { useRouter } from "next/navigation";
 
 
 
@@ -34,6 +35,7 @@ export default function SaveNewVehiclePopUp({
   setOpen: (open: boolean) => void;
 
 }) {
+  const router = useRouter();
   const [form, setForm] = useState<FormProps>({
     model: "",
     engineType: EngineType.GAS,
@@ -75,7 +77,7 @@ const [imageInput, setImageInput] = useState("");
     });
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     
     e.preventDefault();
     setLoading(true);
@@ -86,9 +88,9 @@ const [imageInput, setImageInput] = useState("");
         timestamp: getDefaultTimestamp()
       }
     }));
-handleSaveVehicleForm(form, setOpen)
-    setLoading(false);
+ await  handleSaveVehicleForm(form, setOpen, setLoading)
 
+ router.refresh();
   };
 
   return (

@@ -17,7 +17,7 @@ export default function page() {
   const vehicle = searchParams.get('vehicle');
 
   const {loading, isValidated, checkValidation} = useUserValidation();
-  const VehcileInfoPage = lazy(() => import('../../../../components/ComponentBlocks/Vehicles/VehicleInfoPage'));
+  const VehicleRequestPage = lazy(() => import('../../../../components/ComponentBlocks/Vehicles/VehicleRequestPage'));
   
   
   useEffect(() => {
@@ -33,20 +33,16 @@ export default function page() {
 
 
 
-  // ...
-  if (loading) return (
-    <div className="flex items-center justify-center size-screen">
-      <Loader2 className="animate-spin mr-l stroke-foreground" />
-      Loading vehicle information...
-    </div>
-  );
-  // ...
+  if (loading) return <>Loading</>;
+  if (!loading && !isValidated) return <>No Vaalid Rquest page data provided...internal server error</>;
+
     if (isValidated && vehicle)
       return (
-        <Suspense fallback={<div className='flex items-center justify-center size-screen'>
-           <Loader2 className="animate-spin mr-l stroke-foreground" />
-        Vehicle info page Loading....</div>}>
-        <VehcileInfoPage vehicleVin={vehicle}  />
+        <Suspense fallback={<div className='w-screen h-screen flex items-center justify-center gap-2 '>
+                   <Loader2 className="animate-spin ml-2 stroke-foreground" />
+        Dispatch Request Loading...
+        </div>}>
+          <VehicleRequestPage vehicleVin={vehicle} />
         </Suspense>
       );
     

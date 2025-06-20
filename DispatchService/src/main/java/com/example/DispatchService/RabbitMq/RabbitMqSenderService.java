@@ -11,102 +11,104 @@ import java.util.Map;
 @Service
 public class RabbitMqSenderService {
 
-
-    // -- Stuff --
     private static final Logger logger = LoggerFactory.getLogger(RabbitMqSenderService.class);
     private final RabbitTemplate rabbitTemplate;
 
-
-    // === exchanges and stuff ===
-
+    // === Exchange Names ===
     private static final String DISPATCH_CREATED_DIRECT_EXCHANGE = "dispatch.created.exchange";
-
     private static final String DISPATCH_CREATED_FANOUT = "dispatch.created.fanOut";
+    private static final String DISPATCH_COMPLETED_FANOUT = "completed.dispatch.fanOut.provider.dispatch.service";
+    private static final String DISPATCH_VALIDATED_FANOUT = "dispatch.validated.fanOut.provider.dispatch";
 
-    private final String DISPATCH_COMPLETED_FANOUT = "completed.dispatch.fanOut.provider.dispatch.service";
-
-    private final String DISPATCH_VALIDATED_FANOUT = "dispatch.validated.fanOut.provider.dispatch";
-
-
-    // -- Routing keys --
-
+    // === Routing Keys ===
     private static final String DISPATCH_CREATED_DIRECT_EXCHANGE_KEY = "dispatch.created.key";
-
-
 
     public RabbitMqSenderService(RabbitTemplate rabbitTemplate) {
         this.rabbitTemplate = rabbitTemplate;
     }
 
     /**
-     * ✅ Sends a dispatch event expecting a response using a direct exchange
+     * ✅ Send a dispatch created event via a direct exchange.
+     * Expects a response from the receiving service.
      */
     public Map<String, Object> sendDispatchCreatedEvent(UtilRecords.dispatchRequestBodyDTO event) {
+        if (event == null || event.vehicleIdentificationNumber() == null) {
+            logger.warn("Attempted to send null or invalid dispatch request: {}", event);
+            throw new IllegalArgumentException("Invalid dispatch event — missing VIN");
+        }
+
         try {
             @SuppressWarnings("unchecked")
-            Map<String, Object>     response = (Map<String, Object>) rabbitTemplate.convertSendAndReceive(
+            Map<String, Object> response = (Map<String, Object>) rabbitTemplate.convertSendAndReceive(
                     DISPATCH_CREATED_DIRECT_EXCHANGE,
                     DISPATCH_CREATED_DIRECT_EXCHANGE_KEY,
                     event
             );
 
             if (response == null) {
-                throw new RuntimeException("No response received from the vehicle service");
+                logger.error("No response received from vehicle service for event: {}", event);
+                throw new RuntimeException("No response received from vehicle service");
             }
 
+            logger.info("Received response from vehicle service: {}", response);
             return response;
+
         } catch (Exception e) {
-            logger.error("Failed to send dispatch created event: {}", e.getMessage());
-            throw new RuntimeException("Failed to send dispatch created event", e);
+            logger.error("Failed to send dispatch created event: {}", e.getMessage(), e);
+            throw new RuntimeException("Dispatch creation failed", e);
         }
     }
 
     /**
-     * ✅ Fanout — dispatch created event sent without waiting for a response
+     * ✅ Send a fanout dispatch created event without expecting a response.
      */
-
     public void sendDispatchCreatedEventNoResponse(UtilRecords.dispatchRequestBodyDTO event) {
+        if (event == null) {
+            logger.warn("Attempted to fanout null dispatch creation event");
+            return;
+        }
+
         try {
-            rabbitTemplate.convertAndSend(
-                    DISPATCH_CREATED_FANOUT,
-                    "",
-                    event
-            );
+            rabbitTemplate.convertAndSend(DISPATCH_CREATED_FANOUT, "", event);
+            logger.info("Dispatched created event sent via fanout: {}", event);
         } catch (Exception e) {
-            logger.error("Failed to send dispatch created event that expects no response from the dispatch service: {}", e.getMessage());
-            throw new RuntimeException("Failed to send dispatch created event", e);
+            logger.error("Failed to fanout dispatch created event: {}", e.getMessage(), e);
+            throw new RuntimeException("Failed to send fanout dispatch created event", e);
         }
     }
 
     /**
-     * ✅ Fanout — notify that a dispatch was either completed or cancelled
+     * ✅ Send a dispatch completed/cancelled event via fanout.
      */
-
     public void sendDispatchCompletedFanoutFromDispatchService(UtilRecords.DispatchEndedDTO event) {
+        if (event == null || event.dispatchId() == null) {
+            logger.warn("Attempted to send invalid dispatch completed event: {}", event);
+            return;
+        }
+
         try {
-            rabbitTemplate.convertAndSend(
-                    DISPATCH_COMPLETED_FANOUT,
-                    "",
-                    event
-            );
+            rabbitTemplate.convertAndSend(DISPATCH_COMPLETED_FANOUT, "", event);
+            logger.info("Dispatch completed event sent: {}", event);
         } catch (Exception e) {
-            logger.error("Failed to send dispatch completed event from the dispatch service: {}", e.getMessage());
-            throw new RuntimeException("Failed to send dispatch event", e);
+            logger.error("Failed to send dispatch completed event: {}", e.getMessage(), e);
+            throw new RuntimeException("Failed to send dispatch completed event", e);
         }
     }
 
     /**
-     * ✅ Fanout — broadcast validated dispatch event
+     * ✅ Broadcast a validated dispatch via fanout exchange.
      */
-    public void sendDispatchValidatedNoResponse(UtilRecords.ValidatedDispatch dispatchValidatedBroadcast) {
+    public void sendDispatchValidatedNoResponse(UtilRecords.ValidatedDispatch event) {
+        if (event == null || event.dispatchId() == null) {
+            logger.warn("Attempted to send invalid validated dispatch event: {}", event);
+            return;
+        }
+
         try {
-            rabbitTemplate.convertAndSend(
-                    DISPATCH_VALIDATED_FANOUT,
-                    "",
-                    dispatchValidatedBroadcast
-            );
+            rabbitTemplate.convertAndSend(DISPATCH_VALIDATED_FANOUT, "", event);
+            logger.info("Validated dispatch event sent: {}", event);
         } catch (Exception e) {
-            logger.error("Failed to send dispatch VALIDATED event: {}", e.getMessage());
+            logger.error("Failed to send validated dispatch event: {}", e.getMessage(), e);
             throw new RuntimeException("Failed to send dispatch validated event", e);
         }
     }

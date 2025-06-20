@@ -4,8 +4,6 @@ server:
 
 
 spring :
-  main:
-    lazy-initialization: true
   application:
     name: loggingService
   autoconfigure :
@@ -15,14 +13,21 @@ spring :
   data :
     mongodb:
       auto-index-creation : true
-      uri : mongodb+srv://Bright:bomboclat@springapplication.slpgf31.mongodb.net/VEHCILE_LOGGING_SERVICE?retryWrites=true&w=majority&appName=SpringApplication54
+      uri : mongodb://localhost:27017/logger?retryWrites=true&w=majority&appName=SpringApplication54
   rabbitmq:
-    host: shuttle.proxy.rlwy.net
-    port: 55131
+    host: localhost
+    port: 5672
     username: bright
     password: secret123
-
-
+    listener:
+      simple:
+        default-requeue-rejected: false  # Don’t keep retrying forever
+        retry:
+          enabled: true
+          max-attempts: 3
+          initial-interval: 1000
+          multiplier: 2.0
+          max-interval: 10000
 
 auth:
   jwt:

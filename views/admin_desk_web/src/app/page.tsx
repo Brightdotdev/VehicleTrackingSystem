@@ -30,7 +30,7 @@ export default function Page() {
   }, [redirected]);
 
 
-  if(authLoading && !isAuthenticated) return <></>
+  if(authLoading && !isAuthenticated) return <>Validating...</>
 
   if(!isAuthenticated && !authLoading) return <AdminWelcomePage/>
   if(!isAuthenticated && !authLoading) return <AdminWelcomePage/>

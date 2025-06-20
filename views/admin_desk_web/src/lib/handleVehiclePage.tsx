@@ -5,7 +5,11 @@ import { toast } from "sonner";
 
 // save vehicle a new sexy one too grah
 
-   export  const handleSaveVehicleForm =  async (form : FormProps, setOpen : (open : boolean) => void)  => {
+   export  const handleSaveVehicleForm =  async (form : FormProps, 
+    setOpen : (open : boolean) => void,
+        setLoading: (loading : boolean) => void,
+  
+  )  => {
     
     const vehicleUrl = form.isGoodVehicle ? `${dotEnv.adminVehicleBaseUrl}/new` : 
     `${dotEnv.adminVehicleBaseUrl}/new/bad`
@@ -40,6 +44,8 @@ import { toast } from "sonner";
         console.log(data)
         toast.info("Yeah We saved the new Vehicle")
         setOpen(false)
+        setLoading(false)
+        
     } catch {    
         toast.error("Somethinggg went wrong")}};
 

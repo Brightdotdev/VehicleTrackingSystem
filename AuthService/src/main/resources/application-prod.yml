@@ -1,24 +1,26 @@
 server :
-  port : 8103
+  port : ${APP_PORT}
   forward-headers-strategy: framework
 
 spring:
+  main:
+    lazy-initialization: true
   application:
     name: authService
   datasource :
-    url : jdbc:postgresql://localhost:5432/VEHICLE_AUTH_DB
-    username : postgres
-    password : bomboclat
+    url : ${SQL_URL}
+    username : ${SQL_USER}
+    password : ${SQL_PASSWORD}
   jpa :
     open-in-view: false
     show-sql : true
     hibernate :
       ddl-auto : update
   rabbitmq:
-    host: localhost
-    port: 5672
-    username: bright
-    password: secret123
+    host: ${RABBITMQ_URL}
+    port: ${RABBITMQ_PORT}
+    username: ${RABBITMQ_USER}
+    password: {RABBITMQ_PASSWORD}
     listener:
       simple:
         default-requeue-rejected: false  # Don’t keep retrying forever
@@ -30,11 +32,10 @@ spring:
           max-interval: 10000
 
 
-
 auth:
-  jwt:
-    secret: 6715c78c9a1d53f358dafd68da12c40c95780b0d00486f9d725672b7bf95eea89d682826b22883dd592b45b6ee2f79d4d4372d0c136b2e6fb1935c04f7593d05
-    expiration: 604800000
+ jwt:
+    secret: ${JWT_SECRET}
+    expiration: ${JWT_EXP}
     issuer: auth-service
 
 

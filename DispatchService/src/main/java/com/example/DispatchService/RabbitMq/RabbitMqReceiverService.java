@@ -13,11 +13,8 @@ public class RabbitMqReceiverService {
 
     private static final Logger logger = LoggerFactory.getLogger(RabbitMqReceiverService.class);
 
-
-    
-    private final String DISPATCH_COMPLETED_FROM_LOGS_QUEUE = "completed.dispatch.fanOut.provider.logs.queue.service.dispatch";
-
-    private final String DISPATCH_TRACKING_FANOUT_EXCHANGE_FOR_RECEIVING_LOGS_QUEUE = "start.tracking.fanOut.provider.logs.queue.dispatch";
+    private static final String DISPATCH_COMPLETED_FROM_LOGS_QUEUE = "completed.dispatch.fanOut.provider.logs.queue.service.dispatch";
+    private static final String DISPATCH_TRACKING_FROM_LOGS_QUEUE = "start.tracking.fanOut.provider.logs.queue.dispatch";
 
     private final UserDispatchService userDispatchService;
 
@@ -25,28 +22,40 @@ public class RabbitMqReceiverService {
         this.userDispatchService = userDispatchService;
     }
 
+    /**
+     * Handles a dispatch completed event sent from the logs service.
+     */
     @Transactional
     @RabbitListener(queues = DISPATCH_COMPLETED_FROM_LOGS_QUEUE)
     public void handleDispatchCompletedFromLogs(UtilRecords.DispatchEndedDTO dispatchEvent) {
+        if (dispatchEvent == null || dispatchEvent.dispatchId() == null) {
+            logger.warn("Received invalid dispatchCompleted event: {}", dispatchEvent);
+            return;
+        }
+
         try {
             userDispatchService.completeDispatch(dispatchEvent);
         } catch (Exception e) {
-            logger.error("Error processing dispatch message: {}", e.getMessage());
+            logger.error("Error processing dispatchCompleted event: {}", e.getMessage(), e);
+            // You can optionally rethrow if you want RabbitMQ to retry later
         }
     }
 
-
-
-    // Handle Tracking notification
+    /**
+     * Handles a dispatch tracking start event sent from the logs service.
+     */
     @Transactional
-    @RabbitListener(queues = DISPATCH_TRACKING_FANOUT_EXCHANGE_FOR_RECEIVING_LOGS_QUEUE)
+    @RabbitListener(queues = DISPATCH_TRACKING_FROM_LOGS_QUEUE)
     public void handleDispatchTrackingQueue(UtilRecords.StartTrackingDTO trackingEvent) {
+        if (trackingEvent == null || trackingEvent.dispatchId() == null) {
+            logger.warn("Received invalid startTracking event: {}", trackingEvent);
+            return;
+        }
+
         try {
-//            logger.info("Received Tracking notification: {}", trackingEvent);
             userDispatchService.handleDispatchTracking(trackingEvent);
         } catch (Exception e) {
-            logger.error("Error processing Tracking notification: {}", e.getMessage());
+            logger.error("Error processing startTracking event: {}", e.getMessage(), e);
         }
     }
-
 }

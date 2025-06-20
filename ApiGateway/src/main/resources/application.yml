@@ -22,11 +22,6 @@ spring:
           predicates:
             - Path=/v1/auth/admin/**, /v1/auth/user/**
           filters:
-            - PreserveHostHeader
-            - SetRequestHeader=Host, auth-service-production-4bef.up.railway.app
-            - RewritePath=/v1/auth/(?<segment>.*), /$\{segment}
-            - SetRequestHeader=Host, auth-service-production-4bef.up.railway.app
-              - AddRequestHeader=Cookie, "$\{request.cookies.adminDeskCookie}, $\{request.cookies.userDeskToken}"
             - name: DedupeResponseHeader
               args:
                 name: Access-Control-Allow-Origin
@@ -62,8 +57,6 @@ spring:
         cors-configurations:
           '[/**]':
             allowed-origins:
-              - "https://user-auto-port-web.vercel.app"
-              - "https://vehicle-tracking-system-sandy.vercel.app"
               - "http://localhost:3000"
               - "http://localhost:3001"
             allowed-methods:
@@ -74,12 +67,7 @@ spring:
               - "PATCH"
               - "OPTIONS"
             allowed-headers:
-              - "Content-Type"
-              - "Authorization"
-              - "X-Requested-With"
-              - "Origin"
-              - "Accept"
-              - "X-XSRF-TOKEN"
+              - "*"
             allow-credentials: true
             exposed-headers:
               - "Set-Cookie"
@@ -88,7 +76,7 @@ spring:
 
 auth:
   jwt:
-    secret: ${JWT_SECRET:6715c78c9a1d53f358dafd68da12c40c95780b0d00486f9d725672b7bf95eea89d682826b22883dd592b45b6ee2f79d4d4372d0c136b2e6fb1935c04f7593d05}
+    secret: 6715c78c9a1d53f358dafd68da12c40c95780b0d00486f9d725672b7bf95eea89d682826b22883dd592b45b6ee2f79d4d4372d0c136b2e6fb1935c04f7593d05
     expiration: 604800000
 
 logging:

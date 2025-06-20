@@ -102,7 +102,7 @@ public class AdminDispatchController {
         return ResponseEntity.ok(
                 ApiResponse.success(
                         201,
-                        "Fetched dispatches",
+                        "Fetched active dispatches",
                         dispatchMetadata
                 ));
     }
@@ -125,7 +125,7 @@ public class AdminDispatchController {
         return ResponseEntity.ok(
                 ApiResponse.success(
                         201,
-                        "Dispatch cancel Success",
+                        "Dispatch retrival Success",
                         metadata
                 ));}
 
@@ -139,7 +139,7 @@ public class AdminDispatchController {
         return ResponseEntity.ok(
                 ApiResponse.success(
                         201,
-                        "Dispatch cancel Success",
+                        "Dispatch retrival Success",
                         vehicleHistory
                 ));
     }

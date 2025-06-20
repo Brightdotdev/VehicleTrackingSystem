@@ -12,6 +12,7 @@ import { toast } from "sonner";
 
         const data  = await response.json();
         toast.info("The vehicle Data are ready")
+        console.log(data);
         return data.data;
     } catch (error) {  
       console.log(error)  

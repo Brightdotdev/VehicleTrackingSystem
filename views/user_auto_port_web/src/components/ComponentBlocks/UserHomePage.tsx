@@ -1,8 +1,9 @@
-import React, { useEffect } from 'react'
+import React, { lazy, Suspense, useEffect } from 'react'
 import Usernav from '../ui/Usernav'
 import { useUserValidation } from '@/hooks/useUserValidation'
-import { getMyValidDIspatches } from '@/lib/handleUserDispatchPage'
+import { getMyValidDispatches } from '@/lib/handleUserDispatchPage'
 import { useRouter } from 'next/navigation'
+import Loading from '../ui/Loading'
 
 
 
@@ -10,25 +11,29 @@ import { useRouter } from 'next/navigation'
 const UserHomePage = () => {
   const router = useRouter();
   const {isValidated, checkValidation} = useUserValidation()
-
+const DispatchPageComponent = lazy(() => import("../ComponentBlocks/Dispatches/DispatchPageComponent"));
 
 useEffect(() => {
     const checkOngoingDispatch = async () => {
         
-      await  checkValidation();
+      await checkValidation();
 
       if(isValidated){
-                const onGoingDispatch = await getMyValidDIspatches()
-        if (!onGoingDispatch && onGoingDispatch.length > 0) {
+        console.log("yesss this is ittt")   
+        const onGoingDispatch = await getMyValidDispatches()
+        console.log("Ongoinggg")
+        console.log(onGoingDispatch)
+        const hasActiveDispatches : boolean = onGoingDispatch && onGoingDispatch.length > 0
+        console.log("do they?")
+        console.log(hasActiveDispatches)
+        if (!hasActiveDispatches) {
         router.push("/vehicles")}
         }else {  return}
     }
 
     checkOngoingDispatch()
-  
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [isValidated])
 
   return (
 
@@ -36,7 +41,9 @@ useEffect(() => {
     <section className='relative  w-screen h-screen flex items-center justify-center'>
         <Usernav/>
 
- 
+   <Suspense fallback={<Loading/>}>
+   <DispatchPageComponent/>
+   </Suspense>  
 
     </section>
     

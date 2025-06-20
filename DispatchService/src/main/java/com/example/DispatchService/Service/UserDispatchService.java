@@ -51,6 +51,7 @@ public class UserDispatchService {
 
         List<DispatchModel> foundVehicleDispatches = dispatchRepository.findByDispatchVehicleId(requestBody.vehicleIdentificationNumber());
 
+        System.out.println(foundVehicleDispatches);
 
 
         for (DispatchModel dispatchModel : foundVehicleDispatches) {
@@ -76,7 +77,7 @@ public class UserDispatchService {
                 = new UtilRecords.dispatchRequestBodyDTO(requestBody.vehicleName(),requestBody.vehicleIdentificationNumber(),requestBody.vehicleStatus(),requestBody.dispatchReason(),userName,requestBody.dispatchEndTime());
 
         Map<String, Object> dispatchResult = (Map<String, Object>) rabbitMqSenderService.sendDispatchCreatedEvent(requestBodyDTO);
-
+        System.out.println(dispatchResult);
         if (dispatchResult.containsKey("canDispatch")) {
             canDispatch = (Boolean) dispatchResult.get("canDispatch");
         }

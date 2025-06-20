@@ -143,6 +143,7 @@ const VehicleRequestPage = ({vehicleVin} : {vehicleVin : string}) => {
   
     const { user } = useUserValidation()
   const [vehicleData, setVehicleData] = useState<VehicleDTO | undefined>(undefined);
+  const [isDispatchable, setDispatchAble] = useState<boolean>(false);
   // Form state
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [selectedStatus, setSelectedStatus] = useState<reasons | undefined>();
@@ -201,6 +202,7 @@ const VehicleRequestPage = ({vehicleVin} : {vehicleVin : string}) => {
       dispatchRequester: user?.email ?? "",
       dispatchEndTime: dateFormat 
     }
+    console.log(dispatchData)
     const result = requestSchema.safeParse({ date, reason: selectedStatus });
 
     if (!result.success) {
@@ -229,20 +231,20 @@ useEffect(() => {
     
     const handleVehiclePage = async () =>{
        const vData = await getVehicleByVin(vehicleVin);
-      console.log("Vehicle Dataaa")
-       console.log(vData)
-    setVehicleData(vData)} 
+        setVehicleData(vData)
+        const hasWildcardDispatch = vData?.wildcardAttributes?.some(attribute => attribute.wildcardValue === true)  
+const hasLowSafetyScore = (vData?.safetyScore || 0 ) <  63 ;
+
+const canDispatch = hasLowSafetyScore ? false : hasWildcardDispatch  ? false : true
+
+setDispatchAble(canDispatch);
+} 
 
 handleVehiclePage();
 
   }, [])
   
-  
-  
-  
-  const hasWildcardDispatch = vehicleData?.wildcardAttributes?.some(attr => attr.wildcardValue === true) ?? false;
-const hasLowSafetyScore = (vehicleData?.safetyScore ?? 0) < 63;
-const isDispatchable = hasWildcardDispatch || hasLowSafetyScore;
+
 
   
   return (
@@ -433,7 +435,6 @@ h-full p-2 bg-background2 customScrollBar rounded-sm
   }
   handleSubmit(e, date, selectedStatus);
 
-  console.log("Im not submiting that")
 
    } } >
 

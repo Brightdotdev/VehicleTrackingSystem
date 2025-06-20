@@ -61,6 +61,7 @@ const DispatchRequestPage = ({vehicleVin, dispatchReqId} : {vehicleVin : string,
   const [dispatchHistory, setDispatchHistory] = useState<DispatchRequestDto[] | undefined>(undefined);  
   const [rejectOpen, setRejectOpen] = useState(false) 
   const [acceptOpen, setAcceptOpen] = useState(false) 
+  const [isDispatchable, setDispatchAble] = useState<boolean>(false);
 
 
   
@@ -79,8 +80,18 @@ const DispatchRequestPage = ({vehicleVin, dispatchReqId} : {vehicleVin : string,
         console.log("Vehicle hisory")
         console.log(dispatchHistoryApi)
         setDispatchHistory(dispatchHistoryApi);
+
+          const hasWildcardDispatch = vData?.wildcardAttributes?.some(attribute => attribute.wildcardValue === true)  
+const hasLowSafetyScore = (vData?.safetyScore || 0 ) <  63 ;
+
+const canDispatch = hasLowSafetyScore ? false : hasWildcardDispatch  ? false : true
+
+setDispatchAble(canDispatch);
+
       } else {
         setDispatchHistory(undefined);
+setDispatchAble(false);
+
       }
       } 
   
@@ -115,7 +126,7 @@ const DispatchRequestPage = ({vehicleVin, dispatchReqId} : {vehicleVin : string,
           }
         
           {
-            dispatchData?.canDispatch ? 
+            isDispatchable ? 
             <DispatchRequestPageStatusPills statusName="DISPATCHABLE" className='absolute bottom-2 right-2 sahdow-lg'  /> :
             <DispatchRequestPageStatusPills statusName="NOT_DISPATCHABLE" className='absolute bottom-2 right-2 sahdow-lg'  /> 
           }

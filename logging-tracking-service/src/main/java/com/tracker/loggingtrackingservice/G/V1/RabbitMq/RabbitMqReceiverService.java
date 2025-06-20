@@ -1,14 +1,10 @@
 package com.tracker.loggingtrackingservice.G.V1.RabbitMq;
 
-import com.fasterxml.jackson.databind.util.ObjectBuffer;
-import com.tracker.loggingtrackingservice.G.V1.Exceptions.ConflictException;
-import com.tracker.loggingtrackingservice.G.V1.Exceptions.NotFoundException;
 import com.tracker.loggingtrackingservice.G.V1.Models.AdminModel;
 import com.tracker.loggingtrackingservice.G.V1.Repositories.AdminRepository;
 import com.tracker.loggingtrackingservice.G.V1.Services.NotificationService;
 import com.tracker.loggingtrackingservice.G.V1.Services.TrackingService;
 import com.tracker.loggingtrackingservice.G.V1.Utils.UtilRecords;
-import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -22,117 +18,133 @@ import java.util.Map;
 @Service
 public class RabbitMqReceiverService {
 
-    // Queue Names (used for RabbitListener bindings)
-
-    private final String ADMIN_CREATED_DIRECT_EXCHANGE_QUEUE = "logs.service.created.admin.queue";
-
-    private static final String DISPATCH_CREATED_FANOUT_LOG_QUEUE = "log.service.dispatch.created.fanout.queue";
-
-    private final String DISPATCH_COMPLETED_FANOUT_LOGS_QUEUE = "completed.dispatch.fanOut.provider.dispatch.service.queue.logs.service";
-
-    private final String DISPATCH_VALIDATED_FANOUT_LOGS_QUEUE = "validated.dispatch.fanOut.provider.dispatch.service.queue.logs.service";
-    private final String DISPATCH_TRACKING_FANOUT_EXCHANGE_FOR_RECEIVING_LOGS_QUEUE = "start.tracking.fanOut.provider.logs.queue.logs";
-    // cool stuff
-
     private static final Logger logger = LoggerFactory.getLogger(RabbitMqReceiverService.class);
 
+    // Queue names
+    private static final String ADMIN_CREATED_DIRECT_EXCHANGE_QUEUE = "logs.service.created.admin.queue";
+    private static final String DISPATCH_CREATED_FANOUT_LOG_QUEUE = "log.service.dispatch.created.fanout.queue";
+    private static final String DISPATCH_COMPLETED_FANOUT_LOGS_QUEUE = "completed.dispatch.fanOut.provider.dispatch.service.queue.logs.service";
+    private static final String DISPATCH_VALIDATED_FANOUT_LOGS_QUEUE = "validated.dispatch.fanOut.provider.dispatch.service.queue.logs.service";
+    private static final String DISPATCH_TRACKING_LOGS_QUEUE = "start.tracking.fanOut.provider.logs.queue.logs";
 
     private final NotificationService notificationService;
     private final TrackingService trackingService;
-
     private final AdminRepository adminRepository;
 
     public RabbitMqReceiverService(NotificationService notificationService, TrackingService trackingService, AdminRepository adminRepository) {
+        this.notificationService = notificationService;
         this.trackingService = trackingService;
         this.adminRepository = adminRepository;
-        this.notificationService = notificationService;
     }
 
-
-
-    //saving a new admin
-
+    /**
+     * ✅ Admin creation listener — handles saving or returning existing admin
+     */
     @Transactional
-    @RabbitListener(queues = ADMIN_CREATED_DIRECT_EXCHANGE_QUEUE )
-    public Map<String, Object> handleDispatchToVehicleQueue(UtilRecords.adminCreatedRequestBodyDto createdReqBody) {
-        try {
-            Map<String, Object> finalResponse = new HashMap<>();
-            AdminModel foundAdmin = adminRepository.findByEmail(createdReqBody.email());
+    @RabbitListener(queues = ADMIN_CREATED_DIRECT_EXCHANGE_QUEUE)
+    public Map<String, Object> handleAdminCreatedQueue(UtilRecords.adminCreatedRequestBodyDto requestBody) {
+        Map<String, Object> response = new HashMap<>();
 
+        if (requestBody == null || requestBody.email() == null || requestBody.email().isBlank()) {
+            logger.warn("Received invalid admin creation request: {}", requestBody);
+            response.put("createdNew", false);
+            return response;
+        }
+
+        try {
+            AdminModel foundAdmin = adminRepository.findByEmail(requestBody.email());
 
             if (foundAdmin != null) {
-                    finalResponse.put("createdNew", false);
-                return finalResponse;
+                response.put("createdNew", false);
+                return response;
             }
+
             AdminModel newAdmin = new AdminModel();
-            newAdmin.setEmail(createdReqBody.email());
+            newAdmin.setEmail(requestBody.email());
             newAdmin.setJoinedAt(LocalDateTime.now());
             newAdmin.setValidated(true);
             adminRepository.save(newAdmin);
 
-            finalResponse.put("createdNew", true);
+            response.put("createdNew", true);
+            return response;
 
-            return finalResponse;
-            } catch (Exception e) {
-            logger.error("Error processing dispatch message: {}", e.getMessage(), e);
-            return null;
-            }
+        } catch (Exception e) {
+            logger.error("Failed to process admin creation request: {}", e.getMessage(), e);
+            return null;  // Allows RabbitMQ to treat this as handled without requeue
+        }
     }
 
-
-
-    // Handle created dispatch notifications
-
+    /**
+     * ✅ Listener for fanout dispatch creation notifications
+     */
     @Transactional
     @RabbitListener(queues = DISPATCH_CREATED_FANOUT_LOG_QUEUE)
-    public void handleDispatchCreatedNoResponseFanout(UtilRecords.dispatchRequestBodyDTO dispatchEvent) {
+    public void handleDispatchCreatedNotification(UtilRecords.dispatchRequestBodyDTO event) {
+        if (event == null || event.vehicleIdentificationNumber() == null) {
+            logger.warn("Invalid dispatchCreated event received: {}", event);
+            return;
+        }
+
         try {
-//            logger.info("Received created dispatch event: {}", dispatchEvent);
-            notificationService.sendCreatedDispatchNotification(dispatchEvent);
-            notificationService.sendCreatedDispatchNotificationsForAdmin(dispatchEvent);
+            notificationService.sendCreatedDispatchNotification(event);
+            notificationService.sendCreatedDispatchNotificationsForAdmin(event);
         } catch (Exception e) {
-            logger.error("Error processing created dispatch message: {}", e.getMessage());
+            logger.error("Error handling dispatchCreated event: {}", e.getMessage(), e);
         }
     }
 
-    // Handle completed or cancelled dispatch notifications
-
+    /**
+     * ✅ Listener for completed/cancelled dispatch notifications
+     */
     @Transactional
     @RabbitListener(queues = DISPATCH_COMPLETED_FANOUT_LOGS_QUEUE)
-    public void handleDispatchCompleted(UtilRecords.DispatchEndedDTO dispatchEvent) {
+    public void handleDispatchCompleted(UtilRecords.DispatchEndedDTO event) {
+        if (event == null || event.dispatchId() == null) {
+            logger.warn("Invalid dispatchCompleted event received: {}", event);
+            return;
+        }
+
         try {
-//            logger.info("Received completed : {}", dispatchEvent);
-            notificationService.completedDispatchNotification(dispatchEvent);
+            notificationService.completedDispatchNotification(event);
         } catch (Exception e) {
-            logger.error("Error processing completed dispatch: {}", e.getMessage());
+            logger.error("Error handling dispatchCompleted event: {}", e.getMessage(), e);
         }
     }
 
-
-
-
-    // Handle validated dispatch notifications
+    /**
+     * ✅ Listener for validated dispatch notifications
+     */
     @Transactional
     @RabbitListener(queues = DISPATCH_VALIDATED_FANOUT_LOGS_QUEUE)
-    public void handleDispatchValidated(UtilRecords.ValidatedDispatch dispatchValidatedEvent) {
+    public void handleDispatchValidated(UtilRecords.ValidatedDispatch event) {
+        if (event == null || event.dispatchId() == null) {
+            logger.warn("Invalid validatedDispatch event received: {}", event);
+            return;
+        }
+
         try {
-//            logger.info("Received validated dispatch event: {}", dispatchValidatedEvent);
-            notificationService.handleValidatedDispatchNotif(dispatchValidatedEvent);
-            trackingService.handleValidatedDispatchTracking(dispatchValidatedEvent);
+            notificationService.handleValidatedDispatchNotif(event);
+            trackingService.handleValidatedDispatchTracking(event);
         } catch (Exception e) {
-            logger.error("Error processing validated dispatch message: {}", e.getMessage());
+            logger.error("Error handling validatedDispatch event: {}", e.getMessage(), e);
         }
     }
 
-   // Handle Tracking notification
+    /**
+     * ✅ Listener for tracking dispatch notifications
+     */
     @Transactional
-    @RabbitListener(queues = DISPATCH_TRACKING_FANOUT_EXCHANGE_FOR_RECEIVING_LOGS_QUEUE)
-    public void handleTrackingODispatchNotif(UtilRecords.StartTrackingDTO trackingEvent) {
+    @RabbitListener(queues = DISPATCH_TRACKING_LOGS_QUEUE)
+    public void handleTrackingDispatchNotif(UtilRecords.StartTrackingDTO trackingEvent) {
+        if (trackingEvent == null || trackingEvent.dispatchId() == null) {
+            logger.warn("Invalid tracking event received: {}", trackingEvent);
+            return;
+        }
+
         try {
-//            logger.info("Received Tracking notification: {}", trackingEvent);
             notificationService.handleDispatchTracking(trackingEvent);
         } catch (Exception e) {
-            logger.error("Error processing Tracking notification: {}", e.getMessage());
+            logger.error("Error handling tracking dispatch notification: {}", e.getMessage(), e);
         }
     }
 }

@@ -18,6 +18,6 @@ export default function Page() {
   if(isValidated && !loading) 
     return  <Suspense fallback={<Loading/>}><VehiclePageComponent/></Suspense>  
 
-  if(loading) return <> </>;
+  if(loading) return <>No Vehicle Page Provided...internal Server error </>;
 
 }

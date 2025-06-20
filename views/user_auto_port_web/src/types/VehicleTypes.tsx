@@ -75,8 +75,6 @@ export enum VehicleWildCardType {
 
 /** Mirrors VehicleHealthAttributeModel */
 export interface VehicleHealthAttribute {
-  /** Database ID */
-  id: number;
   /** Which health metric this is (ENGINE, BRAKES, etc.) */
   attributeName: VehicleHealthAttributeType;
   /** Numeric score for that metric */
@@ -85,8 +83,6 @@ export interface VehicleHealthAttribute {
 
 /** Mirrors VehicleWildcardAttributeModel */
 export interface VehicleWildcardAttribute {
-  /** Database ID */
-  id: number;
   /** The wildcard key name */
   wildcardKey: VehicleWildCardType;
   /** The boolean value for this wildcard */

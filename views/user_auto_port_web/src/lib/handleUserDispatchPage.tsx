@@ -1,4 +1,4 @@
-import { DispatchRequestBody} from "@/types/VehicleTypes";
+import { DispatchRequestBody, DispatchRequestDto} from "@/types/VehicleTypes";
 import { toast } from "sonner";
 import { dotEnv } from "./dotEnv";
 
@@ -34,30 +34,31 @@ import { dotEnv } from "./dotEnv";
 
 
 
+// Get all valid/active dispatches
+export const getMyValidDispatches = async (): Promise<DispatchRequestDto[]> => {
+  try {
+    const response = await fetch(`${dotEnv.userDispatchesBaseUrl}/revalidate-active-dispatch`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+    });
 
-  // get my valid dispatches
-    export const getMyValidDIspatches = async () => {
-      try {
+    const data = await response.json();
 
-    const response =  await fetch(`${dotEnv.userDispatchesBaseUrl}/revalidate-active-dispatch`,{
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json"},
-          credentials: "include"});
+    console.log(response);
+    console.log(data);
 
+    toast.info("Yeah these are my active Dispatches");
 
-        const data  = await response.json();
-        console.log(response)
-        console.log(data)
-        toast.info("Yeah these are my active the Dispatchs")
-        return data.data;
-      } catch (error) {
-        console.log(error)
-        toast.error("Somethinggg went wrong...argggghh")
-      }
-    }
-
-
+    return data.data; // Ensure data.data is of type DispatchRequestDto[]
+  } catch (error) {
+    console.error(error);
+    toast.error("Something went wrong...argggghh");
+    return []; // Return empty array to satisfy return type
+  }
+};
 
 
     
@@ -77,7 +78,7 @@ import { dotEnv } from "./dotEnv";
         console.log(response)
         console.log(data)
         toast.info("Yeah this is a current dispatch and it is gotten")
-        return data;
+        return data.data;
       } catch (error) {
         console.log(error)
         toast.error("Somethinggg went wrong...argggghh")
@@ -95,11 +96,24 @@ import { dotEnv } from "./dotEnv";
             "Content-Type": "application/json"},
           body: JSON.stringify(dispatchData),
           credentials: "include"});
-          const data  = await response.json();
           console.log(response)
+
+          const data  = await response.json();
+          if(data.data === null) {
+            console.log(data.data)
+
+                  toast("The Vehicle Can't be dispatched", {
+          description: data.message,
+          action: {
+            label: "Explore more vehicles",
+            onClick: () => window.location.href = "/vehicles",
+          },
+        })
+
+            console.log(data.message)
+            return data;
+          }
           console.log(data)
-          console.log(data.data)
-          toast.info("Yeah the requeest was made alright...")
           return data;
         }
        catch (error) {

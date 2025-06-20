@@ -61,7 +61,6 @@ const form = useForm<z.infer<typeof FormSchema>>({
 
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
-    toast.info( JSON.stringify(data, null, 2))
     setLoading(true);
 
     if (pageSender === "form-sign-up") {

@@ -5,7 +5,7 @@ import { Button } from './button'
 import { Car, Navigation, UserRound } from 'lucide-react'
 import { usePathname, useRouter } from 'next/navigation'
 import { useUserValidation } from '@/hooks/useUserValidation'
-import { getMyValidDIspatches } from '@/lib/handleUserDispatchPage'
+
 
 type BottomNavType = "me" | "dispatch" | "vehicles"
 
@@ -50,6 +50,7 @@ const BottomNav = () => {
     pathName.includes("/join-us") ||
     pathName.includes("/welcome-back") ||
     pathName.includes("/vehicles/get") ||
+    pathName.includes("/dispatch") ||
     pathName.includes("/vehicles/info")
 
   if (hideNav) return null

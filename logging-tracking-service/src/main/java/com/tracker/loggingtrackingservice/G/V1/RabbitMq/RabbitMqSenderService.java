@@ -10,59 +10,66 @@ import org.springframework.stereotype.Service;
 public class RabbitMqSenderService {
 
     private static final Logger logger = LoggerFactory.getLogger(RabbitMqSenderService.class);
+
     private final RabbitTemplate rabbitTemplate;
+
+    // === Exchange Names (Fanout pattern used, so no routing key needed) ===
+    private static final String DISPATCH_TRACKING_CHECKPOINT_EXCHANGE = "tracking.checkPoint.fanOut.provider.logs";
+    private static final String DISPATCH_COMPLETED_EXCHANGE = "completed.dispatch.fanOut.provider.logs";
+    private static final String DISPATCH_TRACKING_EXCHANGE = "start.tracking.fanOut.provider.logs";
 
     public RabbitMqSenderService(RabbitTemplate rabbitTemplate) {
         this.rabbitTemplate = rabbitTemplate;
     }
-    private static final String DISPATCH_TRACKING_CHECKPOINT_FANOUT_EXCHANGE = "tracking.checkPoint.fanOut.provider.logs";
 
-    private static final String COMPLETED_DISPATCH_FANOUT_EXCHANGE = "completed.dispatch.fanOut.provider.logs";
+    /**
+     * ✅ Send a completed dispatch event to the fanout exchange
+     */
+    public void sendCompletedDispatchFanOut(UtilRecords.DispatchEndedDTO event) {
+        if (event == null || event.dispatchId() == null) {
+            logger.warn("Attempted to send null or invalid DispatchEndedDTO: {}", event);
+            return;
+        }
 
-    private static final String DISPATCH_TRACKING_FANOUT_EXCHANGE = "start.tracking.fanOut.provider.logs";
-
-
-    // Send event to completed dispatch exchange
-    public void sendCompletedDispatchFanOut(UtilRecords.DispatchEndedDTO completedEvent) {
         try {
-//            logger.info("Sending completed dispatch event rom the logs ofc: {}", completedEvent);
-            rabbitTemplate.convertAndSend(
-                    COMPLETED_DISPATCH_FANOUT_EXCHANGE, // exchange
-                    "",                          // routing key (empty for fanout)
-                    completedEvent               // message
-            );
+            rabbitTemplate.convertAndSend(DISPATCH_COMPLETED_EXCHANGE, "", event);
+            logger.info("✅ Sent completed dispatch event: {}", event.dispatchId());
         } catch (Exception e) {
-//            logger.error("Failed to send dispatch completed event: {}", e.getMessage());
-            throw new RuntimeException("Failed to send dispatch completed event", e);
+            logger.error("❌ Failed to send completed dispatch event: {}", e.getMessage(), e);
         }
     }
 
+    /**
+     * ✅ Send a tracking initialization event to the fanout exchange
+     */
+    public void sendTrackingInitializationFanout(UtilRecords.StartTrackingDTO event) {
+        if (event == null || event.dispatchId() == null) {
+            logger.warn("Attempted to send null or invalid StartTrackingDTO: {}", event);
+            return;
+        }
 
-    public void sendTrackingInitializationFanout(UtilRecords.StartTrackingDTO trackingDTO) {
         try {
-//            logger.info("Sending intialized tracking dispatch event rom the logs ofc: {}", trackingDTO);
-            rabbitTemplate.convertAndSend(
-                    DISPATCH_TRACKING_FANOUT_EXCHANGE, // exchange
-                    "",                          // routing key (empty for fanout)
-                    trackingDTO               // message
-            );
+            rabbitTemplate.convertAndSend(DISPATCH_TRACKING_EXCHANGE, "", event);
+            logger.info("✅ Sent tracking initialization event: {}", event.dispatchId());
         } catch (Exception e) {
-            logger.error("Failed to send dispatch event: {}", e.getMessage());
-            throw new RuntimeException("Failed to send dispatch completed event", e);
+            logger.error("❌ Failed to send tracking initialization event: {}", e.getMessage(), e);
         }
     }
 
-    public void sendTrackingCheckPointFanOut(UtilRecords.vehicleLocationUpdate locationUpdate) {
+    /**
+     * ✅ Send a vehicle location update to the tracking checkpoint exchange
+     */
+    public void sendTrackingCheckPointFanOut(UtilRecords.vehicleLocationUpdate event) {
+        if (event == null || event.vehicleIdentificationNumber() == null) {
+            logger.warn("Attempted to send null or invalid vehicleLocationUpdate: {}", event);
+            return;
+        }
+
         try {
-//            logger.info("Sending checkpoint update from the logs ofc: {}", locationUpdate);
-            rabbitTemplate.convertAndSend(
-                    DISPATCH_TRACKING_CHECKPOINT_FANOUT_EXCHANGE, // exchange
-                    "",                          // routing key (empty for fanout)
-                    locationUpdate               // message
-            );
+            rabbitTemplate.convertAndSend(DISPATCH_TRACKING_CHECKPOINT_EXCHANGE, "", event);
+            logger.info("✅ Sent vehicle location update for VIN: {}", event.vehicleIdentificationNumber());
         } catch (Exception e) {
-            logger.error("Failed to send dispatch event: {}", e.getMessage());
-            throw new RuntimeException("Failed to send dispatch completed event", e);
+            logger.error("❌ Failed to send vehicle location update: {}", e.getMessage(), e);
         }
     }
 }
