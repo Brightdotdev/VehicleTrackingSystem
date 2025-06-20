@@ -1,0 +1,63 @@
+🚗 Vehicle Tracking Application — Project Overview
+The Vehicle Tracking System is an intelligent application designed for a car company to monitor and manage their fleet of vehicles efficiently. It helps track where each vehicle is dispatched, ensures their parts are in good condition, and prevents unsafe vehicles from being used.
+
+💡 What the System Does (Core Features)
+1. Dispatch Management
+Admins or staff can create and edit dispatches for vehicles.
+
+Each dispatch includes:
+
+The vehicle ID
+
+Destination
+
+Purpose (e.g., delivery, personal, or classified use)
+
+Time of dispatch
+
+2. Live Tracking
+Vehicles can be tracked in real-time using GPS/location data.
+
+This helps admins see exactly where a vehicle is at any moment.
+
+3. Safety Scoring
+Each vehicle has multiple health attributes (like tire condition, brakes, oil level, etc.).
+
+A score is calculated based on the condition of these parts.
+
+If the safety score is below 63, the vehicle cannot be dispatched.
+
+4. Business Rules
+Dispatches with purpose "Classified" can only use vehicles marked for classified operations.
+
+This adds a layer of security and business compliance.
+
+🛠️ Technologies Used
+Backend:
+Spring Boot (Java) — for business logic and APIs.
+
+RabbitMQ — to handle real-time events like location updates or notifications.
+
+Server-Sent Events (SSE) — for live notifications on the frontend.
+
+Frontend:
+Next.js (TypeScript) — for the user interface, forms, dashboard, and map tracking.
+
+Future Plan:
+Integrate AI for emotion detection (Feelify).
+
+Connect business logic to smart contracts via oracles (SkillStake).
+
+👩🏽‍💻 Who It’s For
+Fleet Managers to know which vehicles are safe.
+
+Drivers to be assigned properly maintained vehicles.
+
+Admins to control dispatch operations with security constraints.
+
+🧠 Why It Matters
+Prevents accidents by ensuring vehicle safety before dispatch.
+
+Enables accountability and real-time location awareness.
+
+Ensures only authorized vehicles go for sensitive missions (like classified dispatch).

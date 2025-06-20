@@ -1,0 +1,97 @@
+server:
+  port: 8102
+  forward-headers-strategy: framework
+
+spring:
+  main:
+    lazy-initialization: true
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+      routes:
+        - id: authService
+          uri : http://localhost:8103
+          predicates:
+            - Path=/v1/auth/admin/**, /v1/auth/user/**
+          filters:
+            - PreserveHostHeader
+            - SetRequestHeader=Host, auth-service-production-4bef.up.railway.app
+            - RewritePath=/v1/auth/(?<segment>.*), /$\{segment}
+            - SetRequestHeader=Host, auth-service-production-4bef.up.railway.app
+              - AddRequestHeader=Cookie, "$\{request.cookies.adminDeskCookie}, $\{request.cookies.userDeskToken}"
+            - name: DedupeResponseHeader
+              args:
+                name: Access-Control-Allow-Origin
+                strategy: RETAIN_FIRST
+        - id: loggingService
+          uri : http://localhost:8104
+          predicates:
+            - Path=/v1/user/notifications/**, /v1/sse/**, /v1/user/tracking/**
+          filters:
+            - name: DedupeResponseHeader
+              args:
+                name: Access-Control-Allow-Origin
+                strategy: RETAIN_FIRST
+        - id: dispatchService
+          uri : http://localhost:8105
+          predicates:
+            - Path=/v1/admin/dispatch/**, /v1/user/dispatch/**
+          filters:
+            - name: DedupeResponseHeader
+              args:
+                name: Access-Control-Allow-Origin
+                strategy: RETAIN_FIRST
+        - id: vehicleService
+          uri: http://localhost:8106
+          predicates:
+            - Path=/v1/admin/vehicle/**, /v1/user/vehicle/**
+          filters:
+            - name: DedupeResponseHeader
+              args:
+                name: Access-Control-Allow-Origin
+                strategy: RETAIN_FIRST
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowed-origins:
+              - "https://user-auto-port-web.vercel.app"
+              - "https://vehicle-tracking-system-sandy.vercel.app"
+              - "http://localhost:3000"
+              - "http://localhost:3001"
+            allowed-methods:
+              - "GET"
+              - "POST"
+              - "PUT"
+              - "DELETE"
+              - "PATCH"
+              - "OPTIONS"
+            allowed-headers:
+              - "Content-Type"
+              - "Authorization"
+              - "X-Requested-With"
+              - "Origin"
+              - "Accept"
+              - "X-XSRF-TOKEN"
+            allow-credentials: true
+            exposed-headers:
+              - "Set-Cookie"
+              - "Authorization"
+            max-age: 3600
+
+auth:
+  jwt:
+    secret: ${JWT_SECRET:6715c78c9a1d53f358dafd68da12c40c95780b0d00486f9d725672b7bf95eea89d682826b22883dd592b45b6ee2f79d4d4372d0c136b2e6fb1935c04f7593d05}
+    expiration: 604800000
+
+logging:
+  level:
+    org.springframework.security: DEBUG
+    com.example.UserService: DEBUG
