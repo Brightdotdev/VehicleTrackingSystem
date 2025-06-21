@@ -20,7 +20,7 @@ spring:
     host: ${RABBITMQ_URL}
     port: ${RABBITMQ_PORT}
     username: ${RABBITMQ_USER}
-    password: {RABBITMQ_PASSWORD}
+    password: ${RABBITMQ_PASSWORD}
     listener:
       simple:
         default-requeue-rejected: false  # Don’t keep retrying forever

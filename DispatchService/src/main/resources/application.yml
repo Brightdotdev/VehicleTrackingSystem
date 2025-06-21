@@ -20,7 +20,7 @@ spring:
     host: ${RABBITMQ_URL}
     port: ${RABBITMQ_PORT}
     username: ${RABBITMQ_USER}
-    password: {RABBITMQ_PASSWORD}
+    password: ${RABBITMQ_PASSWORD}
     listener:
       simple:
         default-requeue-rejected: false  # Don’t keep retrying forever
@@ -41,7 +41,7 @@ auth:
     org.springframework.amqp: WARN
     com.rabbitmq: WARN
     org.springframework.security: DEBUG
-    com.dispatchservice: DEBUG  # adjust to your actual DispatchService base package    com.dispatchservice: DEBUG  # adjust to your actual DispatchService base package    com.dispatchservice: DEBUG  # adjust to your actual DispatchService base package    com.dispatchservice: DEBUG  # adjust to your actual DispatchService base package
+    com.dispatchservice: DEBUG
 
 resilience4j:
   circuitbreaker:
