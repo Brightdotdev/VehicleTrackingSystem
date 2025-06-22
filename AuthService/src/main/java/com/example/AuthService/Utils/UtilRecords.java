@@ -87,7 +87,8 @@ public class UtilRecords {
             String name,
             String email,
             List<String> roles,
-            String cookie
+            String cookie,
+            String jwt
     ) {
         public LogInClientResponse {
             if (name == null || name.isBlank()) {
@@ -98,6 +99,9 @@ public class UtilRecords {
             }
             if (roles == null || roles.isEmpty()) {
                 throw new IllegalArgumentException("Roles list cannot be empty");
+            }
+            if (jwt == null || jwt.isBlank()) {
+                throw new IllegalArgumentException("Jwt is required");
             }
             if (cookie == null || cookie.isBlank()) {
                 throw new IllegalArgumentException("Cookie is required");

@@ -24,3 +24,21 @@ export const setCookie = (name: string, value: string, days: number) => {
   const expires = `expires=${date.toUTCString()}`;
   document.cookie = `${name}=${value}; ${expires}; path=/`;
 };
+
+
+// utils/authFetch.ts
+export const authFetch = async (url: string, options: RequestInit = {}) => {
+  const token = localStorage.getItem("accessToken");
+
+  const headers = {
+    ...(options.headers || {}),
+    Authorization: `Bearer ${token}`,
+    "Content-Type": "application/json",
+  };
+
+  return fetch(url, {
+    ...options,
+    headers,
+    credentials: "include", // Ensures cookies are sent too
+  });
+};

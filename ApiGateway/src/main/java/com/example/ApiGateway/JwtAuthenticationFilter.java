@@ -48,16 +48,23 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
         // Check if this is an admin endpoint
         boolean isAdminEndpoint = path.startsWith("/v1/admin");
 
+        String authHeader = request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            token = authHeader.substring(7);
+        }
         if (isAdminEndpoint) {
-            // Extract admin-specific token from cookie
-            token = getJwtFromCookies(request, "adminDeskCookie");
+
+            // Try Authorization header first
+
+            // Fallback to admin cookie if no token in header
+            if (token == null) {
+                token = getJwtFromCookies(request, "adminDeskCookie");
+            }
+
+
 
         } else {
             // For regular users, try Authorization header first
-            String authHeader = request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
-            if (authHeader != null && authHeader.startsWith("Bearer ")) {
-                token = authHeader.substring(7);
-            }
 
             // If not in header, fallback to user cookie
             if (token == null) {

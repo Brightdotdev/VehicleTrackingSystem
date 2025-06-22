@@ -58,11 +58,11 @@ public class AdminController {
 
 
 
-        response.setHeader(HttpHeaders.SET_COOKIE, cookie);
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie);
         UtilRecords.LogInClientResponse clientResponse = new UtilRecords.LogInClientResponse(userDatabaseSignIn.user().getName(),
                 userDatabaseSignIn.user().getEmail(),
                 userDatabaseSignIn.user().getRoles(),
-                cookie);
+                cookie,jwt);
 
         return ResponseEntity.ok(
                 ApiResponse.success(
@@ -84,11 +84,11 @@ public class AdminController {
         String cookie = cookieHandler.createAdminCooke(jwt);
 
 
-        response.setHeader(HttpHeaders.SET_COOKIE, cookie);
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie);
         UtilRecords.LogInClientResponse clientResponse = new UtilRecords.LogInClientResponse(userDatabaseSignIn.user().getName(),
                 userDatabaseSignIn.user().getEmail(),
                 userDatabaseSignIn.user().getRoles(),
-                cookie);
+                cookie,jwt);
 
         return ResponseEntity.ok(
                 ApiResponse.success(
@@ -112,11 +112,11 @@ public class AdminController {
         String cookie = cookieHandler.createAdminCooke(jwt);
 
 
-        response.setHeader(HttpHeaders.SET_COOKIE, cookie);
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie);
         UtilRecords.LogInClientResponse clientResponse = new UtilRecords.LogInClientResponse(userDatabaseSignIn.user().getName(),
                 userDatabaseSignIn.user().getEmail(),
                 userDatabaseSignIn.user().getRoles(),
-                cookie);
+                cookie,jwt);
 
         return ResponseEntity.ok(
                 ApiResponse.success(
@@ -139,14 +139,14 @@ public class AdminController {
         String jwt = jwtConfig.generateToken(userDatabaseLogin.auth(), userDatabaseLogin.userImage(),userDatabaseLogin.user().getName());
         String cookie = cookieHandler.createAdminCooke(jwt);
 
-        response.setHeader(HttpHeaders.SET_COOKIE, cookie);
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie);
 
 
-        response.setHeader(HttpHeaders.SET_COOKIE, cookie);
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie);
         UtilRecords.LogInClientResponse clientResponse = new UtilRecords.LogInClientResponse(userDatabaseLogin.user().getName(),
                 userDatabaseLogin.user().getEmail(),
                 userDatabaseLogin.user().getRoles(),
-                cookie);
+                cookie,jwt);
 
         return ResponseEntity.ok(
                 ApiResponse.success(
@@ -167,7 +167,7 @@ public class AdminController {
                 .maxAge(0) // <--- delete cookie
                 .build();
 
-        response.setHeader(HttpHeaders.SET_COOKIE, expiredCookie.toString());
+        response.addHeader(HttpHeaders.SET_COOKIE, expiredCookie.toString());
         return ResponseEntity.noContent().build();
     }
 

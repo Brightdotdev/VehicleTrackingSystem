@@ -16,7 +16,8 @@ public class CookieGenerationHandler {
                 .httpOnly(true)
                 .secure(true) //  :: in production  make this true in development false
                 .sameSite("None") // :: in production  make this None in development Lax
-                 .path("/")                // ✅ allow full-path access
+                 .path("/")// ✅ allow full-path access
+
                 .maxAge(Duration.ofDays(7))
                 .build()
                 .toString();
