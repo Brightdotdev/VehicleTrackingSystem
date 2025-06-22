@@ -14,7 +14,7 @@ import { Label } from "@/components/ui/label"
 import Link from "next/link"
 import { toast } from "sonner"
 import React, { useState } from "react"
-import { GoogleButton } from "../utils/UtilComponents"
+
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 
@@ -35,7 +35,7 @@ const TopGoogle = ({ authType }: GoogleButtonProps) =>{
   return(
             <div className="hidden md:flex-col gap-sm md:flex">
 
-                <GoogleButton authType={authType} loading={googleLoading} setGoogleLoading={setGoogleLoading} />
+                {/* <GoogleButton authType={authType} loading={googleLoading} setGoogleLoading={setGoogleLoading} /> */}
               <div className="after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">
                 <span className="md:bg-card bg-background text-muted-foreground relative z-10 px-[var(--space-sm)]">
                   Or continue with
@@ -44,7 +44,7 @@ const TopGoogle = ({ authType }: GoogleButtonProps) =>{
               </div>)}
 
 
-
+/* 
 const BottomGoogle = ({ authType }: GoogleButtonProps) => {
     const [googleLoading, setGoogleLoading] = useState(false)
   return(
@@ -59,7 +59,7 @@ const BottomGoogle = ({ authType }: GoogleButtonProps) => {
               </div>
 
   )
-}
+} */
 
 
 export function LoginForm({
@@ -116,14 +116,13 @@ const handleSubmit = (e: React.FormEvent) => {
         <CardHeader className="text-center">
           <CardTitle className="text-medium">Welcome back</CardTitle>
           <CardDescription>
-            Login with your Google account
-          </CardDescription>
+            Login to continue</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit}>
             <div className="grid gap-sm">
 
-              <TopGoogle authType="google-log-in"/>
+              {/* <TopGoogle authType="google-log-in"/> */}
               
               <div className="grid gap-6">
                 <div className="grid gap-3">
@@ -177,7 +176,7 @@ const handleSubmit = (e: React.FormEvent) => {
                 </Button>
               </div>
 
-              <BottomGoogle authType="google-log-in"/>
+              {/* <BottomGoogle authType="google-log-in"/> */}
             </div>
           </form>
 

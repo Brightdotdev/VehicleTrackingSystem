@@ -30,7 +30,7 @@ type GoogleButtonProps = {
 };
 
 
-const TopGoogle = ({ authType }: GoogleButtonProps) =>{
+/* const TopGoogle = ({ authType }: GoogleButtonProps) =>{
     const [googleLoading, setGoogleLoading] = useState(false)
   return(
             <div className="hidden md:flex-col gap-sm md:flex">
@@ -45,10 +45,10 @@ const TopGoogle = ({ authType }: GoogleButtonProps) =>{
 
   )
 }
+ */
 
 
-
-
+/* 
 const BottomGoogle = ({ authType }: GoogleButtonProps) => {
     const [googleLoading, setGoogleLoading] = useState(false)
   return(
@@ -65,7 +65,7 @@ const BottomGoogle = ({ authType }: GoogleButtonProps) => {
   )
 }
 
-
+ */
 
 export function SignUpForm({
   className,
@@ -133,7 +133,7 @@ export function SignUpForm({
         <CardContent>
           <form onSubmit={handleSubmit}>
             <div className="grid gap-sm">
-              <TopGoogle authType="google-sign-up"/>
+              {/* <TopGoogle authType="google-sign-up"/> */}
               <div className="grid gap-6">
                 <div className="grid gap-3">
                   <Label htmlFor="name">Name</Label>
@@ -191,7 +191,7 @@ export function SignUpForm({
                 </Button>
               </div>
 
-              <BottomGoogle authType="google-sign-up"/>
+              {/* <BottomGoogle authType="google-sign-up"/> */}
             </div>
           </form>
 

@@ -121,20 +121,23 @@ export const handleGoogleLogIn = async (
         setUser : (user : User) => void
   ) => {
  try {
+  console.log("This is the link ooo")
+  console.log(dotEnv.cookieValidationLink)
     const response = await fetch(dotEnv.cookieValidationLink, {
    method: "GET", headers: { "Content-Type": "application/json"},credentials: "include"});
 
+console.log("response")
 console.log(response)
   const userResponseData  = await response.json();
   
-  const {code , success , data : { valid, user  }} = userResponseData;
+  // const {code , success , data : { valid, user  }} = userResponseData;
   console.log(userResponseData);
       
-        if(valid && code === 201 && user.email !== null && success === true ){
-          setUser(user);
-          return setValidated(true);
+        // if(valid && code === 201 && user.email !== null && success === true ){
+        //   setUser(user);
+        //   return setValidated(true);
         
-        } 
+        // } 
         return setValidated(false);
       } catch (error) {
         console.log(error)
@@ -174,12 +177,14 @@ console.log(response)
           body: JSON.stringify(userInfo), 
         });
 
+        console.log(response)
+/* 
         const data = await response.json();
 
         if (!data.success || data.code !== 201 || !data.data) {
         setLoading(false)
         throw new Error("Login failed...trying again")}
-
+ */
       
         toast.success("Login successful!")
       window.location.replace("/");
@@ -214,6 +219,7 @@ console.log(response)
     
       
       setLoading(true);
+      console.log("This the link oo", dotEnv.userLocalSignUpLink)
         const response = await fetch(dotEnv.userLocalSignUpLink, {
         method: "POST", 
         headers: {
@@ -223,17 +229,20 @@ console.log(response)
         body: JSON.stringify(userInfo),
       });
 
+      console.log(response);
       // Optionally parse the response
       const data = await response.json();
+      console.log(data)
     if (data.code !== 201 && !data.data) {
         setLoading(false)
         
         throw new Error("Sign up failed...trying again")}
 
-        
+      
       toast.success("Sign up successful!")
       window.location.replace("/");
     } catch (err: any) {
+      console.log(err)
       toast.error(err.message || "Sign Up failed")
     } finally {
       setLoading(false)

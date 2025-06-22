@@ -59,6 +59,8 @@ spring:
             allowed-origins:
               - ${USER_AUTO}
               - ${ADMIN_DESK}
+              - ${LOCAL_ADMIN_DESK}
+              - ${LOCAL_USER_AUTO}
             allowed-methods:
               - "GET"
               - "POST"

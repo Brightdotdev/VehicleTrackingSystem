@@ -31,7 +31,7 @@ const loginSchema = z.object({
   email: z.string().email({ message: "Invalid email address" }),
   password: z.string().min(6, { message: "Password must be at least 6 characters" }),
 });
-
+/* 
 const TopGoogle = ({ authType }: GoogleButtonProps) =>{
     const [googleLoading, setGoogleLoading] = useState(false)
   return(
@@ -44,9 +44,9 @@ const TopGoogle = ({ authType }: GoogleButtonProps) =>{
                 </span>
               </div>
               </div>)}
+ */
 
-
-
+/* 
 const BottomGoogle = ({ authType }: GoogleButtonProps) => {
     const [googleLoading, setGoogleLoading] = useState(false)
   return(
@@ -61,7 +61,7 @@ const BottomGoogle = ({ authType }: GoogleButtonProps) => {
               </div>
 
   )
-}
+} */
 
 
 export function LoginForm({
@@ -124,14 +124,14 @@ const handleSubmit = (e: React.FormEvent) => {
         <CardHeader className="text-center">
           <CardTitle className="text-medium">Welcome back</CardTitle>
           <CardDescription>
-            Login with your Google account
+            Login to your Auto Port account
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit}>
             <div className="grid gap-sm">
 
-              <TopGoogle authType="google-log-in"/>
+              {/* <TopGoogle authType="google-log-in"/> */}
               
               <div className="grid gap-6">
                 <div className="grid gap-3">
@@ -217,7 +217,7 @@ const handleSubmit = (e: React.FormEvent) => {
                 </Button>}
               </div>
 
-              <BottomGoogle authType="google-log-in"/>
+              {/* <BottomGoogle authType="google-log-in"/> */}
             </div>
           </form>
 

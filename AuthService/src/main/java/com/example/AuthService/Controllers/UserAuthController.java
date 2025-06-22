@@ -160,6 +160,7 @@ public class UserAuthController {
         return ResponseEntity.noContent().build();
     }
 
+
     //  validate user cookie:: localhost:8103/v1/auth/user/validate-cookie
     @GetMapping("/validate-cookie")
     public ResponseEntity<ApiResponse<Map<String, Object>>>

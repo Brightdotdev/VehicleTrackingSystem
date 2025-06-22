@@ -40,6 +40,12 @@ auth:
     issuer: auth-service
 
 
+google :
+  client :
+    id : 556140372447-p7lc0v0v295d5gk11orul7617l7rfaf2.apps.googleusercontent.com
+    secret : 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
+
+
 logging:
   level:
     org.springframework.amqp: WARN

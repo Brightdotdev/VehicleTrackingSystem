@@ -2,11 +2,11 @@
 import React, { useEffect } from "react";
 import {  LastStep } from "@/components/ui/auth/LastStepForm";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useAuth } from "@/contexts/AuthContext";
 import Loading from "@/components/ui/Loading";
+import { useUserValidation } from "@/hooks/useUserValidation";
 
 export default function Home() {
-  const { isAuthenticated, authLoading } = useAuth()
+  const { loading, isValidated, checkValidation } = useUserValidation()
   const router = useRouter()
   const searchParams = useSearchParams();
   const pageSender : string  | null = searchParams.get("sender");
@@ -17,7 +17,9 @@ export default function Home() {
      (pageSender !== "local-sign-up" &&
       pageSender !== "google-sign-up"
     )) {
-    if(isAuthenticated){
+      checkValidation()
+
+    if(isValidated){
       router.replace("/")
       return;
     }
@@ -30,7 +32,7 @@ export default function Home() {
   return(
    <div className="flex items-center justify-center w-screen h-screen md:py-[var(--space-xs)]">
     {
-      authLoading ? <Loading/> : 
+      loading ? <Loading/> : 
        <LastStep  pageSender={pageSender ?? ""}/>
     }
 
