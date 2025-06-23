@@ -1,5 +1,5 @@
-server :
-  port : ${APP_PORT}
+server:
+  port: ${APP_PORT}
   forward-headers-strategy: framework
 
 spring:
@@ -7,15 +7,15 @@ spring:
     lazy-initialization: true
   application:
     name: vehicleService
-  datasource :
-    url : ${SQL_URL}
-    username : ${SQL_USER}
-    password : ${SQL_PASSWORD}
-  jpa :
+  datasource:
+    url: ${SQL_URL}
+    username: ${SQL_USER}
+    password: ${SQL_PASSWORD}
+  jpa:
     open-in-view: false
-    show-sql : true
-    hibernate :
-      ddl-auto : update
+    show-sql: true
+    hibernate:
+      ddl-auto: update
   rabbitmq:
     host: ${RABBITMQ_URL}
     port: ${RABBITMQ_PORT}
@@ -23,7 +23,7 @@ spring:
     password: ${RABBITMQ_PASSWORD}
     listener:
       simple:
-        default-requeue-rejected: false  # Don’t keep retrying forever
+        default-requeue-rejected: false
         retry:
           enabled: true
           max-attempts: 3
@@ -31,17 +31,27 @@ spring:
           multiplier: 2.0
           max-interval: 10000
 
-
 auth:
   jwt:
     secret: ${JWT_SECRET}
     expiration: ${JWT_EXP}
     issuer: auth-service
 
+logging:
+  level:
     org.springframework.amqp: WARN
     com.rabbitmq: WARN
     org.springframework.security: DEBUG
     com.dispatchservice: DEBUG
+
+external:
+  services:
+    logging:
+      base-url: ${LOGGING_URL}
+    vehicle:
+      base-url: ${VEHICLE_URL}
+    auth:
+      base-url: ${AUTH_URL}
 
 resilience4j:
   circuitbreaker:

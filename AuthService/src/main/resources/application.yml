@@ -39,6 +39,17 @@ auth:
     issuer: auth-service
 
 
+external:
+  services:
+    logging:
+      base-url: ${LOGGING_URL}
+    dispatch:
+      base-url: ${DISPATCH_URL}
+    vehicle:
+      base-url: ${VEHICLE_URL}
+
+
+
 logging:
   level:
     org.springframework.amqp: WARN

@@ -1,6 +1,7 @@
 package com.example.DispatchService.RabbitMq;
 
 import com.example.DispatchService.Utils.UtilRecords;
+import com.example.DispatchService.WebClient.VehicleWebClientService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -13,6 +14,7 @@ public class RabbitMqSenderService {
 
     private static final Logger logger = LoggerFactory.getLogger(RabbitMqSenderService.class);
     private final RabbitTemplate rabbitTemplate;
+    private final VehicleWebClientService vehicleWebClientService;
 
     // === Exchange Names ===
     private static final String DISPATCH_CREATED_DIRECT_EXCHANGE = "dispatch.created.exchange";
@@ -23,8 +25,9 @@ public class RabbitMqSenderService {
     // === Routing Keys ===
     private static final String DISPATCH_CREATED_DIRECT_EXCHANGE_KEY = "dispatch.created.key";
 
-    public RabbitMqSenderService(RabbitTemplate rabbitTemplate) {
+    public RabbitMqSenderService(RabbitTemplate rabbitTemplate, VehicleWebClientService vehicleWebClientService) {
         this.rabbitTemplate = rabbitTemplate;
+        this.vehicleWebClientService = vehicleWebClientService;
     }
 
     /**
@@ -47,7 +50,7 @@ public class RabbitMqSenderService {
 
             if (response == null) {
                 logger.error("No response received from vehicle service for event: {}", event);
-                throw new RuntimeException("No response received from vehicle service");
+               return vehicleWebClientService.createNewWebClientDispatch(event).block();
             }
 
             logger.info("Received response from vehicle service: {}", response);

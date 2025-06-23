@@ -4,12 +4,53 @@ import { useGoogleLogin } from "@react-oauth/google";
 import axios from "axios";
 import { toast } from "sonner";
 import { dotEnv } from "./dotEnv";
-import { authFetch } from "./utils";
+
+
+// this is self explanatory ode
+
+ const handleAdminReqKeyValidation = async (
+  requester : string,
+  adminKey : string, setLoading : (loading : boolean) =>  void, setAdminKey : (adminKey : string) =>  void) =>{
+
+  try{
+    setLoading(true);
+    toast.info("Validating your key...");
+    
+    const payload = {
+      adminKey: adminKey,
+    };
+    const response = await fetch(dotEnv.adminKeyValidationLink, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include", 
+      body: JSON.stringify(payload),
+    });
+
+
+    const isValidAdminKey = await response.json();
+
+    if(isValidAdminKey.code !== 200 && !isValidAdminKey.success === true){
+      setLoading(false);
+      setAdminKey(" ");
+      throw new Error("Invalid admin key!");
+    }
+    setAdminKey(" ")
+    toast.info("Validated admin key...")
+
+  } 
+    catch(error){
+    toast.error(error instanceof Error ? error.message : String(error));
+    toast.message("Redirecting....")
+    window.location.replace(requester)}}
 
 
 
 
 // sign up with google after getting the data
+
+
 export const handleGoogleSignUp = async ( userInfo : AdminGoogleSignUp,
   setAdminKey : (adminKey : string) => void,
   setLoading : (loading : boolean) => void,
@@ -113,7 +154,133 @@ export const handleGoogleLogIn = async (
 
 
 
+
+
+// validate the user outside the context again
+        export  const isValidatedUser  = async  (
+    setLoading : (loading : boolean) => void ,
+    setValidated : (isValidated : boolean) => void) => {
+ try {
+    const response = await fetch(dotEnv.cookieValidationLink, {
+   method: "GET", headers: { "Content-Type": "application/json"},credentials: "include"});
+
+
+  const userResponseData  = await response.json();
+  const {code , success , data : { valid, user  }} = userResponseData;
+      console.log(userResponseData);
+        if(valid && code === 200 && user.email !== null && success === true ){
+          return setValidated(true);
+        } 
+        return setValidated(false);
+      } catch (error) {
         
+        return setValidated(false);
+    } finally {
+      setLoading(false)}};
+
+
+
+// log in with local form
+ export const handleAdminLocalLogInSubmit = async (
+    userInfo  : AdminLocalLogIn,
+   setLoading : (loading : boolean) => void,
+   setAdminKey : (adminKey : string) => void,
+   retryCount = 0) => {
+      
+    if (retryCount > 3) {
+        retryCount = 0
+        setLoading(false)
+        toast("We couldn't communicate with the server.", {
+                action: {
+                  label: 'One more time?',
+                  onClick: () => window.location.replace("/welcome-back"),
+                },
+              })
+           return;
+    }
+
+    try {
+    
+    handleAdminReqKeyValidation("/welcome-back",userInfo.adminKey,setLoading,setAdminKey);
+      setLoading(true);
+        const response = await fetch(dotEnv.adminLocalLogInLink, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include", 
+          body: JSON.stringify(userInfo), 
+        });
+
+        const data = await response.json();
+
+        if (data.status !== 200 || data.code !== 200 || !data.data) {
+        setLoading(false)
+        
+        throw new Error("Login failed...trying again")}
+
+      
+        toast.success("Login successful!")
+      window.location.replace("/");
+
+    } catch (err: any) {
+      toast.error(err.message || "Login failed")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  
+  // sign up with local form
+ export const handleAdminLocalSignUp = async (
+    userInfo  : AdminLocalSignUp,
+   setLoading : (loading : boolean) => void,
+   setAdminKey : (adminKey : string) => void,
+   retryCount = 0) => {
+      
+    if (retryCount > 3) {
+        retryCount = 0
+        setLoading(false)
+        toast("We couldn't communicate with the server.", {
+                action: {
+                  label: 'One more time?',
+                  onClick: () => window.location.replace("/join-us"),
+                },
+              })
+           return;
+    }
+
+    try {
+    
+    handleAdminReqKeyValidation("/join-us",userInfo.adminKey,setLoading,setAdminKey);
+      setLoading(true);
+        const response = await fetch(dotEnv.adminLocalSignUpLink, {
+        method: "POST", 
+        headers: {
+          "Content-Type": "application/json", 
+        },
+        credentials: "include", 
+        body: JSON.stringify(userInfo),
+      });
+
+      // Optionally parse the response
+      const data = await response.json();
+    if (data.code !== 201 && !data.data) {
+        setLoading(false)
+        
+        throw new Error("Sign up failed...trying again")}
+
+        
+      toast.success("Sing up successful!")
+      window.location.replace("/");
+    } catch (err: any) {
+      toast.error(err.message || "Sing Up failed")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+
 // log in with google
 
   export const useAdminLogInGoogle = (
@@ -239,167 +406,4 @@ const signUp = useGoogleLogin({
   });
 
   return signUp;
-};
-
-
-
-// Validate admin request key before login/signup
-const handleAdminReqKeyValidation = async (
-  requester: string,
-  adminKey: string,
-  setLoading: (loading: boolean) => void,
-  setAdminKey: (adminKey: string) => void
-) => {
-  try {
-    setLoading(true);
-    toast.info("Validating your key...");
-
-    const payload = { adminKey };
-    const response = await authFetch(dotEnv.adminKeyValidationLink, {
-      method: "POST",
-      body: JSON.stringify(payload),
-    });
-
-    const isValidAdminKey = await response.json();
-
-    if (isValidAdminKey.code !== 200 || !isValidAdminKey.success) {
-      setLoading(false);
-      setAdminKey("");
-      throw new Error("Invalid admin key!");
-    }
-
-    setAdminKey("");
-    toast.info("Validated admin key...");
-  } catch (error) {
-    toast.error(error instanceof Error ? error.message : String(error));
-    toast.message("Redirecting....");
-    window.location.replace(requester);
-  }
-};
-
-// ✅ Admin local login
-export const handleAdminLocalLogInSubmit = async (
-  userInfo: AdminLocalLogIn,
-  setLoading: (loading: boolean) => void,
-  setAdminKey: (adminKey: string) => void,
-  retryCount = 0
-) => {
-  if (retryCount > 3) {
-    setLoading(false);
-    toast("We couldn't communicate with the server.", {
-      action: {
-        label: "One more time?",
-        onClick: () => window.location.replace("/welcome-back"),
-      },
-    });
-    return;
-  }
-
-  try {
-    await handleAdminReqKeyValidation(
-      "/welcome-back",
-      userInfo.adminKey,
-      setLoading,
-      setAdminKey
-    );
-
-    setLoading(true);
-
-    const response = await authFetch(dotEnv.adminLocalLogInLink, {
-      method: "POST",
-      body: JSON.stringify(userInfo),
-    });
-
-    const data = await response.json();
-
-    if (data.status !== 200 || data.code !== 200 || !data.data) {
-      throw new Error("Login failed...trying again");
-    }
-
-    localStorage.setItem("accessToken", data.jwt); // ✅ Store token
-    toast.success("Login successful!");
-    window.location.replace("/");
-  } catch (err: any) {
-    toast.error(err.message || "Login failed");
-  } finally {
-    setLoading(false);
-  }
-};
-
-// ✅ Admin local signup
-export const handleAdminLocalSignUp = async (
-  userInfo: AdminLocalSignUp,
-  setLoading: (loading: boolean) => void,
-  setAdminKey: (adminKey: string) => void,
-  retryCount = 0
-) => {
-  if (retryCount > 3) {
-    setLoading(false);
-    toast("We couldn't communicate with the server.", {
-      action: {
-        label: "One more time?",
-        onClick: () => window.location.replace("/join-us"),
-      },
-    });
-    return;
-  }
-
-  try {
-    await handleAdminReqKeyValidation(
-      "/join-us",
-      userInfo.adminKey,
-      setLoading,
-      setAdminKey
-    );
-
-    setLoading(true);
-
-    const response = await authFetch(dotEnv.adminLocalSignUpLink, {
-      method: "POST",
-      body: JSON.stringify(userInfo),
-    });
-
-    const data = await response.json();
-
-    if (data.code !== 201 || !data.data) {
-      throw new Error("Sign up failed...trying again");
-    }
-
-    localStorage.setItem("accessToken", data.jwt); // ✅ Store token
-    toast.success("Sign up successful!");
-    window.location.replace("/");
-  } catch (err: any) {
-    toast.error(err.message || "Sign up failed");
-  } finally {
-    setLoading(false);
-  }
-};
-
-// ✅ Admin user validation
-export const isValidatedUser = async (
-  setLoading: (loading: boolean) => void,
-  setValidated: (isValidated: boolean) => void
-) => {
-  try {
-    const response = await authFetch(dotEnv.cookieValidationLink, {
-      method: "GET",
-    });
-
-    const userResponseData = await response.json();
-    const {
-      code,
-      success,
-      data: { valid, user },
-    } = userResponseData;
-
-    if (valid && code === 200 && user.email !== null && success === true) {
-      return setValidated(true);
-    }
-
-    return setValidated(false);
-  } catch (error) {
-    return setValidated(false);
-  } finally {
-    setLoading(false);
-  }
 };

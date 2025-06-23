@@ -48,6 +48,18 @@ logging:
     com.example.UserService: DEBUG
 
 
+
+external:
+  services:
+    logging:
+      base-url: ${LOGGING_URL}
+    dispatch:
+      base-url: ${DISPATCH_URL}
+    auth:
+      base-url: ${AUTH_URL}
+
+
+
 resilience4j:
   circuitbreaker:
     instances:

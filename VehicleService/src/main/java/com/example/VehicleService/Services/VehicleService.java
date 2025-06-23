@@ -11,11 +11,15 @@ import com.example.VehicleService.Utils.VehicleDataGenerator;
 import com.example.VehicleService.Utils.VehicleEnums;
 import com.example.VehicleService.VehicleServiceApplication;
 import jakarta.transaction.Transactional;
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -26,9 +30,11 @@ public class VehicleService {
     VehicleDataGenerator vehicleDataGenerator;
 
     private final VehicleRepository vehicleRepository;
+    private final VehicleHealthService vehicleHealthService;
 
-    public VehicleService(VehicleRepository vehicleRepository) {
+    public VehicleService(VehicleRepository vehicleRepository, VehicleHealthService vehicleHealthService) {
         this.vehicleRepository = vehicleRepository;
+        this.vehicleHealthService = vehicleHealthService;
     }
 
 
@@ -298,6 +304,35 @@ public class VehicleService {
 
         foundVehicle.setVehicleLocation(locationUpdate.checkPoint());
         vehicleRepository.save(foundVehicle);
+    }
+
+
+
+
+
+    public Map<String, Object> handleDispatchToVehicle(UtilRecords.dispatchRequestBodyDTO dispatchEvent) {
+
+            if (dispatchEvent == null || dispatchEvent.vehicleIdentificationNumber() == null) {
+                throw new NotFoundException("Vehicle vin missing for creating a new dispatch");
+            }
+
+            // Find vehicle by VIN
+            VehicleModel vehicle = vehicleRepository.findByVehicleIdentificationNumber(dispatchEvent.vehicleIdentificationNumber());
+
+            if (vehicle == null) {
+                throw new NotFoundException("No vehicle of that vin found");
+            }
+
+            // Update dispatch status to PENDING
+            vehicle.setDispatchStatus(VehicleEnums.VehicleDispatchStatus.PENDING);
+            vehicleRepository.save(vehicle);
+
+            // Initialize dispatch history if needed
+            Hibernate.initialize(vehicle.getDispatchHistory());
+
+            // Process and return dispatch status info
+           return  vehicleHealthService.vehicleDispatchStatus(vehicle, dispatchEvent);
+
     }
 }
 

@@ -1,4 +1,4 @@
-import React, { lazy, Suspense, useEffect } from 'react'
+import React, { lazy, Suspense, useEffect, useState } from 'react'
 import Usernav from '../ui/Usernav'
 import { useUserValidation } from '@/hooks/useUserValidation'
 import { getMyValidDispatches } from '@/lib/handleUserDispatchPage'
@@ -12,28 +12,40 @@ const UserHomePage = () => {
   const router = useRouter();
   const {isValidated, checkValidation} = useUserValidation()
 const DispatchPageComponent = lazy(() => import("../ComponentBlocks/Dispatches/DispatchPageComponent"));
+const [hasCheckedDispatch, setHasCheckedDispatch] = useState(false); // prevent rechecking
 
-useEffect(() => {
-    const checkOngoingDispatch = async () => {
-        
-      await checkValidation();
+  useEffect(() => {
 
-      if(isValidated){
-        console.log("yesss this is ittt")   
-        const onGoingDispatch = await getMyValidDispatches()
-        console.log("Ongoinggg")
-        console.log(onGoingDispatch)
-        const hasActiveDispatches : boolean = onGoingDispatch && onGoingDispatch.length > 0
-        console.log("do they?")
-        console.log(hasActiveDispatches)
+    const checkDispatch = async () => {
+      // Only run if validated and haven't already checked
+      if (!isValidated || hasCheckedDispatch) return;
+
+      console.log("yesss this is ittt");
+      
+      try {
+        const onGoingDispatch = await getMyValidDispatches();
+        console.log("Ongoinggg");
+        console.log(onGoingDispatch);
+
+        const hasActiveDispatches = Array.isArray(onGoingDispatch) && onGoingDispatch.length > 0;
+        console.log("do they?");
+        console.log(hasActiveDispatches);
+
         if (!hasActiveDispatches) {
-        router.push("/vehicles")}
-        }else {  return}
-    }
+          router.push("/vehicles"); // Redirect only if they don't have active dispatch
+        }
+      } catch (err) {
+        console.error("Error checking dispatch:", err);
+      } finally {
+        setHasCheckedDispatch(true); // Prevent infinite re-checking
+      }
+    };
+    checkValidation()
+    checkDispatch(); // Call the async function
+  }, [isValidated, hasCheckedDispatch, router]); // Proper dependencies
 
-    checkOngoingDispatch()
 
-  }, [isValidated])
+
 
   return (
 
