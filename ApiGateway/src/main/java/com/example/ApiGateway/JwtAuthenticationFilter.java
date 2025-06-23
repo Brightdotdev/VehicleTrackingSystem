@@ -39,8 +39,9 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
         String token = null;
 
         // Skip JWT check for public auth endpoints
-        if (path.contains("/v1/auth/") || path.contains("/v1/oauth/")) {
-
+        if (path.startsWith("/internal") ||
+                path.contains("/v1/auth/") ||
+                path.contains("/v1/oauth/")) {
             return chain.filter(exchange);
         }
 

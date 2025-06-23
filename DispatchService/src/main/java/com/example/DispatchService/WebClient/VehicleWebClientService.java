@@ -30,7 +30,7 @@ public class VehicleWebClientService {
 
     public Mono<Map<String, Object>> createNewWebClientDispatch(UtilRecords.dispatchRequestBodyDTO dispatchRequest, String cookieValue) {
         return vehicleWebClient.post()
-                .uri("/v1/user/vehicle/handle-new-dispatch")
+                .uri("/internal/user/vehicle/handle-new-dispatch")
                 .contentType(MediaType.APPLICATION_JSON)
                 .cookie("adminCookie", cookieValue)
                 .bodyValue(dispatchRequest)

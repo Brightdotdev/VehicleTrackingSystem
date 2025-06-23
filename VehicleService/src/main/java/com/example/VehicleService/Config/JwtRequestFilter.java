@@ -37,6 +37,16 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     }
 
     @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        String path = request.getRequestURI();
+        if (path.startsWith("/internal")) {
+            logger.debug("Skipping JWT filter for internal route: {}", path);
+            return true;
+        }
+        return false;
+    }
+
+    @Override
     protected void doFilterInternal(
             HttpServletRequest request,
             HttpServletResponse response,
