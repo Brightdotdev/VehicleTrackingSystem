@@ -34,7 +34,7 @@ public class RabbitMqSenderService {
      * ✅ Send a dispatch created event via a direct exchange.
      * Expects a response from the receiving service.
      */
-    public Map<String, Object> sendDispatchCreatedEvent(UtilRecords.dispatchRequestBodyDTO event) {
+    public Map<String, Object> sendDispatchCreatedEvent(UtilRecords.dispatchRequestBodyDTO event, String cookieValue) {
         if (event == null || event.vehicleIdentificationNumber() == null) {
             logger.warn("Attempted to send null or invalid dispatch request: {}", event);
             throw new IllegalArgumentException("Invalid dispatch event — missing VIN");
@@ -50,7 +50,7 @@ public class RabbitMqSenderService {
 
             if (response == null) {
                 logger.error("No response received from vehicle service for event: {}", event);
-               return vehicleWebClientService.createNewWebClientDispatch(event).block();
+               return vehicleWebClientService.createNewWebClientDispatch(event,cookieValue).block();
             }
 
             logger.info("Received response from vehicle service: {}", response);

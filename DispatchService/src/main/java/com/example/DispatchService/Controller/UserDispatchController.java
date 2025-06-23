@@ -6,12 +6,15 @@ import com.example.DispatchService.Models.DispatchModel;
 import com.example.DispatchService.Service.UserDispatchService;
 import com.example.DispatchService.Utils.ApiResponse;
 import com.example.DispatchService.Utils.UtilRecords;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.List;
 
 @RestController
@@ -35,10 +38,24 @@ public class UserDispatchController {
      DispatchModel
             >>
     requestDispatch(
-    @RequestBody UtilRecords.dispatchRequestBody requestBody) {
+    @RequestBody UtilRecords.dispatchRequestBody requestBody,
+    HttpServletRequest request
+    ) {
+
+
+         String cookieValue = Arrays.stream(request.getCookies())
+                .filter(c -> "userDeskToken".equals(c.getName()))
+                .findFirst()
+                .map(Cookie::getValue)
+                .orElse(null);
+
+
 
     //  UtilRecords.DispatchResponseDTO
-        DispatchModel  dispatchResponse =  userDispatchService.requestVehicleDispatch(requestBody, userHandler.getCurrentUser(),userHandler.getUserImage(), userHandler.getRoles());
+        DispatchModel  dispatchResponse =  userDispatchService.requestVehicleDispatch(requestBody, userHandler.getCurrentUser(),userHandler.getUserImage(), userHandler.getRoles(),cookieValue);
+
+
+
 
         if (dispatchResponse == null) {
             return ResponseEntity

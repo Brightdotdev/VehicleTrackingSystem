@@ -275,7 +275,7 @@ handleVehiclePage();
           {
           
              isDispatchable  ?
-                <VehicleInfoPageStatusPills statusName="DISPATCHABLE" className='absolute bottom-2 right-2 sahdow-lg' />
+                <VehicleInfoPageStatusPills statusName="DISPATCHABLE" className='absolute bottom-2 right-8 sahdow-lg' />
                 : <VehicleInfoPageStatusPills statusName="NOT_DISPATCHABLE" className='absolute bottom-2 right-2 sahdow-lg' />
                        
                   

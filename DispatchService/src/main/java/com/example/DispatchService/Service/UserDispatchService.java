@@ -44,7 +44,7 @@ public class UserDispatchService {
     @Transactional
     public
     //UtilRecords.DispatchResponseDTO
-            DispatchModel requestVehicleDispatch(UtilRecords.dispatchRequestBody requestBody, String userName,String userImage , List<String> userRole) {
+            DispatchModel requestVehicleDispatch(UtilRecords.dispatchRequestBody requestBody, String userName,String userImage , List<String> userRole, String cookieValue) {
 
         DispatchModel dispatchFinalModel = new DispatchModel();
         Boolean canDispatch = false;
@@ -76,7 +76,7 @@ public class UserDispatchService {
         UtilRecords.dispatchRequestBodyDTO requestBodyDTO
                 = new UtilRecords.dispatchRequestBodyDTO(requestBody.vehicleName(),requestBody.vehicleIdentificationNumber(),requestBody.vehicleStatus(),requestBody.dispatchReason(),userName,requestBody.dispatchEndTime());
 
-        Map<String, Object> dispatchResult = (Map<String, Object>) rabbitMqSenderService.sendDispatchCreatedEvent(requestBodyDTO);
+        Map<String, Object> dispatchResult = (Map<String, Object>) rabbitMqSenderService.sendDispatchCreatedEvent(requestBodyDTO, cookieValue);
         System.out.println(dispatchResult);
         if (dispatchResult.containsKey("canDispatch")) {
             canDispatch = (Boolean) dispatchResult.get("canDispatch");
