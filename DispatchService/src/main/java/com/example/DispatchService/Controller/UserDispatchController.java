@@ -49,6 +49,7 @@ public class UserDispatchController {
                 .map(Cookie::getValue)
                 .orElse(null);
 
+        System.out.println(cookieValue);
 
 
     //  UtilRecords.DispatchResponseDTO
