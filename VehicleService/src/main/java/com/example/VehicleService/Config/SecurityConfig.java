@@ -36,6 +36,7 @@ public class SecurityConfig {
                         .requestMatchers("/public/**").permitAll()
                         .requestMatchers("/v1/admin/vehicle/**").authenticated()
                         .requestMatchers("/v1/user/vehicle/**").authenticated()
+                        .requestMatchers("/internal/**").permitAll()
                         .requestMatchers("/error").permitAll()
                         .anyRequest().authenticated()
                 )
