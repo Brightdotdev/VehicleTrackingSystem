@@ -17,7 +17,11 @@ import { dotEnv } from "./dotEnv";
         const data  = await response.json();
         toast.info("Vehicle requests are ready")
         console.log(data);
+
+        if(data.data !== null){
         return data.data;
+        }
+        throw new Error("Something went wrong");
     } catch (error) {  
         toast.error("Somethinggg went wrong");
         return [];

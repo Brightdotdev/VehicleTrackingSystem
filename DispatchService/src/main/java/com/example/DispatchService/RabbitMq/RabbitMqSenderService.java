@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -15,6 +16,7 @@ public class RabbitMqSenderService {
     private static final Logger logger = LoggerFactory.getLogger(RabbitMqSenderService.class);
     private final RabbitTemplate rabbitTemplate;
     private final VehicleWebClientService vehicleWebClientService;
+    private final ResponseMapperService responseMapperService;
 
     // === Exchange Names ===
     private static final String DISPATCH_CREATED_DIRECT_EXCHANGE = "dispatch.created.exchange";
@@ -25,9 +27,10 @@ public class RabbitMqSenderService {
     // === Routing Keys ===
     private static final String DISPATCH_CREATED_DIRECT_EXCHANGE_KEY = "dispatch.created.key";
 
-    public RabbitMqSenderService(RabbitTemplate rabbitTemplate, VehicleWebClientService vehicleWebClientService) {
+    public RabbitMqSenderService(RabbitTemplate rabbitTemplate, VehicleWebClientService vehicleWebClientService, ResponseMapperService responseMapperService) {
         this.rabbitTemplate = rabbitTemplate;
         this.vehicleWebClientService = vehicleWebClientService;
+        this.responseMapperService = responseMapperService;
     }
 
     /**
@@ -41,20 +44,36 @@ public class RabbitMqSenderService {
         }
 
         try {
-            @SuppressWarnings("unchecked")
-            Map<String, Object> response = (Map<String, Object>) rabbitTemplate.convertSendAndReceive(
+            /*@SuppressWarnings("unchecked")
+            Object  rawResponse = rabbitTemplate.convertSendAndReceive(
                     DISPATCH_CREATED_DIRECT_EXCHANGE,
                     DISPATCH_CREATED_DIRECT_EXCHANGE_KEY,
                     event
             );
 
-            if (response == null) {
+*/
+
+          Object rawResponse = vehicleWebClientService.createNewWebClientDispatch(event,cookieValue).block();
+
+          return  responseMapperService.dispatchMapper(rawResponse);
+
+  /*          if (rawResponse == null) {
                 logger.error("No response received from vehicle service for event: {}", event);
-               return vehicleWebClientService.createNewWebClientDispatch(event,cookieValue).block();
+
             }
 
-            logger.info("Received response from vehicle service: {}", response);
-            return response;
+            logger.info("Received response from vehicle service: {}", rawResponse);
+
+            if (rawResponse instanceof Map<?, ?> mapResponse) {
+                logger.info("Received valid Map response from vehicle service: {}", mapResponse);
+                return mapResponse;
+            } else if (rawResponse instanceof List<?> list) {
+                logger.error("Expected Map but received List: {}", list);
+                // fallback to HTTP anyway
+            } else {
+                logger.error("Unexpected response type from vehicle service: {}", rawResponse.getClass());
+            }
+  */
 
         } catch (Exception e) {
             logger.error("Failed to send dispatch created event: {}", e.getMessage(), e);

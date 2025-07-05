@@ -1,14 +1,12 @@
 import { DispatchRequestDto, VehicleDTO } from '@/types/VehicleTypes';
-import { ArrowLeft,  CarFront,  CircleHelp, Cog, HeartPulse, IdCard, Info,  Shield, TimerIcon} from 'lucide-react'
+import { ArrowLeft} from 'lucide-react'
 import React, { useEffect, useState } from 'react'
-import { HealthText } from '../../utils/UtilComponents';
-import {VehicleInfoPageStatusPills } from '@/components/utils/VehiclePageUtilComponent';
-
-import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import { getVehicleByVin } from '@/lib/handleVehiclePage';
 import { getThisDispatch } from '@/lib/handleUserDispatchPage';
 import DispatchHandlerCard from './DispatchHandlerCard';
+import MapView from '@/components/mapComponents/Map';
+import { LatLngExpression } from 'leaflet';
 
 
 
@@ -46,9 +44,12 @@ const VehicleNamePill = (
 const DispatchInfoPage = ({vehicleVin, vehicleReqId} : {vehicleVin : string, vehicleReqId : number}) => {
   const router = useRouter();
  const [dispatchData, setDispatchData] = useState<DispatchRequestDto | undefined>(undefined);
+ const [vehicleData, setVehicleData] = useState<VehicleDTO | undefined>(undefined);
   
 
- 
+  const vehiclePosition : LatLngExpression = vehicleData?.location.latitude && vehicleData?.location.longitude
+    ? [vehicleData.location.latitude, vehicleData.location.longitude]
+    : [6.5244, 3.3792]; 
   
 
   
@@ -56,9 +57,17 @@ const DispatchInfoPage = ({vehicleVin, vehicleReqId} : {vehicleVin : string, veh
     
     const handleVehiclePage = async () =>{
        const vData = await getThisDispatch(vehicleVin,vehicleReqId);
+  
+if(vData){
       console.log("Vehicle Dataaa info")
       setDispatchData(vData)
        console.log(vData)
+      const vehicle = await getVehicleByVin(vehicleVin);
+      console.log("Vehicle data gotten")
+      console.log(vehicle)
+      setVehicleData(vehicle)
+}
+
   } 
 
 handleVehiclePage();
@@ -83,6 +92,15 @@ handleVehiclePage();
       </div>
     
       <section className='relative flex flex-col items-center justify-start w-[96vw] h-[94vh] h-24 disatchRequestContainer'>
+
+
+{vehicleData && 
+<MapView
+  key={`${vehicleData?.location.latitude}-${vehicleData?.location.longitude}`} 
+  position={[vehicleData.location.latitude, vehicleData.location.longitude]}
+/>
+}
+
 
         <VehicleNamePill  model={dispatchData?.vehicleName ?? "Unknown vehicle"} />
         

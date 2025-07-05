@@ -2,6 +2,8 @@ package com.example.DispatchService.RabbitMq;
 
 
 import com.example.DispatchService.Utils.UtilRecords;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -15,7 +17,29 @@ public class ResponseMapperService {
 
 
 
+        private final Logger logger = LoggerFactory.getLogger(ResponseMapperService.class);
 
+        public Map<String, Object> dispatchMapper(Object response) {
+            if (!(response instanceof Map<?, ?> responseMap)) {
+                throw new IllegalArgumentException("Invalid response format: not a Map");
+            }
+
+            Object dataObj = responseMap.get("data");
+
+            if (dataObj == null) {
+                logger.warn("Missing 'data' field in response: {}", responseMap);
+                throw new IllegalArgumentException("Missing 'data' in response");
+            }
+
+            if (!(dataObj instanceof Map<?, ?> dataMap)) {
+                logger.error("Expected 'data' to be a Map but got: {}", dataObj.getClass());
+                throw new IllegalArgumentException("'data' is not a Map");
+            }
+
+            @SuppressWarnings("unchecked")
+            Map<String, Object> result = (Map<String, Object>) dataObj;
+            return result;
+        }
 
     public UtilRecords.DispatchResponseDTO dispatchResponseMapper (Map<String, Object> dispatchResponse){
         if (dispatchResponse == null) {

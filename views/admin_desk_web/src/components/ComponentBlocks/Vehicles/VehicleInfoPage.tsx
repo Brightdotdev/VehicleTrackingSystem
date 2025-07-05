@@ -85,7 +85,7 @@ const VehicleInfoPage = ({vehicleVin} : {vehicleVin : string}) => {
 const hasLowSafetyScore = (vData?.safetyScore || 0 ) <  63 ;
 
 const canDispatch = hasLowSafetyScore ? false : hasWildcardDispatch  ? false : true
-
+console.log(canDispatch)
 setDispatchAble(canDispatch);
 
     } else {

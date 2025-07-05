@@ -203,7 +203,7 @@ public class VehicleService {
         for (VehicleModel vehicle : foundVehicles){
             UtilRecords.VehicleApiData vehicleApi = new UtilRecords.VehicleApiData(
                 vehicle.getVehicleIdentificationNumber(),vehicle.getLicensePlate(),vehicle.getModel(),vehicle.getEngineType(),vehicle.getVehicleType(),vehicle.getVehicleStatus(),vehicle.getDispatchStatus(),vehicle.getDispatchHistory(),vehicle.getVehicleImages(),vehicle.getSafetyScore(),vehicle.getVehicleMetadata(),vehicle.getVehicleAcquiredYear(),vehicle.getHealthAttributes(),vehicle.getWildcardAttributes()
-            );
+            ,vehicle.getVehicleLocation());
             vehicles.add(vehicleApi);
         }
         return vehicles;
@@ -218,7 +218,7 @@ public class VehicleService {
 
 
             UtilRecords.VehicleApiData vehicleApi = new UtilRecords.VehicleApiData(
-                    foundVehicle.getVehicleIdentificationNumber(),foundVehicle.getLicensePlate(),foundVehicle.getModel(),foundVehicle.getEngineType(),foundVehicle.getVehicleType(),foundVehicle.getVehicleStatus(),foundVehicle.getDispatchStatus(),foundVehicle.getDispatchHistory(),foundVehicle.getVehicleImages(),foundVehicle.getSafetyScore(),foundVehicle.getVehicleMetadata(),foundVehicle.getVehicleAcquiredYear(),foundVehicle.getHealthAttributes(),foundVehicle.getWildcardAttributes());
+                    foundVehicle.getVehicleIdentificationNumber(),foundVehicle.getLicensePlate(),foundVehicle.getModel(),foundVehicle.getEngineType(),foundVehicle.getVehicleType(),foundVehicle.getVehicleStatus(),foundVehicle.getDispatchStatus(),foundVehicle.getDispatchHistory(),foundVehicle.getVehicleImages(),foundVehicle.getSafetyScore(),foundVehicle.getVehicleMetadata(),foundVehicle.getVehicleAcquiredYear(),foundVehicle.getHealthAttributes(),foundVehicle.getWildcardAttributes(),foundVehicle.getVehicleLocation());
         return vehicleApi;
     }
 
@@ -249,17 +249,14 @@ public class VehicleService {
 
         if (dispatchedVehicle == null){
             throw new NotFoundException("The vehicle doesn't even exist boss");
-        }
-        if(
-                dispatchedVehicle.getDispatchStatus() != VehicleEnums.VehicleDispatchStatus.IN_PROGRESS
-        ||
+        }if (
+                dispatchedVehicle.getDispatchStatus() != VehicleEnums.VehicleDispatchStatus.IN_PROGRESS &&
                         dispatchedVehicle.getDispatchStatus() != VehicleEnums.VehicleDispatchStatus.PENDING
-        ){
-            throw new ConflictException("The vehicle is not staged for dispatch");
-        }
+        )
 
 
-        dispatchedVehicle.setDispatchStatus(VehicleEnums.VehicleDispatchStatus.AVAILABLE);
+
+            dispatchedVehicle.setDispatchStatus(VehicleEnums.VehicleDispatchStatus.AVAILABLE);
         vehicleRepository.save(dispatchedVehicle);
 
     }

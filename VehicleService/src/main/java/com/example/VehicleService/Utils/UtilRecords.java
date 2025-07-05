@@ -150,7 +150,8 @@ public class UtilRecords {
             String vehicleMetadata,
             int vehicleAcquiredYear,
             List<VehicleHealthAttributeModel> healthAttributes,
-            List<VehicleWildcardAttributeModel> wildCardAttributes
+            List<VehicleWildcardAttributeModel> wildCardAttributes,
+            LocationCheckPoint location
     ) {
         public VehicleApiData {
             // VIN must be non-blank

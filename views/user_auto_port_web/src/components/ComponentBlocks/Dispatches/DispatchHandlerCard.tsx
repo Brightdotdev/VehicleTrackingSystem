@@ -1,23 +1,40 @@
-// Import necessary components and types
-import { Button } from '@/components/ui/button'
-import { DispatchInfoPagePills } from '@/components/utils/RequestPageUtilComponents'
-import { DispatchRequestDto } from '@/types/VehicleTypes'
-import React from 'react'
+import { format, parseISO } from "date-fns";
+import { Button } from '@/components/ui/button';
+import { DispatchInfoPagePills } from '@/components/utils/RequestPageUtilComponents';
+import { HealthText } from '@/components/utils/UtilComponents';
+import { DispatchRequestDto } from '@/types/VehicleTypes';
+import React, { useEffect, useState } from 'react';
+import { handleTerminateDispatch } from "@/lib/handleUserDispatchPage";
 
-// Define props interface for the component
 interface DispatchHandlerCardProps {
-  dispatchData?: DispatchRequestDto; // Mark optional in case undefined is passed
+  dispatchData?: DispatchRequestDto;
 }
 
-// Component now correctly accepts props as an object
 const DispatchHandlerCard: React.FC<DispatchHandlerCardProps> = ({ dispatchData }) => {
-  // Return early if no dispatchData is provided to avoid runtime errors
+  const [formatedTime, setFormatedTime] = useState<string>('');
+
+  useEffect(() => {
+    if (dispatchData?.dispatchRequestTime) {
+      const date = parseISO(dispatchData.dispatchRequestTime);
+      const formatted = format(date, "MMMM do, yyyy 'at' h:mm a");
+      setFormatedTime(formatted);
+    }
+  }, [dispatchData]);
+
   if (!dispatchData) return null;
 
   return (
-    <article className='flex flex-col items-center justify-start gap-2 p-4 absolute bottom-2 right-2 
-      h-[26rem] w-[24rem] bg-card rounded-lg'>
+    <article className='flex flex-col items-center justify-start gap-2 p-4 absolute bottom-2 xl:right-2 
+      xl:h-[26rem] xl:w-[24rem] w-[96vw] h-[50vh] bg-card rounded-lg'>
+      
       <h5 className='text-small-2'>My Request Metadata</h5>
+
+      <div className="flex flex-col items-center justify-center gap-4 w-full">
+        <div className="flex w-full items-center justify-between">
+          <h5 className='text-small-2'>Vehicle Safety Score</h5>
+          <HealthText value={dispatchData.safetyScore} />
+        </div>
+      </div>
 
       <div className="flex flex-col items-center justify-center gap-4 w-full">
         <div className="flex w-full items-center justify-between">
@@ -32,15 +49,17 @@ const DispatchHandlerCard: React.FC<DispatchHandlerCardProps> = ({ dispatchData 
 
         <div className="flex w-full items-center justify-between">
           <h5 className='text-small-2'>Dispatch Request Time</h5>
-          <h6 className='text-small-2'>{dispatchData.dispatchRequestTime}</h6>
+          <h6 className='text-small'>{formatedTime}</h6>
         </div>
       </div>
 
-      <Button variant="destructive" className='px-12 text-normal py-6 rounded-lg'>
+      <Button variant="destructive" 
+      onClick={ () => handleTerminateDispatch(dispatchData.dispatchId,dispatchData.dispatchVehicleId)}
+      className='xl:mt-5 xl:px-12 px-6 text-normal py-6 rounded-lg'>
         Terminate Dispatch
       </Button>
     </article>
-  )
-}
+  );
+};
 
 export default DispatchHandlerCard;

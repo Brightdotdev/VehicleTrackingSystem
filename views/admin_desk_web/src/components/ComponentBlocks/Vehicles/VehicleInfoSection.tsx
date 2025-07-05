@@ -11,17 +11,16 @@ const VehicleInfoSection = () => {
 
   const [vehicles, setVehicles] = useState<VehicleDTO[]>([]);
 
-
-  useEffect(  () => {
-
+useEffect(() => {
+    // Function to fetch all vehicle data
     const getVehicles = async () => {
       const vehicleApi = await getAllVehicles()
-      setVehicles(vehicleApi);
+      console.log(vehicleApi)
+      setVehicles(vehicleApi) // ✅ Keep this
     }
 
     getVehicles()
-
-  }, []);  
+  }, [])
 
   return (
     <section 
@@ -35,25 +34,20 @@ const VehicleInfoSection = () => {
         }}
     >
 
-
 {
-
-         vehicles === null ? 
-              <div className="flex items-center justify-center">
-                No Vehicle Data
-              </div>
-              :
-    vehicles.map((vehicle: VehicleDTO, index: number) => {
-      return (
-        <VehicleInfoCard
-          key={index}
-         {...vehicle}
-        />
-      )
-    })
-  
+  vehicles.length === 0 ? (
+    <div className="flex items-center justify-center">
+      No Vehicle Data
+    </div>
+  ) : (
+    vehicles.map((vehicle: VehicleDTO, index: number) => (
+      <VehicleInfoCard
+        key={index}
+        {...vehicle}
+      />
+    ))
+  )
 }
-
 
     </section>
   )

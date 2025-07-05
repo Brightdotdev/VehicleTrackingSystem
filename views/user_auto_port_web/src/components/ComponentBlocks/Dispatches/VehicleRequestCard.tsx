@@ -80,7 +80,7 @@ const [loading, setLoading] = React.useState(false);
 <div className="relative vehicleCard flex items-center justify-center w-full h-[12rem] bg-blue-500 overflow-hidden">
   {/* Placeholder image covering the parent */}
   <img
-    src="placeholder.png"
+    src={vehicleRequest.vehicleImage}
     alt="Vehicle"
     className="absolute inset-0 w-full h-[12rem] object-center object-cover"
   />

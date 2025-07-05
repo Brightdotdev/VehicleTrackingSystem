@@ -1,5 +1,5 @@
 server :
-  port : ${APP_PORT}
+  port : 8103
   forward-headers-strategy: framework
 
 spring:
@@ -8,19 +8,19 @@ spring:
   application:
     name: authService
   datasource :
-    url : ${SQL_URL}
-    username : ${SQL_USER}
-    password : ${SQL_PASSWORD}
+    url : jdbc:postgresql://localhost:5432/VEHICLE_AUTH_DB
+    username : postgres
+    password : bomboclat
   jpa :
     open-in-view: false
     show-sql : true
     hibernate :
       ddl-auto : update
   rabbitmq:
-    host: ${RABBITMQ_URL}
-    port: ${RABBITMQ_PORT}
-    username: ${RABBITMQ_USER}
-    password: {RABBITMQ_PASSWORD}
+    host: localhost
+    port: 5672
+    username: bright
+    password: secret123
     listener:
       simple:
         default-requeue-rejected: false  # Don’t keep retrying forever
@@ -32,22 +32,18 @@ spring:
           max-interval: 10000
 
 
+
 auth:
   jwt:
-    secret: ${JWT_SECRET}
-    expiration: ${JWT_EXP}
+    secret: 6715c78c9a1d53f358dafd68da12c40c95780b0d00486f9d725672b7bf95eea89d682826b22883dd592b45b6ee2f79d4d4372d0c136b2e6fb1935c04f7593d05
+    expiration: 604800000
     issuer: auth-service
 
 
-external:
-  services:
-    logging:
-      base-url: ${LOGGING_URL}
-    dispatch:
-      base-url: ${DISPATCH_URL}
-    vehicle:
-      base-url: ${VEHICLE_URL}
-
+google :
+  client :
+    id : 556140372447-p7lc0v0v295d5gk11orul7617l7rfaf2.apps.googleusercontent.com
+    secret : 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
 
 
 logging:

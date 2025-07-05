@@ -109,6 +109,10 @@ export interface VehicleDTO {
   vehicleMetadata: string;
   healthAttributes: VehicleHealthAttribute[];
   wildcardAttributes?: VehicleWildcardAttribute[]; // optional
+  location : {
+    longitude : number;
+    latitude : number;
+  }
 }
 
 

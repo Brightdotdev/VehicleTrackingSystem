@@ -115,10 +115,38 @@ export const getMyValidDispatches = async (): Promise<DispatchRequestDto[]> => {
             return data;
           }
           console.log(data)
-          return data;
+          return data.data;
         }
        catch (error) {
         console.log(error)
         }
       }
-        
+
+      
+  export const handleTerminateDispatch = async (dispatchId : number, vehcileVin : string) => {
+
+      try {
+        toast.info("Terminating dispatch");
+        const response = await fetch(`${dotEnv.userDispatchesBaseUrl}/user-cancel?dispatchId=${dispatchId}&vin=${vehcileVin}`,{
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json"},
+            credentials: "include"});
+          console.log(response)
+
+          const data  = await response.json();
+            console.log(data)
+          if(data.data === null) {
+            console.log(data.data)
+            console.log(data.message)
+            return data;
+          }
+          console.log(data)
+          return data.data;
+        }
+       catch (error) {
+        console.log(error)
+        }
+
+
+  }

@@ -16,51 +16,45 @@ public class NotificationController {
 
     private final NotificationService notificationService;
 
-    // Constructor-based dependency injection
     public NotificationController(NotificationService notificationService) {
         this.notificationService = notificationService;
     }
 
-
-
     /**
-     * Endpoint to set the read notifications to read grah
+     * ✅ POST: Set notifications as read
+     * Endpoint: /v1/user/notifications/set-read
      */
-
-    //  :: http://localhost:8104/v1/user/notifications/set-read
     @PostMapping("/set-read")
     public ResponseEntity<ApiResponse<List<UtilRecords.NotificationDto>>> setNotificationToRead(
-            @Valid @RequestParam String user,
-           @Valid @RequestBody List<UtilRecords.setReadRecord> notificationRecordList
+            @RequestParam String user,
+            @Valid @RequestBody List<UtilRecords.setReadRecord> notificationRecordList
     ) {
-      List<UtilRecords.NotificationDto>  updatedNotification = notificationService.setNotificationToRead(notificationRecordList,user);
-
+        List<UtilRecords.NotificationDto> updatedNotifications =
+                notificationService.setNotificationToRead(notificationRecordList, user);
 
         return ResponseEntity.ok(
                 ApiResponse.success(
                         201,
                         "Notifications updated",
-                        updatedNotification
-                ));}
+                        updatedNotifications
+                ));
+    }
 
-
-        /**
-     * get all the user's notification
+    /**
+     * ✅ GET: Fetch all notifications for the current user
+     * Endpoint: /v1/user/notifications/get-all-me
      */
-
-
     @GetMapping("/get-all-me")
     public ResponseEntity<ApiResponse<List<NotificationModel>>> getAllMyNotification(
-            @Valid @RequestParam String clientId) {
+            @RequestParam String clientId) {
 
+        List<NotificationModel> myNotifications = notificationService.getAllMyNotifications(clientId);
 
-      List<NotificationModel>  myNotifications = notificationService.getAllMyNotifications(clientId);
-
-
-      return ResponseEntity.ok(
+        return ResponseEntity.ok(
                 ApiResponse.success(
                         201,
                         "Notifications received",
                         myNotifications
-                ));}
+                ));
+    }
 }
