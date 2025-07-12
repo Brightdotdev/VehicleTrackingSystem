@@ -4,8 +4,9 @@ import com.example.AuthService.Exceptions.AccessException;
 import com.example.AuthService.Exceptions.ConflictException;
 import com.example.AuthService.Exceptions.NotFoundException;
 import com.example.AuthService.Models.UserModel;
-import com.example.AuthService.RabbitMq.RabbitMqSenderService;
+import com.example.AuthService.Utils.ApiResponse;
 import com.example.AuthService.Utils.UtilRecords;
+import com.example.AuthService.WebClient.LoggingWebClientService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -16,6 +17,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,24 +29,24 @@ import java.util.Map;
 public class UserDetailService implements UserDetailsService {
 
 
+    @Autowired
+    private LoggingWebClientService LoggingWebClientService;
+
 
     private final UserService userService;
     private final AdminService adminService;
 
     private final PasswordEncoder passwordEncoder;
-    private final RabbitMqSenderService rabbitMqSenderService;
 
 
     private final AuthenticationManager authenticationManager;
 
     @Autowired
-    public UserDetailService(UserService userService, AdminService adminService, @Lazy AuthenticationManager authenticationManager, @Lazy PasswordEncoder passwordEncoder, RabbitMqSenderService rabbitMqSenderService) {
+    public UserDetailService(UserService userService, AdminService adminService, @Lazy AuthenticationManager authenticationManager, @Lazy PasswordEncoder passwordEncoder) {
         this.userService = userService;
         this.adminService = adminService;
         this.authenticationManager = authenticationManager;
-        this.passwordEncoder = passwordEncoder;
-        this.rabbitMqSenderService = rabbitMqSenderService;
-    }
+        this.passwordEncoder = passwordEncoder;}
 
 
     @Override
@@ -62,10 +65,10 @@ public class UserDetailService implements UserDetailsService {
               ());
 
         Authentication auth = new UsernamePasswordAuthenticationToken(
-                authUser, // principal
-                null, // no credentials for OAuth
-                authUser.getAuthorities() // roles/authorities
-        );
+                authUser,
+                null,
+                authUser.getAuthorities());
+
       return new UtilRecords.LoginServiceResponse(authUser,auth,authUser.getUserImage());
     }
 
@@ -185,16 +188,18 @@ public class UserDetailService implements UserDetailsService {
         user.setProvider("LOCAL_ADMIN_USER");
         user.setRoles(List.of("ROLE_ADMIN"));
 
-        UtilRecords.adminCreatedRequestBodyDto adminReq = new UtilRecords.adminCreatedRequestBodyDto(request.email().trim());
 
-/*
-        Map<String , Object> logAdminCreatedResponse = rabbitMqSenderService.sendAdminCreated(adminReq);
 
-        if(!logAdminCreatedResponse.containsKey("createdNew")){
+
+        Mono<ApiResponse<Map<String, Object>>> logAdminCreatedResponse  =  LoggingWebClientService.sendAdminCreated(request.email().trim());
+
+        ApiResponse<Map<String, Object>> extractedResponse = logAdminCreatedResponse.block();
+
+        assert extractedResponse != null;
+
+        if(!extractedResponse.getData().containsKey("createdNew")){
             throw new ConflictException("Unable to synchronize admin data Try signing up again");
         }
-*/
-
 
         UserModel newUser = userService.save(user);
 

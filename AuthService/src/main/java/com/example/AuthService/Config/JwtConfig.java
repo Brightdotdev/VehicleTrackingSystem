@@ -6,7 +6,6 @@ import io.jsonwebtoken.security.Keys;
 
 import javax.crypto.SecretKey;
 
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -21,23 +20,22 @@ import java.util.stream.Collectors;
 @Component
 public class JwtConfig {
 
-    private final JwtProperties jwtProperties;
+    private final AuthProperties authProperties;
 
-    public JwtConfig(JwtProperties jwtProperties) {
-        this.jwtProperties = jwtProperties;
+    public JwtConfig(AuthProperties authProperties) {
+        this.authProperties = authProperties;
     }
 
-
     public SecretKey getSecretKey() {
-        return Keys.hmacShaKeyFor(jwtProperties.getSecret().getBytes(StandardCharsets.UTF_8));
+        return Keys.hmacShaKeyFor(authProperties.getJwt().getSecret().getBytes(StandardCharsets.UTF_8));
     }
 
     public long getExpiration() {
-        return jwtProperties.getExpiration();
+        return authProperties.getJwt().getExpiration();
     }
 
 
-    // 🔑 Used for token generation
+
     public String generateToken(Authentication auth, String userImage, String name) {
 
         Object principal = auth.getPrincipal();
@@ -77,14 +75,8 @@ public class JwtConfig {
         }
     }
 
-    public String extractToken(HttpServletRequest request) {
-        String authHeader = request.getHeader("Authorization");
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
 
-            return authHeader.substring(7).trim(); // Use .trim() to remove leading/trailing spaces
-        }
-        return null;
-    }
+
 
     public String extractUsername(String token) {
         return getClaims(token).getSubject();
@@ -106,16 +98,6 @@ public class JwtConfig {
     @Bean
     public SecretKey jwtSecretKey() {
         return getSecretKey();
-    }
-
-
-    public boolean validateTokenWithUserDetails(String token, UserDetails userDetails) {
-        try {
-            String username = extractUsername(token);
-            return username.equals(userDetails.getUsername()) && !isTokenExpired(token);
-        } catch (Exception ex) {
-            return false;
-        }
     }
 
 

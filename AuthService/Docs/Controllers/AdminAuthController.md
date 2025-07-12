@@ -1,5 +1,3 @@
-
-
 # 🛡️ AdminAuthController — `/v1/auth/admin`
 
 This controller handles authentication and authorization for **admins** in the system:

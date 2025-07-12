@@ -1,13 +1,7 @@
+# 🔐 JwtConfig — JWT Utility & Token Generator
 
-
-# 🔐 JwtConfig — JWT Management Utility
-
-This configuration component centralizes all JWT-related logic for:
-
-- Creating JWTs for users/admins
-- Extracting data from tokens
-- Validating tokens
-- Handling token secrets and expiration
+This class is responsible for **creating**, **signing**, **validating**, and **parsing JWT tokens**.  
+It uses a secret key defined in `application.yml` via `AuthProperties`.
 
 ---
 
@@ -21,30 +15,31 @@ com.example.AuthService.Config.JwtConfig
 
 ---
 
-## 🧠 Dependency
+## 🔧 Purpose
 
-```java
-private final JwtProperties jwtProperties;
-````
-
-* Injected from application YAML (`auth.jwt.secret`, `auth.jwt.expiration`)
-* Used to sign/verify JWTs
+| Feature                    | Description                                                             |
+|----------------------------|-------------------------------------------------------------------------|
+| Generate JWT               | Builds signed JWT using claims and Spring `Authentication` object       |
+| Parse and validate tokens  | Ensures token is valid and not expired                                  |
+| Expose SecretKey as Bean   | Makes HMAC signing key available as a Spring `@Bean`                    |
 
 ---
 
-## 🧾 Public Methods
+## 🌱 Dependencies
 
-### 🔑 `String generateToken(Authentication auth, String userImage, String name)`
+This class depends on:
 
-* Converts `Authentication` to a JWT with custom claims:
+- `AuthProperties` → for secret, issuer, and expiration
+- `io.jsonwebtoken` (JJWT) → for creating/parsing JWTs
 
-    * `sub` = user's email
-    * `roles` = list of authorities (like `ROLE_USER`, `ROLE_ADMIN`)
-    * `userImage` = profile picture (optional)
-    * `name` = display name
+---
+
+## 🔐 JWT Generation
+
+### `String generateToken(Authentication auth, String userImage, String name)`
 
 ```java
-return Jwts.builder()
+Jwts.builder()
     .subject(username)
     .claim("roles", roles)
     .claim("userImage", userImage)
@@ -52,106 +47,98 @@ return Jwts.builder()
     .expiration(new Date(System.currentTimeMillis() + getExpiration()))
     .signWith(getSecretKey())
     .compact();
-```
+````
+
+**Claims included in token:**
+
+| Claim       | Type   | Description                     |
+| ----------- | ------ | ------------------------------- |
+| `sub`       | String | Username (i.e. user email)      |
+| `roles`     | List   | Authorities from Spring context |
+| `userImage` | String | User avatar or image path       |
+| `name`      | String | User's name                     |
+| `exp`       | Date   | Token expiration timestamp      |
 
 ---
+
+## 🔑 Token Parsing Methods
 
 ### ✅ `boolean validateToken(String token)`
 
-* Parses token
-* Checks if the expiration is still valid
+* Returns `true` if the token is valid and **not expired**.
+
+### 🔍 `String extractUsername(String token)`
+
+* Extracts the username from the token's subject (`sub` claim).
+
+### 🧯 `boolean isTokenExpired(String token)`
+
+* Returns `true` if the token has expired.
+
+### 📜 `Claims getClaims(String token)`
+
+* Parses the token and returns its payload claims as a `Claims` object.
 
 ---
 
-### 🎯 `String extractToken(HttpServletRequest request)`
-
-* Reads JWT from the `Authorization: Bearer ...` header
-* Returns `null` if missing or malformed
-
----
-
-### 🧍 `String extractUsername(String token)`
-
-* Retrieves `sub` (subject/email) from token claims
-
----
-
-### ❌ `boolean isTokenExpired(String token)`
-
-* Returns `true` if current date is after the token expiration
-
----
-
-### 📦 `Claims getClaims(String token)`
-
-* Parses and verifies JWT
-* Returns the full payload of claims
-
----
-
-### 🧪 `boolean validateTokenWithUserDetails(String token, UserDetails userDetails)`
-
-* Validates the username in the token matches the current authenticated user
-* Also checks if the token is expired
-
----
+## 🔐 Secret Key Handling
 
 ### 🔐 `SecretKey getSecretKey()`
 
-* Creates a `javax.crypto.SecretKey` using the provided base64 JWT secret from the environment
-
----
-
-### ⏰ `long getExpiration()`
-
-* Returns how long the JWT should last (in milliseconds)
-
----
-
-### 🫘 `@Bean public SecretKey jwtSecretKey()`
-
-* Exposes the JWT signing key as a Spring-managed bean
-
-Useful for injecting into filters or utilities.
-
----
-
-## 🛠 Example Usage
-
-### ✅ Token Generation in Controller
-
 ```java
-String jwt = jwtConfig.generateToken(authentication, userImage, name);
+Keys.hmacShaKeyFor(authProperties.getJwt().getSecret().getBytes(StandardCharsets.UTF_8));
 ```
 
-### 🧪 Token Validation in Middleware
+* Converts secret from your config into a cryptographic key for HMAC signing.
+
+### 🧱 Spring Bean
 
 ```java
-if (!jwtConfig.validateToken(token)) {
-    throw new UnauthorizedException("Invalid or expired token");
+@Bean
+public SecretKey jwtSecretKey() {
+    return getSecretKey();
 }
 ```
 
-### 🧼 Token Extraction from Request
+* Registers the `SecretKey` as a bean, so it can be reused by other components (like filters or WebClient configs).
 
-```java
-String token = jwtConfig.extractToken(request);
+---
+
+## 🧾 Sample Configuration
+
+From `application.yml`:
+
+```yaml
+auth:
+  jwt:
+    secret: 6715c78c9a1d...
+    expiration: 604800000
+    issuer: auth-service
 ```
 
 ---
 
-## 🔒 Security Notes
+## 📁 Used In
 
-* JWT secret must be kept secure.
-* Expiration should be short for access tokens (e.g. 5m–15m) or long for persistent cookies (7d+).
-* Avoid putting sensitive PII into JWTs (e.g. passwords, DOB, etc.)
-
----
-
-## 📂 Related Classes
-
-* `JwtProperties` — loaded from `application.yml`
-* Used by: `AdminController`, `UserAuthController`, filters, and handlers
+| Class              | Purpose                               |
+| ------------------ | ------------------------------------- |
+| `JwtRequestFilter` | Verifies tokens on each HTTP request  |
+| `LoginController`  | Generates token during login          |
+| `WebClientConfig`  | Sets secret for secure internal calls |
 
 ---
 
+## ✅ Summary
+
+| Method              | Purpose                              |
+| ------------------- | ------------------------------------ |
+| `generateToken()`   | Creates JWT with claims + expiration |
+| `validateToken()`   | Checks token validity + expiration   |
+| `extractUsername()` | Extracts username from token         |
+| `isTokenExpired()`  | Checks if token is expired           |
+| `getClaims()`       | Parses and returns JWT claims        |
+| `jwtSecretKey()`    | Exposes HMAC signing key as a bean   |
+
+This class is essential for issuing and verifying access tokens securely within the system.
+
+```

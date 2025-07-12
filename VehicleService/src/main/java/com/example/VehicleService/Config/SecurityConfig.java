@@ -1,4 +1,5 @@
-// SecurityConfig.java
+
+
 package com.example.VehicleService.Config;
 
 import jakarta.servlet.http.HttpServletResponse;
@@ -23,15 +24,11 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, JwtRequestFilter jwtRequestFilter) throws Exception {
         http
-
                 .csrf(AbstractHttpConfigurer::disable)
-
                 .formLogin(AbstractHttpConfigurer::disable)
                 .logout(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
-                .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                )
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/public/**").permitAll()
                         .requestMatchers("/v1/admin/vehicle/**").authenticated()
@@ -57,10 +54,12 @@ public class SecurityConfig {
         return http.build();
     }
 
+
     @Bean
-    public JwtRequestFilter jwtRequestFilter(JwtConfig jwtConfig) {
-        return new JwtRequestFilter(jwtConfig);
+    public JwtRequestFilter jwtRequestFilter(JwtConfig jwtConfig, AuthProperties authProperties) {
+        return new JwtRequestFilter(jwtConfig, authProperties);
     }
+
 
     @Bean
     public UserDetailsService userDetailsService() {

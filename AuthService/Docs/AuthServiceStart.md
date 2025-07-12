@@ -1,29 +1,34 @@
-
-
 # 🔐 AuthService
 
 ## 📌 Overview
 
-The **AuthService** is responsible for authenticating and managing users in the Vehicle Tracking System. It supports:
+The **AuthService** is responsible for handling user and admin authentication within the **Vehicle Tracking System**, which is composed of multiple services:
 
-- 🧍 User and admin registration/login
-- 🔐 JWT generation and validation
-- 🟢 Google OAuth (if configured)
-- 📤 Event publishing to RabbitMQ (e.g., login tracking)
-- 💾 PostgreSQL persistence
-- 🧯 Resilience4j fault tolerance for external calls
+* 🚗 Vehicle Service
+* 📦 Dispatch Service
+* 📜 Logging Service
+* 🌐 API Gateway
+* 🔐 This AuthService
+
+It handles:
+
+* 🧍 User & Admin authentication
+* 📤 JWT token generation and validation
+* 🧾 Integration with other services via internal WebClients
+* 💾 PostgreSQL persistence
+* 🛡️ Resilience4j fault tolerance for remote service calls
 
 ---
 
 ## ⚙️ Tech Stack
 
-- Java 17+
-- Spring Boot
-- Spring Security + JWT
-- RabbitMQ (for event messaging)
-- PostgreSQL
-- Gradle (build system)
-- Resilience4j (circuit breaker)
+* **Java 17+**
+* **Spring Boot**
+* **Spring Security + JWT**
+* **PostgreSQL**
+* **Gradle**
+* **WebClient**
+* **Resilience4j**
 
 ---
 
@@ -31,98 +36,83 @@ The **AuthService** is responsible for authenticating and managing users in the 
 
 ### ☕ Option 1 — Run in Development (Manual)
 
-Uses `application.yml` (hardcoded dev values).
+> ⚠️ The included `application.yml` uses **hardcoded dev values** that will only work with **your own values**.
+>
+> Ensure PostgreSQL is running and credentials are correct.
 
 ```bash
 ./gradlew bootRun
-````
-
-📝 Dev DB connection:
-
-```
-jdbc:postgresql://localhost:5432/VEHICLE_AUTH_DB
-username: postgres
-password: bomboclat
+# or
+./gradlew build --no-daemon && java -jar build/libs/AuthService.jar
 ```
 
-📝 RabbitMQ dev config:
+📝 Development defaults:
 
 ```
-host: localhost
-port: 5672
-username: bright
-password: secret123
+APP_PORT=8103
+SQL_URL=jdbc:postgresql://localhost:5432/VEHICLE_AUTH_DB
+SQL_USER=postgres
+SQL_PASSWORD=bomboclat
+JWT_SECRET=your-local-secret
+JWT_EXP=604800000
+API_INTERNAL_KEY=thisIsMyApiKey
+LOGGING_URL=http://localhost:8104
+VEHICLE_URL=http://localhost:8106
+DISPATCH_URL=http://localhost:8105
 ```
 
 ---
 
-### 🔐 Option 2 — Run in Production (Manual)
+### 🌍 Option 2 — Run in Production (Environment-based)
 
-Production profile uses `application-prod.yml` and environment variables.
+Uses `application-prod.yml` with placeholders loaded from **environment variables**.
 
 #### ✅ Required Environment Variables
 
-| Variable            | Description                      |
-| ------------------- | -------------------------------- |
-| `APP_PORT`          | Port to run the AuthService      |
-| `SQL_URL`           | JDBC URL for PostgreSQL          |
-| `SQL_USER`          | PostgreSQL username              |
-| `SQL_PASSWORD`      | PostgreSQL password              |
-| `JWT_SECRET`        | JWT signing key                  |
-| `JWT_EXP`           | JWT expiration (in milliseconds) |
-| `RABBITMQ_URL`      | RabbitMQ hostname                |
-| `RABBITMQ_PORT`     | RabbitMQ port                    |
-| `RABBITMQ_USER`     | RabbitMQ username                |
-| `RABBITMQ_PASSWORD` | RabbitMQ password                |
+| Variable           | Description                                 |
+| ------------------ | ------------------------------------------- |
+| `APP_PORT`         | Port to run AuthService on                  |
+| `SQL_URL`          | JDBC URL for PostgreSQL                     |
+| `SQL_USER`         | PostgreSQL username                         |
+| `SQL_PASSWORD`     | PostgreSQL password                         |
+| `JWT_SECRET`       | HMAC secret used for signing JWTs           |
+| `JWT_EXP`          | JWT expiry time in milliseconds             |
+| `API_INTERNAL_KEY` | Shared internal key for microservice access |
+| `LOGGING_URL`      | Logging service base URL                    |
+| `VEHICLE_URL`      | Vehicle service base URL                    |
+| `DISPATCH_URL`     | Dispatch service base URL                   |
 
 #### ▶️ Start in Production
 
 ```bash
 export SPRING_PROFILES_ACTIVE=prod
-
-# Run the service
-java -jar build/libs/auth-service.jar
+java -jar build/libs/AuthService-0.0.1-SNAPSHOT.jar
 ```
 
 ---
 
-### 🐳 Option 3 — Docker (Recommended)
+### 🐳 Option 3 — Run with Docker (Recommended)
 
-#### 🏗 Build Docker Image
+#### 🧱 Build Docker Image
 
 ```bash
 docker build -t auth-service .
 ```
 
-#### 🧪 Run in Development (Docker)
+#### 🧪 Run in Dev (Docker)
 
 ```bash
 docker run -p 8103:8103 \
-  -e SPRING_PROFILES_ACTIVE=default \
+  -e APP_PORT=8103 \
   -e SQL_URL=jdbc:postgresql://host.docker.internal:5432/VEHICLE_AUTH_DB \
   -e SQL_USER=postgres \
   -e SQL_PASSWORD=bomboclat \
-  -e RABBITMQ_URL=host.docker.internal \
-  -e RABBITMQ_PORT=5672 \
-  -e RABBITMQ_USER=bright \
-  -e RABBITMQ_PASSWORD=secret123 \
-  auth-service
-```
-
-#### 🚀 Run in Production (Docker)
-
-```bash
-docker run -p 8103:8103 \
-  -e SPRING_PROFILES_ACTIVE=prod \
-  -e SQL_URL=jdbc:postgresql://<prod-db-host>:5432/prod_auth_db \
-  -e SQL_USER=prod_user \
-  -e SQL_PASSWORD=secure_pass \
-  -e JWT_SECRET=super_secret_jwt \
+  -e JWT_SECRET=dev-secret-key \
   -e JWT_EXP=604800000 \
-  -e RABBITMQ_URL=<rabbit-host> \
-  -e RABBITMQ_PORT=5672 \
-  -e RABBITMQ_USER=prod_rabbit \
-  -e RABBITMQ_PASSWORD=prod_rabbit_pwd \
+  -e API_INTERNAL_KEY=thisIsMyApiKey \
+  -e LOGGING_URL=http://host.docker.internal:8104 \
+  -e VEHICLE_URL=http://host.docker.internal:8106 \
+  -e DISPATCH_URL=http://host.docker.internal:8105 \
   auth-service
 ```
 
@@ -130,106 +120,94 @@ docker run -p 8103:8103 \
 
 ## 🧾 Config Files
 
-| File                   | Description                       |
-| ---------------------- | --------------------------------- |
-| `application.yml`      | Development config (local)        |
-| `application-prod.yml` | Production config (uses env vars) |
+### application.yml (Default for local dev)
 
----
+Hardcoded values for my local environment. Update the application.yml with yours.
 
-## 🛡️ JWT & OAuth
-
-* JWT secret is injected via `JWT_SECRET` env var.
-* Expiry defaults to 7 days (`604800000` ms).
-* OAuth config can be added using:
+### application-prod.yml
 
 ```yaml
-google.client:
-  id: <your-client-id>
-  secret: <your-client-secret>
-```
+server:
+  port: ${APP_PORT}
+  forward-headers-strategy: framework
 
----
+spring:
+  main:
+    lazy-initialization: true
+  application:
+    name: authService
+  datasource:
+    url: ${SQL_URL}
+    username: ${SQL_USER}
+    password: ${SQL_PASSWORD}
+  jpa:
+    open-in-view: false
+    show-sql: true
+    hibernate:
+      ddl-auto: update
 
-## 🔌 RabbitMQ Config
+auth:
+  api:
+    key: ${API_INTERNAL_KEY}
+  jwt:
+    secret: ${JWT_SECRET}
+    expiration: ${JWT_EXP}
+    issuer: auth-service
 
-Configured for event publishing (e.g. login logs):
+external:
+  services:
+    logging:
+      base-url: ${LOGGING_URL}
+    vehicle:
+      base-url: ${VEHICLE_URL}
+    dispatch:
+      base-url: ${DISPATCH_URL}
 
-```yaml
-spring.rabbitmq:
-  host: ${RABBITMQ_URL}
-  port: ${RABBITMQ_PORT}
-  username: ${RABBITMQ_USER}
-  password: ${RABBITMQ_PASSWORD}
-```
+logging:
+  level:
+    org.springframework.amqp: WARN
+    com.rabbitmq: WARN
+    org.springframework.security: DEBUG
+    com.example.UserService: DEBUG
 
----
-
-## 🛠️ Circuit Breaker
-
-Using **Resilience4j**:
-
-```yaml
 resilience4j:
   circuitbreaker:
     instances:
       myServiceCircuitBreaker:
+        registerHealthIndicator: true
+        slidingWindowSize: 15
+        minimumNumberOfCalls: 10
         failureRateThreshold: 80
         waitDurationInOpenState: 22s
         permittedNumberOfCallsInHalfOpenState: 7
+        automaticTransitionFromOpenToHalfOpenEnabled: true
 ```
 
-Auto-recovery between states: `OPEN` → `HALF_OPEN` → `CLOSED`.
+---
+
+## 🛡️ JWT Configuration
+
+* `JWT_SECRET` is used for signing/verifying tokens.
+* `JWT_EXP` is in **milliseconds** — default is 7 days.
+* Tokens include subject (email), roles, userImage, and expiration.
+* Validated using a `JwtRequestFilter` injected into the security chain.
+
+---
+
+## 🔌 Internal Service Authentication
+
+* AuthService provides internal endpoints like `POST /internal/admin/create`.
+* Access to internal endpoints is guarded by the `X-Internal-API-KeY` header.
+* This key is checked against `${API_INTERNAL_KEY}` defined in config.
 
 ---
 
 ## 🧪 Health Check
 
-If Spring Boot Actuator is enabled:
+Enable actuator for health ping support:
 
-```
+```http
 GET /actuator/health
-```
-
----
-
-## 🔍 Logging
-
-Debug logging is enabled for:
-
-```yaml
-logging:
-  level:
-    org.springframework.security: DEBUG
-    com.example.UserService: DEBUG
-```
-
----
-
-## 🐳 Dockerfile (Multi-Stage)
-
-```dockerfile
-# =======================
-# 🏗 Stage 1: Build stage
-# =======================
-FROM gradle:8.8-jdk21 AS build
-WORKDIR /app
-
-# Copy wrapper and settings
-COPY gradlew gradlew.bat build.gradle settings.gradle /app/
-COPY gradle/wrapper/ /app/gradle/wrapper/
-COPY . /app/
-
-RUN gradle build --no-daemon -x test
-
-# ========================
-# 🏃 Stage 2: Runtime
-# ========================
-FROM eclipse-temurin:21-jre-alpine
-WORKDIR /app
-COPY --from=build /app/build/libs/*.jar app.jar
-EXPOSE 8103
-ENTRYPOINT ["java", "-XX:+UseContainerSupport", "-XX:MaxRAMPercentage=75.0", "-jar", "app.jar"]
 ```
 
 ---
@@ -238,14 +216,12 @@ ENTRYPOINT ["java", "-XX:+UseContainerSupport", "-XX:MaxRAMPercentage=75.0", "-j
 
 1. Pull latest `main`
 2. Create a new feature or fix branch
-3. Write clean code with comments
-4. Test endpoints locally
-5. Submit PR and include changelog
+3. Comment your code cleanly
+4. Test endpoints thoroughly
+5. Submit a PR with meaningful changes
 
 ---
 
 ## 👨‍💻 Maintainer
 
-**Bright Akinola** — Lead Auth Developer 🚀
-
-
+**Bright Akinola** 

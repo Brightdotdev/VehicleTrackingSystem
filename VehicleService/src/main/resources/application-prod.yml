@@ -34,10 +34,21 @@ spring:
 
 
 auth:
+  api:
+    key : ${API_INTERNAL_KEY}
   jwt:
     secret: ${JWT_SECRET}
     expiration: ${JWT_EXP}
     issuer: auth-service
+
+external:
+  services:
+    logging:
+      base-url: ${LOGGING_URL}
+    dispatch:
+      base-url: ${DISPATCH_URL}
+    auth:
+      base-url: ${AUTH_URL}
 
 
 logging:

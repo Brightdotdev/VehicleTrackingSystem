@@ -1,4 +1,3 @@
-// SecurityConfig.java
 package com.example.DispatchService.Config;
 
 import jakarta.servlet.http.HttpServletResponse;
@@ -14,6 +13,8 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+
+
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -26,13 +27,12 @@ public class SecurityConfig {
                 .formLogin(AbstractHttpConfigurer::disable)
                 .logout(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
-                .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                )
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/public/**").permitAll()
                         .requestMatchers("/v1/user/dispatch/**").authenticated()
                         .requestMatchers("/v1/admin/dispatch/**").authenticated()
+                        .requestMatchers("/internal/**").authenticated()
                         .requestMatchers("/error").permitAll()
                         .anyRequest().authenticated()
                 )
@@ -53,10 +53,12 @@ public class SecurityConfig {
         return http.build();
     }
 
+
     @Bean
-    public JwtRequestFilter jwtRequestFilter(JwtConfig jwtConfig) {
-        return new JwtRequestFilter(jwtConfig);
+    public JwtRequestFilter jwtRequestFilter(JwtConfig jwtConfig, AuthProperties authProperties) {
+        return new JwtRequestFilter(jwtConfig, authProperties);
     }
+
 
     @Bean
     public UserDetailsService userDetailsService() {

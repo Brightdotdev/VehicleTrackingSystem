@@ -1,225 +1,247 @@
-# API Gateway
+# 🛡️ JwtAuthenticationFilter
 
-## 🚪 Overview
+## 📌 Purpose
 
-This is the API Gateway for our distributed microservices system. It routes requests to downstream services and handles cross-cutting concerns like:
+`JwtAuthenticationFilter` is a **global Spring Cloud Gateway filter** that intercepts all incoming HTTP requests. It handles:
 
-* 🔐 **JWT Authentication** (via Authorization header or cookies)
-* 🧭 **Routing** using Spring Cloud Gateway
-* 🌍 **CORS config** for frontend clients
-* 🧵 **Header deduplication** to prevent multi-source collisions
-
-⚠️ **Important Note**: This API Gateway is part of a larger microservices architecture. For the system to work properly, you need to clone the entire repository and run all the dependent services. This gateway acts as the entry point and routes requests to the following services:
-
-* **Auth Service** (Port 8103)
-* **Logging Service** (Port 8104)
-* **Dispatch Service** (Port 8105)
-* **Vehicle Service** (Port 8106)
-* **User Dashboard** (Port 3000)
-* **Admin Dashboard** (Port 3001)
-
-The gateway itself cannot function independently and requires these services to be running.
+* 🔐 **JWT validation** for user/admin authentication
+* 🔑 **API key validation** for internal service-to-service calls
+* 📨 Attaching identity headers to downstream services
 
 ---
 
-## ⚙️ Tech Stack
+## ⚙️ Class Overview
 
-* Java 17+
-* Spring Boot + Spring Cloud Gateway
-* Gradle
-* Project Reactor (Reactive Programming)
-* JWT (via `jjwt`)
-
----
-
-## 📦 How to Run
-
-### 🔧 Prerequisites
-
-Before running the API Gateway, ensure you have:
-
-1. **Java 17+** installed
-2. **Gradle** (or use the included wrapper)
-3. **All microservices running** - This gateway depends on the following services:
-
-    * Auth Service (default port: 8103)
-    * Logging Service (default port: 8104)
-    * Dispatch Service (default port: 8105)
-    * Vehicle Service (default port: 8106)
-    * User Dashboard (default port: 3000)
-    * Admin Dashboard (default port: 3001)
-
-### 🖥️ Development (with default profile)
-
-
-
-# Start all required services first 
-# Then navigate to the API Gateway
-cd ApiGateWay
-
-# Run with Gradle
-./gradlew bootRun
+```java
+@Component
+public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
 ```
 
-### 🚀 Production (Manual)
+* `@Component`: Registers this class as a Spring-managed bean
+* `GlobalFilter`: Intercepts **all HTTP requests** before routing
+* `Ordered`: Controls execution priority in the filter chain (`-1` = high priority)
 
-Use the `application.prod.yml` config with the required environment variables:
+---
 
-```bash
-PORT=8102 \
-AUTH_URL=http://localhost:8103 \
-LOGGING_URL=http://localhost:8104 \
-DISPATCH_URL=http://localhost:8105 \
-VEHICLE_URL=http://localhost:8106 \
-USER_AUTO=http://localhost:3000 \
-ADMIN_DESK=http://localhost:3001 \
-JWT_SECRET=<your_secret_key> \
-JWT_EXP=604800000 \
-./gradlew bootRun --args='--spring.profiles.active=pprod'
+## 🔐 Authentication Logic: Step-by-Step
+
+### ✅ 1. Handle Internal Requests via API Key
+
+```java
+if (path.startsWith("/internal")) {
+    String internalKey = request.getHeaders().getFirst("X-Internal-API-Key");
+
+    if (internalKey == null || !internalKey.equals(internalApiKey)) {
+        return unauthorizedResponse(exchange, "Unauthorized: Invalid internal API key");
+    }
+
+    return chain.filter(exchange); // internal request authorized
+}
 ```
 
-### 🐳 Docker (Production)
+* Internal routes (e.g. `/internal/**`) must send a **custom header**:
+  `X-Internal-API-Key: your-secret-key`
+* The expected key is injected via:
+  `auth.api.key` from `application.yml`
 
-Create a Dockerfile with the following contents:
-
-```Dockerfile
-# Stage 1: Build
-FROM gradle:8.8-jdk21 AS build
-WORKDIR /app
-COPY gradlew gradlew.bat build.gradle settings.gradle /app/
-COPY gradle/wrapper/ /app/gradle/wrapper/
-COPY . /app/
-RUN ./gradlew build --no-daemon -x test
-
-# Stage 2: Runtime
-FROM eclipse-temurin:21-jre-alpine
-WORKDIR /app
-COPY --from=build /app/build/libs/*.jar app.jar
-EXPOSE 8102
-ENTRYPOINT ["java", "-XX:+UseContainerSupport", "-XX:MaxRAMPercentage=75.0", "-jar", "app.jar"]
-```
-
-Then build and run:
-
-```bash
-# Build the image
-docker build -t api-gateway .
-
-# Run the container with required environment variables
-docker run -p 8102:8102 \
-  -e PORT=8102 \
-  -e AUTH_URL=http://host.docker.internal:8103 \
-  -e LOGGING_URL=http://host.docker.internal:8104 \
-  -e DISPATCH_URL=http://host.docker.internal:8105 \
-  -e VEHICLE_URL=http://host.docker.internal:8106 \
-  -e USER_AUTO=http://localhost:3000 \
-  -e ADMIN_DESK=http://localhost:3001 \
-  -e JWT_SECRET=<your_secret_key> \
-  -e JWT_EXP=604800000 \
-  api-gateway
-```
-
----
-
-## 📍 Gateway Routes
-
-Routes are configured in `application.yml` or `application.pprod.yml`.
-
-| ID                | Forwards To       | Handles Path                                                      |
-| ----------------- | ----------------- | ----------------------------------------------------------------- |
-| `authService`     | `${AUTH_URL}`     | `/v1/auth/admin/**`, `/v1/auth/user/**`                           |
-| `loggingService`  | `${LOGGING_URL}`  | `/v1/user/notifications/**`, `/v1/sse/**`, `/v1/user/tracking/**` |
-| `dispatchService` | `${DISPATCH_URL}` | `/v1/admin/dispatch/**`, `/v1/user/dispatch/**`                   |
-| `vehicleService`  | `${VEHICLE_URL}`  | `/v1/admin/vehicle/**`, `/v1/user/vehicle/**`                     |
-
----
-
-## 🔐 JWT Auth Filter
-
-**Filter Class:** `JwtAuthenticationFilter.java`
-**Purpose:** Intercepts all incoming requests (except auth/internal) and ensures they carry a valid JWT.
-
-### 🧪 Token Resolution Order
-
-1. **Authorization header** (`Bearer <token>`)
-2. **For admins:** `adminDeskCookie`
-3. **For users:** `userDeskToken` → fallback to `adminDeskCookie` if missing
-
-### If token is valid:
-
-* Parses the token using `JWT_SECRET`
-* Extracts user email (`sub`)
-* Adds the following headers:
-
-    * `x-user-email`
-    * `x-user-token`
-* Forwards request downstream
-
-### If token is missing/invalid:
-
-* Returns a `401 Unauthorized` with a JSON error body
-
----
-
-## 🔄 CORS Configuration
-
-Set via `application.pprod.yml`.
-
-**Allows requests from:**
-
-* `${USER_AUTO}` (User Dashboard)
-* `${ADMIN_DESK}` (Admin Panel)
-
-**Allows:**
-
-* All common methods (GET, POST, etc.)
-* Authorization and CSRF headers
-* Cookies (credentials)
-
----
-
-## 🧪 Debugging / Logs
-
-To enable verbose logging:
+#### 🔑 Configuration in `application.yml`:
 
 ```yaml
-logging:
-  level:
-    org.springframework.security: DEBUG
-    com.example.UserService: DEBUG
+auth:
+  api:
+    key: ${API_INTERNAL_KEY}
+  jwt:
+    secret: ${JWT_SECRET}
+    expiration: ${JWT_EXP}
 ```
 
-Useful during token issues or permission debugging.
+---
+
+### 🚪 2. Bypass Public Auth Routes
+
+```java
+if (path.contains("/v1/auth/") || path.contains("/v1/oauth/")) {
+    return chain.filter(exchange);
+}
+```
+
+These routes are public — login, signup, OAuth — and don’t require filtering.
 
 ---
 
-## 🧩 Helpful Files
+### 🕵️ 3. Extract JWT Token
 
-| File                           | Description                                   |
-| ------------------------------ | --------------------------------------------- |
-| `JwtAuthenticationFilter.java` | Global JWT handler for gateway                |
-| `application.yml`              | Default config for dev                        |
-| `application.pprod.yml`        | Prod-ready config using environment variables |
-| `build.gradle`                 | Gradle build script                           |
-| `Dockerfile`                   | Docker build/run script                       |
+#### 🔒 For Admin Paths (`/v1/admin/**`):
+
+* Try `Authorization` header (Bearer)
+* Fallback to `adminDeskCookie`
+
+#### 👤 For User Paths:
+
+* Try `Authorization` header
+* Then `userDeskToken` cookie
+* Lastly fallback to `adminDeskCookie` (for admin fallback use)
+
+```java
+if (isAdminEndpoint) {
+    if (token == null) {
+        token = getJwtFromCookies(request, "adminDeskCookie");
+    }
+} else {
+    if (token == null) {
+        token = getJwtFromCookies(request, "userDeskToken");
+    }
+    if (token == null) {
+        token = getJwtFromCookies(request, "adminDeskCookie");
+    }
+}
+```
+
+If token is **still not found**, respond with `401 Unauthorized`.
 
 ---
 
-## 🤝 Contributing
+### 🧪 4. Parse and Validate JWT
 
-1. Fork and clone
-2. Create a new branch
-3. Follow code/commenting patterns
-4. Submit PR with clear message
+```java
+SecretKey secretKey = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
+
+Jws<Claims> jws = Jwts.parser()
+    .setSigningKey(secretKey)
+    .build()
+    .parseClaimsJws(token);
+```
+
+* Uses the secret from `auth.jwt.secret`
+* Fails if token is malformed, expired, or signature is invalid
 
 ---
 
-## 📜 License
+### 📦 5. Extract User Identity
 
-MIT / Add license info here
+```java
+Claims claims = jws.getBody();
+String subject = claims.getSubject(); // e.g. user email
+Object claim = claims.get("roles");   // user roles (currently unused)
+```
 
 ---
 
-## ✍️ Maintainers
+### 🔁 6. Attach Custom Headers for Downstream Services
 
-* **Bright Akinola** (API Gateway Owner)
+```java
+ServerHttpRequest modifiedRequest = request.mutate()
+    .header("x-user-email", subject)
+    .header("x-user-token", token)
+    .build();
+```
+
+These are forwarded with the request so downstream services can identify the user.
+
+---
+
+### ❌ 7. Handle Unauthorized Cases
+
+Returns:
+
+```json
+{
+  "error": "Unauthorized: Missing or invalid token"
+}
+```
+
+* HTTP status: `401 Unauthorized`
+* Triggered when token is missing, invalid, or API key check fails (for internal)
+
+---
+
+## 🍪 Cookie Helper Function
+
+```java
+private String getJwtFromCookies(ServerHttpRequest request, String cookieName)
+```
+
+* Iterates over cookies in request header
+* Matches by cookie name and extracts value
+
+---
+
+## 📐 Filter Order
+
+```java
+@Override
+public int getOrder() {
+    return -1;
+}
+```
+
+* Runs early in the chain before routing or further processing
+* Ensures that all routing decisions happen **after authentication**
+
+---
+
+## 🔁 Full Filter Flow (Updated Pseudocode)
+
+```
+if path starts with /internal:
+    if X-Internal-API-Key header is present and valid:
+        allow request
+    else:
+        respond 401 Unauthorized
+
+else if path is public (/v1/auth, /v1/oauth):
+    allow request
+
+else:
+    try to get JWT from Authorization header
+    if not found:
+        try user/admin cookies
+
+    if still not found:
+        respond 401 Unauthorized
+
+    try parse JWT
+    if expired/invalid:
+        respond 401 Unauthorized
+
+    extract claims (subject, roles)
+    attach x-user-email and x-user-token headers
+    forward request to downstream service
+```
+
+---
+
+## 🛠️ Future Improvements
+
+* ✔️ Attach `x-user-roles` header from JWT claims
+* 🔄 Add role-based access control (e.g. block user token on `/v1/admin/**`)
+* 🪵 Log JWT issuer, subject, or token lifespan for monitoring
+* ❗ Optional: support token refresh headers or custom claim mapping
+
+---
+
+## 🧪 Testing Scenarios
+
+| Scenario                         | Expected Result          |
+| -------------------------------- | ------------------------ |
+| Valid internal API key           | ✅ Request forwarded      |
+| Invalid/missing internal API key | ❌ 401 Unauthorized       |
+| Valid JWT in header              | ✅ Request forwarded      |
+| Valid JWT in cookie              | ✅ Request forwarded      |
+| No token anywhere                | ❌ 401 Unauthorized       |
+| Expired or invalid JWT           | ❌ 401 Unauthorized       |
+| Admin route with user token      | ✅ (if not validated yet) |
+| Missing `sub` in token           | ❌ 401 or NullPointer     |
+
+---
+
+## 📁 Location
+
+```
+src/main/java/com/example/ApiGateway/JwtAuthenticationFilter.java
+```
+
+---
+
+## 🧠 Author
+**Bright Akinola**

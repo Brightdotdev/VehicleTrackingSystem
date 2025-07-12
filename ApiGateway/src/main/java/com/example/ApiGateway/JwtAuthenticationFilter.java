@@ -30,18 +30,29 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
     @Value("${auth.jwt.secret}")
     private String jwtSecret;
 
+    @Value("${auth.api.key}")
+    private String internalApiKey;
+
+
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();
         String path = request.getURI().getPath();
 
-
         String token = null;
-
-
-        if (path.startsWith("/internal") ||
+        if (
                 path.contains("/v1/auth/") ||
                 path.contains("/v1/oauth/")) {
+            return chain.filter(exchange);
+        }
+
+
+        if (path.startsWith("/internal")) {
+            String internalKey = request.getHeaders().getFirst("X-Internal-API-Key");
+
+            if (internalKey == null || !internalKey.equals(internalApiKey)) {
+                return unauthorizedResponse(exchange, "Unauthorized: Invalid internal API key");
+            }
             return chain.filter(exchange);
         }
 
@@ -54,64 +65,37 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
             token = authHeader.substring(7);
         }
         if (isAdminEndpoint) {
-
-            // Try Authorization header first
-
-            // Fallback to admin cookie if no token in header
             if (token == null) {
                 token = getJwtFromCookies(request, "adminDeskCookie");
             }
-
-
-
         } else {
-            // For regular users, try Authorization header first
 
-            // If not in header, fallback to user cookie
             if (token == null) {
                 token = getJwtFromCookies(request, "userDeskToken");
             } if(token == null && getJwtFromCookies(request, "adminDeskCookie") != null ){
-
                     token = getJwtFromCookies(request, "adminDeskCookie");
                 }
-
-
-
             }
 
-
-        // If still no token, return unauthorized
         if (token == null) {
-
             return unauthorizedResponse(exchange, "Unauthorized: Missing or invalid token");
         }
 
         try {
-            // Build the secret key
+
             SecretKey secretKey = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
-
-
-            // Parse and validate the JWT
             Jws<Claims> jws = Jwts.parser()
                     .setSigningKey(secretKey)
                     .build()
                     .parseClaimsJws(token);
-
             Claims claims = jws.getBody();
-            String subject = claims.getSubject();
-
-            Object claim = claims.get("roles");
 
 
-            // Modify request to include extra headers
-            ServerHttpRequest modifiedRequest = request.mutate()
-                    .header("x-user-email", subject)
-//                    .header("x-user-roles", roles)
-                    .header("x-user-token", token)
-                    .build();
+            if (!claims.containsKey("roles") || claims.getSubject() == null) {
+                return unauthorizedResponse(exchange, "Unauthorized: Missing required claims");
+            }
 
-            return chain.filter(exchange.mutate().request(modifiedRequest).build());
-
+          return chain.filter(exchange);
         } catch (Exception ex) {
             return unauthorizedResponse(exchange, "Unauthorized: Token expired or invalid");
         }
@@ -121,6 +105,8 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
     public int getOrder() {
         return -1; // Run early in the filter chain
     }
+
+
 
     /**
      * Helper method to extract JWT token from specified cookie name.

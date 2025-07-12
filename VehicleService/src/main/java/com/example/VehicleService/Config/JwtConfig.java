@@ -16,14 +16,14 @@ import java.util.Date;
 public class JwtConfig {
 
 
-    private final JwtProperties jwtProperties;
+    private final AuthProperties authProperties;
 
-    public JwtConfig(JwtProperties jwtProperties) {
-        this.jwtProperties = jwtProperties;
+    public JwtConfig(AuthProperties authProperties) {
+        this.authProperties = authProperties;
     }
 
     public SecretKey getSecretKey() {
-        return Keys.hmacShaKeyFor(jwtProperties.getSecret().getBytes(StandardCharsets.UTF_8));
+        return Keys.hmacShaKeyFor(authProperties.getJwt().getSecret().getBytes(StandardCharsets.UTF_8));
     }
     @Bean
     public SecretKey jwtSecretKey() {
@@ -32,7 +32,7 @@ public class JwtConfig {
 
 
     public long getExpiration() {
-        return jwtProperties.getExpiration();
+        return authProperties.getJwt().getExpiration();
     }
 
 
@@ -49,7 +49,7 @@ public class JwtConfig {
             String authHeader = request.getHeader("Authorization");
             if (authHeader != null && authHeader.startsWith("Bearer ")) {
 
-                return authHeader.substring(7).trim(); // Use .trim() to remove leading/trailing spaces
+                return authHeader.substring(7).trim();
             }
             return null;
         }

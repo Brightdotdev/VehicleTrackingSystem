@@ -26,7 +26,7 @@ auth:
 ## 🧠 Constructor
 
 ```java
-public JwtConfig(JwtProperties jwtProperties)
+public JwtConfig(JwtProperties authProperties)
 ```
 
 * Injects a custom `JwtProperties` class containing JWT config values (`secret`, `expiration`).

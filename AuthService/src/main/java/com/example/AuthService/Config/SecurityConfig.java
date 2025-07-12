@@ -26,13 +26,13 @@ public class SecurityConfig {
     @Lazy
     private UserDetailService userDetailService;
 
-    // BCrypt encoder for encoding/storing passwords
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    // DaoAuthenticationProvider is used for username/password login (local login)
+
     @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
@@ -41,7 +41,7 @@ public class SecurityConfig {
         return provider;
     }
 
-    // Register AuthenticationManager so it can be injected into services
+
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
@@ -55,6 +55,7 @@ public class SecurityConfig {
                         -> authorize
                         .requestMatchers("/v1/auth/**").permitAll()
                         .requestMatchers("/").permitAll()
+                .requestMatchers("/internal/**").authenticated()
                         .requestMatchers("/error").permitAll()
                 .anyRequest().authenticated());
         return httpSecurity.build();

@@ -8,33 +8,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class RabbitConfig {
+public class RabbitMqConfig {
 
 
     /***  Receiver config   **/
-
-
-    // === created admin direct exchange ====
-
-    private final String ADMIN_CREATED_DIRECT_EXCHANGE = "admin.created.exchange";
-    private final String ADMIN_CREATED_DIRECT_EXCHANGE_KEY = "admin.created.key";
-    private final String ADMIN_CREATED_DIRECT_EXCHANGE_QUEUE = "logs.service.created.admin.queue";
-
-    @Bean
-    public Queue adminCreatedDirectExchangeQueue() {
-        return new Queue(ADMIN_CREATED_DIRECT_EXCHANGE_QUEUE, true,false,false);
-    }
-
-    @Bean
-    public DirectExchange adminCreatedDirectExchange() {
-        return new DirectExchange(ADMIN_CREATED_DIRECT_EXCHANGE);
-    }
-
-    @Bean
-    public Binding adminCreatedDirectExchangeBinding(DirectExchange adminCreatedDirectExchange,Queue adminCreatedDirectExchangeQueue) {
-        return BindingBuilder.bind(adminCreatedDirectExchangeQueue).to(adminCreatedDirectExchange).with(ADMIN_CREATED_DIRECT_EXCHANGE_KEY);
-    }
-
 
     // -- created dispatch fanout exchange from disatch service
 

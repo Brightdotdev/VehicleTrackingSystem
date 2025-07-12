@@ -1,41 +1,26 @@
-This is the real security muscle of your app — the backbone behind login, password hashing, and access control.
-
-Here’s a clean Markdown doc for it:
-
----
-
-### ✅ `docs/config/security-config.md` — Spring Security Configuration
-
-```md
-# 🔐 SecurityConfig — Spring Security Setup
-
-This configuration class defines how your application handles **authentication**, **authorization**, and **password encoding** using Spring Security.
-
----
-
 ## 📦 Package
 
 ```
-
 com.example.AuthService.Config.SecurityConfig
 
 ````
 
 ---
 
-## 🧱 Annotations
+## 🧱 Key Annotations
 
-| Annotation             | Purpose                                                                 |
-|------------------------|-------------------------------------------------------------------------|
-| `@Configuration`       | Declares this class as a Spring config class.                           |
-| `@EnableWebSecurity`   | Enables Spring Security’s web features.                                 |
-| `@EnableMethodSecurity`| Enables use of `@PreAuthorize` and `@PostAuthorize` annotations.        |
+| Annotation               | Purpose                                                             |
+|--------------------------|---------------------------------------------------------------------|
+| `@Configuration`         | Declares this class as a Spring configuration class.               |
+| `@EnableWebSecurity`     | Enables Spring Security’s web-based security features.             |
+| `@EnableMethodSecurity`  | Enables annotations like `@PreAuthorize` for method-level security.|
 
 ---
 
-## 🧪 Beans Defined
+## 🧪 Defined Beans
 
-### 🔑 `PasswordEncoder`
+### 🔐 PasswordEncoder
+
 ```java
 @Bean
 public PasswordEncoder passwordEncoder() {
@@ -43,13 +28,12 @@ public PasswordEncoder passwordEncoder() {
 }
 ````
 
-* Uses BCrypt (a one-way hash function) to encode passwords.
-* Required for secure password handling.
-* Injected into `DaoAuthenticationProvider`.
+* Uses **BCrypt** hashing algorithm.
+* Ensures secure password storage.
 
 ---
 
-### 🔐 `AuthenticationProvider`
+### 🔑 AuthenticationProvider
 
 ```java
 @Bean
@@ -61,14 +45,13 @@ public AuthenticationProvider authenticationProvider() {
 }
 ```
 
-* Tells Spring Security how to authenticate users:
-
-    * **userDetailService** provides user data.
-    * **passwordEncoder** compares password hashes.
+* Integrates with your custom `UserDetailService`.
+* Leverages BCrypt for password comparison.
+* Used during login to verify credentials.
 
 ---
 
-### 🧠 `AuthenticationManager`
+### 🧠 AuthenticationManager
 
 ```java
 @Bean
@@ -77,37 +60,41 @@ public AuthenticationManager authenticationManager(AuthenticationConfiguration c
 }
 ```
 
-* Exposes the `AuthenticationManager` for manual use (e.g. login services).
-* Spring handles user validation here.
+* Exposes Spring's internal `AuthenticationManager` so you can call it in your service (e.g. login).
 
 ---
 
-### 🚨 `SecurityFilterChain`
+### 🛡️ SecurityFilterChain
 
 ```java
 @Bean
-public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-    http.csrf(AbstractHttpConfigurer::disable)
-        .authorizeHttpRequests(authz -> authz
-            .requestMatchers("/v1/auth/**", "/", "/error").permitAll()
-            .anyRequest().authenticated()
-        );
-    return http.build();
+public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
+    httpSecurity
+        .csrf(AbstractHttpConfigurer::disable)
+        .authorizeHttpRequests(auth -> auth
+            .requestMatchers("/v1/auth/**").permitAll()
+            .requestMatchers("/").permitAll()
+            .requestMatchers("/internal/**").authenticated()
+            .requestMatchers("/error").permitAll()
+            .anyRequest().authenticated());
+    return httpSecurity.build();
 }
 ```
 
-* Disables CSRF (because you’re using JWTs or token-based auth).
-* Allows unauthenticated access to:
+* **CSRF disabled** — you're using token-based auth, not form login.
+* **Public endpoints**:
 
-    * `/v1/auth/**` → All login/signup endpoints
-    * `/` and `/error` → Home and error pages
-* Requires authentication for everything else.
+  * `/v1/auth/**` → login, registration
+  * `/` → optional welcome or health check
+  * `/error` → allows Spring Boot to return standard error page
+* **Internal endpoints**:
+
+  * `/internal/**` now requires authentication — enforced via token
+* **All other endpoints** → protected
 
 ---
 
-## 🔁 Dependency Injection
-
-### 🔄 `@Lazy UserDetailService`
+## 🧠 Dependency Injection
 
 ```java
 @Autowired
@@ -115,22 +102,22 @@ public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Excepti
 private UserDetailService userDetailService;
 ```
 
-* `@Lazy` avoids circular dependencies — helpful if `UserDetailService` depends on security beans.
+* `@Lazy` helps avoid circular dependency if the user service needs any security beans.
 
 ---
 
-## 🔐 Security Flow Summary
+## 🔁 How It Works
 
-| Step             | Component                   | Purpose                          |
-| ---------------- | --------------------------- | -------------------------------- |
-| Password hashing | `BCryptPasswordEncoder`     | Hashes passwords                 |
-| Auth validation  | `DaoAuthenticationProvider` | Validates credentials            |
-| Manager exposure | `AuthenticationManager`     | Authenticates users in services  |
-| Security rules   | `SecurityFilterChain`       | Routes open vs. protected access |
+| Component                   | Role                                       |
+| --------------------------- | ------------------------------------------ |
+| `BCryptPasswordEncoder`     | Password hashing                           |
+| `DaoAuthenticationProvider` | Validates credentials using DB and encoder |
+| `AuthenticationManager`     | Called explicitly for manual login/auth    |
+| `SecurityFilterChain`       | Defines access control for each endpoint   |
 
 ---
 
-## 🔥 Example Usage in a Service
+## 🔥 Usage Example in a Login Service
 
 ```java
 Authentication auth = authenticationManager.authenticate(
@@ -140,28 +127,32 @@ Authentication auth = authenticationManager.authenticate(
 
 ---
 
-## 🚨 Notes
+## 🚨 Security Notes
 
-* CSRF is disabled — don’t enable it unless you’re using sessions or forms.
-* You **must** hash passwords on registration using `passwordEncoder.encode(...)`.
+* You **must** encode passwords during registration:
+
+  ```java
+  user.setPassword(passwordEncoder.encode(rawPassword));
+  ```
+
+* All `/internal/**` endpoints now **require authentication** — typically done using JWT and API key strategies across services.
 
 ---
 
-## 📁 Related Classes
+## 📁 Related Configs
 
 * [`UserDetailService`](../Services/UserDetailService.md)
 * [`JwtConfig`](./JwtConfig.md)
-* [`CookieGenerationHandler`](../handlers/cookie-handler.md)
 
 ---
 
 ## ✅ Summary
 
-| Bean                     | Purpose                               |
-| ------------------------ | ------------------------------------- |
-| `PasswordEncoder`        | Secure password storage               |
-| `AuthenticationProvider` | Credential validation via UserDetails |
-| `AuthenticationManager`  | Used for manual login                 |
-| `SecurityFilterChain`    | Determines who can access what        |
+| Bean                     | Description                            |
+| ------------------------ | -------------------------------------- |
+| `PasswordEncoder`        | Secure password hashing with BCrypt    |
+| `AuthenticationProvider` | Uses user service + encoder for login  |
+| `AuthenticationManager`  | Exposed manually for use in services   |
+| `SecurityFilterChain`    | Declares which endpoints are protected |
 
-
+---

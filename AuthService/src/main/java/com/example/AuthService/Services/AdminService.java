@@ -5,13 +5,14 @@ import com.example.AuthService.Exceptions.AccessException;
 import com.example.AuthService.Exceptions.ConflictException;
 import com.example.AuthService.Exceptions.NotFoundException;
 import com.example.AuthService.Models.UserModel;
-import com.example.AuthService.RabbitMq.RabbitMqSenderService;
 import com.example.AuthService.Repositories.UserRepository;
+import com.example.AuthService.Utils.ApiResponse;
 import com.example.AuthService.Utils.UtilRecords;
+import com.example.AuthService.WebClient.LoggingWebClientService;
 import jakarta.transaction.Transactional;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,13 +22,13 @@ import java.util.Map;
 public class AdminService {
 
     private final UserRepository userRepository;
-    private final RabbitMqSenderService rabbitMqSenderService;
+    @Autowired
+    private LoggingWebClientService LoggingWebClientService;
+
      Integer adminKey = 223344;
 
-
-    public AdminService(UserRepository userRepository, RabbitMqSenderService rabbitMqSenderService) {
+    public AdminService(UserRepository userRepository) {
         this.userRepository = userRepository;
-        this.rabbitMqSenderService = rabbitMqSenderService;
     }
 
     public UserModel findAdmin(String email) {
@@ -35,7 +36,6 @@ public class AdminService {
                 .orElseThrow(() -> new NotFoundException("User not found"));
 ;
         if(!foundAdmin.getRoles().contains("ROLE_ADMIN")){
-
             throw new AccessException("Not a valid admin!");
         }
         return foundAdmin;}
@@ -161,14 +161,17 @@ public class AdminService {
         user.setRoles(List.of("ROLE_USER","ROLE_ADMIN",  "ROLE_GOOGLE"));
 
         UtilRecords.adminCreatedRequestBodyDto adminReq = new UtilRecords.adminCreatedRequestBodyDto(email);
-/*
+        Mono<ApiResponse<Map<String, Object>>> logAdminCreatedResponse  =  LoggingWebClientService.sendAdminCreated(email.trim());
 
-        Map<String , Object> logAdminCreatedResponse = rabbitMqSenderService.sendAdminCreated(adminReq);
+        ApiResponse<Map<String, Object>> extractedResponse = logAdminCreatedResponse.block();
 
-        if(!logAdminCreatedResponse.containsKey("createdNew")){
-        throw new ConflictException("Unable to synchronize admin data Try signing up again");
+        assert extractedResponse != null;
+
+        if(!extractedResponse.getData().containsKey("createdNew")){
+            throw new ConflictException("Unable to synchronize admin data Try signing up again");
         }
-*/
+
+
 
         return userRepository.save(user);
     }

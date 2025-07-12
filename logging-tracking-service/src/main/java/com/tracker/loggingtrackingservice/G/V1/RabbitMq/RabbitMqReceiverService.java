@@ -4,6 +4,7 @@ import com.tracker.loggingtrackingservice.G.V1.Models.AdminModel;
 import com.tracker.loggingtrackingservice.G.V1.Repositories.AdminRepository;
 import com.tracker.loggingtrackingservice.G.V1.Services.NotificationService;
 import com.tracker.loggingtrackingservice.G.V1.Services.TrackingService;
+import com.tracker.loggingtrackingservice.G.V1.Services.UserHandlerService;
 import com.tracker.loggingtrackingservice.G.V1.Utils.UtilRecords;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,8 +21,11 @@ public class RabbitMqReceiverService {
 
     private static final Logger logger = LoggerFactory.getLogger(RabbitMqReceiverService.class);
 
+
+    ;
+
     // Queue names
-    private static final String ADMIN_CREATED_DIRECT_EXCHANGE_QUEUE = "logs.service.created.admin.queue";
+
     private static final String DISPATCH_CREATED_FANOUT_LOG_QUEUE = "log.service.dispatch.created.fanout.queue";
     private static final String DISPATCH_COMPLETED_FANOUT_LOGS_QUEUE = "completed.dispatch.fanOut.provider.dispatch.service.queue.logs.service";
     private static final String DISPATCH_VALIDATED_FANOUT_LOGS_QUEUE = "validated.dispatch.fanOut.provider.dispatch.service.queue.logs.service";
@@ -29,50 +33,15 @@ public class RabbitMqReceiverService {
 
     private final NotificationService notificationService;
     private final TrackingService trackingService;
-    private final AdminRepository adminRepository;
 
-    public RabbitMqReceiverService(NotificationService notificationService, TrackingService trackingService, AdminRepository adminRepository) {
+
+    public RabbitMqReceiverService(NotificationService notificationService, TrackingService trackingService) {
+
         this.notificationService = notificationService;
         this.trackingService = trackingService;
-        this.adminRepository = adminRepository;
     }
 
-    /**
-     * ✅ Admin creation listener — handles saving or returning existing admin
-     */
-    @Transactional
-    @RabbitListener(queues = ADMIN_CREATED_DIRECT_EXCHANGE_QUEUE)
-    public Map<String, Object> handleAdminCreatedQueue(UtilRecords.adminCreatedRequestBodyDto requestBody) {
-        Map<String, Object> response = new HashMap<>();
 
-        if (requestBody == null || requestBody.email() == null || requestBody.email().isBlank()) {
-            logger.warn("Received invalid admin creation request: {}", requestBody);
-            response.put("createdNew", false);
-            return response;
-        }
-
-        try {
-            AdminModel foundAdmin = adminRepository.findByEmail(requestBody.email());
-
-            if (foundAdmin != null) {
-                response.put("createdNew", false);
-                return response;
-            }
-
-            AdminModel newAdmin = new AdminModel();
-            newAdmin.setEmail(requestBody.email());
-            newAdmin.setJoinedAt(LocalDateTime.now());
-            newAdmin.setValidated(true);
-            adminRepository.save(newAdmin);
-
-            response.put("createdNew", true);
-            return response;
-
-        } catch (Exception e) {
-            logger.error("Failed to process admin creation request: {}", e.getMessage(), e);
-            return null;  // Allows RabbitMQ to treat this as handled without requeue
-        }
-    }
 
     /**
      * ✅ Listener for fanout dispatch creation notifications

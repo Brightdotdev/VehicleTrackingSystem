@@ -1,9 +1,7 @@
 package com.tracker.loggingtrackingservice.G.V1.Config;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.MalformedJwtException;
-import io.jsonwebtoken.UnsupportedJwtException;
+
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.SignatureException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -20,20 +18,19 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
 public class JwtRequestFilter extends OncePerRequestFilter {
 
     private final JwtConfig jwtConfig;
+    private final AuthProperties authProperties;
     private final Logger logger = LoggerFactory.getLogger(JwtRequestFilter.class);
 
-
-    public JwtRequestFilter(JwtConfig jwtConfig) {
+    public JwtRequestFilter(JwtConfig jwtConfig, AuthProperties authProperties) {
         this.jwtConfig = jwtConfig;
+        this.authProperties = authProperties;
     }
 
     @Override
@@ -43,90 +40,88 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             FilterChain filterChain
     ) throws ServletException, IOException {
 
+
         final String path = request.getRequestURI();
-        final String headerEmail = request.getHeader("x-user-email");
-        String email = null;
-        final List<String> headerRoles = Collections.singletonList(request.getHeader("x-user-roles"));
+
+
+        if (path.startsWith("/internal")) {
+            String apiKey = request.getHeader("X-Internal-API-Key");
+            String expectedKey = authProperties.getApi().getInternalKey();
+
+            if (expectedKey != null && expectedKey.equals(apiKey)) {
+                logger.info("Internal API key authorized for {}", path);
+
+                UsernamePasswordAuthenticationToken auth =
+                        new UsernamePasswordAuthenticationToken("internal-service", null, List.of());
+                auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(auth);
+                filterChain.doFilter(request, response);
+                return;
+            } else {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.setContentType("application/json");
+                response.getWriter().write("{\"error\": \"Unauthorized: Invalid or missing internal API key\"}");
+                return;
+            }
+        }
+
+
         final List<String> roles = new ArrayList<>();
+        Object image = null;
+        Object name = null;
+        String email = null;
+        String token = request.getHeader("x-user-token");
 
-        String token = null;
 
-            token =  request.getHeader("x-user-token");
 
-        // Fallback to Authorization header if x-user-token is missing
         if (token == null) {
             String authHeader = request.getHeader("Authorization");
             if (authHeader != null && authHeader.startsWith("Bearer ")) {
                 token = authHeader.substring(7);
-//                logger.debug("JWT extracted from Authorization header");
-            }
-        }
+            }}
 
-        // Fallback to cookie
+
         if (token == null && request.getCookies() != null) {
-            // Check if the path is under /v1/admin
+
             boolean isAdminPath = path.startsWith("/v1/admin");
 
             for (Cookie cookie : request.getCookies()) {
                 if (isAdminPath && "adminDeskCookie".equals(cookie.getName())) {
-                    // Use admin cookie for admin routes
                     token = cookie.getValue();
-//                    logger.debug("Admin JWT extracted from admin cookie");
                     break;
                 } else if (!isAdminPath && "userDeskToken".equals(cookie.getName())) {
-                    // Use regular user cookie for non-admin routes
                     token = cookie.getValue();
-//                    logger.debug("User JWT extracted from user cookie");
                     break;
                 }
             }
         }
 
-//        logger.info("Processing request: {} {}", request.getMethod(), request.getRequestURI());
-
-        // If JWT is found, validate it
         if (token != null) {
             try {
                 if (jwtConfig.validateToken(token)) {
-                    logger.debug("JWT is valid");
-
                     Claims claims = jwtConfig.getClaims(token);
                     email = claims.getSubject();
-//                    logger.info("Token subject (email): {}", email);
-//                    logger.info("Token subject (header email): {}", headerEmail);
+                    image = claims.get("userImage");
+                    name = claims.get("name");
+
 
                     Object rawRoles = claims.get("roles");
                     if (rawRoles instanceof List<?>) {
                         for (Object role : (List<?>) rawRoles) {
                             roles.add(String.valueOf(role));
                         }
-//                        logger.debug("Extracted roles: {}", roles);
                     }
-                } else {
-//                    logger.warn("Token failed validation");
                 }
-
-            } catch (ExpiredJwtException e) {
-                logger.warn("JWT expired: {}", e.getMessage());
-            } catch (MalformedJwtException e) {
-                logger.warn("Malformed JWT: {}", e.getMessage());
-            } catch (UnsupportedJwtException e) {
-                logger.warn("Unsupported JWT: {}", e.getMessage());
-            } catch (SignatureException e) {
-                logger.warn("JWT signature invalid: {}", e.getMessage());
-            } catch (IllegalArgumentException e) {
-                logger.warn("Illegal JWT argument: {}", e.getMessage());
+            } catch (ExpiredJwtException | MalformedJwtException |
+                     UnsupportedJwtException | SignatureException |
+                     IllegalArgumentException e) {
+                logger.warn("JWT validation failed: {}", e.getMessage());
             }
-        } else {
-//            logger.warn("Missing or invalid Authorization header and cookie");
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.setContentType("application/json");
-            response.getWriter().write("{\"error\": \"Unauthorized Request: You're not allowed here\"}");
-            return;
         }
 
-        // Set authentication if user info is extracted
+
         if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+
             List<SimpleGrantedAuthority> authorities = roles.stream()
                     .map(role -> role.startsWith("ROLE_") ? role : "ROLE_" + role)
                     .map(SimpleGrantedAuthority::new)
@@ -135,13 +130,18 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             UsernamePasswordAuthenticationToken authToken =
                     new UsernamePasswordAuthenticationToken(email, null, authorities);
 
-            authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-            SecurityContextHolder.getContext().setAuthentication(authToken);
-//            logger.info("SecurityContext set for user: {}", email);
-        }
+            Map<String, Object> details = new HashMap<>();
+            details.put("userImage", image);
+            details.put("name", name);
+            authToken.setDetails(details);
 
+            SecurityContextHolder.getContext().setAuthentication(authToken);
+        } else if (email == null) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json");
+            response.getWriter().write("{\"error\": \"Unauthorized Request: You're not allowed here\"}");
+            return;
+        }
         filterChain.doFilter(request, response);
     }
-
-
 }

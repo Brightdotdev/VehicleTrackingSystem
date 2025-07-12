@@ -46,25 +46,10 @@ Configures how incoming HTTP requests are authenticated and authorized.
     .requestMatchers("/v1/sse/**").authenticated()
     .requestMatchers("/v1/user/tracking/**").authenticated()
     .requestMatchers("/v1/admin/notifications/**").hasRole("ADMIN")
-    .requestMatchers("/v1/user/tracking/**").hasRole("ADMIN") // ⚠️ Conflicting with earlier rule
     .requestMatchers("/error").permitAll()
     .anyRequest().authenticated()
 )
 ```
-
-#### 🚨 Important Note:
-
-You have conflicting rules for `/v1/user/tracking/**`:
-
-* First allows **all authenticated users**
-* Second restricts to **only ADMINs**
-
-📌 **Suggestion:** Remove one of them based on intent. Most likely:
-
-```java
-.requestMatchers("/v1/user/tracking/**").hasAnyRole("ADMIN", "USER")
-```
-
 ---
 
 ### 🔥 Exception Handling

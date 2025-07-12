@@ -11,7 +11,8 @@ import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/api/internal/dispatch")
+@RequestMapping("/internal/dispatch")
+
 public class DispatchInternalController {
 
     private static final Logger logger = LoggerFactory.getLogger(DispatchInternalController.class);
