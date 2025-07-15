@@ -223,23 +223,7 @@ public class VehicleService {
     }
 
 
-    @Transactional
-    public void handleValidatedDispatch(UtilRecords.ValidatedDispatch dispatchEvent) {
 
-        VehicleModel dispatchedVehicle = vehicleRepository.
-        findByVehicleIdentificationNumber(dispatchEvent.vehicleIdentificationNumber());
-
-        if (dispatchedVehicle == null){
-            throw new NotFoundException("The vehicle doesn't even exist boss");
-        }
-        if(dispatchedVehicle.getDispatchStatus() != VehicleEnums.VehicleDispatchStatus.PENDING){
-            throw new ConflictException("The vehicle is not staged for dispatch");
-        }
-        dispatchedVehicle.addDispatchHistoryEntry(dispatchEvent.dispatchId());
-        dispatchedVehicle.setDispatchStatus(VehicleEnums.VehicleDispatchStatus.IN_PROGRESS);
-        vehicleRepository.save(dispatchedVehicle);
-
-    }
 
     @Transactional
     public void completedDispatch(UtilRecords.DispatchEndedDTO dispatchEvent) {
@@ -307,29 +291,44 @@ public class VehicleService {
 
 
 
-    public Map<String, Object> handleDispatchToVehicle(UtilRecords.dispatchRequestBodyDTO dispatchEvent) {
+    @Transactional
+    public Map<String, Object> handleDispatchRequest(UtilRecords.dispatchRequestBodyDTO dispatchEvent) {
 
             if (dispatchEvent == null || dispatchEvent.vehicleIdentificationNumber() == null) {
                 throw new NotFoundException("Vehicle vin missing for creating a new dispatch");
             }
 
-            // Find vehicle by VIN
+
             VehicleModel vehicle = vehicleRepository.findByVehicleIdentificationNumber(dispatchEvent.vehicleIdentificationNumber());
 
             if (vehicle == null) {
                 throw new NotFoundException("No vehicle of that vin found");
             }
-
-            // Update dispatch status to PENDING
             vehicle.setDispatchStatus(VehicleEnums.VehicleDispatchStatus.PENDING);
             vehicleRepository.save(vehicle);
 
-            // Initialize dispatch history if needed
-            Hibernate.initialize(vehicle.getDispatchHistory());
-
-            // Process and return dispatch status info
            return  vehicleHealthService.vehicleDispatchStatus(vehicle, dispatchEvent);
 
     }
+
+    @Transactional
+    public void handleValidatedDispatch(UtilRecords.ValidatedDispatch dispatchEvent) {
+
+        VehicleModel dispatchedVehicle = vehicleRepository.
+                findByVehicleIdentificationNumber(dispatchEvent.vehicleIdentificationNumber());
+
+        if (dispatchedVehicle == null){
+            throw new NotFoundException("The vehicle doesn't even exist boss");
+        }
+        if(dispatchedVehicle.getDispatchStatus() != VehicleEnums.VehicleDispatchStatus.PENDING){
+            throw new ConflictException("The vehicle is not staged for dispatch");
+        }
+        dispatchedVehicle.addDispatchHistoryEntry(dispatchEvent.dispatchId());
+        dispatchedVehicle.setDispatchStatus(VehicleEnums.VehicleDispatchStatus.IN_PROGRESS);
+        vehicleRepository.save(dispatchedVehicle);
+
+    }
 }
+
+
 

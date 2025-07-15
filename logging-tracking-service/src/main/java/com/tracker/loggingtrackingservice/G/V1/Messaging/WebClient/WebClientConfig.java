@@ -1,4 +1,8 @@
-package com.example.DispatchService.Config;
+package com.tracker.loggingtrackingservice.G.V1.Messaging.WebClient;
+
+
+
+import com.tracker.loggingtrackingservice.G.V1.Config.AuthProperties;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,11 +19,11 @@ public class WebClientConfig {
 
 
     @Bean
-    public WebClient loggingWebClient(
-            @Value("${external.services.logging.base-url}") String baseUrl) {
+    public WebClient dispatchWebClient(
+            @Value("${external.services.dispatch.base-url}") String baseUrl) {
         return WebClient.builder()
                 .baseUrl(baseUrl)
-                .defaultHeader("X-Internal-API-Key", authProperties.getApi().getInternalKey())
+                .defaultHeader("X-Internal-API-Key", authProperties.getApi().getKey())
                 .build();
     }
 
@@ -28,16 +32,8 @@ public class WebClientConfig {
             @Value("${external.services.vehicle.base-url}") String baseUrl) {
         return WebClient.builder()
                 .baseUrl(baseUrl)
-                .defaultHeader("X-Internal-API-Key", authProperties.getApi().getInternalKey())
+                .defaultHeader("X-Internal-API-Key", authProperties.getApi().getKey())
                 .build();
     }
 
-    @Bean
-    public WebClient authWebClient(
-            @Value("${external.services.auth.base-url}") String baseUrl) {
-        return WebClient.builder()
-                .baseUrl(baseUrl)
-                .defaultHeader("X-Internal-API-Key", authProperties.getApi().getInternalKey())
-                .build();
-    }
 }

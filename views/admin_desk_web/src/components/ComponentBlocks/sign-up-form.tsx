@@ -111,7 +111,7 @@ export function SignUpForm({
   };
 
   return (
-    <div className={cn("flex flex-col gap-sm overflow-hidden relative w-md", className)} {...props}>
+    <div className={cn("flex  flex-col gap-sm overflow-hidden relative w-md", className)} {...props}>
 
   
       <Card className="overflow-hidden relative">

@@ -30,7 +30,7 @@ public class LoggingWebClientService {
 
 
         return loggingWebClient.post()
-                .uri("/internal/admin/create")
+                .uri("/internal/logs/admin/create")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(requestBody)
                 .retrieve()

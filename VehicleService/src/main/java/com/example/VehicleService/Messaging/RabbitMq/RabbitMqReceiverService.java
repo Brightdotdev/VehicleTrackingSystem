@@ -1,4 +1,4 @@
-package com.example.VehicleService.RabbitMq;
+package com.example.VehicleService.Messaging.RabbitMq;
 
 import com.example.VehicleService.Models.VehicleModel;
 import com.example.VehicleService.Repositories.VehicleRepository;
@@ -10,12 +10,14 @@ import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
 
 @Service
+@ConditionalOnProperty(name = "messaging.type", havingValue = "rabbitMq", matchIfMissing = true)
 public class RabbitMqReceiverService {
 
     private static final Logger logger = LoggerFactory.getLogger(RabbitMqReceiverService.class);
@@ -32,17 +34,14 @@ public class RabbitMqReceiverService {
     private static final String QUEUE_VEHICLE_LOCATION = "tracking.checkPoint.fanOut.provider.logs.queue.vehicle.service";
 
 
-    private final VehicleRepository vehicleRepository;
-    private final VehicleHealthService vehicleHealthService;
+
     private final VehicleService vehicleService;
 
-    public RabbitMqReceiverService(VehicleRepository vehicleRepository,
-                                   VehicleHealthService vehicleHealthService,
-                                   VehicleService vehicleService) {
-        this.vehicleRepository = vehicleRepository;
-        this.vehicleHealthService = vehicleHealthService;
+    public RabbitMqReceiverService(VehicleService vehicleService) {
+
         this.vehicleService = vehicleService;
     }
+
 
     /**
      * Handles new dispatch creation to vehicle.
@@ -52,23 +51,8 @@ public class RabbitMqReceiverService {
     @RabbitListener(queues = QUEUE_DISPATCH_CREATED)
     public Map<String, Object> handleDispatchToVehicle(UtilRecords.dispatchRequestBodyDTO dispatchEvent) {
         try {
-            if (dispatchEvent == null || dispatchEvent.vehicleIdentificationNumber() == null) {
-                logger.warn("Received dispatch creation event with missing VIN.");
-                return null;
-            }
 
-            VehicleModel vehicle = vehicleRepository.findByVehicleIdentificationNumber(dispatchEvent.vehicleIdentificationNumber());
-
-            if (vehicle == null) {
-                logger.warn("Vehicle not found for VIN: {}", dispatchEvent.vehicleIdentificationNumber());
-                return null;
-            }
-
-            vehicle.setDispatchStatus(VehicleEnums.VehicleDispatchStatus.PENDING);
-            vehicleRepository.save(vehicle);
-            Hibernate.initialize(vehicle.getDispatchHistory());
-
-            return vehicleHealthService.vehicleDispatchStatus(vehicle, dispatchEvent);
+            return vehicleService.handleDispatchRequest(dispatchEvent);
 
         } catch (Exception e) {
             logger.error("Error processing dispatch creation event", e);

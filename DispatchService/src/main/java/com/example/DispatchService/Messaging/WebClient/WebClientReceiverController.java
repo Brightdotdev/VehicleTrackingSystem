@@ -1,24 +1,25 @@
-package com.example.DispatchService.Controller;
+package com.example.DispatchService.Messaging.WebClient;
 
 import com.example.DispatchService.Service.UserDispatchService;
 import com.example.DispatchService.Utils.ApiResponse;
 import com.example.DispatchService.Utils.UtilRecords;
-
+import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/internal/dispatch")
+public class WebClientReceiverController {
 
-public class DispatchInternalController {
-
-    private static final Logger logger = LoggerFactory.getLogger(DispatchInternalController.class);
+    private static final Logger logger = LoggerFactory.getLogger(WebClientReceiverController.class);
     private final UserDispatchService userDispatchService;
 
-    public DispatchInternalController(UserDispatchService userDispatchService) {
+    public WebClientReceiverController(UserDispatchService userDispatchService) {
         this.userDispatchService = userDispatchService;
     }
 

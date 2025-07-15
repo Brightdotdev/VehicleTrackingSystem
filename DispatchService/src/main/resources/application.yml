@@ -32,6 +32,11 @@ spring:
           max-interval: 10000
 
 
+
+messaging:
+  type: webClient
+
+
 external:
   services:
     logging:

@@ -16,31 +16,12 @@ public class WebClientConfig {
         this.authProperties = authProperties;
     }
 
-
     @Bean
     public WebClient loggingWebClient(
             @Value("${external.services.logging.base-url}") String baseUrl) {
         return WebClient.builder()
                 .baseUrl(baseUrl)
-                .defaultHeader("X-Internal-API-Key", authProperties.getApi().getInternalKey())
-                .build();
-    }
-
-    @Bean
-    public WebClient vehicleWebClient(
-            @Value("${external.services.vehicle.base-url}") String baseUrl) {
-        return WebClient.builder()
-                .baseUrl(baseUrl)
-                .defaultHeader("X-Internal-API-Key", authProperties.getApi().getInternalKey())
-                .build();
-    }
-
-    @Bean
-    public WebClient dispatchWebClient(
-            @Value("${external.services.dispatch.base-url}") String baseUrl) {
-        return WebClient.builder()
-                .baseUrl(baseUrl)
-                .defaultHeader("X-Internal-API-Key", authProperties.getApi().getInternalKey())
+                .defaultHeader("X-Internal-API-Key", authProperties.getApi().getKey())
                 .build();
     }
 }

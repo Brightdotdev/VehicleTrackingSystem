@@ -31,11 +31,6 @@ external:
   services:
     logging:
       base-url: ${LOGGING_URL}
-    vehicle:
-      base-url: ${VEHICLE_URL}
-    dispatch:
-      base-url: ${DISPATCH_URL}
-
 
 logging:
   level:

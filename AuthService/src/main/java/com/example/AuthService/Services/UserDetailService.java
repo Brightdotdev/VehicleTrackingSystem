@@ -4,7 +4,6 @@ import com.example.AuthService.Exceptions.AccessException;
 import com.example.AuthService.Exceptions.ConflictException;
 import com.example.AuthService.Exceptions.NotFoundException;
 import com.example.AuthService.Models.UserModel;
-import com.example.AuthService.Utils.ApiResponse;
 import com.example.AuthService.Utils.UtilRecords;
 import com.example.AuthService.WebClient.LoggingWebClientService;
 import jakarta.transaction.Transactional;
@@ -17,12 +16,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
-
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 
 @Service("userDetailsService")
@@ -37,16 +31,15 @@ public class UserDetailService implements UserDetailsService {
     private final AdminService adminService;
 
     private final PasswordEncoder passwordEncoder;
-
-
     private final AuthenticationManager authenticationManager;
 
     @Autowired
-    public UserDetailService(UserService userService, AdminService adminService, @Lazy AuthenticationManager authenticationManager, @Lazy PasswordEncoder passwordEncoder) {
+    public UserDetailService(UserService userService, AdminService adminService, @Lazy AuthenticationManager authenticationManager, @Lazy PasswordEncoder passwordEncoder, ResponseMapperService responseMapperService) {
         this.userService = userService;
         this.adminService = adminService;
         this.authenticationManager = authenticationManager;
-        this.passwordEncoder = passwordEncoder;}
+        this.passwordEncoder = passwordEncoder;
+    }
 
 
     @Override
@@ -88,7 +81,7 @@ public class UserDetailService implements UserDetailsService {
     public UtilRecords.LoginServiceResponse handleUserSignUp(UtilRecords.UserLocalSignUp request) {
 
         if (userService.existsByEmail(request.email())) {
-            throw new ConflictException("User with email Already exists");
+            throw new ConflictException("User with that email Already exists");
         }
         Authentication auth;
 
@@ -102,14 +95,11 @@ public class UserDetailService implements UserDetailsService {
         user.setUserImage(request.image());
         UserModel newUser = userService.save(user);
 
-        try {
+
             auth = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(request.email(), request.password()));
-        } catch (Exception e) {
-            throw new ConflictException("Authentication failed after save");
-        }
 
-        // Return both user info and authentication token
+
         return new UtilRecords.LoginServiceResponse(newUser, auth, newUser.getUserImage());
     }
 
@@ -161,9 +151,9 @@ public class UserDetailService implements UserDetailsService {
         UserModel authUser = adminService.handleOath2AdminSignUp(adminRequest);
 
         Authentication auth = new UsernamePasswordAuthenticationToken(
-                authUser, // principal
-                null, // no credentials for OAuth
-                authUser.getAuthorities() // roles/authorities
+                authUser,
+                null,
+                authUser.getAuthorities()
         );
         return new UtilRecords.LoginServiceResponse(authUser,auth,authUser.getUserImage());
     }
@@ -173,44 +163,11 @@ public class UserDetailService implements UserDetailsService {
     @Transactional
     public UtilRecords.LoginServiceResponse handleAdminLocalSignUp(UtilRecords.AdminLocalSignUp request) {
 
-
-        if (!adminService.isValidAdminRequest(request)) {
-            throw new AccessException("Invalid Admin request");
-        }
-
-        Authentication auth;
-
-        // Create new user object
-        UserModel user = new UserModel();
-        user.setName(request.name().trim());
-        user.setEmail(request.email().trim());
-        user.setPassword(passwordEncoder.encode(request.password().trim()));
-        user.setProvider("LOCAL_ADMIN_USER");
-        user.setRoles(List.of("ROLE_ADMIN"));
-
-
-
-
-        Mono<ApiResponse<Map<String, Object>>> logAdminCreatedResponse  =  LoggingWebClientService.sendAdminCreated(request.email().trim());
-
-        ApiResponse<Map<String, Object>> extractedResponse = logAdminCreatedResponse.block();
-
-        assert extractedResponse != null;
-
-        if(!extractedResponse.getData().containsKey("createdNew")){
-            throw new ConflictException("Unable to synchronize admin data Try signing up again");
-        }
-
-        UserModel newUser = userService.save(user);
-
-            try {
-                auth = authenticationManager.authenticate(
+         UserModel newUser = adminService.handleAdminLocalSignUp(request);
+         Authentication    auth = authenticationManager.authenticate(
                         new UsernamePasswordAuthenticationToken(request.email(), request.password()));
-            } catch (Exception e) {
-                throw new ConflictException("Authentication failed after save");
-            }
 
-            // Return both user info and authentication token
+
             return new UtilRecords.LoginServiceResponse(newUser, auth,newUser.getUserImage());
     }
 
@@ -221,14 +178,12 @@ public class UserDetailService implements UserDetailsService {
 
         UserModel user = adminService.localAdminLogin(adminReq);
         Authentication auth;
-        try {
+
+
             auth = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(adminReq.email(), adminReq.password()));
 
-        } catch (Exception e) {
-            throw new ConflictException("Authentication failed after save");
-        }
-        return new UtilRecords.LoginServiceResponse(user, auth,user.getUserImage());
+            return new UtilRecords.LoginServiceResponse(user, auth,user.getUserImage());
     }
 
 

@@ -1,4 +1,4 @@
-package com.tracker.loggingtrackingservice.G.V1.RabbitMq;
+package com.tracker.loggingtrackingservice.G.V1.Messaging.RabbitMq;
 
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
@@ -13,7 +13,7 @@ public class RabbitMqConfig {
 
     /***  Receiver config   **/
 
-    // -- created dispatch fanout exchange from disatch service
+    // -- created dispatch fanout exchange from dispatch service
 
     private static final String DISPATCH_CREATED_FANOUT = "dispatch.created.fanOut";
 

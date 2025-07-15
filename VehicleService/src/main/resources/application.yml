@@ -37,8 +37,10 @@ external:
       base-url: http://localhost:8104
     dispatch:
       base-url: http://localhost:8105
-    auth:
-      base-url: http://localhost:8103
+
+
+messaging:
+  type: webClient
 
 
 auth:

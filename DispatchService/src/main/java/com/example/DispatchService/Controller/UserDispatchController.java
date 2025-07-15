@@ -38,22 +38,11 @@ public class UserDispatchController {
      DispatchModel
             >>
     requestDispatch(
-    @RequestBody UtilRecords.dispatchRequestBody requestBody,
-    HttpServletRequest request
+    @RequestBody UtilRecords.dispatchRequestBody requestBody
     ) {
 
 
-         String cookieValue = Arrays.stream(request.getCookies())
-                .filter(c -> "userDeskToken".equals(c.getName()))
-                .findFirst()
-                .map(Cookie::getValue)
-                .orElse(null);
-
-        System.out.println(cookieValue);
-
-
-    //  UtilRecords.DispatchResponseDTO
-        DispatchModel  dispatchResponse =  userDispatchService.requestVehicleDispatch(requestBody, userHandler.getCurrentUser(),userHandler.getUserImage(), userHandler.getRoles(),cookieValue);
+        DispatchModel  dispatchResponse =  userDispatchService.requestVehicleDispatch(requestBody, userHandler.getCurrentUser(),userHandler.getUserImage(), userHandler.getRoles());
 
 
 

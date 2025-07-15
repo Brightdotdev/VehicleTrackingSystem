@@ -3,6 +3,7 @@ package com.example.AuthService.Exceptions;
 import com.example.AuthService.Utils.ApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -38,11 +39,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ConflictException.class)
     public ResponseEntity<ApiResponse<Void>> handleConflicts(ConflictException ex) {
-        ApiResponse<Void> response = ApiResponse.error(
-                401,
-                ex.getMessage()
-        );
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        ApiResponse<Void> response = ApiResponse.error(409, ex.getMessage());
+        return new ResponseEntity<>(response, HttpStatus.CONFLICT);
     }
 
 
@@ -56,14 +54,6 @@ public class GlobalExceptionHandler {
     }
 
 
-    @ExceptionHandler(InvalidTaskRequestException.class)
-    public ResponseEntity<ApiResponse<Void>> handleInvalidTask(InvalidTaskRequestException ex) {
-        ApiResponse<Void> response = ApiResponse.error(
-                ex.getErrorCode(),
-                ex.getMessage()
-        );
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-    }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiResponse<Void>> handleValidationErrors(MethodArgumentNotValidException ex) {
@@ -73,10 +63,19 @@ public class GlobalExceptionHandler {
                 .map(fieldError -> fieldError.getField() + ": " + fieldError.getDefaultMessage())
                 .collect(Collectors.joining(", "));
 
+        ApiResponse<Void> response = ApiResponse.error(400, errorMessage);
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ApiResponse<Void>> handleBadJson(HttpMessageNotReadableException ex) {
         ApiResponse<Void> response = ApiResponse.error(
-                403,
-                errorMessage
+                400,
+                "Malformed or missing JSON: " + ex.getLocalizedMessage()
         );
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
+
 }

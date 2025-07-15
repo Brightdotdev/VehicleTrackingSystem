@@ -77,14 +77,14 @@ public class AdminVehicleController {
         return ResponseEntity.ok(
                 ApiResponse.success(
                         201,
-                        "Vehicle Saved successfully",
+                        "Bad Vehicle Saved successfully",
                         savedVehicle
                 ));
 
     }
 
 
-    // :: localhost:8106/v1/admin/vehicle/mark-for-maintenance - mark for maintnacne
+    // :: localhost:8106/v1/admin/vehicle/mark-for-maintenance - mark for maintenance
     @PostMapping("/mark-for-maintenance")
     public  ResponseEntity<ApiResponse<VehicleModel>> setVehicleInMaintenance(@RequestParam String vin) {
 
@@ -93,7 +93,7 @@ public class AdminVehicleController {
         return ResponseEntity.ok(
                 ApiResponse.success(
                         201,
-                        "Vehicle Saved successfully",
+                        "Vehicle marked for maintenance successfully",
                         maintainedVehicle
                 ));
     }
@@ -107,7 +107,7 @@ public class AdminVehicleController {
         return ResponseEntity.ok(
                 ApiResponse.success(
                         201,
-                        "Vehicle Saved successfully",
+                        "Vehicle dispatch retrieved successfully",
                         vehicleHistory
                 ));
     }

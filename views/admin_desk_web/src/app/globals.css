@@ -298,7 +298,18 @@
     align-items: center;
   }
   .bottomNavButton{
-   @apply w-1/3 h-[var(--size-md)] px-[var(--size-md)]
+    @apply w-1/3 h-[var(--size-md)] px-[var(--size-md)];
+  }
+  @media (max-width: 450px) {
+    .bottomNavButton {
+      height: var(--size-xl);
+    }
+  }
+
+  @media (max-width: 350px) {
+    .bottomNavButton {
+      height: var(--size-xxl);
+    }
   }
   .topNavButton{
    @apply w-1/2 h-[var(--size-md)] px-[var(--size-md)]  
@@ -478,12 +489,21 @@
   animation: sheen 1s linear forwards;
 }
 
-.navButtonLeft{
-  border-radius: var(--radius) 0  0 var(--radius) ;
-}
+
 .navButtonRight{
   border-radius: 0 var(--radius) var(--radius) 0;
 }
+.navButtonLeft{
+  border-radius: var(--radius) 0  0 var(--radius) ;
+}
+
+  
+  @media (max-width: 350px) {
+    .navButtonLeft, .navButtonRight {
+      border-radius: 0;
+    }
+  }
+
 
 
 .disatchRequestContainer {

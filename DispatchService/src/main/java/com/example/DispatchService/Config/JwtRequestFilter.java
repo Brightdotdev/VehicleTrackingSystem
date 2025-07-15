@@ -46,7 +46,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
         if (path.startsWith("/internal")) {
             String apiKey = request.getHeader("X-Internal-API-Key");
-            String expectedKey = authProperties.getApi().getInternalKey();
+            String expectedKey = authProperties.getApi().getKey();
 
             if (expectedKey != null && expectedKey.equals(apiKey)) {
                 logger.info("Internal API key authorized for {}", path);

@@ -16,7 +16,7 @@ useEffect(() => {
     const getVehicles = async () => {
       const vehicleApi = await getAllVehicles()
       console.log(vehicleApi)
-      setVehicles(vehicleApi) // ✅ Keep this
+      setVehicles(vehicleApi)
     }
 
     getVehicles()

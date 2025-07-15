@@ -13,14 +13,14 @@ public class AuthProperties {
 
     public static class Api {
 
-        private String internalKey;
+        private String key;
 
-        public String getInternalKey() {
-            return internalKey;
+        public String getKey() {
+            return key;
         }
 
-        public void setInternalKey(String internalKey) {
-            this.internalKey = internalKey;
+        public void setKey(String key) {
+            this.key = key;
         }
     }
 

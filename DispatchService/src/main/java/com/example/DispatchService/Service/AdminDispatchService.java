@@ -4,8 +4,8 @@ package com.example.DispatchService.Service;
 import com.example.DispatchService.Exceptions.ConflictException;
 import com.example.DispatchService.Exceptions.InvalidRequestException;
 import com.example.DispatchService.Exceptions.NotFoundException;
+import com.example.DispatchService.Messaging.MessagingService;
 import com.example.DispatchService.Models.DispatchModel;
-import com.example.DispatchService.RabbitMq.RabbitMqSenderService;
 import com.example.DispatchService.Repositories.DispatchRepository;
 import com.example.DispatchService.Utils.DispatchEnums;
 import com.example.DispatchService.Utils.UtilRecords;
@@ -17,18 +17,17 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @Service
 
 public class AdminDispatchService {
     private final DispatchRepository dispatchRepository;
 
-    private final RabbitMqSenderService rabbitMqSenderService;
+    private final MessagingService messagingService;
 
-    public AdminDispatchService(DispatchRepository dispatchRepository, RabbitMqSenderService rabbitMqSenderService) {
+    public AdminDispatchService(DispatchRepository dispatchRepository, MessagingService messagingService) {
         this.dispatchRepository = dispatchRepository;
-        this.rabbitMqSenderService = rabbitMqSenderService;
+        this.messagingService = messagingService;
     }
 
 
@@ -60,7 +59,7 @@ public class AdminDispatchService {
 
         UtilRecords.ValidatedDispatch dispatchValidatedBroadcast = new UtilRecords.ValidatedDispatch(dispatch.getDispatchId(), dispatch.getVehicleName(), dispatch.getDispatchReason(),dispatch.getDispatchVehicleId(),dispatch.getDispatchRequester(),dispatch.getDispatchAdmin(),dispatch.getDispatchEndTime());
 
-        rabbitMqSenderService.sendDispatchValidatedNoResponse(dispatchValidatedBroadcast);
+        messagingService.sendDispatchValidatedNoResponse(dispatchValidatedBroadcast);
 
         return dispatchRepository.save(dispatch);
     }
@@ -83,7 +82,7 @@ public class AdminDispatchService {
 
 
         if(dispatch == null){
-            throw new NotFoundException("Dispatch NNof found ooo");
+            throw new NotFoundException("Dispatch not found");
         }
 
 
@@ -95,7 +94,7 @@ public class AdminDispatchService {
         }
         UtilRecords.DispatchEndedDTO dispatchEndedDTO = new UtilRecords.DispatchEndedDTO(true,LocalDateTime.now(),dispatch.getDispatchVehicleId(),dispatch.getDispatchRequester(),dispatch.getVehicleName(),dispatchId);
 
-        rabbitMqSenderService.sendDispatchCompletedFanoutFromDispatchService(dispatchEndedDTO);
+        messagingService.sendDispatchCompletedFanoutFromDispatchService(dispatchEndedDTO);
 
         dispatch.addToDispatchMetadata("dispatchApprovalStatus", dispatchCancelReason);
         dispatch.setDispatchAdmin(adminEmail);
@@ -127,7 +126,7 @@ public class AdminDispatchService {
             if (expiry.isBefore(now)) {
                 dispatch.setDispatchStatus(DispatchEnums.DispatchStatus.EXPIRED);
             UtilRecords.DispatchEndedDTO dispatchEndedDTO = new UtilRecords.DispatchEndedDTO(false,LocalDateTime.now(),dispatch.getDispatchVehicleId(),dispatch.getDispatchRequester(),dispatch.getVehicleName(),dispatch.getDispatchId());
-                rabbitMqSenderService.sendDispatchCompletedFanoutFromDispatchService(dispatchEndedDTO);
+                messagingService.sendDispatchCompletedFanoutFromDispatchService(dispatchEndedDTO);
                 dispatchRepository.save(dispatch);
             }
 
@@ -188,7 +187,7 @@ public class AdminDispatchService {
                     dispatch.addToDispatchMetadata("expiredSinceHours", pastTime.toHours());
                     dispatch.setDispatchStatus(DispatchEnums.DispatchStatus.EXPIRED);
                     UtilRecords.DispatchEndedDTO dispatchEndedDTO = new UtilRecords.DispatchEndedDTO(false,LocalDateTime.now(),dispatch.getDispatchVehicleId(),dispatch.getDispatchRequester(),dispatch.getVehicleName(),dispatch.getDispatchId());
-                    rabbitMqSenderService.sendDispatchCompletedFanoutFromDispatchService(dispatchEndedDTO);
+                    messagingService.sendDispatchCompletedFanoutFromDispatchService(dispatchEndedDTO);
                     dispatchRepository.save(dispatch);
                 }
 

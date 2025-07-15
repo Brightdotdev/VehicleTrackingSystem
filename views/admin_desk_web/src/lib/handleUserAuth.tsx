@@ -30,6 +30,8 @@ import { dotEnv } from "./dotEnv";
 
 
     const isValidAdminKey = await response.json();
+    console.log(isValidAdminKey)
+
 
     if(isValidAdminKey.code !== 200 && !isValidAdminKey.success === true){
       setLoading(false);
@@ -132,7 +134,7 @@ export const handleGoogleLogIn = async (
             credentials: "include", 
             body: JSON.stringify(userInfo),
           });
-
+          console.log(response)
           if (!response.ok) {
           const data = await response.json();
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -216,17 +218,18 @@ export const handleGoogleLogIn = async (
 
         if (data.status !== 200 || data.code !== 200 || !data.data) {
         setLoading(false)
-        
-        throw new Error("Login failed...trying again")}
+        throw new Error(data.message || "Login failed")
+      }
 
       
         toast.success("Login successful!")
-      window.location.replace("/");
 
     } catch (err: any) {
       toast.error(err.message || "Login failed")
     } finally {
       setLoading(false)
+      window.location.replace("/");
+
     }
   }
 
@@ -263,8 +266,9 @@ export const handleGoogleLogIn = async (
         body: JSON.stringify(userInfo),
       });
 
-      // Optionally parse the response
+      console.log(response)
       const data = await response.json();
+      console.log(data)
     if (data.code !== 201 && !data.data) {
         setLoading(false)
         

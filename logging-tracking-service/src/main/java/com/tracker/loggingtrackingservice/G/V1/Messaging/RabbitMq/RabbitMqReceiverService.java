@@ -1,20 +1,13 @@
-package com.tracker.loggingtrackingservice.G.V1.RabbitMq;
+package com.tracker.loggingtrackingservice.G.V1.Messaging.RabbitMq;
 
-import com.tracker.loggingtrackingservice.G.V1.Models.AdminModel;
-import com.tracker.loggingtrackingservice.G.V1.Repositories.AdminRepository;
 import com.tracker.loggingtrackingservice.G.V1.Services.NotificationService;
 import com.tracker.loggingtrackingservice.G.V1.Services.TrackingService;
-import com.tracker.loggingtrackingservice.G.V1.Services.UserHandlerService;
 import com.tracker.loggingtrackingservice.G.V1.Utils.UtilRecords;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
 
 @Service
 public class RabbitMqReceiverService {

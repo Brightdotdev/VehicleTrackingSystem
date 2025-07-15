@@ -1,22 +1,26 @@
-package com.example.DispatchService.RabbitMq;
+package com.example.DispatchService.Messaging.RabbitMq;
 
+
+import com.example.DispatchService.Messaging.MessagingService;
+import com.example.DispatchService.Messaging.ResponseMapperService;
 import com.example.DispatchService.Utils.UtilRecords;
-import com.example.DispatchService.WebClient.VehicleWebClientService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 import java.util.Map;
 
+
 @Service
-public class RabbitMqSenderService {
+@ConditionalOnProperty(name = "messaging.type", havingValue = "rabbitMq", matchIfMissing = true)
+
+public class RabbitMqSenderService implements MessagingService {
 
     private static final Logger logger = LoggerFactory.getLogger(RabbitMqSenderService.class);
     private final RabbitTemplate rabbitTemplate;
-    private final VehicleWebClientService vehicleWebClientService;
     private final ResponseMapperService responseMapperService;
+
 
     // === Exchange Names ===
     private static final String DISPATCH_CREATED_DIRECT_EXCHANGE = "dispatch.created.exchange";
@@ -27,63 +31,48 @@ public class RabbitMqSenderService {
     // === Routing Keys ===
     private static final String DISPATCH_CREATED_DIRECT_EXCHANGE_KEY = "dispatch.created.key";
 
-    public RabbitMqSenderService(RabbitTemplate rabbitTemplate, VehicleWebClientService vehicleWebClientService, ResponseMapperService responseMapperService) {
+
+
+    public RabbitMqSenderService(RabbitTemplate rabbitTemplate, RabbitMqResponseMapper rabbitMqResponseMapper, ResponseMapperService responseMapperService) {
         this.rabbitTemplate = rabbitTemplate;
-        this.vehicleWebClientService = vehicleWebClientService;
         this.responseMapperService = responseMapperService;
     }
+
 
     /**
      * ✅ Send a dispatch created event via a direct exchange.
      * Expects a response from the receiving service.
      */
-    public Map<String, Object> sendDispatchCreatedEvent(UtilRecords.dispatchRequestBodyDTO event, String cookieValue) {
+    @Override
+    public Map<String, Object> sendDispatchRequestedEvent(UtilRecords.dispatchRequestBodyDTO event) {
         if (event == null || event.vehicleIdentificationNumber() == null) {
             logger.warn("Attempted to send null or invalid dispatch request: {}", event);
             throw new IllegalArgumentException("Invalid dispatch event — missing VIN");
         }
 
         try {
-            /*@SuppressWarnings("unchecked")
             Object  rawResponse = rabbitTemplate.convertSendAndReceive(
                     DISPATCH_CREATED_DIRECT_EXCHANGE,
                     DISPATCH_CREATED_DIRECT_EXCHANGE_KEY,
                     event
             );
 
-*/
-
-          Object rawResponse = vehicleWebClientService.createNewWebClientDispatch(event,cookieValue).block();
-
-          return  responseMapperService.dispatchMapper(rawResponse);
-
-  /*          if (rawResponse == null) {
+            if (rawResponse == null) {
                 logger.error("No response received from vehicle service for event: {}", event);
-
             }
-
-            logger.info("Received response from vehicle service: {}", rawResponse);
-
-            if (rawResponse instanceof Map<?, ?> mapResponse) {
-                logger.info("Received valid Map response from vehicle service: {}", mapResponse);
-                return mapResponse;
-            } else if (rawResponse instanceof List<?> list) {
-                logger.error("Expected Map but received List: {}", list);
-                // fallback to HTTP anyway
-            } else {
-                logger.error("Unexpected response type from vehicle service: {}", rawResponse.getClass());
-            }
-  */
-
+          return  responseMapperService.dispatchRequestMapper(rawResponse);
         } catch (Exception e) {
             logger.error("Failed to send dispatch created event: {}", e.getMessage(), e);
             throw new RuntimeException("Dispatch creation failed", e);
         }
     }
 
+
+
     /**
      * ✅ Send a fanout dispatch created event without expecting a response.
      */
+    @Override
     public void sendDispatchCreatedEventNoResponse(UtilRecords.dispatchRequestBodyDTO event) {
         if (event == null) {
             logger.warn("Attempted to fanout null dispatch creation event");
@@ -102,6 +91,7 @@ public class RabbitMqSenderService {
     /**
      * ✅ Send a dispatch completed/cancelled event via fanout.
      */
+    @Override
     public void sendDispatchCompletedFanoutFromDispatchService(UtilRecords.DispatchEndedDTO event) {
         if (event == null || event.dispatchId() == null) {
             logger.warn("Attempted to send invalid dispatch completed event: {}", event);
@@ -120,6 +110,7 @@ public class RabbitMqSenderService {
     /**
      * ✅ Broadcast a validated dispatch via fanout exchange.
      */
+    @Override
     public void sendDispatchValidatedNoResponse(UtilRecords.ValidatedDispatch event) {
         if (event == null || event.dispatchId() == null) {
             logger.warn("Attempted to send invalid validated dispatch event: {}", event);

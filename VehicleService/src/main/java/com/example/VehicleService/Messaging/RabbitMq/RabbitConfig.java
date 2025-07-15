@@ -1,4 +1,4 @@
-package com.example.VehicleService.RabbitMq;
+package com.example.VehicleService.Messaging.RabbitMq;
 
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;

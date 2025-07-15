@@ -31,7 +31,7 @@ The `RabbitMqSenderService` handles **outbound events** to other microservices v
 ```java
 private final RabbitTemplate rabbitTemplate;
 private final VehicleWebClientService vehicleWebClientService;
-private final ResponseMapperService responseMapperService;
+private final ResponseMapperService rabbitMqResponseMapper;
 ```
 
 * `RabbitTemplate`: sends messages via AMQP
@@ -54,7 +54,7 @@ public Map<String, Object> sendDispatchCreatedEvent(dispatchRequestBodyDTO event
 
 ```java
 Object rawResponse = vehicleWebClientService.createNewWebClientDispatch(event, cookieValue).block();
-return responseMapperService.dispatchMapper(rawResponse);
+return rabbitMqResponseMapper.dispatchMapper(rawResponse);
 ```
 
 ---

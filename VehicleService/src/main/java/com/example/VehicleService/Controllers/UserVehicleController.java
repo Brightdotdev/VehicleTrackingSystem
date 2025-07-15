@@ -60,26 +60,6 @@ public class UserVehicleController {
                 ));
     }
 
-    // :: localhost:8106/v1/user/vehicle/handle-new-dispatch
-    @PostMapping("/handle-new-dispatch")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> handleCreateDispatch(
-            @Valid @RequestBody UtilRecords.dispatchRequestBodyDTO dispatchEvent
-    ) {
-
-        Map<String, Object> vehicle = vehicleService.handleDispatchToVehicle(dispatchEvent);
-        return ResponseEntity.ok(
-                ApiResponse.success(
-                        201,
-                        "Vehicles retrieved",
-                        vehicle
-                ));
-    }
-
-
-
-
-
-
 
 }
 

@@ -31,12 +31,6 @@ external:
   services:
     logging:
       base-url: http://localhost:8104
-    vehicle:
-      base-url: http://localhost:8106
-    dispatch:
-      base-url: http://localhost:8105
-
-
 
 logging:
   level:

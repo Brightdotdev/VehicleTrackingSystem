@@ -1,14 +1,16 @@
-package com.example.DispatchService.RabbitMq;
+package com.example.DispatchService.Messaging.RabbitMq;
 
 import com.example.DispatchService.Service.UserDispatchService;
 import com.example.DispatchService.Utils.UtilRecords;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@ConditionalOnProperty(name = "messaging.type", havingValue = "rabbitMq", matchIfMissing = true)
 public class RabbitMqReceiverService {
 
     private static final Logger logger = LoggerFactory.getLogger(RabbitMqReceiverService.class);

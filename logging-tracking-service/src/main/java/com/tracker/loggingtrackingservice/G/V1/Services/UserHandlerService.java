@@ -6,11 +6,13 @@ import com.tracker.loggingtrackingservice.G.V1.Utils.UtilRecords;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
+@Service("adminHandlerService")
 public class UserHandlerService {
 
     private final AdminRepository adminRepository;

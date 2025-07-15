@@ -4,9 +4,10 @@ package com.example.DispatchService.Service;
 import com.example.DispatchService.Exceptions.ConflictException;
 import com.example.DispatchService.Exceptions.InvalidRequestException;
 import com.example.DispatchService.Exceptions.NotFoundException;
+import com.example.DispatchService.Messaging.RabbitMq.RabbitMqResponseMapper;
+import com.example.DispatchService.Messaging.ResponseMapperService;
 import com.example.DispatchService.Models.DispatchModel;
-import com.example.DispatchService.RabbitMq.RabbitMqSenderService;
-import com.example.DispatchService.RabbitMq.ResponseMapperService;
+import com.example.DispatchService.Messaging.RabbitMq.RabbitMqSenderService;
 import com.example.DispatchService.Repositories.DispatchRepository;
 import com.example.DispatchService.Utils.DispatchEnums;
 import com.example.DispatchService.Utils.UtilRecords;
@@ -29,13 +30,14 @@ public class UserDispatchService {
     private final DispatchRepository dispatchRepository;
     private final Logger logger = LoggerFactory.getLogger(UserDispatchService.class);
 
-    @Autowired
-    private ResponseMapperService mapperService;
-    @Autowired
-    private RabbitMqSenderService rabbitMqSenderService;
 
-    public UserDispatchService(DispatchRepository dispatchRepository) {
+    private final ResponseMapperService dispatchResponseMapper;
+    private final RabbitMqSenderService rabbitMqSenderService;
+
+    public UserDispatchService(DispatchRepository dispatchRepository, ResponseMapperService dispatchResponseMapper, RabbitMqSenderService rabbitMqSenderService) {
         this.dispatchRepository = dispatchRepository;
+        this.dispatchResponseMapper = dispatchResponseMapper;
+        this.rabbitMqSenderService = rabbitMqSenderService;
     }
 
 
@@ -44,7 +46,7 @@ public class UserDispatchService {
     @Transactional
     public
     //UtilRecords.DispatchResponseDTO
-            DispatchModel requestVehicleDispatch(UtilRecords.dispatchRequestBody requestBody, String userName,String userImage , List<String> userRole, String cookieValue) {
+            DispatchModel requestVehicleDispatch(UtilRecords.dispatchRequestBody requestBody, String userName,String userImage , List<String> userRole) {
 
         DispatchModel dispatchFinalModel = new DispatchModel();
         Boolean canDispatch = false;
@@ -76,14 +78,14 @@ public class UserDispatchService {
         UtilRecords.dispatchRequestBodyDTO requestBodyDTO
                 = new UtilRecords.dispatchRequestBodyDTO(requestBody.vehicleName(),requestBody.vehicleIdentificationNumber(),requestBody.vehicleStatus(),requestBody.dispatchReason(),userName,requestBody.dispatchEndTime());
 
-        Map<String, Object> dispatchResult = (Map<String, Object>) rabbitMqSenderService.sendDispatchCreatedEvent(requestBodyDTO, cookieValue);
+        Map<String, Object> dispatchResult = (Map<String, Object>) rabbitMqSenderService.sendDispatchRequestedEvent(requestBodyDTO);
         System.out.println(dispatchResult);
         if (dispatchResult.containsKey("canDispatch")) {
             canDispatch = (Boolean) dispatchResult.get("canDispatch");
         }
 
 
-        UtilRecords.DispatchResponseDTO finalResponse = mapperService.dispatchResponseMapper(dispatchResult);
+        UtilRecords.DispatchResponseDTO finalResponse = dispatchResponseMapper.dispatchResponseMapper(dispatchResult);
 
         DispatchModel finalDispatchModel = getDispatchModel(finalResponse,userName,userRole,userImage,requestBody);
         rabbitMqSenderService.sendDispatchCreatedEventNoResponse(requestBodyDTO);

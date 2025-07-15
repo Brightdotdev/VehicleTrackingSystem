@@ -45,8 +45,12 @@ external:
       base-url: ${LOGGING_URL}
     vehicle:
       base-url: ${VEHICLE_URL}
-    auth:
-      base-url: ${AUTH_URL}
+
+
+
+messaging:
+  type: ${MESSAGE_TYPE}
+
 
 
 logging:

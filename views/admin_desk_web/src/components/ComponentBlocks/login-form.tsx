@@ -97,7 +97,7 @@ const handleSubmit = (e: React.FormEvent) => {
       }
       setLogInData(logInData);
       toast.success("Request data validation successful! Redirecting now....");
-      router.replace(`/admin-key?sender=local-log-in`);
+      router.replace(`/admin-key?sender=form-log-in`);
 };
   return (
     <div className={cn("flex flex-col gap-sm overflow-hidden relative w-md", className)} {...props}>

@@ -1,7 +1,7 @@
 package com.tracker.loggingtrackingservice.G.V1.Controllers;
 
 import com.tracker.loggingtrackingservice.G.V1.Models.TrackingModel;
-import com.tracker.loggingtrackingservice.G.V1.RabbitMq.RabbitMqReceiverService;
+import com.tracker.loggingtrackingservice.G.V1.Messaging.RabbitMq.RabbitMqReceiverService;
 import com.tracker.loggingtrackingservice.G.V1.Services.NotificationService;
 import com.tracker.loggingtrackingservice.G.V1.Services.TrackingService;
 import com.tracker.loggingtrackingservice.G.V1.Utils.UtilRecords;

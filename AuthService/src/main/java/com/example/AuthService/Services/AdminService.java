@@ -11,6 +11,8 @@ import com.example.AuthService.Utils.UtilRecords;
 import com.example.AuthService.WebClient.LoggingWebClientService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
@@ -20,23 +22,31 @@ import java.util.Map;
 
 @Service
 public class AdminService {
-
-    private final UserRepository userRepository;
-    @Autowired
-    private LoggingWebClientService LoggingWebClientService;
-
      Integer adminKey = 223344;
 
-    public AdminService(UserRepository userRepository) {
+    private final PasswordEncoder passwordEncoder;
+
+    private final UserRepository userRepository;
+    private final LoggingWebClientService LoggingWebClientService;
+    private final ResponseMapperService responseMapperService;
+
+    public AdminService(PasswordEncoder passwordEncoder, UserRepository userRepository, LoggingWebClientService loggingWebClientService, ResponseMapperService responseMapperService) {
+        this.passwordEncoder = passwordEncoder;
         this.userRepository = userRepository;
+        LoggingWebClientService = loggingWebClientService;
+        this.responseMapperService = responseMapperService;
     }
 
     public UserModel findAdmin(String email) {
+
         UserModel foundAdmin = userRepository.findByEmail(email)
-                .orElseThrow(() -> new NotFoundException("User not found"));
 ;
+        System.out.println(foundAdmin);
+        if(foundAdmin == null){
+            throw new ConflictException("No Admin found with that credentials");
+        }
         if(!foundAdmin.getRoles().contains("ROLE_ADMIN")){
-            throw new AccessException("Not a valid admin!");
+            throw new AccessException("Not a valid admin !");
         }
         return foundAdmin;}
 
@@ -49,7 +59,7 @@ public class AdminService {
                 return true;
             }
             else if(user.getEmail().equals(email) && !user.getRoles().contains("ROLE_ADMIN")){
-                throw new ConflictException("User already exists with that emaiil...not an admin");
+                throw new ConflictException("User already exists with that email...not an admin");
             }
         }
         return false;
@@ -102,8 +112,8 @@ public class AdminService {
         }
 
 
-
-            return findAdmin(adminReq.email());}
+        return findAdmin(adminReq.email());
+    }
 
 
 
@@ -160,15 +170,30 @@ public class AdminService {
         user.setValidated(oAuth2User.email_verified());
         user.setRoles(List.of("ROLE_USER","ROLE_ADMIN",  "ROLE_GOOGLE"));
 
-        UtilRecords.adminCreatedRequestBodyDto adminReq = new UtilRecords.adminCreatedRequestBodyDto(email);
+
         Mono<ApiResponse<Map<String, Object>>> logAdminCreatedResponse  =  LoggingWebClientService.sendAdminCreated(email.trim());
 
-        ApiResponse<Map<String, Object>> extractedResponse = logAdminCreatedResponse.block();
+        ApiResponse<Map<String, Object>> apiResponse = logAdminCreatedResponse.block();
 
-        assert extractedResponse != null;
 
-        if(!extractedResponse.getData().containsKey("createdNew")){
-            throw new ConflictException("Unable to synchronize admin data Try signing up again");
+        Map<String, Object>  extractedResponse = responseMapperService.createdAdminResponse(apiResponse);
+
+        Object dataObj = extractedResponse.get("data");
+
+        if (!(dataObj instanceof Map)) {
+            throw new ConflictException("Invalid data format from sync response");
+        }
+
+        Map<String, Object> data = (Map<String, Object>) dataObj;
+
+        if (!data.containsKey("createdNew")) {
+            throw new ConflictException("Unable to synchronize admin data. Try signing up again.");
+        }
+
+        Boolean createdNew = Boolean.TRUE.equals(data.get("createdNew"));
+
+        if (!createdNew) {
+            throw new ConflictException("Admin already exists. Try logging in.");
         }
 
 
@@ -176,6 +201,53 @@ public class AdminService {
         return userRepository.save(user);
     }
 
+
+    @Transactional
+    public UserModel handleAdminLocalSignUp(UtilRecords.AdminLocalSignUp localSignUpRequest) {
+
+
+        if (!isValidAdminRequest(localSignUpRequest)) {
+            throw new AccessException("Invalid Admin request");
+        }
+
+
+        // Create new user object
+        UserModel user = new UserModel();
+        user.setName(localSignUpRequest.name().trim());
+        user.setEmail(localSignUpRequest.email().trim());
+        user.setPassword(passwordEncoder.encode(localSignUpRequest.password().trim()));
+        user.setProvider("LOCAL_ADMIN_USER");
+        user.setRoles(List.of("ROLE_ADMIN"));
+
+
+        Mono<ApiResponse<Map<String, Object>>> logAdminCreatedResponse  =  LoggingWebClientService.sendAdminCreated(localSignUpRequest.email().trim());
+
+        ApiResponse<Map<String, Object>> apiResponse = logAdminCreatedResponse.block();
+
+
+        Map<String, Object>  extractedResponse = responseMapperService.createdAdminResponse(apiResponse);
+
+
+        Object dataObj = extractedResponse.get("data");
+
+        if (!(dataObj instanceof Map)) {
+            throw new ConflictException("Invalid data format from sync response");
+        }
+
+        Map<String, Object> data = (Map<String, Object>) dataObj;
+
+        if (!data.containsKey("createdNew")) {
+            throw new ConflictException("Unable to synchronize admin data. Try signing up again.");
+        }
+
+        Boolean createdNew = Boolean.TRUE.equals(data.get("createdNew"));
+
+        if (!createdNew) {
+            throw new ConflictException("Admin already exists. Try logging in.");
+        }
+
+        return userRepository.save(user);
+    }
 
     public Integer getAdminKey() {
         return this.adminKey;

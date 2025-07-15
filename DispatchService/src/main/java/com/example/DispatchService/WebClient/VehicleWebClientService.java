@@ -13,26 +13,37 @@ public class VehicleWebClientService {
 
     private final WebClient vehicleWebClient;
 
-    // Constructor injection
+
     public VehicleWebClientService(WebClient vehicleWebClient) {
         this.vehicleWebClient = vehicleWebClient;
     }
 
-    public Mono<Map<String, Object>> getVehicleByVin(String vin) {
-        return vehicleWebClient.get()
-                .uri(uriBuilder -> uriBuilder
-                        .path("/api/vehicles/{vin}")
-                        .build(vin))
+
+
+    public Mono<Map<String, Object>> sendDispatchRequested(UtilRecords.dispatchRequestBodyDTO dispatchRequest) {
+        return vehicleWebClient.post()
+                .uri("/internal/vehicle/handle-dispatch-request")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(dispatchRequest)
                 .retrieve()
                 .bodyToMono(new ParameterizedTypeReference<>() {});
     }
 
 
-    public Mono<Map<String, Object>> createNewWebClientDispatch(UtilRecords.dispatchRequestBodyDTO dispatchRequest, String cookieValue) {
+    public Mono<Map<String, Object>> sendDispatchValidatedMessage(UtilRecords.ValidatedDispatch dispatchRequest) {
         return vehicleWebClient.post()
-                .uri("/internal/user/vehicle/handle-new-dispatch")
+                .uri("/internal/vehicle/dispatch-validated")
                 .contentType(MediaType.APPLICATION_JSON)
-                .cookie("adminCookie", cookieValue)
+                .bodyValue(dispatchRequest)
+                .retrieve()
+                .bodyToMono(new ParameterizedTypeReference<>() {});
+    }
+
+
+    public Mono<Map<String, Object>> sendDispatchCompletedMessage(UtilRecords.DispatchEndedDTO dispatchRequest) {
+        return vehicleWebClient.post()
+                .uri("/internal/vehicle/dispatch-completed/dispatch-service")
+                .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(dispatchRequest)
                 .retrieve()
                 .bodyToMono(new ParameterizedTypeReference<>() {});

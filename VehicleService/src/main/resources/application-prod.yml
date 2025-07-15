@@ -47,9 +47,10 @@ external:
       base-url: ${LOGGING_URL}
     dispatch:
       base-url: ${DISPATCH_URL}
-    auth:
-      base-url: ${AUTH_URL}
 
+
+messaging:
+  type: ${MESSAGE_TYPE}
 
 logging:
   level:

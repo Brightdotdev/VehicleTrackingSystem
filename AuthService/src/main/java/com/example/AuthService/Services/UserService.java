@@ -36,8 +36,7 @@ public class UserService {
      * @throws NotFoundException if user is not found
      */
     public UserModel findByEmail(String email) {
-        return userRepository.findByEmail(email)
-                .orElseThrow(() -> new NotFoundException("User not found"));
+        return userRepository.findByEmail(email);
     }
 
     /**
@@ -82,9 +81,12 @@ public class UserService {
      */
     @Transactional
     public UserModel findOrCreateFromOAuth(String email, String name, String imageUrl, String provider, boolean email_verified) {
-        return userRepository.findByEmail(email)
-                .orElseGet(() -> {
-                    UserModel user = new UserModel();
+        UserModel foundUser;
+
+        foundUser = userRepository.findByEmail(email);
+
+        if(foundUser == null){
+            UserModel user = new UserModel();
                     user.setEmail(email);
                     user.setName(name);
                     user.setUserImage(imageUrl);
@@ -92,7 +94,8 @@ public class UserService {
                     user.setValidated(email_verified);
                     user.setRoles(List.of("ROLE_USER", "ROLE_GOOGLE"));
                     return userRepository.save(user);
-                });
+                }
+        return foundUser;
     }
 
     /**
@@ -106,17 +109,17 @@ public class UserService {
      */
     @Transactional
     public UserModel logInFromAuth(String email) {
-        Optional<UserModel> foundUser = userRepository.findByEmail(email);
+        UserModel foundUser = userRepository.findByEmail(email);
 
-        if (foundUser.isEmpty()) {
+        if (foundUser == null) {
             throw new NotFoundException("Google user not found");
         }
 
-        if (!foundUser.get().getRoles().contains("ROLE_GOOGLE")) {
+        if (!foundUser.getRoles().contains("ROLE_GOOGLE")) {
             throw new ConflictException("This is not a valid Google user");
         }
 
-        return foundUser.get();
+        return foundUser;
     }
 
     /**
@@ -130,18 +133,17 @@ public class UserService {
      */
     @Transactional
     public UserModel localLogIn(String email) {
-        Optional<UserModel> foundUser = userRepository.findByEmail(email);
+      UserModel foundUser = userRepository.findByEmail(email);
 
-        if (foundUser.isEmpty()) {
+        if (foundUser ==  null) {
             throw new NotFoundException("Local user not found");
         }
 
-        UserModel user = foundUser.get();
 
-        if (!user.getRoles().contains("ROLE_USER")) {
-            throw new ConflictException("This is not a valid local user");
+        if (!foundUser.getRoles().contains("ROLE_USER")) {
+            throw new ConflictException("This is not a valid local foundUser");
         }
 
-        return user;
+        return foundUser;
     }
 }

@@ -67,11 +67,11 @@ if(isValidated && !loading) return (
             !pathName.includes("/join-us") && !pathName.includes("/welcome-back") &&
             !pathName.includes("/vehicles/request") && !pathName.includes("/vehicles/info") 
             ? `flex items-start justify-center backdrop-blur-xs z-10 bg-white/1 
-            fixed bottom-0 w-full h-[var(--size-lg)]
+            fixed bottom-0 w-full md:h-[var(--size-lg)]  h-[var(--size-xxl)]
             ` : "hidden"}`}>
 
               <section className={`
-                flex items-center justify-center w-[16rem]`}>
+                flex items-center justify-center w-full  sm:w-[16rem]`}>
             <Button
                 onClick={() => handleHistoryRoute()}
                 className={`bottomNavButton navButtonLeft

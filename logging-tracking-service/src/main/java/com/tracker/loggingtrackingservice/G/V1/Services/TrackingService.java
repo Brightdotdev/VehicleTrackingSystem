@@ -4,7 +4,7 @@ package com.tracker.loggingtrackingservice.G.V1.Services;
 import com.tracker.loggingtrackingservice.G.V1.Exceptions.ConflictException;
 import com.tracker.loggingtrackingservice.G.V1.Exceptions.NotFoundException;
 import com.tracker.loggingtrackingservice.G.V1.Models.TrackingModel;
-import com.tracker.loggingtrackingservice.G.V1.RabbitMq.RabbitMqSenderService;
+import com.tracker.loggingtrackingservice.G.V1.Messaging.RabbitMq.RabbitMqSenderService;
 import com.tracker.loggingtrackingservice.G.V1.Repositories.NotificationRepository;
 import com.tracker.loggingtrackingservice.G.V1.Repositories.TrackingRepository;
 import com.tracker.loggingtrackingservice.G.V1.Utils.LogEnums;

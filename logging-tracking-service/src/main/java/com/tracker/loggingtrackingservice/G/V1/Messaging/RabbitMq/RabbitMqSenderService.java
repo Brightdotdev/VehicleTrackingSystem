@@ -1,13 +1,16 @@
-package com.tracker.loggingtrackingservice.G.V1.RabbitMq;
+package com.tracker.loggingtrackingservice.G.V1.Messaging.RabbitMq;
 
+import com.tracker.loggingtrackingservice.G.V1.Messaging.MessagingService;
 import com.tracker.loggingtrackingservice.G.V1.Utils.UtilRecords;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
 @Service
-public class RabbitMqSenderService {
+@ConditionalOnProperty(name = "messaging.type", havingValue = "rabbitMq", matchIfMissing = true)
+public class RabbitMqSenderService implements MessagingService {
 
     private static final Logger logger = LoggerFactory.getLogger(RabbitMqSenderService.class);
 
@@ -25,6 +28,7 @@ public class RabbitMqSenderService {
     /**
      * ✅ Send a completed dispatch event to the fanout exchange
      */
+    @Override
     public void sendCompletedDispatchFanOut(UtilRecords.DispatchEndedDTO event) {
         if (event == null || event.dispatchId() == null) {
             logger.warn("Attempted to send null or invalid DispatchEndedDTO: {}", event);
@@ -42,6 +46,7 @@ public class RabbitMqSenderService {
     /**
      * ✅ Send a tracking initialization event to the fanout exchange
      */
+    @Override
     public void sendTrackingInitializationFanout(UtilRecords.StartTrackingDTO event) {
         if (event == null || event.dispatchId() == null) {
             logger.warn("Attempted to send null or invalid StartTrackingDTO: {}", event);
@@ -59,6 +64,7 @@ public class RabbitMqSenderService {
     /**
      * ✅ Send a vehicle location update to the tracking checkpoint exchange
      */
+    @Override
     public void sendTrackingCheckPointFanOut(UtilRecords.vehicleLocationUpdate event) {
         if (event == null || event.vehicleIdentificationNumber() == null) {
             logger.warn("Attempted to send null or invalid vehicleLocationUpdate: {}", event);
