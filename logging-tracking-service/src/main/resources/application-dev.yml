@@ -15,7 +15,7 @@ spring :
   data :
     mongodb:
       auto-index-creation : true
-      uri : mongodb://localhost:27017/LOGGING_SERVICE
+      uri : mongodb://localhost:27017/logging_mongo_db
   rabbitmq:
     host: localhost
     port: 5672
@@ -30,6 +30,13 @@ spring :
           initial-interval: 1000
           multiplier: 2.0
           max-interval: 10000
+
+
+
+
+messaging:
+  type: webClient
+
 
 auth:
   api:

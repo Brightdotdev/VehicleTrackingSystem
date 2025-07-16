@@ -58,6 +58,8 @@ logging:
     com.example.UserService: DEBUG
 
 
+messaging:
+  type: ${MESSAGE_TYPE}
 
 
 resilience4j:

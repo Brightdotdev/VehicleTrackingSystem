@@ -1,5 +1,6 @@
 package com.tracker.loggingtrackingservice.G.V1.Messaging.RabbitMq;
 
+import com.tracker.loggingtrackingservice.G.V1.Messaging.WebClient.WebClientJsonMapper;
 import com.tracker.loggingtrackingservice.G.V1.Services.NotificationService;
 import com.tracker.loggingtrackingservice.G.V1.Services.TrackingService;
 import com.tracker.loggingtrackingservice.G.V1.Utils.UtilRecords;
@@ -8,16 +9,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import static com.tracker.loggingtrackingservice.G.V1.Messaging.ExceptionWrapper.runSafely;
 
 @Service
 public class RabbitMqReceiverService {
 
     private static final Logger logger = LoggerFactory.getLogger(RabbitMqReceiverService.class);
-
-
-    ;
-
-    // Queue names
 
     private static final String DISPATCH_CREATED_FANOUT_LOG_QUEUE = "log.service.dispatch.created.fanout.queue";
     private static final String DISPATCH_COMPLETED_FANOUT_LOGS_QUEUE = "completed.dispatch.fanOut.provider.dispatch.service.queue.logs.service";
@@ -26,15 +23,17 @@ public class RabbitMqReceiverService {
 
     private final NotificationService notificationService;
     private final TrackingService trackingService;
+    private final WebClientJsonMapper jsonMapper;
 
-
-    public RabbitMqReceiverService(NotificationService notificationService, TrackingService trackingService) {
-
+    public RabbitMqReceiverService(
+            NotificationService notificationService,
+            TrackingService trackingService,
+            WebClientJsonMapper jsonMapper
+    ) {
         this.notificationService = notificationService;
         this.trackingService = trackingService;
+        this.jsonMapper = jsonMapper;
     }
-
-
 
     /**
      * ✅ Listener for fanout dispatch creation notifications
@@ -42,17 +41,16 @@ public class RabbitMqReceiverService {
     @Transactional
     @RabbitListener(queues = DISPATCH_CREATED_FANOUT_LOG_QUEUE)
     public void handleDispatchCreatedNotification(UtilRecords.dispatchRequestBodyDTO event) {
-        if (event == null || event.vehicleIdentificationNumber() == null) {
-            logger.warn("Invalid dispatchCreated event received: {}", event);
-            return;
-        }
+        runSafely(() -> {
+            logger.info("📦 Received RabbitMQ /dispatch-created payload: {}", jsonMapper.convertToJson(event));
 
-        try {
+            if (event == null || event.vehicleIdentificationNumber() == null) {
+                throw new IllegalArgumentException("Invalid dispatchCreated event received");
+            }
+
             notificationService.sendCreatedDispatchNotification(event);
             notificationService.sendCreatedDispatchNotificationsForAdmin(event);
-        } catch (Exception e) {
-            logger.error("Error handling dispatchCreated event: {}", e.getMessage(), e);
-        }
+        });
     }
 
     /**
@@ -61,16 +59,15 @@ public class RabbitMqReceiverService {
     @Transactional
     @RabbitListener(queues = DISPATCH_COMPLETED_FANOUT_LOGS_QUEUE)
     public void handleDispatchCompleted(UtilRecords.DispatchEndedDTO event) {
-        if (event == null || event.dispatchId() == null) {
-            logger.warn("Invalid dispatchCompleted event received: {}", event);
-            return;
-        }
+        runSafely(() -> {
+            logger.info("📦 Received RabbitMQ /dispatch-completed payload: {}", jsonMapper.convertToJson(event));
 
-        try {
+            if (event == null || event.dispatchId() == null) {
+                throw new IllegalArgumentException("Invalid dispatchCompleted event received");
+            }
+
             notificationService.completedDispatchNotification(event);
-        } catch (Exception e) {
-            logger.error("Error handling dispatchCompleted event: {}", e.getMessage(), e);
-        }
+        });
     }
 
     /**
@@ -79,17 +76,16 @@ public class RabbitMqReceiverService {
     @Transactional
     @RabbitListener(queues = DISPATCH_VALIDATED_FANOUT_LOGS_QUEUE)
     public void handleDispatchValidated(UtilRecords.ValidatedDispatch event) {
-        if (event == null || event.dispatchId() == null) {
-            logger.warn("Invalid validatedDispatch event received: {}", event);
-            return;
-        }
+        runSafely(() -> {
+            logger.info("📦 Received RabbitMQ /dispatch-validated payload: {}", jsonMapper.convertToJson(event));
 
-        try {
+            if (event == null || event.dispatchId() == null) {
+                throw new IllegalArgumentException("Invalid validatedDispatch event received");
+            }
+
             notificationService.handleValidatedDispatchNotif(event);
             trackingService.handleValidatedDispatchTracking(event);
-        } catch (Exception e) {
-            logger.error("Error handling validatedDispatch event: {}", e.getMessage(), e);
-        }
+        });
     }
 
     /**
@@ -97,16 +93,15 @@ public class RabbitMqReceiverService {
      */
     @Transactional
     @RabbitListener(queues = DISPATCH_TRACKING_LOGS_QUEUE)
-    public void handleTrackingDispatchNotif(UtilRecords.StartTrackingDTO trackingEvent) {
-        if (trackingEvent == null || trackingEvent.dispatchId() == null) {
-            logger.warn("Invalid tracking event received: {}", trackingEvent);
-            return;
-        }
+    public void handleTrackingDispatchNotif(UtilRecords.StartTrackingDTO event) {
+        runSafely(() -> {
+            logger.info("📦 Received RabbitMQ /start-tracking payload: {}", jsonMapper.convertToJson(event));
 
-        try {
-            notificationService.handleDispatchTracking(trackingEvent);
-        } catch (Exception e) {
-            logger.error("Error handling tracking dispatch notification: {}", e.getMessage(), e);
-        }
+            if (event == null || event.dispatchId() == null) {
+                throw new IllegalArgumentException("Invalid tracking event received");
+            }
+
+            notificationService.handleDispatchTracking(event);
+        });
     }
 }

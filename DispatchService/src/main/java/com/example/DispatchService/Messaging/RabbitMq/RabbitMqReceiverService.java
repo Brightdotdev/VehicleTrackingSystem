@@ -1,5 +1,6 @@
 package com.example.DispatchService.Messaging.RabbitMq;
 
+import com.example.DispatchService.Messaging.JsonMapper;
 import com.example.DispatchService.Service.UserDispatchService;
 import com.example.DispatchService.Utils.UtilRecords;
 import org.slf4j.Logger;
@@ -8,6 +9,8 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import static com.example.DispatchService.Messaging.WebClient.ExceptionWrapper.runSafely;
 
 @Service
 @ConditionalOnProperty(name = "messaging.type", havingValue = "rabbitMq", matchIfMissing = true)
@@ -19,45 +22,44 @@ public class RabbitMqReceiverService {
     private static final String DISPATCH_TRACKING_FROM_LOGS_QUEUE = "start.tracking.fanOut.provider.logs.queue.dispatch";
 
     private final UserDispatchService userDispatchService;
+    private final JsonMapper jsonMapper;
 
-    public RabbitMqReceiverService(UserDispatchService userDispatchService) {
+    public RabbitMqReceiverService(UserDispatchService userDispatchService, JsonMapper jsonMapper) {
         this.userDispatchService = userDispatchService;
+        this.jsonMapper = jsonMapper;
     }
 
     /**
-     * Handles a dispatch completed event sent from the logs service.
+     * ✅ Handles a dispatch completed event sent from the logs service.
      */
     @Transactional
     @RabbitListener(queues = DISPATCH_COMPLETED_FROM_LOGS_QUEUE)
     public void handleDispatchCompletedFromLogs(UtilRecords.DispatchEndedDTO dispatchEvent) {
-        if (dispatchEvent == null || dispatchEvent.dispatchId() == null) {
-            logger.warn("Received invalid dispatchCompleted event: {}", dispatchEvent);
-            return;
-        }
+        runSafely(() -> {
+            logger.info("📦 Received RabbitMQ /dispatch-completed payload: {}", jsonMapper.convertToJson(dispatchEvent));
 
-        try {
+            if (dispatchEvent == null || dispatchEvent.dispatchId() == null) {
+                throw new IllegalArgumentException("Invalid dispatchCompleted event received");
+            }
+
             userDispatchService.completeDispatch(dispatchEvent);
-        } catch (Exception e) {
-            logger.error("Error processing dispatchCompleted event: {}", e.getMessage(), e);
-            // You can optionally rethrow if you want RabbitMQ to retry later
-        }
+        });
     }
 
     /**
-     * Handles a dispatch tracking start event sent from the logs service.
+     * ✅ Handles a dispatch tracking start event sent from the logs service.
      */
     @Transactional
     @RabbitListener(queues = DISPATCH_TRACKING_FROM_LOGS_QUEUE)
     public void handleDispatchTrackingQueue(UtilRecords.StartTrackingDTO trackingEvent) {
-        if (trackingEvent == null || trackingEvent.dispatchId() == null) {
-            logger.warn("Received invalid startTracking event: {}", trackingEvent);
-            return;
-        }
+        runSafely(() -> {
+            logger.info("📦 Received RabbitMQ /track payload: {}", jsonMapper.convertToJson(trackingEvent));
 
-        try {
+            if (trackingEvent == null || trackingEvent.dispatchId() == null) {
+                throw new IllegalArgumentException("Invalid tracking event received");
+            }
+
             userDispatchService.handleDispatchTracking(trackingEvent);
-        } catch (Exception e) {
-            logger.error("Error processing startTracking event: {}", e.getMessage(), e);
-        }
+        });
     }
 }

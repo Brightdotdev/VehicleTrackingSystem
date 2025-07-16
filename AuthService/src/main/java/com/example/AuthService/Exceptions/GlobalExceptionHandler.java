@@ -7,15 +7,22 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import java.util.Map;
 import java.util.stream.Collectors;
 
 
 
-@ControllerAdvice
+
+@RestControllerAdvice
 public class GlobalExceptionHandler {
 
 
-
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<?> fallback(Exception ex) {
+        return ResponseEntity.status(500).body(Map.of("fallback", ex.getClass().getSimpleName(), "message", ex.getMessage()));
+    }
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ApiResponse<Void>> handleIllegalArgument(IllegalArgumentException ex) {
         ApiResponse<Void> response = ApiResponse.error(
@@ -26,7 +33,7 @@ public class GlobalExceptionHandler {
     }
 
 
-        @ExceptionHandler(NotFoundException.class)
+    @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<ApiResponse<Void>> handleNotFound(NotFoundException ex) {
         ApiResponse<Void> response = ApiResponse.error(
                 404,

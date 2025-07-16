@@ -3,11 +3,12 @@ package com.tracker.loggingtrackingservice.G.V1.WebClient;
 import com.tracker.loggingtrackingservice.G.V1.Utils.UtilRecords;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;
+import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import java.util.Map;
 
-
+@Service
 public class DispatchServiceWebClient {
 
     private final WebClient dispatchWebClient;

@@ -1,12 +1,9 @@
 package com.example.VehicleService.Messaging.RabbitMq;
 
-import com.example.VehicleService.Models.VehicleModel;
-import com.example.VehicleService.Repositories.VehicleRepository;
-import com.example.VehicleService.Services.VehicleHealthService;
+import com.example.VehicleService.Messaging.ExceptionWrapper;
+import com.example.VehicleService.Messaging.JsonMapper;
 import com.example.VehicleService.Services.VehicleService;
 import com.example.VehicleService.Utils.UtilRecords;
-import com.example.VehicleService.Utils.VehicleEnums;
-import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -16,12 +13,15 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
 
+import static com.example.VehicleService.Messaging.ExceptionWrapper.wrapExceptions;
+
 @Service
 @ConditionalOnProperty(name = "messaging.type", havingValue = "rabbitMq", matchIfMissing = true)
 public class RabbitMqReceiverService {
 
     private static final Logger logger = LoggerFactory.getLogger(RabbitMqReceiverService.class);
 
+    private final JsonMapper jsonMapper;
     // Queue Names
     private static final String QUEUE_DISPATCH_CREATED = "vehicle.service.created.dispatch.queue";
     private static final String QUEUE_DISPATCH_COMPLETED = "completed.dispatch.fanOut.provider.dispatch.service.queue.vehicle.service";
@@ -37,8 +37,8 @@ public class RabbitMqReceiverService {
 
     private final VehicleService vehicleService;
 
-    public RabbitMqReceiverService(VehicleService vehicleService) {
-
+    public RabbitMqReceiverService(JsonMapper jsonMapper, VehicleService vehicleService) {
+        this.jsonMapper = jsonMapper;
         this.vehicleService = vehicleService;
     }
 
@@ -50,91 +50,87 @@ public class RabbitMqReceiverService {
     @Transactional
     @RabbitListener(queues = QUEUE_DISPATCH_CREATED)
     public Map<String, Object> handleDispatchToVehicle(UtilRecords.dispatchRequestBodyDTO dispatchEvent) {
-        try {
+        logger.info("📦 Received dispatch creation event: {}", jsonMapper.convertToJson(dispatchEvent));
 
-            return vehicleService.handleDispatchRequest(dispatchEvent);
-
-        } catch (Exception e) {
-            logger.error("Error processing dispatch creation event", e);
-            return null;
-        }
+        return ExceptionWrapper.handleAndReturn(() ->
+                        vehicleService.handleDispatchRequest(dispatchEvent),
+                logger,
+                "handleDispatchToVehicle"
+        );
     }
 
     /**
-     * Handles completed dispatch from dispatch service.
+     * Handle dispatch completion from dispatch service.
      */
     @Transactional
     @RabbitListener(queues = QUEUE_DISPATCH_COMPLETED)
     public void handleDispatchCompletedFromDispatch(UtilRecords.DispatchEndedDTO dispatchEvent) {
-        try {
+        logger.info("📦 Received dispatch completed event from dispatch service: {}", jsonMapper.convertToJson(dispatchEvent));
+        wrapExceptions(() -> {
             vehicleService.completedDispatch(dispatchEvent);
-        } catch (Exception e) {
-            logger.error("Error processing completed dispatch (dispatch service)", e);
-        }
+            return null;
+        });
     }
 
     /**
-     * Handles completed dispatch from logs service.
+     * Handle dispatch completion from logs service.
      */
     @Transactional
     @RabbitListener(queues = QUEUE_DISPATCH_FROM_LOGS)
     public void handleDispatchCompletedFromLogs(UtilRecords.DispatchEndedDTO dispatchEvent) {
-        try {
+        logger.info("📦 Received dispatch completed event from logs service: {}", jsonMapper.convertToJson(dispatchEvent));
+        wrapExceptions(() -> {
             vehicleService.completedDispatch(dispatchEvent);
-        } catch (Exception e) {
-            logger.error("Error processing completed dispatch (logs service)", e);
-        }
+            return null;
+        });
     }
 
     /**
-     * Handles validated dispatch events.
+     * Handle validated dispatch events.
      */
     @RabbitListener(queues = DISPATCH_VALIDATED_FANOUT_VEHICLE_QUEUE)
     public void handleDispatchValidated(UtilRecords.ValidatedDispatch dispatchEvent) {
-        try {
+        logger.info("📦 Received validated dispatch event: {}", jsonMapper.convertToJson(dispatchEvent));
+        wrapExceptions(() -> {
             vehicleService.handleValidatedDispatch(dispatchEvent);
-        } catch (Exception e) {
-            logger.error("Error processing validated dispatch event", e);
-        }
+            return null;
+        });
     }
 
     /**
-     * Handles dispatch tracking notifications.
+     * Handle dispatch tracking events.
      */
     @Transactional
     @RabbitListener(queues = QUEUE_DISPATCH_TRACKING)
     public void handleDispatchTracking(UtilRecords.StartTrackingDTO trackingEvent) {
+        logger.info("📦 Received dispatch tracking event: {}", jsonMapper.convertToJson(trackingEvent));
         if (trackingEvent == null || trackingEvent.dispatchId() == null) {
-            logger.warn("Received invalid tracking event: {}", trackingEvent);
+            logger.warn("⚠️ Invalid tracking event received: {}", trackingEvent);
             return;
         }
 
-        try {
-            logger.info("Received tracking notification: {}", trackingEvent);
+        wrapExceptions(() -> {
             vehicleService.handleDispatchTracking(trackingEvent);
-        } catch (Exception e) {
-            logger.error("Error processing dispatch tracking event", e);
-        }
+            return null;
+        });
     }
 
     /**
-     * Handles vehicle dispatch location updates.
+     * Handle vehicle location updates.
      */
     @Transactional
     @RabbitListener(queues = QUEUE_VEHICLE_LOCATION)
     public void handleVehicleLocationUpdate(UtilRecords.vehicleLocationUpdate update) {
+        logger.info("📦 Received vehicle location update: {}", jsonMapper.convertToJson(update));
         if (update == null || update.vehicleIdentificationNumber() == null) {
-            logger.warn("Received invalid vehicle location update.");
+            logger.warn("⚠️ Invalid vehicle location update received.");
             return;
         }
 
-        try {
+        wrapExceptions(() -> {
             vehicleService.handleVehicleLocationUpdate(update);
-        } catch (Exception e) {
-            logger.error("Error processing vehicle location update", e);
-        }
+            return null;
+        });
     }
-
-
 
 }

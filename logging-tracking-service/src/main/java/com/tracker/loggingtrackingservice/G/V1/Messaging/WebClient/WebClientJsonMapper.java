@@ -1,4 +1,4 @@
-package com.tracker.loggingtrackingservice.G.V1.Messaging;
+package com.tracker.loggingtrackingservice.G.V1.Messaging.WebClient;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -11,29 +11,30 @@ import org.springframework.stereotype.Service;
 import java.util.Map;
 
 @Service
-public class RequestMappingFormatterService {
+public class WebClientJsonMapper {
 
-    private static final Logger logger = LoggerFactory.getLogger(RequestMappingFormatterService.class);
+    private static final Logger logger = LoggerFactory.getLogger(WebClientJsonMapper.class);
 
     private final ObjectMapper mapper;
 
-    public RequestMappingFormatterService() {
+    public WebClientJsonMapper() {
         this.mapper = new ObjectMapper();
         this.mapper.registerModule(new JavaTimeModule()); // for LocalDateTime, etc.
         this.mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS); // ISO format
     }
 
     /**
-     * ✅ Log the object as pretty JSON
+     * convert to json for debuggging
      */
-    public void logAsJson(Object payload, String contextLabel) {
+    public String convertToJson(Object payload) {
         try {
-            String json = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(payload);
-            logger.info("📦 [{}] Payload:\n{}", contextLabel, json);
+           return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(payload);
         } catch (JsonProcessingException e) {
-            logger.error("❌ Failed to serialize [{}] payload: {}", contextLabel, e.getMessage(), e);
+            logger.error("❌ Failed to serialize payload: {}",  e.getMessage());
+            return "It didn't work";
         }
     }
+
 
     /**
      * ✅ Convert the object to Map<String, Object>

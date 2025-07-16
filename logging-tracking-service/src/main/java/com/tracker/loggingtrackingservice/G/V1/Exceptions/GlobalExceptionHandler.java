@@ -3,15 +3,27 @@ package com.tracker.loggingtrackingservice.G.V1.Exceptions;
 import com.tracker.loggingtrackingservice.G.V1.Utils.ApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import java.util.Map;
 import java.util.stream.Collectors;
 
 
 
-@ControllerAdvice
+
+@RestControllerAdvice
 public class GlobalExceptionHandler {
+
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<?> fallback(Exception ex) {
+        return ResponseEntity.status(500).body(Map.of("fallback", ex.getClass().getSimpleName(), "message", ex.getMessage()));
+    }
+
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ApiResponse<Void>> handleIllegalArgument(IllegalArgumentException ex) {
@@ -21,6 +33,7 @@ public class GlobalExceptionHandler {
         );
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
+
 
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<ApiResponse<Void>> handleNotFound(NotFoundException ex) {
@@ -35,11 +48,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ConflictException.class)
     public ResponseEntity<ApiResponse<Void>> handleConflicts(ConflictException ex) {
-        ApiResponse<Void> response = ApiResponse.error(
-                401,
-                ex.getMessage()
-        );
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        ApiResponse<Void> response = ApiResponse.error(409, ex.getMessage());
+        return new ResponseEntity<>(response, HttpStatus.CONFLICT);
     }
 
 
@@ -53,14 +63,6 @@ public class GlobalExceptionHandler {
     }
 
 
-    @ExceptionHandler(InvalidTaskRequestException.class)
-    public ResponseEntity<ApiResponse<Void>> handleInvalidTask(InvalidTaskRequestException ex) {
-        ApiResponse<Void> response = ApiResponse.error(
-                403,
-                ex.getMessage()
-        );
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-    }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiResponse<Void>> handleValidationErrors(MethodArgumentNotValidException ex) {
@@ -70,10 +72,19 @@ public class GlobalExceptionHandler {
                 .map(fieldError -> fieldError.getField() + ": " + fieldError.getDefaultMessage())
                 .collect(Collectors.joining(", "));
 
+        ApiResponse<Void> response = ApiResponse.error(400, errorMessage);
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ApiResponse<Void>> handleBadJson(HttpMessageNotReadableException ex) {
         ApiResponse<Void> response = ApiResponse.error(
-                403,
-                errorMessage
+                400,
+                "Malformed or missing JSON: " + ex.getLocalizedMessage()
         );
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
+
 }

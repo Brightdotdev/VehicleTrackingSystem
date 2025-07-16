@@ -6,7 +6,6 @@ import com.tracker.loggingtrackingservice.G.V1.WebClient.DispatchServiceWebClien
 import com.tracker.loggingtrackingservice.G.V1.WebClient.VehicleWebClientService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
@@ -16,74 +15,80 @@ public class WebClientSenderService implements MessagingService {
 
     private static final Logger logger = LoggerFactory.getLogger(WebClientSenderService.class);
 
-
+    private final WebClientJsonMapper formatterService;
     private final DispatchServiceWebClient dispatchServiceWebClient;
     private final VehicleWebClientService vehicleWebClientService;
 
-    public WebClientSenderService(DispatchServiceWebClient dispatchServiceWebClient, VehicleWebClientService vehicleWebClientService) {
+    public WebClientSenderService(
+            WebClientJsonMapper formatterService,
+            DispatchServiceWebClient dispatchServiceWebClient,
+            VehicleWebClientService vehicleWebClientService
+    ) {
+        this.formatterService = formatterService;
         this.dispatchServiceWebClient = dispatchServiceWebClient;
         this.vehicleWebClientService = vehicleWebClientService;
     }
 
     /**
-     * ✅ Send a completed dispatch event to the fanout exchange
+     * ✅ Fanout completed dispatch to both dispatch and vehicle services
      */
     @Override
     public void sendCompletedDispatchFanOut(UtilRecords.DispatchEndedDTO event) {
         if (event == null || event.dispatchId() == null) {
-            logger.warn("Attempted to send null or invalid DispatchEndedDTO: {}", event);
+            logger.warn("⚠️ Invalid completed dispatch event: {}", event);
             return;
         }
 
         try {
-          Object  dispatchResponse =  dispatchServiceWebClient.sendDispatchCompletedMessage(event).block();
-          Object  vehicleResponse =  vehicleWebClientService.sendDispatchCompletedMessage(event).block();
-            logger.info("✅ Sent completed dispatch event from dispatch service: {}", dispatchResponse);
-            logger.info("✅ Sent completed dispatch event from vehicle service: {}", vehicleResponse);
+            Object dispatchResponse = dispatchServiceWebClient.sendDispatchCompletedMessage(event).block();
+            Object vehicleResponse = vehicleWebClientService.sendDispatchCompletedMessage(event).block();
+
+            logger.info("✅ Dispatch service response: {}", formatterService.convertToJson(dispatchResponse));
+            logger.info("✅ Vehicle service response: {}", formatterService.convertToJson(vehicleResponse));
         } catch (Exception e) {
-            logger.error("❌ Failed to send completed dispatch event: {}", e.getMessage(), e);
+            logger.error("❌ Failed to fanout completed dispatch: {}", e.getMessage(), e);
         }
     }
 
     /**
-     * ✅ Send a tracking initialization event to the fanout exchange
+     * ✅ Fanout tracking initialization event
      */
     @Override
     public void sendTrackingInitializationFanout(UtilRecords.StartTrackingDTO event) {
         if (event == null || event.dispatchId() == null) {
-            logger.warn("Attempted to send null or invalid StartTrackingDTO: {}", event);
+            logger.warn("⚠️ Invalid tracking init event: {}", event);
             return;
         }
 
         try {
-            Object  dispatchResponse =  dispatchServiceWebClient.sendTrackingInitializationMessage(event).block();
-            Object  vehicleResponse =  vehicleWebClientService.sendTrackingInitializationMessage(event).block();
-            logger.info("✅ Sent tracking initialisation dispatch event from dispatch service: {}", dispatchResponse);
-            logger.info("✅ Sent tracking initialisation dispatch event from vehicle service: {}", vehicleResponse);
-        } catch (Exception e) {
-            logger.error("❌ Failed to send completed dispatch event: {}", e.getMessage(), e);
-        }
+            Object dispatchResponse = dispatchServiceWebClient.sendTrackingInitializationMessage(event).block();
+            Object vehicleResponse = vehicleWebClientService.sendTrackingInitializationMessage(event).block();
 
+            logger.info("✅ Tracking init dispatch response: {}", formatterService.convertToJson(dispatchResponse));
+            logger.info("✅ Tracking init vehicle response: {}", formatterService.convertToJson(vehicleResponse));
+        } catch (Exception e) {
+            logger.error("❌ Failed to fanout tracking init event: {}", e.getMessage(), e);
+        }
     }
 
     /**
-     * ✅ Send a vehicle location update to the tracking checkpoint exchange
+     * ✅ Fanout vehicle location checkpoint update
      */
-
     @Override
     public void sendTrackingCheckPointFanOut(UtilRecords.vehicleLocationUpdate event) {
         if (event == null || event.vehicleIdentificationNumber() == null) {
-            logger.warn("Attempted to send null or invalid vehicleLocationUpdate: {}", event);
+            logger.warn("⚠️ Invalid vehicle location update: {}", event);
             return;
         }
 
         try {
-            Object  dispatchResponse =  dispatchServiceWebClient.sendCheckPoint(event).block();
-            Object  vehicleResponse =  vehicleWebClientService.sendCheckPoint(event).block();
-            logger.info("✅ Sent tracking location update dispatch event from dispatch service: {}", dispatchResponse);
-            logger.info("✅ Sent tracking location update dispatch event from vehicle service: {}", vehicleResponse);
+            Object dispatchResponse = dispatchServiceWebClient.sendCheckPoint(event).block();
+            Object vehicleResponse = vehicleWebClientService.sendCheckPoint(event).block();
+
+            logger.info("✅ Checkpoint dispatch response: {}", formatterService.convertToJson(dispatchResponse));
+            logger.info("✅ Checkpoint vehicle response: {}", formatterService.convertToJson(vehicleResponse));
         } catch (Exception e) {
-            logger.error("❌ Failed to send completed dispatch event: {}", e.getMessage(), e);
+            logger.error("❌ Failed to fanout vehicle checkpoint update: {}", e.getMessage(), e);
         }
     }
 }

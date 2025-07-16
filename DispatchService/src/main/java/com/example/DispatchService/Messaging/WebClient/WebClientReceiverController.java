@@ -1,5 +1,6 @@
 package com.example.DispatchService.Messaging.WebClient;
 
+import com.example.DispatchService.Messaging.JsonMapper;
 import com.example.DispatchService.Service.UserDispatchService;
 import com.example.DispatchService.Utils.ApiResponse;
 import com.example.DispatchService.Utils.UtilRecords;
@@ -7,10 +8,9 @@ import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import static com.example.DispatchService.Messaging.WebClient.ExceptionWrapper.wrapExceptions;
 
 @RestController
 @RequestMapping("/internal/dispatch")
@@ -18,44 +18,53 @@ public class WebClientReceiverController {
 
     private static final Logger logger = LoggerFactory.getLogger(WebClientReceiverController.class);
     private final UserDispatchService userDispatchService;
+    private final JsonMapper jsonMapper;
 
-    public WebClientReceiverController(UserDispatchService userDispatchService) {
+    public WebClientReceiverController(
+            UserDispatchService userDispatchService,
+            JsonMapper jsonMapper
+    ) {
         this.userDispatchService = userDispatchService;
+        this.jsonMapper = jsonMapper;
     }
 
+    /**
+     * ✅ Handle dispatch completion (logs service sends this)
+     */
     @PostMapping("/complete")
     public ResponseEntity<ApiResponse<String>> handleDispatchCompletedFromLogs(
             @Valid @RequestBody UtilRecords.DispatchEndedDTO dispatchEvent
     ) {
-        if (dispatchEvent == null || dispatchEvent.dispatchId() == null) {
-            logger.warn("Invalid dispatchCompleted event: {}", dispatchEvent);
-            return ResponseEntity.badRequest().body(ApiResponse.error(403,"Invalid dispatch event"));
-        }
+        return wrapExceptions(() -> {
+            // Log received data as JSON
+            logger.info("📦 Received /complete payload: {}", jsonMapper.convertToJson(dispatchEvent));
 
-        try {
+            if (dispatchEvent == null || dispatchEvent.dispatchId() == null) {
+                throw new IllegalArgumentException("Invalid dispatch event");
+            }
+
             userDispatchService.completeDispatch(dispatchEvent);
-            return ResponseEntity.ok(ApiResponse.success(200,"Dispatch completed",null));
-        } catch (Exception e) {
-            logger.error("Error processing dispatchCompleted event: {}", e.getMessage(), e);
-            return ResponseEntity.internalServerError().body(ApiResponse.error(403,"Processing failed"));
-        }
+            return ResponseEntity.ok(ApiResponse.ok(200, "Dispatch completed"));
+        });
     }
 
+    /**
+     * ✅ Handle dispatch tracking (logs service sends this)
+     */
     @PostMapping("/track")
     public ResponseEntity<ApiResponse<String>> handleDispatchTrackingQueue(
             @Valid @RequestBody UtilRecords.StartTrackingDTO trackingEvent
     ) {
-        if (trackingEvent == null || trackingEvent.dispatchId() == null) {
-            logger.warn("Invalid startTracking event: {}", trackingEvent);
-            return ResponseEntity.badRequest().body(ApiResponse.error(403, "Invalid tracking event"));
-        }
+        return wrapExceptions(() -> {
+            // Log received data as JSON
+            logger.info("📦 Received /track payload: {}", jsonMapper.convertToJson(trackingEvent));
 
-        try {
+            if (trackingEvent == null || trackingEvent.dispatchId() == null) {
+                throw new IllegalArgumentException("Invalid tracking event");
+            }
+
             userDispatchService.handleDispatchTracking(trackingEvent);
-            return ResponseEntity.ok(ApiResponse.success(200, "Tracking started",null));
-        } catch (Exception e) {
-            logger.error("Error processing startTracking event: {}", e.getMessage(), e);
-            return ResponseEntity.internalServerError().body(ApiResponse.error(403, "Processing failed"));
-        }
+            return ResponseEntity.ok(ApiResponse.ok(200, "Tracking started"));
+        });
     }
 }

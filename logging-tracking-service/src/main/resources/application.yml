@@ -15,7 +15,7 @@ spring :
   data :
     mongodb:
       auto-index-creation : true
-      uri :  mongodb://localhost:27017/LOGGING_SERVICE
+      uri :  mongodb://localhost:27017/logging_mongo_db
   rabbitmq:
     host: shuttle.proxy.rlwy.net
     port: 55131
@@ -40,12 +40,20 @@ auth:
     issuer: auth-service
 
 
+
+
+
+messaging:
+  type: webClient
+
 external:
   services:
     vehicle:
       base-url: http://localhost:8106
     dispatch:
       base-url: http://localhost:8105
+
+
 
 logging:
   level:

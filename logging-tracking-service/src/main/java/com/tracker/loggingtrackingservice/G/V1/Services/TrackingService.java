@@ -4,7 +4,7 @@ package com.tracker.loggingtrackingservice.G.V1.Services;
 import com.tracker.loggingtrackingservice.G.V1.Exceptions.ConflictException;
 import com.tracker.loggingtrackingservice.G.V1.Exceptions.NotFoundException;
 import com.tracker.loggingtrackingservice.G.V1.Models.TrackingModel;
-import com.tracker.loggingtrackingservice.G.V1.Messaging.RabbitMq.RabbitMqSenderService;
+import com.tracker.loggingtrackingservice.G.V1.Messaging.MessagingService;
 import com.tracker.loggingtrackingservice.G.V1.Repositories.NotificationRepository;
 import com.tracker.loggingtrackingservice.G.V1.Repositories.TrackingRepository;
 import com.tracker.loggingtrackingservice.G.V1.Utils.LogEnums;
@@ -21,11 +21,11 @@ public class TrackingService {
 
 
 
-    private final RabbitMqSenderService rabbitMqSenderService;
+    private final MessagingService messagingService;
     private final TrackingRepository trackingRepository;
 
-    public TrackingService(RabbitMqSenderService rabbitMqSenderService, TrackingRepository trackingRepository, NotificationRepository notificationRepository) {
-        this.rabbitMqSenderService = rabbitMqSenderService;
+    public TrackingService(MessagingService messagingService, TrackingRepository trackingRepository, NotificationRepository notificationRepository) {
+        this.messagingService = messagingService;
         this.trackingRepository = trackingRepository;
     }
 
@@ -50,13 +50,13 @@ public class TrackingService {
             UtilRecords.DispatchEndedDTO completedEvent = new UtilRecords.DispatchEndedDTO(
                     false,LocalDateTime.now(), model.getVehicleIdentificationNumber(), model.getDispatchRequester(), model.getVehicleName(), model.getDispatchId()
             );
-            rabbitMqSenderService.sendCompletedDispatchFanOut(completedEvent);
+            messagingService.sendCompletedDispatchFanOut(completedEvent);
             trackingRepository.save(model);
         }
         model.addToCheckPoint(model.getCurrentLocation());
         model.setCurrentLocation(checkPoint);
         UtilRecords.vehicleLocationUpdate update = new UtilRecords.vehicleLocationUpdate(checkPoint,model.getVehicleIdentificationNumber());
-        rabbitMqSenderService.sendTrackingCheckPointFanOut(update);
+        messagingService.sendTrackingCheckPointFanOut(update);
         trackingRepository.save(model);
         return model;
     }
@@ -84,11 +84,11 @@ public class TrackingService {
         UtilRecords.StartTrackingDTO trackingDTO = new UtilRecords.StartTrackingDTO(dispatchId,trackingModel.getVehicleName(),trackingModel.getDispatchReason(),
                 trackingModel.getVehicleIdentificationNumber(),trackingModel.getDispatchRequester(),trackingModel.getDispatchAdmin());
 
-        rabbitMqSenderService.sendTrackingInitializationFanout(trackingDTO);
+        messagingService.sendTrackingInitializationFanout(trackingDTO);
 
 
         UtilRecords.vehicleLocationUpdate update = new UtilRecords.vehicleLocationUpdate(checkPoint,trackingModel.getVehicleIdentificationNumber());
-        rabbitMqSenderService.sendTrackingCheckPointFanOut(update);
+        messagingService.sendTrackingCheckPointFanOut(update);
 
 
 
@@ -113,7 +113,7 @@ public class TrackingService {
         model.setDispatchStatus(LogEnums.DispatchStatus.COMPLETED);
         model.setEndedAt(LocalDateTime.now());
 
-        rabbitMqSenderService.sendCompletedDispatchFanOut(dispatchEvent);
+        messagingService.sendCompletedDispatchFanOut(dispatchEvent);
 
        trackingRepository.save(model);
     }

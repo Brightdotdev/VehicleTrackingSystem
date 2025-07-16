@@ -9,7 +9,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
 @Service
-@ConditionalOnProperty(name = "messaging.type", havingValue = "rabbitMq", matchIfMissing = true)
+@ConditionalOnProperty(name = "messaging.type", havingValue = "rabbitMq")
 public class RabbitMqSenderService implements MessagingService {
 
     private static final Logger logger = LoggerFactory.getLogger(RabbitMqSenderService.class);

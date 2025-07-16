@@ -14,14 +14,19 @@ import { dotEnv } from "./dotEnv";
             "Content-Type": "application/json"},
           credentials: "include"});
 
-        const data  = await response.json();
+        
+          console.log(response)
+          const data  = await response.json();
         toast.info("Vehicle requests are ready")
         console.log(data);
 
+
         if(data.data !== null){
-        return data.data;
+        return data.data;  
+      }
+        else{
+          return [];
         }
-        throw new Error("Something went wrong");
     } catch (error) {  
         toast.error("Somethinggg went wrong");
         return [];

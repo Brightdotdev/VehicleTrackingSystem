@@ -4,10 +4,9 @@ package com.example.DispatchService.Service;
 import com.example.DispatchService.Exceptions.ConflictException;
 import com.example.DispatchService.Exceptions.InvalidRequestException;
 import com.example.DispatchService.Exceptions.NotFoundException;
-import com.example.DispatchService.Messaging.RabbitMq.RabbitMqResponseMapper;
+import com.example.DispatchService.Messaging.MessagingService;
 import com.example.DispatchService.Messaging.ResponseMapperService;
 import com.example.DispatchService.Models.DispatchModel;
-import com.example.DispatchService.Messaging.RabbitMq.RabbitMqSenderService;
 import com.example.DispatchService.Repositories.DispatchRepository;
 import com.example.DispatchService.Utils.DispatchEnums;
 import com.example.DispatchService.Utils.UtilRecords;
@@ -15,7 +14,6 @@ import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -32,12 +30,12 @@ public class UserDispatchService {
 
 
     private final ResponseMapperService dispatchResponseMapper;
-    private final RabbitMqSenderService rabbitMqSenderService;
+    private final MessagingService messagingService;
 
-    public UserDispatchService(DispatchRepository dispatchRepository, ResponseMapperService dispatchResponseMapper, RabbitMqSenderService rabbitMqSenderService) {
+    public UserDispatchService(DispatchRepository dispatchRepository, ResponseMapperService dispatchResponseMapper, MessagingService messagingService) {
         this.dispatchRepository = dispatchRepository;
         this.dispatchResponseMapper = dispatchResponseMapper;
-        this.rabbitMqSenderService = rabbitMqSenderService;
+        this.messagingService = messagingService;
     }
 
 
@@ -78,7 +76,7 @@ public class UserDispatchService {
         UtilRecords.dispatchRequestBodyDTO requestBodyDTO
                 = new UtilRecords.dispatchRequestBodyDTO(requestBody.vehicleName(),requestBody.vehicleIdentificationNumber(),requestBody.vehicleStatus(),requestBody.dispatchReason(),userName,requestBody.dispatchEndTime());
 
-        Map<String, Object> dispatchResult = (Map<String, Object>) rabbitMqSenderService.sendDispatchRequestedEvent(requestBodyDTO);
+        Map<String, Object> dispatchResult = (Map<String, Object>) messagingService.sendDispatchRequestedEvent(requestBodyDTO);
         System.out.println(dispatchResult);
         if (dispatchResult.containsKey("canDispatch")) {
             canDispatch = (Boolean) dispatchResult.get("canDispatch");
@@ -88,7 +86,7 @@ public class UserDispatchService {
         UtilRecords.DispatchResponseDTO finalResponse = dispatchResponseMapper.dispatchResponseMapper(dispatchResult);
 
         DispatchModel finalDispatchModel = getDispatchModel(finalResponse,userName,userRole,userImage,requestBody);
-        rabbitMqSenderService.sendDispatchCreatedEventNoResponse(requestBodyDTO);
+        messagingService.sendDispatchCreatedEventNoResponse(requestBodyDTO);
 
         dispatchRepository.save(finalDispatchModel);
 
@@ -122,7 +120,7 @@ public class UserDispatchService {
         dispatch.setDispatchRequestApproveTime(LocalDateTime.now());
         UtilRecords.DispatchEndedDTO dispatchEnded = new UtilRecords.DispatchEndedDTO(true,LocalDateTime.now(),dispatch.getDispatchVehicleId(),userName,dispatch.getVehicleName(),dispatchId);
 
-        rabbitMqSenderService.sendDispatchCompletedFanoutFromDispatchService(
+        messagingService.sendDispatchCompletedFanoutFromDispatchService(
                 dispatchEnded);
         return dispatchRepository.save(dispatch);
     }
@@ -168,7 +166,7 @@ public class UserDispatchService {
 
                 UtilRecords.DispatchEndedDTO dispatchEnded = new UtilRecords.DispatchEndedDTO(false,LocalDateTime.now(),dispatch.getDispatchVehicleId(),user,dispatch.getVehicleName(),dispatch.getDispatchId());
 
-                rabbitMqSenderService.sendDispatchCompletedFanoutFromDispatchService(dispatchEnded);
+                messagingService.sendDispatchCompletedFanoutFromDispatchService(dispatchEnded);
 
 
                 allMyDispatches.add(dispatch);}
@@ -219,7 +217,7 @@ public class UserDispatchService {
                         dispatch.getDispatchId()
                 );
 
-                rabbitMqSenderService.sendDispatchCompletedFanoutFromDispatchService(dispatchEnded);
+                messagingService.sendDispatchCompletedFanoutFromDispatchService(dispatchEnded);
                 dispatchRepository.save(dispatch);
                 continue;
             }

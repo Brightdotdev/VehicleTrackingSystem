@@ -1,6 +1,7 @@
 package com.example.VehicleService.Messaging.WebClient;
 
 
+import com.example.VehicleService.Messaging.JsonMapper;
 import com.example.VehicleService.Services.VehicleService;
 import com.example.VehicleService.Utils.ApiResponse;
 import com.example.VehicleService.Utils.UtilRecords;
@@ -10,8 +11,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.Map;
+import static com.example.VehicleService.Messaging.ExceptionWrapper.wrapExceptions;
 
 @RestController
 @RequestMapping("/internal/vehicle")
@@ -19,118 +20,82 @@ public class WebClientReceiverController {
 
     private static final Logger logger = LoggerFactory.getLogger(WebClientReceiverController.class);
 
-
     private final VehicleService vehicleService;
+    private final JsonMapper jsonMapper;
 
-    public WebClientReceiverController(VehicleService vehicleService) {
+    public WebClientReceiverController(VehicleService vehicleService, JsonMapper jsonMapper) {
         this.vehicleService = vehicleService;
+        this.jsonMapper = jsonMapper;
     }
 
-
-    // :: localhost:8106/internal/vehicle/handle-dispatch-request
     @PostMapping("/handle-dispatch-request")
     public ResponseEntity<ApiResponse<Map<String, Object>>> handleCreateDispatch(
-            @Valid @RequestBody UtilRecords.dispatchRequestBodyDTO dispatchEvent
-    ) {
+            @Valid @RequestBody UtilRecords.dispatchRequestBodyDTO dispatchEvent) {
+        logger.info("📥 Received dispatch request: {}", jsonMapper.convertToJson(dispatchEvent));
 
-        Map<String, Object> vehicle = vehicleService.handleDispatchRequest(dispatchEvent);
-        return ResponseEntity.ok(
-                ApiResponse.success(
-                        201,
-                        "Dispatch request retrieved",
-                        vehicle
-                ));
+        return wrapExceptions(() -> {
+            Map<String, Object> vehicle = vehicleService.handleDispatchRequest(dispatchEvent);
+            return ResponseEntity.ok(ApiResponse.success(200, "Dispatch request retrieved", vehicle));
+        });
     }
 
-    // :: localhost:8106/internal/vehicle/dispatch-validated
-
-    /**
-     * ✅ Dispatch validated
-     */
     @PostMapping("/dispatch-validated")
-    public ResponseEntity<?> handleDispatchValidated(@RequestBody UtilRecords.ValidatedDispatch dispatchEvent) {
-        try {
+    public ResponseEntity<ApiResponse<String>> handleDispatchValidated(@RequestBody UtilRecords.ValidatedDispatch dispatchEvent) {
+        logger.info("📥 Received validated dispatch: {}", jsonMapper.convertToJson(dispatchEvent));
+
+        return wrapExceptions(() -> {
             vehicleService.handleValidatedDispatch(dispatchEvent);
-            return ResponseEntity.ok("Validated dispatch handled");
-        } catch (Exception e) {
-            logger.error("Error handling validated dispatch", e);
-            return ResponseEntity.internalServerError().body("Error processing validated dispatch");
-        }
+            return ResponseEntity.ok(ApiResponse.ok(200, "Validated dispatch handled"));
+        });
     }
 
-
-
-    /**
-     * ✅ Dispatch completed (from dispatch service)
-     */
     @PostMapping("/dispatch-completed/dispatch-service")
     @Transactional
-    public ResponseEntity<?> handleDispatchCompletedFromDispatch(@RequestBody UtilRecords.DispatchEndedDTO dispatchEvent) {
-        try {
+    public ResponseEntity<ApiResponse<String>> handleDispatchCompletedFromDispatch(@RequestBody UtilRecords.DispatchEndedDTO dispatchEvent) {
+        logger.info("📥 Received completed dispatch from dispatch service: {}", jsonMapper.convertToJson(dispatchEvent));
+
+        return wrapExceptions(() -> {
             vehicleService.completedDispatch(dispatchEvent);
-            return ResponseEntity.ok("Dispatch completed (dispatch service)");
-        } catch (Exception e) {
-            logger.error("Error handling completed dispatch (dispatch service)", e);
-            return ResponseEntity.internalServerError().body("Error processing completed dispatch");
-        }
+            return ResponseEntity.ok(ApiResponse.ok(200, "Dispatch completed (dispatch service)"));
+        });
     }
 
-    /**
-     * ✅ Dispatch completed (from logs service)
-     */
     @PostMapping("/dispatch-completed/logs-service")
     @Transactional
-    public ResponseEntity<?> handleDispatchCompletedFromLogs(@RequestBody UtilRecords.DispatchEndedDTO dispatchEvent) {
-        try {
+    public ResponseEntity<ApiResponse<String>> handleDispatchCompletedFromLogs(@RequestBody UtilRecords.DispatchEndedDTO dispatchEvent) {
+        logger.info("📥 Received completed dispatch from logs service: {}", jsonMapper.convertToJson(dispatchEvent));
+
+        return wrapExceptions(() -> {
             vehicleService.completedDispatch(dispatchEvent);
-            return ResponseEntity.ok("Dispatch completed (logs service)");
-        } catch (Exception e) {
-            logger.error("Error handling completed dispatch (logs service)", e);
-            return ResponseEntity.internalServerError().body("Error processing completed dispatch");
-        }
+            return ResponseEntity.ok(ApiResponse.ok(200, "Dispatch completed (logs service)"));
+        });
     }
 
-
-
-
-    /**
-     * ✅ Dispatch tracking event
-     */
     @PostMapping("/track-start")
     @Transactional
-    public ResponseEntity<?> handleDispatchTracking(@RequestBody UtilRecords.StartTrackingDTO trackingEvent) {
-        if (trackingEvent == null || trackingEvent.dispatchId() == null) {
-            logger.warn("Invalid tracking event");
-            return ResponseEntity.badRequest().body("Missing dispatchId in tracking event");
-        }
+    public ResponseEntity<ApiResponse<String>> handleDispatchTracking(@RequestBody UtilRecords.StartTrackingDTO trackingEvent) {
+        logger.info("📥 Received start tracking event: {}", jsonMapper.convertToJson(trackingEvent));
 
-        try {
-            logger.info("Tracking event received: {}", trackingEvent);
+        return wrapExceptions(() -> {
+            if (trackingEvent == null || trackingEvent.dispatchId() == null) {
+                throw new IllegalArgumentException("Missing dispatchId in tracking event");
+            }
             vehicleService.handleDispatchTracking(trackingEvent);
-            return ResponseEntity.ok("Tracking event handled");
-        } catch (Exception e) {
-            logger.error("Error handling tracking event", e);
-            return ResponseEntity.internalServerError().body("Error processing tracking event");
-        }
+            return ResponseEntity.ok(ApiResponse.ok(200, "Tracking event handled"));
+        });
     }
 
-    /**
-     * ✅ Vehicle location update
-     */
     @PostMapping("/vehicle-location-update")
     @Transactional
-    public ResponseEntity<?> handleVehicleLocationUpdate(@RequestBody UtilRecords.vehicleLocationUpdate update) {
-        if (update == null || update.vehicleIdentificationNumber() == null) {
-            logger.warn("Invalid vehicle location update");
-            return ResponseEntity.badRequest().body("Missing VIN in location update");
-        }
+    public ResponseEntity<ApiResponse<String>> handleVehicleLocationUpdate(@RequestBody UtilRecords.vehicleLocationUpdate update) {
+        logger.info("📥 Received vehicle location update: {}", jsonMapper.convertToJson(update));
 
-        try {
+        return wrapExceptions(() -> {
+            if (update == null || update.vehicleIdentificationNumber() == null) {
+                throw new IllegalArgumentException("Missing VIN in location update");
+            }
             vehicleService.handleVehicleLocationUpdate(update);
-            return ResponseEntity.ok("Vehicle location updated");
-        } catch (Exception e) {
-            logger.error("Error handling vehicle location update", e);
-            return ResponseEntity.internalServerError().body("Error processing location update");
-        }
+            return ResponseEntity.ok(ApiResponse.ok(200, "Vehicle location updated"));
+        });
     }
 }

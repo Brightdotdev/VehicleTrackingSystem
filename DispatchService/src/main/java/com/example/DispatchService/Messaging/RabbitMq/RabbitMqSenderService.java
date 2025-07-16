@@ -13,8 +13,7 @@ import java.util.Map;
 
 
 @Service
-@ConditionalOnProperty(name = "messaging.type", havingValue = "rabbitMq", matchIfMissing = true)
-
+@ConditionalOnProperty(name = "messaging.type", havingValue = "rabbitMq")
 public class RabbitMqSenderService implements MessagingService {
 
     private static final Logger logger = LoggerFactory.getLogger(RabbitMqSenderService.class);
