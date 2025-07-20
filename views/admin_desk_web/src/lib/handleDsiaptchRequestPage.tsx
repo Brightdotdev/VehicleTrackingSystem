@@ -58,13 +58,17 @@ import { dotEnv } from "./dotEnv";
    export const handleDispatchAccept = async (dispatchId : number) : Promise<DispatchRequestDto[] | undefined> => {
          try {
 
-    const response =  await fetch(`${dotEnv.adminDispatchesBaseUrl}/v1/admin/dispatch/validate?dispatchId=${dispatchId}`, {
+    const response =  await fetch(`${dotEnv.validateDispatchLink}?dispatchId=${dispatchId}`, {
           method: "PUT",
           headers: {
             "Content-Type": "application/json"},
           credentials: "include"});
 
+          console.log(response)
         const data  = await response.json();
+
+        console.log(data)
+
         toast.info("Dispatch history retrieved successfully")
         return data.data;
     } catch (error) {   
@@ -80,7 +84,7 @@ import { dotEnv } from "./dotEnv";
    export const handleDispatchReject = async (dispatchId : number, reason : string) : Promise<DispatchRequestDto[] | undefined> => {
          try {
 
-    const response =  await fetch(`${dotEnv.adminDispatchesBaseUrl}/v1/admin/dispatch/admin-cancel?dispatchId=${dispatchId}`, {
+    const response =  await fetch(`${dotEnv.adminDispatchesBaseUrl}/admin-cancel?dispatchId=${dispatchId}`, {
           method: "PUT",
           headers: {
             "Content-Type": "application/json"},

@@ -1,5 +1,6 @@
 "use client";
 
+import UnvalidatedPage from '@/components/UnvalidatedPage';
 import { useUserValidation } from '@/hooks/useUserValidation';
 import { Loader2 } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -29,15 +30,24 @@ export default function page() {
     checkValidation();
   }, []);
 
-
-
   
-  if (loading) return (
+  if (loading || isValidated === null)
+     return (
     <div className="flex items-center justify-center size-screen">
       <Loader2 className="animate-spin mr-l stroke-foreground" />
       Loading Dispatch information...
     </div>
   );
+
+
+if (!isValidated) {
+    return (
+     <UnvalidatedPage/>
+    );
+  }
+
+
+  
   // ...
     if (isValidated && vehicleReqId && vehicleId) {
       return (

@@ -141,7 +141,7 @@ const VehicleNamePill = (
 
 const VehicleRequestPage = ({vehicleVin} : {vehicleVin : string}) => {
   
-    const { user } = useUserValidation()
+    const { userData } = useUserValidation()
   const [vehicleData, setVehicleData] = useState<VehicleDTO | undefined>(undefined);
   const [isDispatchable, setDispatchAble] = useState<boolean>(false);
   // Form state
@@ -170,8 +170,7 @@ const VehicleRequestPage = ({vehicleVin} : {vehicleVin : string}) => {
 
       console.log("Java LocalDateTime:", date);
       console.log("Reason normal:", selectedStatus);
-      console.log("userrr: ", user)
-    
+      
       
 
 
@@ -189,7 +188,7 @@ const VehicleRequestPage = ({vehicleVin} : {vehicleVin : string}) => {
       !vehicleData?.vehicleIdentificationNumber ||
       !vehicleData?.vehicleStatus ||
       !selectedStatus ||
-      !user?.email
+      !userData?.email
     ) {
       toast.error("Missing required vehicle or user data.");
       return;
@@ -199,7 +198,7 @@ const VehicleRequestPage = ({vehicleVin} : {vehicleVin : string}) => {
       vehicleIdentificationNumber: vehicleData?.vehicleIdentificationNumber ?? "",
       vehicleStatus: vehicleData?.vehicleStatus as VehicleStatus,
       dispatchReason: submitedStatus?.value as DispatchReason,
-      dispatchRequester: user?.email ?? "",
+      dispatchRequester: userData?.email ?? "",
       dispatchEndTime: dateFormat 
     }
     console.log(dispatchData)
@@ -296,10 +295,10 @@ handleVehiclePage();
 
   <div className="relative w-full  flex-1 flex items-start  justify-start gap-12
   md:gap-0
-  md:justify-between lg:flex-row flex-col-reverse  md:pt-4 scorllebleElement customScrollBar"> 
+  md:justify-between lg:flex-row flex-col  md:pt-4 scorllebleElement customScrollBar"> 
  
 <article
-  className="hidden md:flex md:flex-col items-start justify-start gap-6 bg-background2 rounded-sm lg:w-[48%] w-full lg:p-[var(--size-xxs)] pt-4 p-2
+  className="flex flex-col items-start justify-start gap-6 bg-background2 rounded-sm lg:w-[48%] w-full lg:p-[var(--size-xxs)] pt-4 p-2
    min-h-full lg:max-h-[20rem] scorllebleElement customScrollBar"
 >
 

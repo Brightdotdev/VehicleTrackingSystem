@@ -146,13 +146,13 @@ handleVehiclePage();
             )}
   </div>
 
-  <div className="relative w-full  flex-1 flex items-start  justify-start gap-12
-  md:gap-0
+  <div className="relative w-full  flex-1 flex items-start  justify-start 
+  md:gap-0 gap-12
   md:justify-betwen lg:flex-row flex-col   md:pt-4 scorllebleElement customScrollBar"> 
  
 <article
-  className="flex flex-col items-start justify-start gap-6 bg-background2 rounded-sm lg:w-1/2 w-full lg:p-[var(--size-xxs)] pt-6
-   min-h-full lg:max-h-[20rem] scorllebleElement customScrollBar"
+  className="flex flex-col items-start justify-start gap-6 rounded-sm lg:w-1/2 w-full lg:p-[var(--size-xxs)] 
+ scorllebleElement customScrollBar md:py-8 py-4"
 >
 
 <div className="flex md:items-center items-start justify-center gap-2 flex-col md:flex-row ">

@@ -22,24 +22,26 @@ const TopVehiclesRouteNav = (
 
 
     return (
-    <nav className="fixed top-6 flex items-center justify-center z-5 w-[24rem]">
-  
-<Button
-    className={`navButtonLeft topNavButton
-        ${visibleComponent === "requests" ? "activeVehicleText" : "unActiveVehicleText"}
-        `}
-    onClick={handleRequestComponent}
->
+    <nav className="fixed lg:top-4 md:top-2 top-4 flex items-center justify-center z-5 w-full sm:w-[24rem]">
+
+ <ul className='flex w-full'>
+
+    <li className={`topNavButton ${visibleComponent === "requests" ? "activeVehicleText" : "unActiveVehicleText"}`} onClick={handleRequestComponent}>
+ <p>
     Requests
-</Button>
+ </p>
+ </li>
 
- <Button className={`navButtonRight topNavButton
-  ${visibleComponent === "vehicles" ?  "activeVehicleText" : "unActiveVehicleText" } 
-   
-  `} 
- onClick={handleVehiclesComponent}
- >Vehicles</Button>
 
+<li
+ className={`topNavButton  ${visibleComponent === "vehicles" ?  "activeVehicleText" : "unActiveVehicleText" }`} 
+ onClick={handleVehiclesComponent}>
+<p>
+Vehicles
+
+</p>
+</li>
+ </ul>
 </nav>
   )
 }

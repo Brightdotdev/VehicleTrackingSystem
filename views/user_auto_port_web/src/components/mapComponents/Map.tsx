@@ -1,39 +1,24 @@
-'use client';
+'use client'; // Mark as Client Component in Next.js 13+
 
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import { LatLngTuple, map as createLeafletMap } from 'leaflet';
+import { useEffect } from 'react';
+import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import React, { useEffect } from 'react';
 
-interface MapViewProps {
-  position: LatLngTuple;
-}
-
-export default function MapView({ position }: MapViewProps) {
+const Map = () => {
   useEffect(() => {
-    // Cleanup existing map instance if it exists
-    const existing = document.querySelector('.leaflet-container');
-    if (existing) {
-      existing.remove();
-    }
+    // Initialize map only on client side
+    const map = L.map('map').setView([51.505, -0.09], 13);
+    
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    return () => {
+      map.remove();
+    };
   }, []);
 
-  return (
-    <div style={{ height: '100%', width: '100%' }}>
-      <MapContainer
-        center={position}
-        zoom={16}
-        scrollWheelZoom={false}
-        style={{ height: '100%', width: '100%' }}
-      >
-        <TileLayer
-          attribution='&copy; OpenStreetMap contributors'
-          url='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
-        />
-        <Marker position={position}>
-          <Popup>Vehicle Location</Popup>
-        </Marker>
-      </MapContainer>
-    </div>
-  );
-}
+  return <div id="map" style={{ height: '400px', width: '100%' }} />;
+};
+
+export default Map;

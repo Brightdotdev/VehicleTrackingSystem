@@ -25,7 +25,7 @@ const DispatchHandlerCard: React.FC<DispatchHandlerCardProps> = ({ dispatchData 
 
   return (
     <article className='flex flex-col items-center justify-start gap-2 p-4 absolute bottom-2 xl:right-2 
-      xl:h-[26rem] xl:w-[24rem] w-[96vw] h-[50vh] bg-card rounded-lg'>
+      xl:h-[26rem] xl:w-[24rem] w-[96vw] h-[50vh] bg-card rounded-lg z-10'>
       
       <h5 className='text-small-2'>My Request Metadata</h5>
 

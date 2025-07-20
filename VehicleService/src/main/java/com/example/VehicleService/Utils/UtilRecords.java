@@ -205,8 +205,8 @@ public class UtilRecords {
             @Enumerated(EnumType.STRING)
             VehicleEnums.DispatchReason dispatchReason,
             String dispatchRequester,
-            @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
-            LocalDateTime dispatchEndTime
+            LocalDateTime dispatchEndTime,
+            Long dispatchId
     ) {
         public dispatchRequestBodyDTO {
             // vehicleName must be non-blank
@@ -218,16 +218,20 @@ public class UtilRecords {
                 throw new IllegalArgumentException("vehicleIdentificationNumber is required");
             }
             // enums must be non-null
+            // dispatchRequester may be optional
             if (vehicleStatus == null) {
                 throw new IllegalArgumentException("vehicleStatus is required");
             }
             if (dispatchReason == null) {
                 throw new IllegalArgumentException("dispatchReason is required");
             }
-            // dispatchRequester may be optional
             // dispatchEndTime must be non-null
             if (dispatchEndTime == null) {
                 throw new IllegalArgumentException("dispatchEndTime is required");
+            }
+            // dispatchEndTime must be non-null
+            if (dispatchId == null) {
+                throw new IllegalArgumentException("dispatch id is required");
             }
         }
     }

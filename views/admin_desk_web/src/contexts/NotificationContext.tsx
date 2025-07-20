@@ -9,6 +9,7 @@ import React, {
 } from 'react';
 import { useAuth } from './AuthContext';
 import { dotEnv } from '@/lib/dotEnv';
+import { useUserValidation } from '@/hooks/useUserValidation';
 
 
 
@@ -34,7 +35,7 @@ interface NotificationType {
 const NotificationContext = createContext<NotificationType | undefined>(undefined);
 
 export const NotificationProvider : React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const  {userData } = useAuth()
+  const  { userData } = useUserValidation()
   const [latestEvent, setLatestEvent] = useState<NotificationData | null>(null);
   const [queue, setQueue] = useState<NotificationData[]>([]);
   const eventSourceRef = useRef<EventSource | null>(null);

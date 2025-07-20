@@ -24,8 +24,7 @@ public class VehicleEnums {
 
 
     public static enum VehicleDispatchStatus {
-
-        IN_TRANSIT,
+        ONGOING,
         PENDING,
         IN_PROGRESS,
         AVAILABLE

@@ -1,5 +1,5 @@
 // src/lib/authLibrary/handleUserAuth.ts
-import { AdminGoogleLogIn, AdminGoogleSignUp, AdminLocalLogIn, AdminLocalSignUp, GoogleLogInProps, GoogleUser } from "@/types/authTypes";
+import { AdminGoogleLogIn, AdminGoogleSignUp, AdminLocalLogIn, AdminLocalSignUp, GoogleLogInProps, GoogleUser, User } from "@/types/authTypes";
 import { useGoogleLogin } from "@react-oauth/google";
 import axios from "axios";
 import { toast } from "sonner";
@@ -156,29 +156,36 @@ export const handleGoogleLogIn = async (
 
 
 
-
-
 // validate the user outside the context again
         export  const isValidatedUser  = async  (
     setLoading : (loading : boolean) => void ,
-    setValidated : (isValidated : boolean) => void) => {
+    setValidated : (isValidated : boolean) => void,
+        setUser : (user : User) => void
+  ) => {
  try {
     const response = await fetch(dotEnv.cookieValidationLink, {
    method: "GET", headers: { "Content-Type": "application/json"},credentials: "include"});
 
-
+console.log(response)
   const userResponseData  = await response.json();
+  
   const {code , success , data : { valid, user  }} = userResponseData;
-      console.log(userResponseData);
-        if(valid && code === 200 && user.email !== null && success === true ){
+  console.log(userResponseData);
+      
+        if(valid && code === 201 && user.email !== null && success === true ){
+          setUser(user);
           return setValidated(true);
+        
         } 
         return setValidated(false);
       } catch (error) {
-        
+        console.log(error)
         return setValidated(false);
     } finally {
       setLoading(false)}};
+
+
+
 
 
 

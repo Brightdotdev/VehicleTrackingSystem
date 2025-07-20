@@ -18,6 +18,7 @@ public class DispatchEnums {
     public static enum DispatchStatus {
         PENDING,
         IN_PROGRESS,
+        ONGOING,
         EXPIRED,
         CANCELLED,
         COMPLETED

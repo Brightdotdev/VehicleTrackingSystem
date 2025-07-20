@@ -39,3 +39,13 @@ export interface AdminLocalSignUp {
     password : string;
     adminKey : string;
 }
+
+
+
+ 
+export type User = {
+  email: string;
+  picture: string;
+  username: string;
+  roles: string[];
+} | null;

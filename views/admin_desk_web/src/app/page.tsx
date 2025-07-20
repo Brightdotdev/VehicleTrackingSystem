@@ -1,7 +1,7 @@
 "use client"
 
 import Loading from '@/components/ui/Loading';
-import { useAuth } from '@/contexts/AuthContext';
+import { useUserValidation } from '@/hooks/useUserValidation';
 import dynamic from 'next/dynamic';
 import { useSearchParams } from 'next/navigation';
 import React, { useEffect } from 'react';
@@ -18,7 +18,7 @@ const AdminWelcomePage = dynamic(() => import('@/components/ComponentBlocks/Admi
 });
 
 export default function Page() {
-  const { isAuthenticated, authLoading } = useAuth();
+  const { isValidated, loading } = useUserValidation();
   const searchParams = useSearchParams();
   const redirected = searchParams.get("redirected");
 
@@ -29,8 +29,8 @@ export default function Page() {
   }, [redirected]);
 
   // Handle auth state
-  if (authLoading && !isAuthenticated) return <>Validating...</>;
-
-  if (!isAuthenticated) return <AdminWelcomePage />;
-  if (isAuthenticated) return <AdminHomePage />;
+  if (loading && isValidated == null) return <>Validating...</>;
+  
+  if (!isValidated) return <AdminWelcomePage />;
+  if (isValidated) return <AdminHomePage />;
 }

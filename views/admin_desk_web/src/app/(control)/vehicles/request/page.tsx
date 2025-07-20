@@ -1,5 +1,7 @@
 "use client";
 
+import Loading from '@/components/ui/Loading';
+import UnvalidatedPage from '@/components/UnvalidatedPage';
 import { useUserValidation } from '@/hooks/useUserValidation';
 import { Loader2 } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -33,7 +35,17 @@ export default function page() {
 
 
 
-  if (loading) return <></>;
+   if (loading || isValidated === null) {
+    return <Loading />; 
+  }
+
+
+  if (!isValidated) {
+    return (
+     <UnvalidatedPage/>
+    );
+  }
+  
 
     if (isValidated && vehicle && vehicleReqid)
       return (

@@ -127,8 +127,8 @@ export const handleGoogleLogIn = async (
 console.log(response)
   const userResponseData  = await response.json();
   
-  const {code , success , data : { valid, user  }} = userResponseData;
   console.log(userResponseData);
+  const {code , success , data : { valid, user  }} = userResponseData;
       
         if(valid && code === 201 && user.email !== null && success === true ){
           setUser(user);

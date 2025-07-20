@@ -32,7 +32,7 @@ By default, `application.yml` is used (local hardcoded values).
 ./gradlew bootRun
 ```
 
-📝 Dev Database (PostgreSQL):
+📝 Dev Database (PostgresSQL):
 
 ```
 jdbc:postgresql://localhost:5432/VEHICLE_VEHICLE_DB

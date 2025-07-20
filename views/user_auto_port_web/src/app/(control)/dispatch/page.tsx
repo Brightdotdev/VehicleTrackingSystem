@@ -15,7 +15,6 @@ export default function Page() {
     checkValidation();
   }, []);
   
-  if(isValidated && !loading) 
     return (
   
       <div className="flex flex-col gap-4 items-center justify-center w-screen h-screen">
@@ -26,8 +25,5 @@ export default function Page() {
 
         <Link href='/' className="text-normal text-muted-foreground underline underline-offset-6">Go To the New Page</Link>
       </div>
-    ) 
-
-  if(loading) return <>No Vehicle Page Provided...internal Server error </>;
-
+    )
 }

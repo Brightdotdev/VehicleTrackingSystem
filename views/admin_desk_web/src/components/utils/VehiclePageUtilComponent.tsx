@@ -137,9 +137,9 @@ export const VehicleInfoPageStatusPills = (props: VehicleInfoPagePropsPills) => 
     return (
       <div
         className={`
-          h-[2rem] lg:w-[11.5rem]   w-[8rem] text-primary-foreground dark:text-foreground 
+          h-[2rem]  lg:w-[10rem]  md:w-[9.5rem] w-[8rem] text-primary-foreground dark:text-foreground 
           bg-gradient-to-r from-green-800  to-green-900
-          rounded-full flex items-center justify-start gap-4 pl-5
+          rounded-full flex items-center justify-start gap-5 pl-4
           shadow-lg ${props.className || ""}
           pointer-events-none select-none
         `}

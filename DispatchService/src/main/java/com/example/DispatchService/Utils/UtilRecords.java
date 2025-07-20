@@ -154,7 +154,8 @@ public class UtilRecords {
             @Enumerated(EnumType.STRING)
             DispatchEnums.DispatchReason dispatchReason,
             String dispatchRequester,
-            LocalDateTime dispatchEndTime
+            LocalDateTime dispatchEndTime,
+            Long dispatchId
     ) {
         public dispatchRequestBodyDTO {
             // vehicleName must be non-blank

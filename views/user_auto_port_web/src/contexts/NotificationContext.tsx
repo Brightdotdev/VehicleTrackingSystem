@@ -12,6 +12,8 @@ import { dotEnv } from '@/lib/dotEnv';
 
 
 
+// ====== Notification type ======
+
 interface NotificationData {
   dispatchId? : string | null ;
   notiicationId : string;
@@ -25,105 +27,72 @@ interface NotificationData {
 
 }
 
-interface NotificationType {
-  latestEvent: NotificationData | null;
-  queue: NotificationData[];
-  dequeue: () => void;
-}
 
-const NotificationContext = createContext<NotificationType | undefined>(undefined);
 
-export const NotificationProvider : React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const  {userData } = useAuth()
-  const [latestEvent, setLatestEvent] = useState<NotificationData | null>(null);
-  const [queue, setQueue] = useState<NotificationData[]>([]);
-  const eventSourceRef = useRef<EventSource | null>(null);
+type NotificationContextType = {
+  notifications: Notification[];
+  unreadCount: number;
+  markAllAsRead: () => void;
+};
 
+const NotificationContext = createContext<NotificationData | undefined>(undefined);
+
+// ====== Provider component ======
+
+export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [notifications, setNotifications] = useState<Notification[]>([]);
   
-  
+  const [lastChecked, setLastChecked] = useState(() => {
+  return localStorage.getItem("lastChecked") || new Date().toISOString();
+});
+
+
+  // === Polling logic ===
   useEffect(() => {
+    const poll = () => {
+      const userId = 1; // Replace with your auth logic
 
-    
-    const eventSource = new EventSource(
-       dotEnv.sseSubscribeUrl,{
-         withCredentials: true
-      }
-    );
-    eventSourceRef.current = eventSource;
-
-    // Generic handler for known events
-    const handleSSE = (event: MessageEvent, eventType: string) => {
-      
-      const parsedData = JSON.parse(event.data); // This should match your NotificationData interface
-      console.log("Parsed Data:", parsedData);
-      const parsed: NotificationData = {
-        ...parsedData,
-        type: eventType,
-        
-      };
-
-      // Push to UI or queue depending on focus
-      if (document.hasFocus()) {
-        setLatestEvent(parsed);
-      } else {
-        setQueue((prev) => [...prev, parsed]);
-      }
+      fetch(`/api/notifications?userId=${userId}&since=${lastChecked}`)
+        .then(res => res.json())
+        .then((newNotifs: Notification[]) => {
+          if (newNotifs.length > 0) {
+            // Show toast, play sound, etc.
+            console.log("🔔 New notifications!");
+            setNotifications(prev => [...newNotifs, ...prev]);
+          }
+          setLastChecked(new Date().toISOString());
+        });
     };
 
-    eventSource.addEventListener('INIT', (e) => handleSSE(e as MessageEvent, 'INIT'));
-    eventSource.addEventListener('USER_NOTIFICATION', (e) =>
-      handleSSE(e as MessageEvent, 'USER_NOTIFICATION')
-    );
-    eventSource.addEventListener('DISPATCH_USER_NOTIFICATION', (e) =>
-      handleSSE(e as MessageEvent, 'DISPATCH_USER_NOTIFICATION')
-    );
-    eventSource.addEventListener('ADMIN_NOTIFICATION', (e) =>
-      handleSSE(e as MessageEvent, 'ADMIN_NOTIFICATION')
+    const interval = setInterval(() => {
+      if (!document.hidden) poll();
+    }, 10000); // 10s
+
+    return () => clearInterval(interval);
+  }, [lastChecked]);
+
+  // === Mark all as read ===
+  const markAllAsRead = () => {
+    setNotifications(prev =>
+      prev.map(n => ({ ...n, isRead: true }))
     );
 
-    eventSource.onmessage = (event) => {
-      console.log("Generic SSE message:", event.data);
-    };
-
-    eventSource.onerror = (err) => {
-      console.error('SSE Error', err);
-      eventSource.close();
-    };
-
-    // Handler for when the window regains focus
-    const handleFocus = () => {
-      if (queue.length > 0) {
-        setLatestEvent(queue[0]);
-        setQueue((prev) => prev.slice(1));
-      }
-    };
-
-    window.addEventListener("focus", handleFocus);
-
-    return () => {
-      eventSource.close();
-      window.removeEventListener("focus", handleFocus);
-    };
-  }, [queue]);
-
-  const dequeue = () => {
-    setLatestEvent(queue[0] || null);
-    setQueue((prev) => prev.slice(1));
+    // Optionally call backend to mark as read
+    // POST /api/notifications/mark-all-read
   };
 
+  const unreadCount = notifications.filter(n => !n.isRead).length;
+
   return (
-    userData &&(
-    <NotificationContext.Provider value={{ latestEvent, queue, dequeue }}>
+    <NotificationContext.Provider value={{ notifications, unreadCount, markAllAsRead }}>
       {children}
     </NotificationContext.Provider>
-    )
   );
 };
 
-export const useSSE = () => {
+// ====== Hook for easy usage ======
+export const useNotifications = () => {
   const ctx = useContext(NotificationContext);
-  if (!ctx) {
-    throw new Error('useSSE must be used inside SSEProvider');
-  }
+  if (!ctx) throw new Error("useNotifications must be used within NotificationProvider");
   return ctx;
 };

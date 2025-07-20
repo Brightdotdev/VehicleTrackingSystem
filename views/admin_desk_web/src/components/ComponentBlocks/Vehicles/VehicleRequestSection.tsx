@@ -6,17 +6,27 @@ import { getAllDispatchRequests } from '@/lib/handleDsiaptchRequestPage'
 const VehicleRequestSection = () => {
   // State to hold dispatch request data
   const [dispatches, setDispatches] = useState<DispatchRequestDto[]>([])
+    const [loading, setLoading] = useState(false);
+  
 
   // Fetch dispatch requests when component mounts
   useEffect(() => {
     const getDispatches = async () => {
+      setLoading(true)
       const dispatchApi = await getAllDispatchRequests()
       console.log(dispatchApi)
       setDispatches(dispatchApi) // ✅ Set dispatch requests
+      setLoading(false)
     }
 
     getDispatches()
   }, [])
+
+
+
+  
+  if(loading) return <>Loading Vehicle Data</>
+
 
   return (
     <section
@@ -30,11 +40,12 @@ const VehicleRequestSection = () => {
       }}
     >
       {
-        // ✅ If the dispatch list is empty, show fallback
+      
         dispatches.length === 0 ? (
-          <div className="flex items-center justify-center w-full h-full">
-            No Dispatch Requests
-          </div>
+     
+    <div className="mt-20 flex  items-center justify-center">
+      No Dispatch Requests for now
+    </div>
         ) : (
           // ✅ Otherwise, map through dispatches
           dispatches.map((request, index) => (

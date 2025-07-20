@@ -46,15 +46,26 @@ public class NotificationModel {
 
     private LocalDateTime readAt;
 
+    private Long dispatchId;
+
+    private String vehicleId;
+
     public NotificationModel() {
     }
 
-    public NotificationModel(String id, String receiver, String message, Boolean read, String title,
+    public NotificationModel(
+            String id,
+            Long dispatchId,
+            String vehicleId,
+
+                             String receiver, String message, Boolean read, String title,
                              String goodNotificationCta, String badNotificationCta, Boolean isActionNotif,
                              LogEnums.NotificationType type, LocalDateTime createdAt, LocalDateTime readAt) {
         this.id = id;
         this.receiver = receiver;
         this.message = message;
+        this.dispatchId = dispatchId;
+        this.vehicleId = vehicleId;
         this.read = read;
         this.title = title;
         this.type = type;
@@ -152,5 +163,21 @@ public class NotificationModel {
 
     public void setBadNotificationCta(String badNotificationCta) {
         this.badNotificationCta = badNotificationCta;
+    }
+
+    public Long getDispatchId() {
+        return dispatchId;
+    }
+
+    public void setDispatchId(Long dispatchId) {
+        this.dispatchId = dispatchId;
+    }
+
+    public String getVehicleId() {
+        return vehicleId;
+    }
+
+    public void setVehicleId(String vehicleId) {
+        this.vehicleId = vehicleId;
     }
 }

@@ -74,7 +74,8 @@ public class UserDispatchService {
         }
 
         UtilRecords.dispatchRequestBodyDTO requestBodyDTO
-                = new UtilRecords.dispatchRequestBodyDTO(requestBody.vehicleName(),requestBody.vehicleIdentificationNumber(),requestBody.vehicleStatus(),requestBody.dispatchReason(),userName,requestBody.dispatchEndTime());
+                = new UtilRecords.dispatchRequestBodyDTO(requestBody.vehicleName(),requestBody.vehicleIdentificationNumber(),requestBody.vehicleStatus(),requestBody.dispatchReason(),userName,requestBody.dispatchEndTime(), null);
+
 
         Map<String, Object> dispatchResult = (Map<String, Object>) messagingService.sendDispatchRequestedEvent(requestBodyDTO);
         System.out.println(dispatchResult);
@@ -86,11 +87,15 @@ public class UserDispatchService {
         UtilRecords.DispatchResponseDTO finalResponse = dispatchResponseMapper.dispatchResponseMapper(dispatchResult);
 
         DispatchModel finalDispatchModel = getDispatchModel(finalResponse,userName,userRole,userImage,requestBody);
-        messagingService.sendDispatchCreatedEventNoResponse(requestBodyDTO);
 
-        dispatchRepository.save(finalDispatchModel);
+        DispatchModel savedModel =  dispatchRepository.save(finalDispatchModel);
 
-        return finalDispatchModel;
+        UtilRecords.dispatchRequestBodyDTO finalDispatchDto
+                = new UtilRecords.dispatchRequestBodyDTO(savedModel.getVehicleName(),savedModel.getDispatchVehicleId(),savedModel.getVehicleClass(),savedModel.getDispatchReason(),userName,requestBody.dispatchEndTime(), savedModel.getDispatchId());
+
+
+        messagingService.sendDispatchCreatedEventNoResponse(finalDispatchDto);
+        return savedModel;
     }
 
 

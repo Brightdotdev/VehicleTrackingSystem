@@ -35,6 +35,9 @@ type AuthContextType = {
   setGoogleUserData : (googleUserData : { sub: string, given_name: string, picture: string, email: string, email_verified: boolean }) => void,
   isPageExpTimeExpired: (pageExpTime: number) => boolean;
   validate: () => void;
+  setUser : (
+    userData: User
+  ) => void;
 };
 
 const AuthContext = createContext<AuthContextType>({
@@ -62,6 +65,7 @@ const AuthContext = createContext<AuthContextType>({
   setGoogleUserData : () => {},
   isPageExpTimeExpired: () => false,
   validate: () => {},
+  setUser : () => {},
 });
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
@@ -175,6 +179,7 @@ const  isPageExpTimeExpired =  (pageExpTime: number): boolean => {
   setGoogleUserData,
   isPageExpTimeExpired,
   validate,
+  setUser
       }}
     >
       {children}

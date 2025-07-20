@@ -5,10 +5,17 @@ import { useRouter } from 'next/navigation';
 import { getVehicleByVin } from '@/lib/handleVehiclePage';
 import { getThisDispatch } from '@/lib/handleUserDispatchPage';
 import DispatchHandlerCard from './DispatchHandlerCard';
-import MapView from '@/components/mapComponents/Map';
-import { LatLngExpression } from 'leaflet';
 
 
+
+
+import dynamic from 'next/dynamic';
+
+const Map = dynamic(() => import('@/components/mapComponents/Map'), {
+  ssr: false
+});
+
+// Then use <Map /> in your page
 
 
 
@@ -45,11 +52,6 @@ const DispatchInfoPage = ({vehicleVin, vehicleReqId} : {vehicleVin : string, veh
   const router = useRouter();
  const [dispatchData, setDispatchData] = useState<DispatchRequestDto | undefined>(undefined);
  const [vehicleData, setVehicleData] = useState<VehicleDTO | undefined>(undefined);
-  
-
-  const vehiclePosition : LatLngExpression = vehicleData?.location.latitude && vehicleData?.location.longitude
-    ? [vehicleData.location.latitude, vehicleData.location.longitude]
-    : [6.5244, 3.3792]; 
   
 
   
@@ -95,9 +97,8 @@ handleVehiclePage();
 
 
 {vehicleData && 
-<MapView
+<Map
   key={`${vehicleData?.location.latitude}-${vehicleData?.location.longitude}`} 
-  position={[vehicleData.location.latitude, vehicleData.location.longitude]}
 />
 }
 

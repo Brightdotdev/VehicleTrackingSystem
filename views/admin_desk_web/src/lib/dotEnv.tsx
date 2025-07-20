@@ -24,11 +24,16 @@
     const sseSubscribeUrl = process.env.NEXT_PUBLIC_SSE_SUBSCRIBE_URL || "";
     const getAllDispatchUrl = process.env.NEXT_PUBLIC_GET_ALL_DISPATCH_ADMIN_URL || "";
     const markForMentainanceUrl = process.env.NEXT_PUBLIC_MARK_FOR_MAINTENANCE || "";
+
+    
     const adminVehicleBaseUrl = process.env.NEXT_PUBLIC_ADMIN_VEHICLE_BASE_URL || "";
     const adminDispatchesBaseUrl = process.env.NEXT_PUBLIC_ADMIN_DISPATCH_BASE_URL || "";
 
+    const notificationUrl = process.env.NEXT_PUBLIC_NOTIFICATION_URL || "";
+
 
   export const dotEnv = {
+    notificationUrl,
     adminDispatchesBaseUrl,
      adminVehicleBaseUrl,
     markForMentainanceUrl,

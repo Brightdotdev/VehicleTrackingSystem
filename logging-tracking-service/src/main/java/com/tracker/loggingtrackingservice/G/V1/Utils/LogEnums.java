@@ -7,6 +7,7 @@ public class LogEnums {
         INFO,
         WARNING,
         SUCCESS,
+        DISPATCH_CREATED_ADMIN,
         DANGER
     }
 
@@ -28,7 +29,7 @@ public class LogEnums {
 
     public static enum VehicleDispatchStatus {
 
-        IN_TRANSIT,
+        ONGOING,
         PENDING,
         IN_PROGRESS,
         EXPIRED,
@@ -58,7 +59,8 @@ public class LogEnums {
         IN_PROGRESS,
         EXPIRED,
         CANCELLED,
-        COMPLETED
+        COMPLETED,
+        ONGOING
     }
 
 

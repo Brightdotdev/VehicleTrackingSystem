@@ -3,7 +3,6 @@ import { componentTypes } from '@/types/utilTypes';
 import TopVehiclesRouteNav from '../../ui/Vehicles/TopVehiclesRouteNav';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
-import { SaveNewVehiclePopUpProps } from '@/types/VehicleTypes';
 import SaveNewVehiclePopUp from '@/components/utils/SaveNewVehiclePopUp';
 import { Button } from '@/components/ui/button';
 
@@ -11,10 +10,22 @@ import { Button } from '@/components/ui/button';
 const VehicleInfoSection = lazy(() => import('./VehicleInfoSection'));
 const VehicleRequestSection = lazy(() => import('./VehicleRequestSection'));
 
+
+const AddVehicleButton = () => {
+const [open, setOpen] = useState(false);
+return(
+  <>
+<Button className='absolute sm:top-4 right-4 bottom-18' onClick={() => setOpen(true)}>Add Vehicle</Button>
+<SaveNewVehiclePopUp open={open} setOpen={setOpen} />
+  </>
+)
+}
+
+
+
 const VehiclePageComponent = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
-const [open, setOpen] = useState(false);
 
   // Initialize from URL param if present
   const initialTab = searchParams.get("tab") as componentTypes["vehicleComponent"] | null;
@@ -28,7 +39,7 @@ const [open, setOpen] = useState(false);
     if (currentTab !== visibleComponent) {
       const params = new URLSearchParams(searchParams.toString());
       params.set("tab", visibleComponent);
-      router.replace(`?${params.toString()}`); // Use replace for less disruptive navigation
+      router.replace(`?${params.toString()}`); 
     }
     
   }, [visibleComponent]);
@@ -39,8 +50,8 @@ const [open, setOpen] = useState(false);
     <main className='relative w-screen h-screen flex items-center justify-center'>
 
       
-<SaveNewVehiclePopUp open={open} setOpen={setOpen} />
-<Button className='absolute top-4 right-4' onClick={() => setOpen(true)}>Add Vehicle</Button>
+
+      <AddVehicleButton/>
       <TopVehiclesRouteNav setVisibleComponent={setVisibleComponent} visibleComponent={visibleComponent} />
       <Suspense fallback={<div className='flex items-center justify-center gap-2'>
            <Loader2 className="animate-spin mr-2" />

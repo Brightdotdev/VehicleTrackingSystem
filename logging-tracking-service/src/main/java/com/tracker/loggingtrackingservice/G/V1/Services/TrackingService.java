@@ -79,7 +79,7 @@ public class TrackingService {
 
 
         trackingModel.setCurrentLocation(checkPoint);
-        trackingModel.setDispatchStatus(LogEnums.DispatchStatus.IN_PROGRESS);
+        trackingModel.setDispatchStatus(LogEnums.DispatchStatus.ONGOING);
 
         UtilRecords.StartTrackingDTO trackingDTO = new UtilRecords.StartTrackingDTO(dispatchId,trackingModel.getVehicleName(),trackingModel.getDispatchReason(),
                 trackingModel.getVehicleIdentificationNumber(),trackingModel.getDispatchRequester(),trackingModel.getDispatchAdmin());
@@ -141,7 +141,7 @@ public class TrackingService {
         trackingModel.setDispatchReason(dispatchValidatedEvent.dispatchReason());
         trackingModel.setDispatchEndTime(dispatchValidatedEvent.dispatchEndTime());
 
-        trackingModel.setDispatchStatus(LogEnums.DispatchStatus.PENDING);
+        trackingModel.setDispatchStatus(LogEnums.DispatchStatus.IN_PROGRESS);
         trackingModel.setDispatchAdmin(dispatchValidatedEvent.dispatchAdmin());
 
         trackingModel.setVehicleIdentificationNumber(dispatchValidatedEvent.vehicleIdentificationNumber());

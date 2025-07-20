@@ -41,7 +41,7 @@
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
   --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
+  --muted-foreground: oklch(66.655% 0.00008 271.152);
   --accent: oklch(0.97 0 0);
   --accent-foreground: oklch(0.205 0 0);
   --destructive: oklch(0.577 0.245 27.325);
@@ -311,8 +311,21 @@
       height: var(--size-xxl);
     }
   }
+  .navButtonRight{
+    border-radius: 0   .5rem .5rem 0;
+}
+
+
+  .navButtonLeft{
+    border-radius:  .5rem 0  0  .5rem;
+}
+
+
   .topNavButton{
-   @apply w-1/2 h-[var(--size-md)] px-[var(--size-md)]  
+    display: flex;
+    align-items: center;
+    justify-content: center;
+   @apply w-1/2 h-[var(--size-md)] px-[var(--size-sm)] 
   }
 
   .vehicleCard{
@@ -325,13 +338,13 @@
     object-fit: cover;
     object-position : center;
   }
-
-  @media (max-width: 640px) {
+/* 
+  @media (max-width: 340px) {
     .vehicleCardBody , .vehicleCard {
       border-radius: 0;
     }
   }
-        .bodyWrapper{
+       */  .bodyWrapper{
           position: relative;
           display: flex;
           flex-direction: column;
@@ -367,13 +380,16 @@
         }
         
         .subTitleText2{
-          color: var(--primary-foreground);
+          color: var(--foreground);
           font-size: var(--font-medium);
           font-weight: 400;
           font-family: var(--font-futura-medium);
           line-height: var(--line-tight);
         }
         
+
+    
+    
         .subTitleTextGradient{
           font-size: var(--font-subheading);
           font-weight: 600;
@@ -426,29 +442,25 @@
             overflow-y: scroll;
           }
           .activeVehicleText{
-           
-            
-            
-            font-size: var(--font-medium);
+            color: var(--foreground);
+            font-size: var(--font-subheading);
             font-family: var(--font-futura-medium);
             line-height: var(--line-normal);
-            @apply bg-blue-950 hover:bg-blue-900/90  dark:text-foreground text-primary-foreground
+            @apply transition-all duration-300
           }
 
           .unActiveVehicleText{
-           
-            
             font-size: var(--font-medium);
             font-family: var(--font-futura-medium);
             line-height: var(--line-normal);
-
-            @apply  text-foreground dark:text-primary-foreground
+            color: var(--muted-foreground);
+            @apply transition-all duration-300 
           }
     .activeVehicleText:hover,  .unActiveVehicleText:hover {
             color: var(--primary);
-            background: var(--secondary);
-            box-shadow: 0 2px 12px 0 var(--secondary);
             cursor: pointer;
+            text-underline-offset: 12;
+            text-decoration: underline;
             }
 
 
@@ -490,19 +502,8 @@
 }
 
 
-.navButtonRight{
-  border-radius: 0 var(--radius) var(--radius) 0;
-}
-.navButtonLeft{
-  border-radius: var(--radius) 0  0 var(--radius) ;
-}
 
-  
-  @media (max-width: 350px) {
-    .navButtonLeft, .navButtonRight {
-      border-radius: 0;
-    }
-  }
+
 
 
 

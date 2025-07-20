@@ -2,21 +2,19 @@
 
 import { dotEnv } from "@/lib/dotEnv";
 import { deleteCookie, getCookie } from "@/lib/utils";
+import { User } from "@/types/authTypes";
 import React, { createContext, useContext, useEffect, useState, ReactNode } from "react";
 
-type User = {
-  email: string;
-  picture: string;
-  username: string;
-  roles: string[];
-} | null;
 
 type AuthContextType = {
   isAuthenticated: boolean;
   userData: User;
   authLoading: boolean;
-
-  logout: () => Promise<void>;
+  
+    setUser : (
+    userData: User
+  ) => void;
+  
   logInData :  { email : string, password  : string, pageExpTime : number } ,
   setLogInData : (logInInfo : { email : string, password  : string, pageExpTime : number }) => void,
 
@@ -41,9 +39,10 @@ const AuthContext = createContext<AuthContextType>({
   
   isAuthenticated: false,
   userData: null,
+  setUser:  () => {},
   
+
   authLoading: true,
-  logout: async () => {},
   
   logInData : { email : "", password  : "" , pageExpTime : Date.now()},
   setLogInData : () => {},
@@ -103,48 +102,24 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
            headers: {
           "Content-Type": "application/json"},credentials: "include"});
         const userResponseData  = await response.json();
+        console.log(userResponseData)
         const {code , data : { valid, user  }} = userResponseData;
-        
         if(valid && code === 200){
           setUser(user);
           setIsAuthenticated(valid)
+          return
+        }else{
+          setAuthLoading(false);
+          setIsAuthenticated(valid)
+          return
         }
-        
-        setIsAuthenticated(valid)
-        setAuthLoading(false);
-    } catch (error) {
+    } catch (error) {        
       setIsAuthenticated(false);
       setUser(null);
     } finally {
       setAuthLoading(false);}};
 
-  // Logout helper
-  const logout = async () => {
-    setAuthLoading(true);
-    try {
-      const authCookie = getCookie(dotEnv.adminCookieName)
-      if(authCookie){
-          const response = await fetch(dotEnv.adminLogOutLink, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-        const data = await response.json();
-        setUser(null);
-        setAuthLoading(false);
-        deleteCookie(dotEnv.adminCookieName);
-        return data
-      }
-    } catch (error) {
-      setIsAuthenticated(false);
-      setUser(null);
-      setAuthLoading(false);
-    } finally {
-      setIsAuthenticated(false);
-    }
-  };
-  
+
 
 const  isPageExpTimeExpired =  (pageExpTime: number): boolean => {
   return Date.now() > pageExpTime;
@@ -161,7 +136,7 @@ const  isPageExpTimeExpired =  (pageExpTime: number): boolean => {
       isAuthenticated,
       userData,
       authLoading,
-     logout,
+     setUser,
   logInData,
   setLogInData,
   signUpData,

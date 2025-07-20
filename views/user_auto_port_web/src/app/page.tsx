@@ -31,11 +31,11 @@ export default function Page() {
   }, [redirected]);
 
 
-  if(loading && !isValidated) return <>Validating...</>
+  if(loading || isValidated == null) return <>Validating...</>
 
-  if(!isValidated && !loading) return <UserWelcomePage/>
+  if(!isValidated) return <UserWelcomePage/>
 
-  if(isValidated && !loading) return <UserHomePage/>
+  if(isValidated) return <UserHomePage/>
 
   
 }
