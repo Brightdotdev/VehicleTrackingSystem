@@ -20,14 +20,15 @@
 
     const userCookieName = process.env.NEXT_PUBLIC_USER_COOKIE_NAME || "";
   
-    const sseSubscribeUrl = process.env.NEXT_PUBLIC_SSE_SUBSCRIBE_URL || "";
+    
     const userDispatchesBaseUrl = process.env.NEXT_PUBLIC_USER_DISPATCH_BASE_URL || "";
+    const userNotificationBaseUrl = process.env.NEXT_PUBLIC_NOTIFICATION_BASE_URL || "";
 
 
   export const dotEnv = {
+    userNotificationBaseUrl,
     userVehicleBaseUrl ,
     userDispatchesBaseUrl,
-    sseSubscribeUrl,
     userLocalLogInLink,
         userGoogleSignInLink,
         userLogOutLink,

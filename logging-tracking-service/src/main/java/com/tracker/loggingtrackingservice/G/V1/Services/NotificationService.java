@@ -213,14 +213,8 @@
 
 
         @Transactional
-        public List<NotificationModel> getAllMyNotifications(@Valid String user) {
+        public List<NotificationModel> getAllMyNotifications() {
             String validUser = userHandler.getCurrentUser();
-
-            if (!user.equals(validUser)){
-                System.out.println("How is this happening  tho");
-                System.out.println(" Notif reader "   + validUser);
-                System.out.println(" User from user handler "   + user);}
-
             return notificationRepository.findAllByReceiver(validUser);
         }
 

@@ -315,6 +315,9 @@
     object-position : center;
   }
 
+
+  
+
   @media (max-width: 360px) {
     .vehicleCardBody , .vehicleCard {
       border-radius: 0;

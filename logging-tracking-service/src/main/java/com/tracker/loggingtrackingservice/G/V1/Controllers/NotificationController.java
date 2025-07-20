@@ -27,10 +27,17 @@ public class NotificationController {
 
 //    ✅ GETs notifications after a particular time : Set notifications as read Endpoint: /v1/user/notifications/new-after
     @GetMapping("/new-after")
-    public List<NotificationModel> getNewNotifications(
+    public   ResponseEntity<ApiResponse<List<NotificationModel>>>  getNewNotifications(
             @RequestParam String since
     ) {
-        return notificationService.getNotificationsAfter(since);
+        List<NotificationModel> newNotifications =  notificationService.getNotificationsAfter(since);
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        200,
+                        "Notifications updated",
+                        newNotifications
+                ));
+
     }
 
 
@@ -49,7 +56,7 @@ public class NotificationController {
 
         return ResponseEntity.ok(
                 ApiResponse.success(
-                        201,
+                        200,
                         "Notifications updated",
                         updatedNotifications
                 ));
@@ -60,14 +67,13 @@ public class NotificationController {
      * Endpoint: /v1/user/notifications/get-all-me
      */
     @GetMapping("/get-all-me")
-    public ResponseEntity<ApiResponse<List<NotificationModel>>> getAllMyNotification(
-            @RequestParam String clientId) {
+    public ResponseEntity<ApiResponse<List<NotificationModel>>> getAllMyNotification() {
 
-        List<NotificationModel> myNotifications = notificationService.getAllMyNotifications(clientId);
+        List<NotificationModel> myNotifications = notificationService.getAllMyNotifications();
 
         return ResponseEntity.ok(
                 ApiResponse.success(
-                        201,
+                        200,
                         "Notifications received",
                         myNotifications
                 ));

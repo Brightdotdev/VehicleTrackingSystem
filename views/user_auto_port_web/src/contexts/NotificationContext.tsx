@@ -7,90 +7,108 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { useAuth } from './AuthContext';
+import { NotificationData } from '@/types/utilTypes';
+import { useUserGoogleSignIn } from '@/lib/handleUserAuth';
+import { useUserValidation } from '@/hooks/useUserValidation';
 import { dotEnv } from '@/lib/dotEnv';
+import { getAllMyNotifications, pollNotifications } from '@/lib/handleUserNotiications';
 
 
 
 // ====== Notification type ======
 
-interface NotificationData {
-  dispatchId? : string | null ;
-  notiicationId : string;
-  isActionNotif: boolean;
-  title: string;
-  type: string;
-  body: string;
-  read: boolean;
-  goodCta?: string;
-  badCta?: string;
-
-}
-
 
 
 type NotificationContextType = {
-  notifications: Notification[];
-  unreadCount: number;
-  markAllAsRead: () => void;
+  notifications: NotificationData[];
+  newNotifications: NotificationData[];
+  getMyNotifications : () => void;
+  getLattestNotifications : () => void;
+  updateLastChecked: (lastChecked: string) => void;
 };
 
-const NotificationContext = createContext<NotificationData | undefined>(undefined);
 
-// ====== Provider component ======
+const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
+
+
+
 
 export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [notifications, setNotifications] = useState<Notification[]>([]);
   
+  const [notifications, setNotifications] = useState<NotificationData[]>([]);
+  const [newNotifications, setLatestNotifications] = useState<NotificationData[]>([]);
+  
+
   const [lastChecked, setLastChecked] = useState(() => {
-  return localStorage.getItem("lastChecked") || new Date().toISOString();
-});
+      if (typeof window !== "undefined") {
+        return localStorage.getItem("lastChecked") ||         new Date().toISOString().replace("Z", "");
+      } else {
+        return new Date().toISOString().replace("Z", "")}});
+
+        
+
+
+  
+// ==== extra coontext methods ====
+
+
+  const lastCheckedRef = useRef(lastChecked);
+    const updateLastChecked = (timestamp: string) => {
+  setLastChecked(timestamp);
+  lastCheckedRef.current = timestamp;
+  localStorage.setItem("lastChecked", timestamp);
+};
+
+
 
 
   // === Polling logic ===
   useEffect(() => {
-    const poll = () => {
-      const userId = 1; // Replace with your auth logic
 
-      fetch(`/api/notifications?userId=${userId}&since=${lastChecked}`)
-        .then(res => res.json())
-        .then((newNotifs: Notification[]) => {
-          if (newNotifs.length > 0) {
-            // Show toast, play sound, etc.
-            console.log("🔔 New notifications!");
-            setNotifications(prev => [...newNotifs, ...prev]);
-          }
-          setLastChecked(new Date().toISOString());
-        });
-    };
+    console.log("Yesh the context was rendered");
 
+
+  if (typeof window === "undefined") {
+    console.log("we returned here :: the window was undefined");
+    return;}
+
+    getMyNotifications()
+    
     const interval = setInterval(() => {
-      if (!document.hidden) poll();
-    }, 10000); // 10s
+      if (!document.hidden) {
+        console.log("Yesh the context was rendered");
+        getLattestNotifications()
+        localStorage.setItem("lastChecked", lastChecked); 
+      }
+    }, 10000);
 
     return () => clearInterval(interval);
+
   }, [lastChecked]);
 
-  // === Mark all as read ===
-  const markAllAsRead = () => {
-    setNotifications(prev =>
-      prev.map(n => ({ ...n, isRead: true }))
-    );
 
-    // Optionally call backend to mark as read
-    // POST /api/notifications/mark-all-read
-  };
 
-  const unreadCount = notifications.filter(n => !n.isRead).length;
+  const getLattestNotifications = async () => {
+        const latestNotification = await pollNotifications(lastCheckedRef.current, updateLastChecked);
+        setLatestNotifications(latestNotification);
+  }
 
+  
+
+   const getMyNotifications = async () => {
+      const notifcationData = await getAllMyNotifications();
+      setNotifications(notifcationData);
+      setLatestNotifications(notifcationData);
+    };
+  
   return (
-    <NotificationContext.Provider value={{ notifications, unreadCount, markAllAsRead }}>
+    <NotificationContext.Provider value={{ updateLastChecked,newNotifications, notifications, getMyNotifications, getLattestNotifications }}>
       {children}
     </NotificationContext.Provider>
   );
 };
 
-// ====== Hook for easy usage ======
+
 export const useNotifications = () => {
   const ctx = useContext(NotificationContext);
   if (!ctx) throw new Error("useNotifications must be used within NotificationProvider");

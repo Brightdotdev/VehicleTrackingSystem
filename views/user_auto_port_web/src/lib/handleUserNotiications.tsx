@@ -1,68 +1,54 @@
+import { toast } from "sonner";
+import { dotEnv } from "./dotEnv";
 
-export const subscribeUserToSse = ({ user }: { user: string }): EventSource => {
- 
-    const sseUrl = `http://localhost:8102/v1/sse/subscribe`;
-    const eventSource =    new EventSource(sseUrl, {
-      withCredentials: true // Essential for sending cookies
-    });
- 
+export const  pollNotifications = async (
+      lastChecked : string , setLastChecked : (lastChecked : string) => void) => {
+       const  response = await fetch(`${dotEnv.userNotificationBaseUrl}/new-after?since=${lastChecked}`,
+       {   method: "GET",
+           headers: {
+          "Content-Type": "application/json"},
+          credentials: "include"})
+      
+          
+          const data = await response.json();
+          console.log("notificcation response" , response)
+          console.log("data response for the after notifications and stuff" , data)
+          
+          const {code , success , message , data : notifications} = data;
 
-
-
-  eventSource.addEventListener('INIT', (event: MessageEvent) => {
-    console.log('Connected:', event.data);
-  });
-
-  eventSource.addEventListener('USER_NOTIFICATION', (event: MessageEvent) => {
-    const notification = JSON.parse(event.data);
-    console.log('User notification received:', notification);
-  });
-
-  eventSource.addEventListener('DISPATCH_USER_NOTIFICATION', (event: MessageEvent) => {
-    const dispatchNotification = JSON.parse(event.data);
-    console.log('Dispatch notification received:', dispatchNotification);
-  });
-
-  eventSource.addEventListener('ADMIN_NOTIFICATION', (event: MessageEvent) => {
-    const adminNotification = JSON.parse(event.data);
-    console.log('Admin notification received:', adminNotification);
-  });
-
-  eventSource.onerror = (err) => {
-    console.error('SSE connection error:', err);
-  };
-
-  return eventSource;
-};
-
+          if(success || code === 200){
+          const now = new Date().toISOString().replace("Z", "");
+          setLastChecked(now);
+            return notifications;
+          }else{
+            toast.error(message)
+            return [] 
+          }
+      
+        }
 
 
 const setNotiicationToRead = () => {
     
 }
 
+export const getAllMyNotifications = async () => {
 
-export const getMyNotifications = async ({ user }: { user: string }) => {
-  const notificationUrl = `http://localhost:8102/v1/user/notifications/get-all-me?clientId=${user}`;
-  try {
+    const  response = await fetch(`${dotEnv.userNotificationBaseUrl}/get-all-me`,
+       {   method: "GET",
+           headers: {
+          "Content-Type": "application/json"},
+          credentials: "include"})
+       
+          const data = await response.json();
+          console.log("data response of all my notifications" , data)
+            const  {code , success , message , data : notifications} = data;
 
-    const response = await fetch(notificationUrl, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-    });
-
-    if (!response.ok) {
-      throw new Error(`Failed to fetch notifications: ${response.status}`);
-    }
-
-    const data = await response.json();
-    // data should be your notifications array or object
-    return data;
-  } catch (error) {
-    console.error("Error fetching notifications:", error);
-    return null;
-  }
-};
+            if(success || code === 200){
+              return notifications;
+            }
+            else{
+              toast.error(message)
+              return [] 
+            }
+        }

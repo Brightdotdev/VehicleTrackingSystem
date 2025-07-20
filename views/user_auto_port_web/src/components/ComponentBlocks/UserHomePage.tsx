@@ -51,7 +51,7 @@ const [hasCheckedDispatch, setHasCheckedDispatch] = useState(false); // prevent 
 
     
     <section className='relative  w-screen h-screen flex items-center justify-center'>
-        <Usernav/>
+        <Usernav />
 
    <Suspense fallback={<Loading/>}>
    <DispatchPageComponent/>
