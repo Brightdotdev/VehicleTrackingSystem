@@ -1,7 +1,7 @@
 
 # 📬 `NotificationService` — AutoPort Logging & Tracking
 
-> 📁 `com.tracker.loggingtrackingservice.G.V1.Services.NotificationService`
+> 📁 `com.tracker.loggingtrackingservice.G.V1.Services.UserNotificationService`
 
 This service handles **dispatch-related user notifications**, including creation, validation, completion, and status updates. It integrates with `NotificationRepository`, `UserHandler`, `TrackingService`, and `NotificationSseService`.
 

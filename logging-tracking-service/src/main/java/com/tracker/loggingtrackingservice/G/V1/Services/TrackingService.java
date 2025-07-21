@@ -5,7 +5,7 @@ import com.tracker.loggingtrackingservice.G.V1.Exceptions.ConflictException;
 import com.tracker.loggingtrackingservice.G.V1.Exceptions.NotFoundException;
 import com.tracker.loggingtrackingservice.G.V1.Models.TrackingModel;
 import com.tracker.loggingtrackingservice.G.V1.Messaging.MessagingService;
-import com.tracker.loggingtrackingservice.G.V1.Repositories.NotificationRepository;
+import com.tracker.loggingtrackingservice.G.V1.Repositories.UserNotificationRepository;
 import com.tracker.loggingtrackingservice.G.V1.Repositories.TrackingRepository;
 import com.tracker.loggingtrackingservice.G.V1.Utils.LogEnums;
 import com.tracker.loggingtrackingservice.G.V1.Utils.UtilRecords;
@@ -24,7 +24,7 @@ public class TrackingService {
     private final MessagingService messagingService;
     private final TrackingRepository trackingRepository;
 
-    public TrackingService(MessagingService messagingService, TrackingRepository trackingRepository, NotificationRepository notificationRepository) {
+    public TrackingService(MessagingService messagingService, TrackingRepository trackingRepository, UserNotificationRepository userNotificationRepository) {
         this.messagingService = messagingService;
         this.trackingRepository = trackingRepository;
     }
@@ -94,7 +94,6 @@ public class TrackingService {
 
         trackingRepository.save(trackingModel);
 
-       //im supposed to use rabbit mq here
         return trackingModel;
     }
 

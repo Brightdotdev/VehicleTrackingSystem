@@ -6,6 +6,7 @@ import { ThemeProvider } from "@/contexts/ThemeContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { GlobalContextProvider } from "@/contexts/GlobalContext";
 import BottomNav from "@/components/ui/BottomNav";
+import { NotificationProvider } from "@/contexts/NotificationContext";
 
 
 export const metadata: Metadata = {
@@ -29,10 +30,12 @@ export default function RootLayout({
           <ThemeProvider>
             <AuthProvider>
               <GlobalContextProvider>
-
+              <NotificationProvider>
                 <div className="bg-background">
                   {children}
                 </div>
+              
+              </NotificationProvider>
                 <BottomNav />
               </GlobalContextProvider>
             </AuthProvider>

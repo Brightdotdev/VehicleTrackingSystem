@@ -67,7 +67,7 @@ public class AdminController {
         return ResponseEntity.ok(
                 ApiResponse.success(
                         201,
-                        "User retrieved successfully",
+                        "admin joined successfully",
                         clientResponse
                 ));
     }
@@ -93,7 +93,7 @@ public class AdminController {
         return ResponseEntity.ok(
                 ApiResponse.success(
                         201,
-                        "User signed in successfully",
+                        "Google admin signed in successfully",
                         clientResponse
                 ));
     }
@@ -120,8 +120,8 @@ public class AdminController {
 
         return ResponseEntity.ok(
                 ApiResponse.success(
-                        201,
-                        "User retrieved successfully",
+                        200,
+                        "Goggle admin logged in successfully",
                         clientResponse
                 ));
     }
@@ -150,8 +150,8 @@ public class AdminController {
 
         return ResponseEntity.ok(
                 ApiResponse.success(
-                        201,
-                        "User retrieved successfully",
+                        200,
+                        "admin retrieved successfully",
                         clientResponse
                 ));
     }
@@ -214,7 +214,7 @@ public class AdminController {
         return ResponseEntity.ok(
                 ApiResponse.success(
                         200,
-                        "User retrieved successfully",
+                        "Admin validated successfully",
                         response
                 ));}
 

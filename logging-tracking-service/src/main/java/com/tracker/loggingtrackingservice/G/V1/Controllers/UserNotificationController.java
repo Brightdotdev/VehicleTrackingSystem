@@ -1,25 +1,23 @@
 package com.tracker.loggingtrackingservice.G.V1.Controllers;
 
-import com.tracker.loggingtrackingservice.G.V1.Models.NotificationModel;
-import com.tracker.loggingtrackingservice.G.V1.Services.NotificationService;
+import com.tracker.loggingtrackingservice.G.V1.Models.UserNotificationModel;
+import com.tracker.loggingtrackingservice.G.V1.Services.UserNotificationService;
 import com.tracker.loggingtrackingservice.G.V1.Utils.ApiResponse;
 import com.tracker.loggingtrackingservice.G.V1.Utils.UtilRecords;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/v1/user/notifications")
-public class NotificationController {
+public class UserNotificationController {
 
-    private final NotificationService notificationService;
+    private final UserNotificationService userNotificationService;
 
-    public NotificationController(NotificationService notificationService) {
-        this.notificationService = notificationService;
+    public UserNotificationController(UserNotificationService userNotificationService) {
+        this.userNotificationService = userNotificationService;
     }
 
 
@@ -27,10 +25,10 @@ public class NotificationController {
 
 //    ✅ GETs notifications after a particular time : Set notifications as read Endpoint: /v1/user/notifications/new-after
     @GetMapping("/new-after")
-    public   ResponseEntity<ApiResponse<List<NotificationModel>>>  getNewNotifications(
+    public   ResponseEntity<ApiResponse<List<UserNotificationModel>>>  getNewNotifications(
             @RequestParam String since
     ) {
-        List<NotificationModel> newNotifications =  notificationService.getNotificationsAfter(since);
+        List<UserNotificationModel> newNotifications =  userNotificationService.getNotificationsAfter(since);
         return ResponseEntity.ok(
                 ApiResponse.success(
                         200,
@@ -47,12 +45,12 @@ public class NotificationController {
      * Endpoint: /v1/user/notifications/set-read
      */
     @PostMapping("/set-read")
-    public ResponseEntity<ApiResponse<List<NotificationModel>>> setNotificationToRead(
+    public ResponseEntity<ApiResponse<List<UserNotificationModel>>> setNotificationToRead(
             @RequestParam String user,
             @Valid @RequestBody List<UtilRecords.setReadRecord> notificationRecordList
     ) {
-        List<NotificationModel> updatedNotifications =
-                notificationService.setNotificationToRead(notificationRecordList, user);
+        List<UserNotificationModel> updatedNotifications =
+                userNotificationService.setNotificationToRead(notificationRecordList, user);
 
         return ResponseEntity.ok(
                 ApiResponse.success(
@@ -67,9 +65,9 @@ public class NotificationController {
      * Endpoint: /v1/user/notifications/get-all-me
      */
     @GetMapping("/get-all-me")
-    public ResponseEntity<ApiResponse<List<NotificationModel>>> getAllMyNotification() {
+    public ResponseEntity<ApiResponse<List<UserNotificationModel>>> getAllMyNotification() {
 
-        List<NotificationModel> myNotifications = notificationService.getAllMyNotifications();
+        List<UserNotificationModel> myNotifications = userNotificationService.getAllMyNotifications();
 
         return ResponseEntity.ok(
                 ApiResponse.success(

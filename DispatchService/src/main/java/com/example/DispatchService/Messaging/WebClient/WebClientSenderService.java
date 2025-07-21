@@ -48,6 +48,11 @@ public class WebClientSenderService implements MessagingService {
         }
 
         try {
+
+            logger.info("THis is what the dispatch service is sending:  {}",
+jsonMapper.convertToJson(event)
+                    );
+
             Object rawResponse = vehicleWebClientService.sendDispatchRequested(event).block();
 
             if (rawResponse == null) {

@@ -243,10 +243,8 @@ public class UtilRecords {
             if (dispatchEndTime == null) {
                 throw new IllegalArgumentException("dispatchEndTime is required");
             }
-            // dispatchEndTime must be non-null
-            if (dispatchId == null) {
-                throw new IllegalArgumentException("dispatch id is required");
-            }
+
+
         }
     }
 

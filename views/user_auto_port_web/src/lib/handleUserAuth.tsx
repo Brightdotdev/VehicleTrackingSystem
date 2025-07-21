@@ -130,7 +130,7 @@ console.log(response)
   console.log(userResponseData);
   const {code , success , data : { valid, user  }} = userResponseData;
       
-        if(valid && code === 201 && user.email !== null && success === true ){
+        if(valid && code === 200 && user.email !== null && success === true ){
           setUser(user);
           return setValidated(true);
         

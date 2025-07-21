@@ -96,10 +96,19 @@ handleVehiclePage();
       <section className='relative flex flex-col items-center justify-start w-[96vw] h-[94vh] h-24 disatchRequestContainer'>
 
 
-{vehicleData && 
+{vehicleData &&  
 <Map
   key={`${vehicleData?.location.latitude}-${vehicleData?.location.longitude}`} 
-/>
+/> 
+
+/* <Map 
+  center={[35.6762, 139.6503]} 
+  zoom={15}
+  markerPosition={[35.6762, 139.6503]}
+  markerText="Tokyo, Japan"
+  className="custom-map-style"
+/> */
+
 }
 
 

@@ -8,9 +8,6 @@ import React, {
   useState,
 } from 'react';
 import { NotificationData } from '@/types/utilTypes';
-import { useUserGoogleSignIn } from '@/lib/handleUserAuth';
-import { useUserValidation } from '@/hooks/useUserValidation';
-import { dotEnv } from '@/lib/dotEnv';
 import { getAllMyNotifications, pollNotifications } from '@/lib/handleUserNotiications';
 
 
@@ -74,7 +71,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
     getMyNotifications()
     
-    const interval = setInterval(() => {
+/*     const interval = setInterval(() => {
       if (!document.hidden) {
         console.log("Yesh the context was rendered");
         getLattestNotifications()
@@ -82,7 +79,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
       }
     }, 10000);
 
-    return () => clearInterval(interval);
+    return () => clearInterval(interval); */
 
   }, [lastChecked]);
 

@@ -1,11 +1,12 @@
 package com.tracker.loggingtrackingservice.G.V1.Messaging.WebClient;
 
-import com.tracker.loggingtrackingservice.G.V1.Services.NotificationService;
+import com.tracker.loggingtrackingservice.G.V1.Repositories.AdminRepository;
+import com.tracker.loggingtrackingservice.G.V1.Services.AdminNotificationService;
+import com.tracker.loggingtrackingservice.G.V1.Services.UserNotificationService;
 import com.tracker.loggingtrackingservice.G.V1.Services.TrackingService;
 import com.tracker.loggingtrackingservice.G.V1.Services.UserHandlerService;
 import com.tracker.loggingtrackingservice.G.V1.Utils.ApiResponse;
 import com.tracker.loggingtrackingservice.G.V1.Utils.UtilRecords;
-import com.tracker.loggingtrackingservice.G.V1.Messaging.WebClient.WebClientJsonMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -22,21 +23,22 @@ public class WebClientReceiverController {
 
     private static final Logger logger = LoggerFactory.getLogger(WebClientReceiverController.class);
 
-    private final NotificationService notificationService;
+    private final UserNotificationService userNotificationService;
     private final TrackingService trackingService;
     private final UserHandlerService userHandlerService;
     private final WebClientJsonMapper jsonMapper;
-
+    private final AdminNotificationService adminNotificationService;
     public WebClientReceiverController(
-            NotificationService notificationService,
+            UserNotificationService userNotificationService,
             TrackingService trackingService,
             UserHandlerService userHandlerService,
-            WebClientJsonMapper jsonMapper
+            WebClientJsonMapper jsonMapper, AdminNotificationService adminNotificationService
     ) {
-        this.notificationService = notificationService;
+        this.userNotificationService = userNotificationService;
         this.trackingService = trackingService;
         this.userHandlerService = userHandlerService;
         this.jsonMapper = jsonMapper;
+        this.adminNotificationService = adminNotificationService;
     }
 
     @PostMapping("/admin/create")
@@ -60,8 +62,8 @@ public class WebClientReceiverController {
         }
 
         return wrapExceptions(() -> {
-            notificationService.sendCreatedDispatchNotification(event);
-            notificationService.sendCreatedDispatchNotificationsForAdmin(event);
+            userNotificationService.sendCreatedDispatchNotification(event);
+            adminNotificationService.sendCreatedDispatchNotificationsForAdmin(event);
             return ResponseEntity.ok(ApiResponse.ok(200, "Dispatch created processed"));
         });
     }
@@ -77,7 +79,7 @@ public class WebClientReceiverController {
         }
 
         return wrapExceptions(() -> {
-            notificationService.completedDispatchNotification(event);
+            userNotificationService.completedDispatchNotification(event);
             return ResponseEntity.ok(ApiResponse.ok(200, "Dispatch completed processed"));
         });
     }
@@ -93,7 +95,7 @@ public class WebClientReceiverController {
         }
 
         return wrapExceptions(() -> {
-            notificationService.handleValidatedDispatchNotif(event);
+            userNotificationService.handleValidatedDispatchNotif(event);
             trackingService.handleValidatedDispatchTracking(event);
             return ResponseEntity.ok(ApiResponse.ok(200, "Validated dispatch processed"));
         });
@@ -110,7 +112,7 @@ public class WebClientReceiverController {
         }
 
         return wrapExceptions(() -> {
-            notificationService.handleDispatchTracking(trackingEvent);
+            userNotificationService.handleDispatchTracking(trackingEvent);
             return ResponseEntity.ok(ApiResponse.ok(200, "Tracking dispatch processed"));
         });
     }

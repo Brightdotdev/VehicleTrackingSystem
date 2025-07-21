@@ -29,7 +29,7 @@ spring:
         - id: loggingService
           uri : http://localhost:8104
           predicates:
-            - Path=/v1/user/notifications/**, /v1/sse/**, /v1/user/tracking/** , /internal/logs/**
+            - Path=/v1/user/notifications/**, /v1/admin/notifications/**, ,/v1/sse/**, /v1/user/tracking/** , /internal/logs/**
           filters:
             - name: DedupeResponseHeader
               args:

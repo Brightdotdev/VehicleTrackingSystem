@@ -127,7 +127,7 @@ export function SignUpForm({
         <CardHeader className="text-center">
           <CardTitle className="text-medium">Hello</CardTitle>
           <CardDescription>
-            Sign up with your Google account
+            Sign up to continue
           </CardDescription>
         </CardHeader>
         <CardContent>

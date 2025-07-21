@@ -2,7 +2,6 @@ package com.tracker.loggingtrackingservice.G.V1.Models;
 
 
 import com.tracker.loggingtrackingservice.G.V1.Utils.LogEnums;
-import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.NotNull;
@@ -13,7 +12,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.time.LocalDateTime;
 
 @Document
-public class NotificationModel {
+public class UserNotificationModel {
     @Id
     private String id;
 
@@ -50,10 +49,10 @@ public class NotificationModel {
 
     private String vehicleId;
 
-    public NotificationModel() {
+    public UserNotificationModel() {
     }
 
-    public NotificationModel(
+    public UserNotificationModel(
             String id,
             Long dispatchId,
             String vehicleId,

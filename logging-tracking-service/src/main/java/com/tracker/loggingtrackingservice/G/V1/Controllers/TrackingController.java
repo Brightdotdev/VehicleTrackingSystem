@@ -2,8 +2,9 @@ package com.tracker.loggingtrackingservice.G.V1.Controllers;
 
 import com.tracker.loggingtrackingservice.G.V1.Models.TrackingModel;
 import com.tracker.loggingtrackingservice.G.V1.Messaging.RabbitMq.RabbitMqReceiverService;
-import com.tracker.loggingtrackingservice.G.V1.Services.NotificationService;
+import com.tracker.loggingtrackingservice.G.V1.Services.UserNotificationService;
 import com.tracker.loggingtrackingservice.G.V1.Services.TrackingService;
+import com.tracker.loggingtrackingservice.G.V1.Utils.ApiResponse;
 import com.tracker.loggingtrackingservice.G.V1.Utils.UtilRecords;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -17,14 +18,14 @@ import java.time.LocalDateTime;
 public class TrackingController {
 
     private final TrackingService trackingService;
-    private final NotificationService notificationService;
+    private final UserNotificationService userNotificationService;
     private final RabbitMqReceiverService rabbitMqReceiverService;
 
     // Constructor injection of the TrackingService
-    public TrackingController(TrackingService trackingService, NotificationService notificationService, RabbitMqReceiverService rabbitMqReceiverService) {
+    public TrackingController(TrackingService trackingService, UserNotificationService userNotificationService, RabbitMqReceiverService rabbitMqReceiverService) {
 
         this.trackingService = trackingService;
-        this.notificationService = notificationService;
+        this.userNotificationService = userNotificationService;
         this.rabbitMqReceiverService = rabbitMqReceiverService;
     }
 
@@ -32,25 +33,38 @@ public class TrackingController {
      * Endpoint to revalidate a tracking record
      */
     @PutMapping("/revalidate/{dispatchId}")
-    public ResponseEntity<TrackingModel> revalidateTracking(
+    public ResponseEntity<ApiResponse<TrackingModel>> revalidateTracking(
             @PathVariable @NotBlank(message = "Dispatch ID cannot be blank") Long dispatchId,
             @Valid @RequestBody UtilRecords.CheckPoint checkPoint
             ) {
         TrackingModel result = trackingService.revalidateTrackingPosition(dispatchId, checkPoint);
-        return ResponseEntity.ok(result);
-    }
+
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        200,
+                        "dispatch tracked successfully",
+                        result
+                ));}
+
+
 
     /**
      * Endpoint to start a tracking
      */
     @PutMapping("/start/{dispatchId}")
-    public ResponseEntity<TrackingModel> startTracking(
+    public ResponseEntity<ApiResponse<TrackingModel>> startTracking(
             @PathVariable @NotBlank(message = "Dispatch ID cannot be blank") Long dispatchId,
             @Valid @RequestBody UtilRecords.CheckPoint checkPoint
 
     ) {
         TrackingModel result = trackingService.startTracking(dispatchId,checkPoint);
-        return ResponseEntity.ok(result);
+
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        200,
+                        "The tracking has begun",
+                        result
+                ));
     }
 
 
@@ -65,9 +79,6 @@ public class TrackingController {
 
 
         UtilRecords.DispatchEndedDTO dispatchEndedDTO = new UtilRecords.DispatchEndedDTO(true, LocalDateTime.now(),trackingModel.getVehicleIdentificationNumber(),trackingModel.getDispatchRequester(),trackingModel.getVehicleName(),dispatchId);
-
-         notificationService.completedDispatchNotification(dispatchEndedDTO);
-        rabbitMqReceiverService.handleDispatchCompleted(dispatchEndedDTO);
-
+         userNotificationService.completedDispatchNotification(dispatchEndedDTO);
     }
 }

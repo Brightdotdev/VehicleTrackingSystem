@@ -59,7 +59,7 @@ public class UserAuthController {
         return ResponseEntity.ok(
                 ApiResponse.success(
                         201,
-                        "User retrieved successfully",
+                        "User saved successfully",
                         clientResponse
                 ));
     }
@@ -84,7 +84,7 @@ public class UserAuthController {
         return ResponseEntity.ok(
                 ApiResponse.success(
                         201,
-                        "User signed in successfully",
+                        "User saved successfully",
                         clientResponse
                         ));
     }
@@ -108,8 +108,8 @@ public class UserAuthController {
 
         return ResponseEntity.ok(
                 ApiResponse.success(
-                        201,
-                        "User retrieved successfully",
+                        200,
+                        "User logged in successfully",
                         clientResponse
                         ));
     }
@@ -139,7 +139,7 @@ public class UserAuthController {
 
         return ResponseEntity.ok(
                 ApiResponse.success(
-                        201,
+                        200,
                         "User retrieved successfully",
                         clientResponse
                 ));
@@ -196,13 +196,10 @@ public class UserAuthController {
         response.put("valid", valid);
 
 
-
-
-
         return ResponseEntity.ok(
                 ApiResponse.success(
-                        201,
-                        "User retrieved successfully",
+                        200,
+                        "User credentials validated",
                         response
                 ));}
 

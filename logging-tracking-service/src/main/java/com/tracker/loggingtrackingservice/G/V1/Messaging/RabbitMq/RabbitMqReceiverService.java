@@ -1,17 +1,20 @@
 package com.tracker.loggingtrackingservice.G.V1.Messaging.RabbitMq;
 
 import com.tracker.loggingtrackingservice.G.V1.Messaging.WebClient.WebClientJsonMapper;
-import com.tracker.loggingtrackingservice.G.V1.Services.NotificationService;
+import com.tracker.loggingtrackingservice.G.V1.Services.AdminNotificationService;
+import com.tracker.loggingtrackingservice.G.V1.Services.UserNotificationService;
 import com.tracker.loggingtrackingservice.G.V1.Services.TrackingService;
 import com.tracker.loggingtrackingservice.G.V1.Utils.UtilRecords;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import static com.tracker.loggingtrackingservice.G.V1.Messaging.ExceptionWrapper.runSafely;
 
 @Service
+@ConditionalOnProperty(name = "messaging.type", havingValue = "rabbitMq")
 public class RabbitMqReceiverService {
 
     private static final Logger logger = LoggerFactory.getLogger(RabbitMqReceiverService.class);
@@ -21,18 +24,19 @@ public class RabbitMqReceiverService {
     private static final String DISPATCH_VALIDATED_FANOUT_LOGS_QUEUE = "validated.dispatch.fanOut.provider.dispatch.service.queue.logs.service";
     private static final String DISPATCH_TRACKING_LOGS_QUEUE = "start.tracking.fanOut.provider.logs.queue.logs";
 
-    private final NotificationService notificationService;
+    private final UserNotificationService userNotificationService;
     private final TrackingService trackingService;
     private final WebClientJsonMapper jsonMapper;
-
+    private final AdminNotificationService adminNotificationService;
     public RabbitMqReceiverService(
-            NotificationService notificationService,
+            UserNotificationService userNotificationService,
             TrackingService trackingService,
-            WebClientJsonMapper jsonMapper
+            WebClientJsonMapper jsonMapper, AdminNotificationService adminNotificationService
     ) {
-        this.notificationService = notificationService;
+        this.userNotificationService = userNotificationService;
         this.trackingService = trackingService;
         this.jsonMapper = jsonMapper;
+        this.adminNotificationService = adminNotificationService;
     }
 
     /**
@@ -48,8 +52,8 @@ public class RabbitMqReceiverService {
                 throw new IllegalArgumentException("Invalid dispatchCreated event received");
             }
 
-            notificationService.sendCreatedDispatchNotification(event);
-            notificationService.sendCreatedDispatchNotificationsForAdmin(event);
+            userNotificationService.sendCreatedDispatchNotification(event);
+            adminNotificationService.sendCreatedDispatchNotificationsForAdmin(event);
         });
     }
 
@@ -66,7 +70,7 @@ public class RabbitMqReceiverService {
                 throw new IllegalArgumentException("Invalid dispatchCompleted event received");
             }
 
-            notificationService.completedDispatchNotification(event);
+            userNotificationService.completedDispatchNotification(event);
         });
     }
 
@@ -83,7 +87,7 @@ public class RabbitMqReceiverService {
                 throw new IllegalArgumentException("Invalid validatedDispatch event received");
             }
 
-            notificationService.handleValidatedDispatchNotif(event);
+            userNotificationService.handleValidatedDispatchNotif(event);
             trackingService.handleValidatedDispatchTracking(event);
         });
     }
@@ -101,7 +105,7 @@ public class RabbitMqReceiverService {
                 throw new IllegalArgumentException("Invalid tracking event received");
             }
 
-            notificationService.handleDispatchTracking(event);
+            userNotificationService.handleDispatchTracking(event);
         });
     }
 }

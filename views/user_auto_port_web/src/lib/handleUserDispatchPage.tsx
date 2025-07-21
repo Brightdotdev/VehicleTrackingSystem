@@ -100,6 +100,7 @@ export const getMyValidDispatches = async (): Promise<DispatchRequestDto[]> => {
 
           const data  = await response.json();
             console.log(data)
+            toast.info(data.message)
           if(data.data === null) {
             console.log(data.data)
 

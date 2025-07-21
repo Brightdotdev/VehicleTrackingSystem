@@ -3,15 +3,15 @@ import { DispatchRequestDto} from '@/types/VehicleTypes';
 import Link from 'next/link';
 import VehicleRequestCard from './VehicleRequestCard';
 import { getMyValidDispatches } from '@/lib/handleUserDispatchPage';
-import Usernav from '@/components/ui/Usernav';
+import { ArrowUpRight, Info } from 'lucide-react';
 
 
 const DispatchPageComponent = () => {
 
  const [dispatches, setDipatches] = useState<DispatchRequestDto[]>([]);
+ 
 
- useEffect(() => {
-      const handleUserDispatchPage = async () => {
+    const handleUserDispatchPage = async () => {
         const myActiveDisaptches = await getMyValidDispatches();
           console.log(myActiveDisaptches)
         if(myActiveDisaptches.length > 0){
@@ -20,6 +20,11 @@ const DispatchPageComponent = () => {
           setDipatches([]);
         }
       }
+
+
+
+ useEffect(() => {
+
        handleUserDispatchPage()
  },[])
 
@@ -48,8 +53,22 @@ const DispatchPageComponent = () => {
     >
 {
   dispatches.length === 0 ? (
-    <div className="flex items-center justify-center">
-      You Have No dispatch requests yet..... <Link href="/vehicles">checkout the vehicles to make one </Link>
+<div className="w-full h-full md:h-2/3 flex items-center justify-center gap-4 flex-col">
+   
+<div className="flex items-center flex-col gap-2">
+     <Info className='size-8'/>
+<h4 className="subTitleText2 ">
+      You Have no ongoing dispatch yet.....
+</h4>
+</div>
+
+<div className="flex items-center justify-center gap-2 bg-muted/80 p-3 rounded-full hover:bg-accent/70 group transition-colors border border-border shadow-sm dark:bg-muted/60 dark:hover:bg-accent/40">
+  <Link href="/vehicles" className="text-primary font-medium  hover:text-accent-foreground transition-colors">
+    checkout the vehicles to make one
+  </Link>
+  <ArrowUpRight className="transition-transform duration-200 group-hover:rotate-45 text-primary" />
+</div>
+
     </div>
   ) : (
     dispatches.map((dispatch: DispatchRequestDto, index: number) => (

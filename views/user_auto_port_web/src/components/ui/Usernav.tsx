@@ -60,7 +60,7 @@ console.log(JSON.stringify(notifications))
     isvisible && (
       <div className="bg-background2/95 fixed top-0 left-0 w-screen h-screen flex flex-col items-center justify-center  backdrop-blur-sm shadow-2xl">
     <article className='self-end lg:mr-10 lg:w-1/3 md:mr-6 md:w-2/3 h-screen w-full h-[var(--size-lg)] bg-accent relative flex flex-col items-start justify-start p-[var(--space-sm)] shadow-xl'>
-      <div className="flex justify-between items-center w-full flex-1 top-1 z-8">
+      <div className="flex justify-between items-center w-full">
         <h2 className='text-normal-2 text-muted-foreground'> {`${user || "Nobody"}'s Nofitcation`} </h2>    
         <X 
           onClick={() =>  setVisible(false)}
@@ -94,7 +94,7 @@ const Usernav = ({classNames} : {classNames? : string}) => {
                     userData?.picture  && (<img src={userData.picture} className='size-8 rounded-full object-cover' />)
                 }
                 <div className='size-8 rounded-full object-cover bg-red-400' />
-                 <h3 className='  md:subtitleText'>
+                 <h3 className=' hidden md:flex md:subtitleText'>
                 {`${userData?.username || "Nobody" }'s Desk`}  
             </h3>
         </article>

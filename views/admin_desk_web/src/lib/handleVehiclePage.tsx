@@ -43,6 +43,7 @@ import { toast } from "sonner";
         const data  = await response.json();
         console.log(data)
         toast.info("Yeah We saved the new Vehicle")
+        toast.info(data.message)
         setOpen(false)
         setLoading(false)
         

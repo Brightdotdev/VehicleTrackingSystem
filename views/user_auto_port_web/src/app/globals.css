@@ -113,8 +113,8 @@
   --font-small: min(4vw, 0.8rem);
   --font-body:  min(4vw, 1rem);
   --font-title:  min(5vw, 1.6rem);
-  --font-normal: min(6vw, 1.8rem);
-  --font-medium: min(8vw, 2rem);
+  --font-normal: min(5vw, 1.8rem);
+  --font-medium: min(5vw, 2rem);
   --font-subheading: min(10vw, 2.8rem);
   --font-heading: min(9vw, 4rem);
 

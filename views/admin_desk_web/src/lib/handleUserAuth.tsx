@@ -168,11 +168,11 @@ export const handleGoogleLogIn = async (
 
 console.log(response)
   const userResponseData  = await response.json();
+  console.log(userResponseData);
   
   const {code , success , data : { valid, user  }} = userResponseData;
-  console.log(userResponseData);
       
-        if(valid && code === 201 && user.email !== null && success === true ){
+        if(valid && code === 200 && user.email !== null && success === true ){
           setUser(user);
           return setValidated(true);
         
@@ -282,10 +282,10 @@ console.log(response)
         throw new Error("Sign up failed...trying again")}
 
         
-      toast.success("Sing up successful!")
+      toast.success("Sign up successful!")
       window.location.replace("/");
     } catch (err: any) {
-      toast.error(err.message || "Sing Up failed")
+      toast.error(err.message || "Sign Up failed")
     } finally {
       setLoading(false)
     }

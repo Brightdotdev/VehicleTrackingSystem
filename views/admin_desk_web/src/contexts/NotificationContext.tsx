@@ -7,124 +7,108 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { useAuth } from './AuthContext';
-import { dotEnv } from '@/lib/dotEnv';
-import { useUserValidation } from '@/hooks/useUserValidation';
+import { NotificationData } from '@/types/utilTypes'
+import { getAdminNotifications, pollNotifications } from '@/lib/handleUserNotiications';
 
 
 
-interface NotificationData {
-  dispatchId? : string | null ;
-  notiicationId : string;
-  isActionNotif: boolean;
-  title: string;
-  type: string;
-  body: string;
-  read: boolean;
-  goodCta?: string;
-  badCta?: string;
 
-}
+// ====== Notification type ======
 
-interface NotificationType {
-  latestEvent: NotificationData | null;
-  queue: NotificationData[];
-  dequeue: () => void;
-}
 
-const NotificationContext = createContext<NotificationType | undefined>(undefined);
 
-export const NotificationProvider : React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const  { userData } = useUserValidation()
-  const [latestEvent, setLatestEvent] = useState<NotificationData | null>(null);
-  const [queue, setQueue] = useState<NotificationData[]>([]);
-  const eventSourceRef = useRef<EventSource | null>(null);
+type NotificationContextType = {
+  notifications: NotificationData[];
+  newNotifications: NotificationData[];
+  getMyNotifications : () => void;
+  getLattestNotifications : () => void;
+  updateLastChecked: (lastChecked: string) => void;
+};
+
+
+const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
+
+
+
+
+export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  
+  const [notifications, setNotifications] = useState<NotificationData[]>([]);
+  const [newNotifications, setLatestNotifications] = useState<NotificationData[]>([]);
+  
+
+  const [lastChecked, setLastChecked] = useState(() => {
+      if (typeof window !== "undefined") {
+        return localStorage.getItem("lastChecked") ||         new Date().toISOString().replace("Z", "");
+      } else {
+        return new Date().toISOString().replace("Z", "")}});
+
+        
+
 
   
-  
+// ==== extra coontext methods ====
+
+
+  const lastCheckedRef = useRef(lastChecked);
+    const updateLastChecked = (timestamp: string) => {
+  setLastChecked(timestamp);
+  lastCheckedRef.current = timestamp;
+  localStorage.setItem("lastChecked", timestamp);
+};
+
+
+
+
+  // === Polling logic ===
   useEffect(() => {
 
+    console.log("Yesh the context was rendered");
+
+
+  if (typeof window === "undefined") {
+    console.log("we returned here :: the window was undefined");
+    return;}
+
+    getMyNotifications()
     
-    const eventSource = new EventSource(
-       dotEnv.sseSubscribeUrl,{
-         withCredentials: true
+/*     const interval = setInterval(() => {
+      if (!document.hidden) {
+        console.log("Yesh the context was rendered");
+        getLattestNotifications()
+        localStorage.setItem("lastChecked", lastChecked); 
       }
-    );
-    eventSourceRef.current = eventSource;
+    }, 10000);
 
-    // Generic handler for known events
-    const handleSSE = (event: MessageEvent, eventType: string) => {
-      
-      const parsedData = JSON.parse(event.data); // This should match your NotificationData interface
-      console.log("Parsed Data:", parsedData);
-      const parsed: NotificationData = {
-        ...parsedData,
-        type: eventType,
-        
-      };
+    return () => clearInterval(interval); */
 
-      // Push to UI or queue depending on focus
-      if (document.hasFocus()) {
-        setLatestEvent(parsed);
-      } else {
-        setQueue((prev) => [...prev, parsed]);
-      }
+  }, [lastChecked]);
+
+
+
+  const getLattestNotifications = async () => {
+        const latestNotification = await pollNotifications(lastCheckedRef.current, updateLastChecked);
+        setLatestNotifications(latestNotification);
+  }
+
+  
+
+   const getMyNotifications = async () => {
+      const notifcationData = await getAdminNotifications();
+      setNotifications(notifcationData);
+      setLatestNotifications(notifcationData);
     };
-
-    eventSource.addEventListener('INIT', (e) => handleSSE(e as MessageEvent, 'INIT'));
-    eventSource.addEventListener('USER_NOTIFICATION', (e) =>
-      handleSSE(e as MessageEvent, 'USER_NOTIFICATION')
-    );
-    eventSource.addEventListener('DISPATCH_USER_NOTIFICATION', (e) =>
-      handleSSE(e as MessageEvent, 'DISPATCH_USER_NOTIFICATION')
-    );
-    eventSource.addEventListener('ADMIN_NOTIFICATION', (e) =>
-      handleSSE(e as MessageEvent, 'ADMIN_NOTIFICATION')
-    );
-
-    eventSource.onmessage = (event) => {
-      console.log("Generic SSE message:", event.data);
-    };
-
-    eventSource.onerror = (err) => {
-      console.error('SSE Error', err);
-      eventSource.close();
-    };
-
-    // Handler for when the window regains focus
-    const handleFocus = () => {
-      if (queue.length > 0) {
-        setLatestEvent(queue[0]);
-        setQueue((prev) => prev.slice(1));
-      }
-    };
-
-    window.addEventListener("focus", handleFocus);
-
-    return () => {
-      eventSource.close();
-      window.removeEventListener("focus", handleFocus);
-    };
-  }, [queue]);
-
-  const dequeue = () => {
-    setLatestEvent(queue[0] || null);
-    setQueue((prev) => prev.slice(1));
-  };
-
+  
   return (
-    userData &&(
-    <NotificationContext.Provider value={{ latestEvent, queue, dequeue }}>
+    <NotificationContext.Provider value={{ updateLastChecked,newNotifications, notifications, getMyNotifications, getLattestNotifications }}>
       {children}
     </NotificationContext.Provider>
-    )
   );
 };
 
-export const useSSE = () => {
+
+export const useNotifications = () => {
   const ctx = useContext(NotificationContext);
-  if (!ctx) {
-    throw new Error('useSSE must be used inside SSEProvider');
-  }
+  if (!ctx) throw new Error("useNotifications must be used within NotificationProvider");
   return ctx;
 };

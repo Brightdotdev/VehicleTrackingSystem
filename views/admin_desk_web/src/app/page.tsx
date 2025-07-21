@@ -18,13 +18,17 @@ const AdminWelcomePage = dynamic(() => import('@/components/ComponentBlocks/Admi
 });
 
 export default function Page() {
-  const { isValidated, loading } = useUserValidation();
+  const { isValidated, loading, checkValidation } = useUserValidation();
   const searchParams = useSearchParams();
   const redirected = searchParams.get("redirected");
 
   useEffect(() => {
+      checkValidation();
+    console.log(isValidated)
+
+    console.log(loading)
     if (redirected === "already-logged-in") {
-      toast.error(`You're already logged`);
+      toast.error(`You're already logged in`);
     }
   }, [redirected]);
 
