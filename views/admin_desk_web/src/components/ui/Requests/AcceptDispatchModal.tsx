@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Credenza, CredenzaBody, CredenzaClose, CredenzaContent, CredenzaDescription, CredenzaFooter, CredenzaHeader, CredenzaTitle } from "../Credenza"
 import { Button } from '../button'
-import { DispatchRequestDto, VehicleDTO } from '@/types/VehicleTypes'
+import { DispatchRequestDto, DispatchStatus, VehicleDTO } from '@/types/VehicleTypes'
 import { toast } from 'sonner';
 import { handleDispatchAccept } from '@/lib/handleDsiaptchRequestPage';
 
@@ -16,7 +16,10 @@ interface AcceptDispatchModalProps {
 const handleAcceptDispatch = (vehicleData: VehicleDTO, dispatchData: DispatchRequestDto, setLoading : (loading: boolean) => void) => {
 
 
-
+  if(dispatchData.dispatchAdmin !== null && dispatchData.dispatchStatus ===  DispatchStatus.IN_PROGRESS){
+    toast.error("The dispatch is already handled by " + dispatchData.dispatchAdmin + "And is in Progress")
+    return
+  }
 
   handleDispatchAccept(dispatchData.dispatchId);
   toast.info("Yup the dispatch is accepted")

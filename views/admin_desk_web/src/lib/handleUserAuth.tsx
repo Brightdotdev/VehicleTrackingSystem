@@ -1,5 +1,5 @@
 // src/lib/authLibrary/handleUserAuth.ts
-import { AdminGoogleLogIn, AdminGoogleSignUp, AdminLocalLogIn, AdminLocalSignUp, GoogleLogInProps, GoogleUser, User } from "@/types/authTypes";
+import { AdminGoogleLogIn, AdminGoogleSignUp, AdminLocalLogIn, AdminLocalSignUp, GoogleUser, User } from "@/types/authTypes";
 import { useGoogleLogin } from "@react-oauth/google";
 import axios from "axios";
 import { toast } from "sonner";
@@ -225,6 +225,7 @@ console.log(response)
 
         if (data.status !== 200 || data.code !== 200 || !data.data) {
         setLoading(false)
+        toast.error(data.message)
         throw new Error(data.message || "Login failed")
       }
 

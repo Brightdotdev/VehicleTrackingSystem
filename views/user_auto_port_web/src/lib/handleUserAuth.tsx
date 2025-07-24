@@ -78,7 +78,7 @@ export const handleGoogleLogIn = async (
       return;
     }
   
-    toast.info("Confirming your data with our server...just a sec"); 
+    
 
     try {
       

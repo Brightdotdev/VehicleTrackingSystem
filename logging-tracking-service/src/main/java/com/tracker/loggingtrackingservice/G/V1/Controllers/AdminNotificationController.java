@@ -57,18 +57,16 @@ public class AdminNotificationController {
 
 
     @PostMapping("/set-read")
-    public ResponseEntity<ApiResponse<List<AdminNotificationModel>>> setNotificationToRead(
-            @RequestParam String user,
-            @Valid @RequestBody List<UtilRecords.setReadRecord> notificationRecordList
+    public ResponseEntity<ApiResponse<Boolean>> setNotificationToRead(
+            @Valid @RequestBody UtilRecords.setReadRecord notificationToBeRead
     ) {
-        List<AdminNotificationModel> updatedNotifications =
-                adminNotificationService.setNotificationToRead(notificationRecordList, user);
+        
+                adminNotificationService.markNotificationAsRead(notificationToBeRead);
 
         return ResponseEntity.ok(
-                ApiResponse.success(
+                ApiResponse.ok(
                         200,
-                        "Notifications updated",
-                        updatedNotifications
+                        "Notifications updated"
                 ));
     }
 

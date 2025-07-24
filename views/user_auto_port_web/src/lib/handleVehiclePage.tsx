@@ -9,10 +9,13 @@ import { toast } from "sonner";
           headers: {
             "Content-Type": "application/json"},
           credentials: "include"});
-
-        const data  = await response.json();
-        toast.info("The vehicle Data are ready")
-        return data.data;
+          const data = await response.json();
+          if (data && data.data) {
+              return data.data;
+          } else {
+              toast.error("No vehicle data found");
+              return [];
+          }
     } catch (error) {  
       console.log(error)  
         toast.error("Somethinggg went wrong");
@@ -30,11 +33,15 @@ export const getVehicleByVin  = async (vin : string)  : Promise<VehicleDTO | und
             "Content-Type": "application/json"},
           credentials: "include"});
 
-        const data  = await response.json();
-        console.log(response)
-        console.log(data)
-        toast.info("Vehicle Retrival Successful")
-        return data.data;
+        const data = await response.json();
+        console.log(response);
+        console.log(data);
+        if (data && data.data) {
+            return data.data;
+        } else {
+            toast.error("Vehicle not found");
+            return undefined;
+        }
     } catch (error) {   
       console.log(error) 
         toast.error("Somethinggg went wrong")

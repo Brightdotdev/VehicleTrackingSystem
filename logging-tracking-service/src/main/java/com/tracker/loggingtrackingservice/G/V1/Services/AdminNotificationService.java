@@ -88,34 +88,29 @@ public class AdminNotificationService {
 
     // set notifications to read
     @Transactional
-    public List<AdminNotificationModel>
-    setNotificationToRead(List<UtilRecords.setReadRecord> notificationToRead,
-                          String notifReader) {
+    public boolean markNotificationAsRead(UtilRecords.setReadRecord notificationToBeRead) {
+        Optional<AdminNotificationModel> optionalNotif = adminNotificationRepository.findById(notificationToBeRead.notifId());
 
-
-        String user =  userHandler.getCurrentUser();
-        AdminModel requester = adminRepository.findByEmail(user);
-        if(requester == null){
-            throw new AccessException("Not a valid admin");
+        if (optionalNotif.isEmpty()) {
+            return false;
         }
 
-        for (UtilRecords.setReadRecord notification : notificationToRead){
 
-            Optional<AdminNotificationModel> foundNotification = adminNotificationRepository.findById(notification.notifId());
+        AdminNotificationModel notification = optionalNotif.get();
 
-            if(foundNotification.isEmpty()){
+        String adminUsername = userHandler.getCurrentUser();
+        boolean added = notification.getReadBy().add(adminUsername);
 
-                throw new NotFoundException("Notification not found...someone tampered with the code");}
 
-            AdminNotificationModel notificationToBeSaved = foundNotification.get();
-
-            notificationToBeSaved.setRead(true);
-            notificationToBeSaved.setReadAt(LocalDateTime.now());
-
-            adminNotificationRepository.save(notificationToBeSaved);
+        if (!notification.getRead()) {
+            notification.setRead(true);
+            notification.setReadAt(LocalDateTime.now());
         }
-            return adminNotificationRepository.findAll();
+
+        adminNotificationRepository.save(notification);
+        return added;
     }
+
 
 
 

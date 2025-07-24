@@ -1,7 +1,7 @@
 "use client";
 
 import Loading from '@/components/ui/Loading';
-import UnvalidatedPage from '@/components/UnvalidatedPage';
+import UnvalidatedPage from '@/components/utils/UnvalidatedPage';
 import { useUserValidation } from '@/hooks/useUserValidation';
 import { lazy, Suspense, useEffect } from 'react';
 

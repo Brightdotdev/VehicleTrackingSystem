@@ -22,7 +22,7 @@ export  interface NotificationData {
   goodNotificationCta?: string;
 }
 
- enum notificationType{
+ export enum notificationType{
        INFO,
         WARNING,
         SUCCESS,

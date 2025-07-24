@@ -157,7 +157,7 @@ public class TrackingService {
 
 
     private boolean isValidToTrack(TrackingModel trackingModel){
-        if(trackingModel.getDispatchStatus().equals(LogEnums.DispatchStatus.IN_PROGRESS)){
+        if(!trackingModel.getDispatchStatus().equals(LogEnums.DispatchStatus.IN_PROGRESS)){
             throw new ConflictException("The dispatch is already staged for tracking");
         }
 

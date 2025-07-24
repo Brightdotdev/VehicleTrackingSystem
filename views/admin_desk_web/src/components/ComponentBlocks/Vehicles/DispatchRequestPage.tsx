@@ -1,4 +1,4 @@
-import { DispatchRequestDto, VehicleDTO } from '@/types/VehicleTypes';
+import { DispatchRequestDto, DispatchStatus, VehicleDTO } from '@/types/VehicleTypes';
 import { ArrowLeft,  CarFront,  CircleHelp, Cog, GitCommitVertical, Info,  Shield, TriangleAlertIcon} from 'lucide-react'
 import React, { useEffect, useState } from 'react'
 import { getVehicleDispatchHistoryApi} from '@/lib/handleDsiaptchRequestPage';
@@ -10,6 +10,22 @@ import { getDispatchRequest, getVehicleByVin } from '@/lib/handleVehiclePage';
 
 
 
+const RejectAcceptButtons = ({setRejectOpen,setAcceptOpen } : {setRejectOpen : (reject : boolean) => void ,  setAcceptOpen : (accept : boolean) => void}) => (
+      <div className="w-full flex items-center justify-between xl:justify-start lg:gap-16 absolute bottom-4 xl:pl-16 p-0">
+      <button
+        className="text-normal bg-gradient-to-r from-blue-700 via-blue-600 to-blue-800 cursor-pointer px-2 py-1 xl:px-4 xl:py-2 xl:rounded-lg rounded-sm transition-all duration-200 shadow-md hover:from-blue-800 hover:via-blue-700 hover:to-blue-900 hover:scale-105 hover:shadow-xl focus:outline-none text-primary-foreground dark:text-foreground lg:text-body text-small"
+        onClick={() => setAcceptOpen(true)}
+      >
+        VALIDATE DISPATCH
+      </button>
+      <button
+        className="bg-gradient-to-r from-blue-700 via-blue-600 to-blue-800 cursor-pointer px-2 py-1 xl:px-4 xl:py-2 xl:rounded-lg rounded-sm transition-all duration-200 shadow-md hover:from-blue-800 hover:via-blue-700 hover:to-blue-900 hover:scale-105 hover:shadow-xl focus:outline-none text-primary-foreground dark:text-foreground lg:text-body text-small"
+        onClick={() => setRejectOpen(true)}
+      >
+        REJECT DISPATCH
+      </button>
+    </div>
+)
 
 
 
@@ -286,24 +302,23 @@ setDispatchAble(false);
 
 
 
-<div className="w-full flex items-center  justify-between xl:justify-start lg:gap-16 absolute bottom-4 xl:pl-16 p-0 ">
-<button
-  className="text-normal bg-gradient-to-r from-blue-700 via-blue-600 to-blue-800 cursor-pointer  px-2 py-1  xl:px-4 xl:py-2 xl:rounded-lg rounded-sm transition-all duration-200 shadow-md hover:from-blue-800 hover:via-blue-700 hover:to-blue-900 hover:scale-105 hover:shadow-xl focus:outline-none text-primary-foreground dark:text-foreground  lg:text-body text-small "
-  onClick={() => setAcceptOpen(true)}
->
-  VALIDATE DISPATCH
-</button>
+{  
+dispatchData?.dispatchAdmin !== null && dispatchData?.dispatchStatus === DispatchStatus.IN_PROGRESS ? (
+ <div className='"w-full flex items-center justify-center absolute bottom-0 lg:bottom-4 bg-background p-2'>
+
+<h2 className='bodyText'>
+      The dispatch is already handled by admin of email {dispatchData?.dispatchAdmin}
+
+</h2>
+    </div>
+  ) : (
   
-  <button
-  className="bg-gradient-to-r from-blue-700 via-blue-600 to-blue-800 cursor-pointer 
-   px-2 py-1  xl:px-4 xl:py-2  
-  xl:rounded-lg rounded-sm transition-all duration-200 shadow-md hover:from-blue-800 hover:via-blue-700 hover:to-blue-900 hover:scale-105 hover:shadow-xl focus:outline-none text-primary-foreground dark:text-foreground lg:text-body text-small"
-  onClick={() => setRejectOpen(true)}
->
-  REJECT DISPATCH
-</button>
-  
-</div>
+    <RejectAcceptButtons setAcceptOpen={setAcceptOpen} setRejectOpen={setRejectOpen} />
+  )
+
+}
+
+
 
 
   {vehicleData && dispatchData && (

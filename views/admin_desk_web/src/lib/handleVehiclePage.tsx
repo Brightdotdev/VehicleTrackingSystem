@@ -61,7 +61,6 @@ import { toast } from "sonner";
           credentials: "include"});
 
         const data  = await response.json();
-        toast.info("The vehicle Data are ready")
         return data.data;
     } catch {  
         toast.error("Somethinggg went wrong");
@@ -80,7 +79,6 @@ export const getVehicleByVin  = async (vin : string)  : Promise<VehicleDTO | und
           credentials: "include"});
 
         const data  = await response.json();
-        toast.info("Vehicle Retrival Successful")
         return data.data;
     } catch {   
         toast.error("Somethinggg went wrong")
@@ -101,7 +99,6 @@ export const getDispatchRequest  = async (dispatchRequstid : number, vehcileId :
           credentials: "include"});
 
         const data  = await response.json();
-        toast.info("Vehicle Retrival Successful")
         return data.data;
     } catch {   
         toast.error("Somethinggg went wrong")
@@ -125,7 +122,6 @@ export const getDispatchRequest  = async (dispatchRequstid : number, vehcileId :
           credentials: "include"});
 
         const data  = await response.json();
-        toast.info("Yeah these are all the Dispatches")
         return data;
     } catch {   
         toast.error("Somethinggg went wrong")}};
@@ -144,7 +140,6 @@ export const getDispatchRequest  = async (dispatchRequstid : number, vehcileId :
 
         const data  = await response.json();
         
-        toast.info("Yeah this is the single dispatch you reqquested for boss")
         return data;
     } catch {  
        toast.error("Somethinggg went wrong")}};

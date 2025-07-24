@@ -344,7 +344,7 @@ public class UserDispatchService {
         }
 
 
-        foundUserDispatch.setDispatchStatus(DispatchEnums.DispatchStatus.IN_PROGRESS);
+        foundUserDispatch.setDispatchStatus(DispatchEnums.DispatchStatus.ONGOING);
         foundUserDispatch.setDispatchStartTime(LocalDateTime.now());
         dispatchRepository.save(foundUserDispatch);
     }

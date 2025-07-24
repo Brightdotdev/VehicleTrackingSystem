@@ -17,14 +17,12 @@ import { dotEnv } from "./dotEnv";
         
           console.log(response)
           const data  = await response.json();
-        toast.info("Vehicle requests are ready")
-        console.log(data);
-
 
         if(data.data !== null){
         return data.data;  
       }
         else{
+        toast.error("The vehicle is data acc empty");
           return [];
         }
     } catch (error) {  
@@ -45,8 +43,12 @@ import { dotEnv } from "./dotEnv";
           credentials: "include"});
 
         const data  = await response.json();
-        toast.info("Dispatch history retrieved successfully")
+        if(data.data !== null){
         return data.data;
+      }else{
+        toast.error("The vehicle is data acc empty");
+          return [];
+      }
     } catch (error) {   
       toast.error("Somethinggg went wrong")}}  
 
@@ -55,7 +57,7 @@ import { dotEnv } from "./dotEnv";
 
 
     //accepting a dispatch
-   export const handleDispatchAccept = async (dispatchId : number) : Promise<DispatchRequestDto[] | undefined> => {
+   export const handleDispatchAccept = async (dispatchId : number) => {
          try {
 
     const response =  await fetch(`${dotEnv.validateDispatchLink}?dispatchId=${dispatchId}`, {
@@ -68,9 +70,7 @@ import { dotEnv } from "./dotEnv";
         const data  = await response.json();
 
         console.log(data)
-
-        toast.info("Dispatch history retrieved successfully")
-        return data.data;
+        toast.info(data.message)
     } catch (error) {   
       toast.error("Somethinggg went wrong")}}  
 
@@ -81,7 +81,7 @@ import { dotEnv } from "./dotEnv";
 
 
     //rejecting a dispatch
-   export const handleDispatchReject = async (dispatchId : number, reason : string) : Promise<DispatchRequestDto[] | undefined> => {
+   export const handleDispatchReject = async (dispatchId : number, reason : string) => {
          try {
 
     const response =  await fetch(`${dotEnv.adminDispatchesBaseUrl}/admin-cancel?dispatchId=${dispatchId}`, {
@@ -93,8 +93,8 @@ import { dotEnv } from "./dotEnv";
         });
 
         const data  = await response.json();
-        toast.info("Dispatch history retrieved successfully")
-        return data.data;
+        console.log("Rejected dispatch " , data)
+        toast.info(data.message)
     } catch (error) {   
       toast.error("Somethinggg went wrong")}}  
 

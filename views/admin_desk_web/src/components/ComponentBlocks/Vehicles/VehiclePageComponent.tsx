@@ -15,7 +15,7 @@ const AddVehicleButton = () => {
 const [open, setOpen] = useState(false);
 return(
   <>
-<Button className='absolute sm:top-4 right-4 bottom-18' onClick={() => setOpen(true)}>Add Vehicle</Button>
+<Button className='absolute sm:top-4 z-20 right-4 bottom-18' onClick={() => setOpen(true)}>Add Vehicle</Button>
 <SaveNewVehiclePopUp open={open} setOpen={setOpen} />
   </>
 )

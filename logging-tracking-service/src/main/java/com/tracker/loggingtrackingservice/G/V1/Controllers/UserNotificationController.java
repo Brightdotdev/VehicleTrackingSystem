@@ -45,12 +45,31 @@ public class UserNotificationController {
      * Endpoint: /v1/user/notifications/set-read
      */
     @PostMapping("/set-read")
-    public ResponseEntity<ApiResponse<List<UserNotificationModel>>> setNotificationToRead(
-            @RequestParam String user,
-            @Valid @RequestBody List<UtilRecords.setReadRecord> notificationRecordList
+    public ResponseEntity<ApiResponse<Boolean>> setNotificationToRead
+    (   @Valid @RequestBody UtilRecords.setReadRecord notificationRecord
+    ) {
+        userNotificationService.setNotificationToRead(notificationRecord);
+
+        return ResponseEntity.ok(
+                ApiResponse.ok(
+                        200,
+                        "Notification updated"
+                ));
+    }
+
+
+
+
+    /**
+     * ✅ POST: Set notifications as read
+     * Endpoint: /v1/user/notifications/set-many-to-read
+     */
+    @PostMapping("/set-many-to-read")
+    public ResponseEntity<ApiResponse<List<UserNotificationModel>>> setNotificationToRead
+    (   @Valid @RequestBody List<UtilRecords.setReadRecord> notificationRecordList
     ) {
         List<UserNotificationModel> updatedNotifications =
-                userNotificationService.setNotificationToRead(notificationRecordList, user);
+                userNotificationService.setNotificationsToRead(notificationRecordList);
 
         return ResponseEntity.ok(
                 ApiResponse.success(
@@ -59,6 +78,8 @@ public class UserNotificationController {
                         updatedNotifications
                 ));
     }
+
+
 
     /**
      * ✅ GET: Fetch all notifications for the current user

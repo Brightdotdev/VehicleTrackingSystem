@@ -23,9 +23,11 @@
     
     const userDispatchesBaseUrl = process.env.NEXT_PUBLIC_USER_DISPATCH_BASE_URL || "";
     const userNotificationBaseUrl = process.env.NEXT_PUBLIC_NOTIFICATION_BASE_URL || "";
+    const userTrackingBaseUrl = process.env.NEXT_PUBLIC_USER_TRACKING_BASE_URL || "";
 
 
   export const dotEnv = {
+    userTrackingBaseUrl,
     userNotificationBaseUrl,
     userVehicleBaseUrl ,
     userDispatchesBaseUrl,

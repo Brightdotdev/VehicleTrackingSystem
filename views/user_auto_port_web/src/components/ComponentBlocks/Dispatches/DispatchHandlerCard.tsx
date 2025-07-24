@@ -11,14 +11,24 @@ interface DispatchHandlerCardProps {
 }
 
 const DispatchHandlerCard: React.FC<DispatchHandlerCardProps> = ({ dispatchData }) => {
-  const [formatedTime, setFormatedTime] = useState<string>('');
+  const [formatedReqTime, setFormatedReqTime] = useState<string>('');
+
+    const [formartedEndTime, setFormartedEndTime] = useState<string>('');
+
 
   useEffect(() => {
     if (dispatchData?.dispatchRequestTime) {
       const date = parseISO(dispatchData.dispatchRequestTime);
       const formatted = format(date, "MMMM do, yyyy 'at' h:mm a");
-      setFormatedTime(formatted);
+      setFormatedReqTime(formatted);
     }
+
+      if (dispatchData?.dispatchEndTime) {
+      const date = parseISO(dispatchData.dispatchEndTime);
+      const formatted = format(date, "MMMM do, yyyy 'at' h:mm a");
+      setFormartedEndTime(formatted);
+    }
+
   }, [dispatchData]);
 
   if (!dispatchData) return null;
@@ -49,15 +59,39 @@ const DispatchHandlerCard: React.FC<DispatchHandlerCardProps> = ({ dispatchData 
 
         <div className="flex w-full items-center justify-between">
           <h5 className='text-small-2'>Dispatch Request Time</h5>
-          <h6 className='text-small'>{formatedTime}</h6>
+          <h6 className='text-small'>{formatedReqTime}</h6>
         </div>
+
+
+        <div className="flex w-full items-center justify-between">
+          <h5 className='text-small-2'>Dispatch End Time</h5>
+          <h6 className='text-small'>{formartedEndTime}</h6>
+        </div>
+
+
       </div>
 
-      <Button variant="destructive" 
+
+
+
+
+<div className="flex justify-between lg:justify-center items-center w-full pt-4">
+        <Button variant="destructive" 
       onClick={ () => handleTerminateDispatch(dispatchData.dispatchId,dispatchData.dispatchVehicleId)}
       className='xl:mt-5 xl:px-12 px-6 text-normal py-6 rounded-lg'>
         Terminate Dispatch
       </Button>
+
+<Button className="text-sm lg:hidden"
+        onClick={() => window.history.back()}
+>
+  Go Back
+
+</Button>
+
+</div>
+
+
     </article>
   );
 };

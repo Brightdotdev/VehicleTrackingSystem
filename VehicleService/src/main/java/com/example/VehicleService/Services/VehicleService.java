@@ -257,8 +257,6 @@ public class VehicleService {
         }
         if(
                 dispatchedVehicle.getDispatchStatus() != VehicleEnums.VehicleDispatchStatus.IN_PROGRESS
-                        ||
-                        dispatchedVehicle.getDispatchStatus() != VehicleEnums.VehicleDispatchStatus.PENDING
         ){
             throw new ConflictException("The vehicle is not staged for dispatch");
         }
@@ -266,7 +264,8 @@ public class VehicleService {
             dispatchedVehicle.addDispatchHistoryEntry(trackingEvent.dispatchId());
         }
 
-        dispatchedVehicle.setDispatchStatus(VehicleEnums.VehicleDispatchStatus.IN_PROGRESS);
+        dispatchedVehicle.setDispatchStatus(VehicleEnums.VehicleDispatchStatus.ONGOING);
+        dispatchedVehicle.
         vehicleRepository.save(dispatchedVehicle);
 
 

@@ -38,7 +38,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
   const [lastChecked, setLastChecked] = useState(() => {
       if (typeof window !== "undefined") {
-        return localStorage.getItem("lastChecked") ||         new Date().toISOString().replace("Z", "");
+        return localStorage.getItem("lastChecked") || new Date().toISOString().replace("Z", "");
       } else {
         return new Date().toISOString().replace("Z", "")}});
 
@@ -71,7 +71,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
     getMyNotifications()
     
-/*     const interval = setInterval(() => {
+   /*  const interval = setInterval(() => {
       if (!document.hidden) {
         console.log("Yesh the context was rendered");
         getLattestNotifications()
@@ -79,8 +79,8 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
       }
     }, 10000);
 
-    return () => clearInterval(interval); */
-
+    return () => clearInterval(interval);
+ */
   }, [lastChecked]);
 
 

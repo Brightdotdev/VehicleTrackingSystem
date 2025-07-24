@@ -10,6 +10,7 @@ public interface UserNotificationRepository extends MongoRepository<UserNotifica
 
      List<UserNotificationModel> findAllByReceiver(String receiver);
 
+     UserNotificationModel findByReceiver(String receiver);
 
      UserNotificationModel findByDispatchIdAndVehicleId(Long dispatchId , String vehicleId);
      List<UserNotificationModel> findByReceiverAndCreatedAtAfter(String receiver, LocalDateTime since);

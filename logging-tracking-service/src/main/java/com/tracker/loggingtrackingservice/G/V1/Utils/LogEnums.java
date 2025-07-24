@@ -8,6 +8,7 @@ public class LogEnums {
         WARNING,
         SUCCESS,
         DISPATCH_CREATED_ADMIN,
+        DISPATCH_VALIDATED_USER,
         DANGER
     }
 

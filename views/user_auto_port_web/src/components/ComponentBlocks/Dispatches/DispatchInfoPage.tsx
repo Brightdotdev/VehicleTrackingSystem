@@ -83,31 +83,31 @@ handleVehiclePage();
     <main className="flex flex-col items-center justify-center w-screen h-screen relative overflow-scroll overflow-y-auto overflow-hidden overflow-x-hidden lg:overflow-x-hidden">
       
       <div
-        className="flex items-center justify-center xl:p-3 p-2 shadow-lg absolute lg:rounded-full
+        className="hidden lg:flex items-center justify-center xl:p-3 p-2 shadow-lg absolute lg:rounded-full
         rounded-lg
         lg:size-14 w-fit
         lg:top-6 lg:left-4 bottom-8 shadow-lg right-2 z-10 cursor-pointer dark:bg-gray-800 bg-teal-900 text-primary-foreground dark:text-foreground"
         onClick={() => window.history.back()}
       >
         <ArrowLeft />  
-      <p className="text-sm lg:hidden">Go Back</p>
       </div>
     
       <section className='relative flex flex-col items-center justify-start w-[96vw] h-[94vh] h-24 disatchRequestContainer'>
 
 
 {vehicleData &&  
+  /* 
 <Map
   key={`${vehicleData?.location.latitude}-${vehicleData?.location.longitude}`} 
 /> 
+*/
 
-/* <Map 
-  center={[35.6762, 139.6503]} 
-  zoom={15}
-  markerPosition={[35.6762, 139.6503]}
-  markerText="Tokyo, Japan"
-  className="custom-map-style"
-/> */
+<Map 
+  location={{ latitude: vehicleData.location.latitude, longitude: vehicleData.location.longitude }} 
+  zoom={15} 
+  markerText="Your location" 
+/>
+
 
 }
 

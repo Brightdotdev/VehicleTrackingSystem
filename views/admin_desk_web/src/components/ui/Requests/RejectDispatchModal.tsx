@@ -1,7 +1,7 @@
 import React from 'react'
 import { Credenza, CredenzaBody, CredenzaClose, CredenzaContent, CredenzaDescription, CredenzaFooter, CredenzaHeader, CredenzaTitle } from '../Credenza'
 import { Button } from '../button'
-import { DispatchRequestDto, VehicleDTO } from '@/types/VehicleTypes'
+import { DispatchRequestDto, DispatchStatus, VehicleDTO } from '@/types/VehicleTypes'
 import { handleDispatchReject } from '@/lib/handleDsiaptchRequestPage';
 import { toast } from 'sonner';
 
@@ -21,6 +21,10 @@ const handleRejectDispatch = ( rejectReason :  string  , vehicleData : VehicleDT
 
 
 
+  if(dispatchData.dispatchAdmin !== null && dispatchData.dispatchStatus ===  DispatchStatus.IN_PROGRESS){
+    toast.error("The dispatch is already handled by " + dispatchData.dispatchAdmin + "And is in Progress")
+    return
+  }
 
   handleDispatchReject(dispatchData.dispatchId, rejectReason);
   toast.info("Yup the dispatch is rejected")

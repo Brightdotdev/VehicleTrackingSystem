@@ -1,13 +1,15 @@
 package com.tracker.loggingtrackingservice.G.V1.Models;
 
 import com.tracker.loggingtrackingservice.G.V1.Utils.LogEnums;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.NotNull;
 import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.data.annotation.Id;
-
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 public class AdminNotificationModel {
 
@@ -50,6 +52,11 @@ public class AdminNotificationModel {
 
     private String vehicleId;
 
+    @ElementCollection // This tells JPA to store the list in a separate table
+    private Set<String>  readBy = new HashSet<>();
+
+
+
     public AdminNotificationModel() {
     }
 
@@ -60,7 +67,7 @@ public class AdminNotificationModel {
 
             String handledBy, String message, Boolean read, String title,
             String goodNotificationCta, String badNotificationCta, Boolean isActionNotif,
-            LogEnums.NotificationType type, LocalDateTime createdAt, LocalDateTime readAt) {
+            LogEnums.NotificationType type, LocalDateTime createdAt, LocalDateTime readAt, Set<String>  readBy) {
         this.id = id;
         this.handledBy = handledBy;
         this.message = message;
@@ -74,6 +81,7 @@ public class AdminNotificationModel {
         this.badNotificationCta = badNotificationCta;
         this.goodNotificationCta = goodNotificationCta;
         this.isActionNotif = isActionNotif;
+        this.readBy = readBy;
     }
 
     public String getId() {
@@ -98,6 +106,15 @@ public class AdminNotificationModel {
 
     public void setIsHandled(boolean isHandled) {
         this.isHandled = isHandled;
+    }
+
+
+    public Set<String> getReadBy() {
+        return readBy;
+    }
+
+    public void setReadBy(Set<String>  readBy) {
+        this.readBy = readBy;
     }
 
     public String getMessage() {

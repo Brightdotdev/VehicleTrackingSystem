@@ -1,6 +1,7 @@
 import { DispatchRequestBody, DispatchRequestDto} from "@/types/VehicleTypes";
 import { toast } from "sonner";
 import { dotEnv } from "./dotEnv";
+import { da } from "date-fns/locale";
 
 
 
@@ -46,17 +47,17 @@ export const getMyValidDispatches = async (): Promise<DispatchRequestDto[]> => {
     });
 
     const data = await response.json();
+    if(data.data !==  null){
+    return data.data;
+    }else{
+      toast.error("You have No Ongoing Dispatches")
+      return []
+    }
 
-    console.log(response);
-    console.log(data);
-
-    toast.info("Yeah these are my active Dispatches");
-
-    return data.data; // Ensure data.data is of type DispatchRequestDto[]
   } catch (error) {
     console.error(error);
     toast.error("Something went wrong...argggghh");
-    return []; // Return empty array to satisfy return type
+    return [];
   }
 };
 
@@ -77,8 +78,14 @@ export const getMyValidDispatches = async (): Promise<DispatchRequestDto[]> => {
         const data  = await response.json();
         console.log(response)
         console.log(data)
-        toast.info("Yeah this is a current dispatch and it is gotten")
+
+            if(data.data !== null){
         return data.data;
+            }else{
+              toast.error("There was an issue getting this dispatch")
+              toast.error(data.message)
+              return []
+            }
       } catch (error) {
         console.log(error)
         toast.error("Somethinggg went wrong...argggghh")
@@ -101,10 +108,10 @@ export const getMyValidDispatches = async (): Promise<DispatchRequestDto[]> => {
           const data  = await response.json();
             console.log(data)
             toast.info(data.message)
-          if(data.data === null) {
-            console.log(data.data)
 
-                  toast("The Vehicle Can't be dispatched", {
+          if(data.data === null) {
+
+          toast("The Vehicle Can't be dispatched", {
           description: data.message,
           action: {
             label: "Explore more vehicles",
@@ -138,16 +145,11 @@ export const getMyValidDispatches = async (): Promise<DispatchRequestDto[]> => {
           const data  = await response.json();
             console.log(data)
           if(data.data === null) {
-            console.log(data.data)
-            console.log(data.message)
+            toast.error(data.message)
             return data;
-          }
-          console.log(data)
-          return data.data;
-        }
+          }else{
+            
+            return data.data;
+          }}
        catch (error) {
-        console.log(error)
-        }
-
-
-  }
+        console.log(error)}}

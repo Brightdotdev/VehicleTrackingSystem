@@ -47,7 +47,7 @@
 
             String readableDateTime = dispatchEvent.dispatchEndTime().format(formatter);
 
-            String message = "Hello your request for dispatch "+ dispatchEvent.vehicleName() +  " is being processed we believe you want to use the vehicle for " + dispatchEvent.dispatchReason() + " till " + readableDateTime;
+            String message = "Hello your request for "+ dispatchEvent.vehicleName() +  " is being processed we believe you want to use the vehicle for " + dispatchEvent.dispatchReason() + " till " + readableDateTime;
 
             UserNotificationModel userNotificationModel = new UserNotificationModel();
 
@@ -91,7 +91,7 @@
             newNotification.setTitle("Dispatch Validated !");
             newNotification.setRead(false);
             newNotification.setReceiver(receiver);
-            newNotification.setType(LogEnums.NotificationType.SUCCESS);
+            newNotification.setType(LogEnums.NotificationType.DISPATCH_VALIDATED_USER);
             newNotification.setMessage(message);
             newNotification.setVehicleId(dispatchValidatedEvent.vehicleIdentificationNumber());
             newNotification.setDispatchId(dispatchValidatedEvent.dispatchId());
@@ -108,11 +108,11 @@
             Boolean wasCancelled = dispatchEvent.wasCancelled();
             String message;
             if(wasCancelled){
-                 message = "Hello your dispatch fo the" + dispatchEvent.vehicleName()
+                 message = "Hello your dispatch for the" + dispatchEvent.vehicleName()
                         + " has been cancelled....thank you for your using Auto Port";
             }
 
-            message = "Hello your dispatch fo the" + dispatchEvent.vehicleName()
+            message = "Hello your dispatch for the" + dispatchEvent.vehicleName()
                     + " is completed and has been expired....thank you for your using Auto Port";
 
 
@@ -141,20 +141,12 @@
 
         // set notifications to read
         @Transactional
-        public List<UserNotificationModel>
-        setNotificationToRead(List<UtilRecords.setReadRecord> notificationToRead,
-                              String notifReader) {
+        public void
+        setNotificationToRead(UtilRecords.setReadRecord notificationToRead) {
 
-            String user = userHandler.getCurrentUser();
 
-            if (!user.equals(notifReader)){
 
-        throw new AccessException("Contradicting user and notifications to be sent to");
-            }
-
-            for (UtilRecords.setReadRecord notification : notificationToRead){
-
-                Optional<UserNotificationModel> foundNotification = userNotificationRepository.findById(notification.notifId());
+                Optional<UserNotificationModel> foundNotification = userNotificationRepository.findById(notificationToRead.notifId());
 
                 if(foundNotification.isEmpty()){
 
@@ -165,9 +157,35 @@
                 notificationToBeSaved.setRead(true);
                 notificationToBeSaved.setReadAt(LocalDateTime.now());
 
-                userNotificationRepository.save(notificationToBeSaved);}
-            return userNotificationRepository.findAllByReceiver(notifReader);
+                userNotificationRepository.save(notificationToBeSaved);
         }
+
+
+        @Transactional
+        public List<UserNotificationModel>
+        setNotificationsToRead(List<UtilRecords.setReadRecord> notificationToRead) {
+
+            String user = userHandler.getCurrentUser();
+
+
+            for (UtilRecords.setReadRecord notification : notificationToRead){
+
+                Optional<UserNotificationModel> foundNotification = userNotificationRepository.findById(notification.notifId());
+
+                if(foundNotification.isEmpty()){
+
+                    throw new NotFoundException("Notification not found...someone tampered with the code");}
+
+                UserNotificationModel notificationToBeSaved = foundNotification.get();
+
+                notificationToBeSaved.setRead(true);
+                notificationToBeSaved.setReadAt(LocalDateTime.now());
+
+                userNotificationRepository.save(notificationToBeSaved);}
+            return userNotificationRepository.findAllByReceiver(user);
+        }
+
+
 
 
         @Transactional
@@ -186,7 +204,7 @@
                 throw new InvalidTaskRequestException("The dispatch must have someone that requested for it");
             }
 
-            String message = "Hello the " +  trackingEvent.vehicleName()  + " has being dispatched to you enjoy  your dispatch (or wtv)";
+            String message = "Hello the " +  trackingEvent.vehicleName()  + " has being dispatched to you, enjoy  your dispatch (or wtv)";
 
             UserNotificationModel userNotificationModel = new UserNotificationModel();
 

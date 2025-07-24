@@ -1,6 +1,6 @@
 "use client";
 
-import UnvalidatedPage from '@/components/UnvalidatedPage';
+import UnvalidatedPage from '@/components/utils/UnvalidatedPage';
 import { useUserValidation } from '@/hooks/useUserValidation';
 import { Loader2 } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';

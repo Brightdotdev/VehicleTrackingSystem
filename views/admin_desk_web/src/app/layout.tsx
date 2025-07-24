@@ -34,7 +34,6 @@ export default function RootLayout({
                 <div className="bg-background">
                   {children}
                 </div>
-              
               </NotificationProvider>
                 <BottomNav />
               </GlobalContextProvider>

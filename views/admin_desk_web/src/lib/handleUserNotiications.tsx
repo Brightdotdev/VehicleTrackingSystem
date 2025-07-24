@@ -52,3 +52,30 @@ export const getAdminNotifications = async () => {
               return [] 
             }
         }
+
+
+
+        
+export const setNotificationToRead = async (id : string) => {
+
+  const setToRead = {
+    notifId : id
+  }
+        const  response = await fetch(`${dotEnv.notificationBaseUrl}/set-read`,
+       {   method: "POST",
+           headers: {
+          "Content-Type": "application/json"},
+          body : JSON.stringify(setToRead),
+          credentials: "include"})
+       
+          const data = await response.json();
+          console.log(data)
+            const  {code , success , message , data : notifications} = data;
+            if(success || code === 200){
+              return notifications;
+            }
+            else{
+              toast.error(message)
+              return [] 
+            }
+}

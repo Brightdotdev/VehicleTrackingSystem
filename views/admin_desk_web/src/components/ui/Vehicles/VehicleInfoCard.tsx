@@ -85,7 +85,7 @@ type StatusPillsProps = {
       } else if (props.statusName === "IN_PROGRESS") {
         return (
           <div
-            className={`${baseClass} w-[8rem] bg-gradient-to-r from-green-900/60 to-green-800/60 pl-4 ${
+            className={`${baseClass} w-[9rem] bg-gradient-to-r from-green-900/60 to-green-800/60 pl-4 ${
               props.className || ""
             }`}
           >

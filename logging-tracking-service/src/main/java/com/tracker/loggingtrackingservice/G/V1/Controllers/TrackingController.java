@@ -7,7 +7,7 @@ import com.tracker.loggingtrackingservice.G.V1.Services.TrackingService;
 import com.tracker.loggingtrackingservice.G.V1.Utils.ApiResponse;
 import com.tracker.loggingtrackingservice.G.V1.Utils.UtilRecords;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,22 +19,19 @@ public class TrackingController {
 
     private final TrackingService trackingService;
     private final UserNotificationService userNotificationService;
-    private final RabbitMqReceiverService rabbitMqReceiverService;
 
     // Constructor injection of the TrackingService
-    public TrackingController(TrackingService trackingService, UserNotificationService userNotificationService, RabbitMqReceiverService rabbitMqReceiverService) {
+    public TrackingController(TrackingService trackingService, UserNotificationService userNotificationService) {
 
         this.trackingService = trackingService;
-        this.userNotificationService = userNotificationService;
-        this.rabbitMqReceiverService = rabbitMqReceiverService;
-    }
+        this.userNotificationService = userNotificationService;}
 
     /**
      * Endpoint to revalidate a tracking record
      */
     @PutMapping("/revalidate/{dispatchId}")
     public ResponseEntity<ApiResponse<TrackingModel>> revalidateTracking(
-            @PathVariable @NotBlank(message = "Dispatch ID cannot be blank") Long dispatchId,
+            @PathVariable @NotNull(message = "Dispatch ID cannot be blank") Long dispatchId,
             @Valid @RequestBody UtilRecords.CheckPoint checkPoint
             ) {
         TrackingModel result = trackingService.revalidateTrackingPosition(dispatchId, checkPoint);
@@ -53,7 +50,7 @@ public class TrackingController {
      */
     @PutMapping("/start/{dispatchId}")
     public ResponseEntity<ApiResponse<TrackingModel>> startTracking(
-            @PathVariable @NotBlank(message = "Dispatch ID cannot be blank") Long dispatchId,
+            @PathVariable @NotNull(message = "Dispatch ID cannot be blank") Long dispatchId,
             @Valid @RequestBody UtilRecords.CheckPoint checkPoint
 
     ) {
@@ -72,7 +69,7 @@ public class TrackingController {
 
     @PutMapping("/cancel/{dispatchId}")
     public void cancelTracking(
-            @PathVariable @NotBlank(message = "Dispatch ID cannot be blank") Long dispatchId
+            @PathVariable @NotNull(message = "Dispatch ID cannot be blank") Long dispatchId
     ) {
 
         TrackingModel trackingModel = trackingService.findByDispatchId(dispatchId);

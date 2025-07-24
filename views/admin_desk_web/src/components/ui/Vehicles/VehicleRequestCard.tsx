@@ -1,5 +1,5 @@
 import React from 'react'
-import { DispatchRequestDto } from '@/types/VehicleTypes';
+import { DispatchRequestDto, DispatchStatus } from '@/types/VehicleTypes';
 import {  Check, 
    CircleHelp, 
    GitCommitVertical, 
@@ -198,10 +198,10 @@ items-start justify-start gap-2">
   }}
 >
     {loading ? (
-      <Loader2 className="animate-spin ml-2 stroke-foreground" />
+      <Loader2 className="animate-spin ml-1 stroke-foreground" />
   
     ) : null}
-  Handle Dispatch
+  {vehicleRequest.dispatchAdmin !== null &&  vehicleRequest.dispatchStatus === DispatchStatus.IN_PROGRESS  ? "Check Dispatch Out" : "Handle Dispatch"}
 </button>
   
     </article>
