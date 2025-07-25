@@ -2,6 +2,8 @@
 
 # 🚗📍 Vehicle Tracking System
 
+[![License: CC BY-NC-ND 4.0](https://img.shields.io/badge/License-CC%20BY--NC--ND%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc-nd/4.0/)
+
 Welcome to the Vehicle Tracking System — a microservices-powered platform designed to help car companies track, manage, and evaluate vehicle dispatches **in real time** with safety-first enforcement.
 
 ---
@@ -150,17 +152,46 @@ We built this to help logistics and car companies:
 
 ---
 
-## 👋 Final Notes
+## 🔐 License & Ownership
 
-Thanks for exploring this project! 🙏
-If you're running it locally for the first time:
+This project is licensed under the
+**Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International Public License**
+(CC BY-NC-ND 4.0)
+🔗 [https://creativecommons.org/licenses/by-nc-nd/4.0/](https://creativecommons.org/licenses/by-nc-nd/4.0/)
 
-* RabbitMQ may take **a few seconds** to start
-* Make sure your services are up **in order**
-* You’ll see real-time tracking and notification events once everything connects
+You may:
+
+* View and share the project for **personal** or **educational** use
+* Reference or learn from it with **proper attribution** to **Akinola Bright**
+
+You may *not*:
+
+* Modify, adapt, or reupload this code
+* Use it for **any commercial** or **monetized** purpose
+* Claim authorship or submit it elsewhere (e.g. school, hackathons, freelance, startups)
 
 ---
 
-💻 Made with grit, patience, and a great team lmao
-Happy shipping! 🚚📦
+## ⚠️ Group Project Note
 
+This system was built as part of a final academic group project.
+While minor contributions were made by group members, the **core system design, services, and logic** were created and implemented primarily by **[Brightdotdev](https://github.com/Brightdotdev)**.
+
+---
+
+## 🙋 Contact
+
+For use cases beyond this license (e.g. showcasing in your own app, academic reuse, collaborations),  
+please reach out via one of the following:
+
+- 📧 Email: [iamtherealbright@gmail.com](mailto:iamtherealbright@gmail.com)  
+- 🐙 GitHub: [https://github.com/Brightdotdev](https://github.com/Brightdotdev)  
+- 💼 LinkedIn: [https://www.linkedin.com/in/brightdotdev/](https://www.linkedin.com/in/brightdotdev/)
+
+---
+💻 Made with grit, patience, and a great team lmao
+
+
+```
+
+---

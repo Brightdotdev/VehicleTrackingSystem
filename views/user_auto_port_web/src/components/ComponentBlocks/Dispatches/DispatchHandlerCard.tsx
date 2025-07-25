@@ -17,6 +17,11 @@ const DispatchHandlerCard: React.FC<DispatchHandlerCardProps> = ({ dispatchData 
 
 
   useEffect(() => {
+    if (!dispatchData) return;
+
+
+
+    console.log("We are in the card")
     if (dispatchData?.dispatchRequestTime) {
       const date = parseISO(dispatchData.dispatchRequestTime);
       const formatted = format(date, "MMMM do, yyyy 'at' h:mm a");
@@ -27,6 +32,8 @@ const DispatchHandlerCard: React.FC<DispatchHandlerCardProps> = ({ dispatchData 
       const date = parseISO(dispatchData.dispatchEndTime);
       const formatted = format(date, "MMMM do, yyyy 'at' h:mm a");
       setFormartedEndTime(formatted);
+    console.log(JSON.stringify(dispatchData))
+
     }
 
   }, [dispatchData]);
@@ -49,7 +56,9 @@ const DispatchHandlerCard: React.FC<DispatchHandlerCardProps> = ({ dispatchData 
       <div className="flex flex-col items-center justify-center gap-4 w-full">
         <div className="flex w-full items-center justify-between">
           <h5 className='text-small-2'>Dispatch Status</h5>
-          <DispatchInfoPagePills statusName={dispatchData.dispatchStatus} />
+
+                    <DispatchInfoPagePills statusName={dispatchData.dispatchStatus} />
+
         </div>
 
         <div className="flex w-full items-center justify-between">

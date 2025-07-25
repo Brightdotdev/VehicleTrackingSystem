@@ -5,6 +5,7 @@ import { Button } from './button';
 import { NotificationData } from '@/types/utilTypes';
 import { useNotifications } from '@/contexts/NotificationContext';
 import { HandleNewNotifications, HandleReadNotifications } from '../utils/NotificationUtils';
+import WalletProfile from './UserProfile';
 
 
 
@@ -104,7 +105,7 @@ const Usernav = ({classNames} : {classNames? : string}) => {
 
   return (
     isAuthenticated ? (
-      <nav className={'fixed top-4 flex items-center justify-between w-screen h-[var(--size-sm)] p-[var(--size-sm-3)] z-10 ' + classNames} >
+      <nav className={'fixed top-4 flex items-start justify-between w-screen h-[var(--size-sm)] p-[var(--size-sm-3)] z-10 ' + classNames} >
 
         <article className="flex items-center justify-start gap-4  p-[var(--space-xs)] bg-accent rounded-lg cursor-pointer">
                 {
@@ -116,6 +117,10 @@ const Usernav = ({classNames} : {classNames? : string}) => {
             </h3>
         </article>
         
+
+
+                  <WalletProfile />
+
         <Button onClick={() => setNotifIsVisible(true)} variant="outline" className="relative  flex items-center justify-center rounded-full p-[var(--space-sm-1)] h-[var(--space-sm-3)] bg-accent">
             
              {/* 

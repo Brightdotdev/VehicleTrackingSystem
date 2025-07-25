@@ -84,13 +84,14 @@ public class TrackingService {
         UtilRecords.StartTrackingDTO trackingDTO = new UtilRecords.StartTrackingDTO(dispatchId,trackingModel.getVehicleName(),trackingModel.getDispatchReason(),
                 trackingModel.getVehicleIdentificationNumber(),trackingModel.getDispatchRequester(),trackingModel.getDispatchAdmin());
 
+
         messagingService.sendTrackingInitializationFanout(trackingDTO);
 
-
         UtilRecords.vehicleLocationUpdate update = new UtilRecords.vehicleLocationUpdate(checkPoint,trackingModel.getVehicleIdentificationNumber());
+
+        System.out.println("We are here");
+
         messagingService.sendTrackingCheckPointFanOut(update);
-
-
 
         trackingRepository.save(trackingModel);
 

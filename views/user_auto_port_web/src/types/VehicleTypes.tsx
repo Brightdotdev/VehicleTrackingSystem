@@ -12,6 +12,7 @@ export enum DispatchStatus {
     EXPIRED = "EXPIRED",
     PENDING = "PENDING",  
     REJECTED = "REJECTED",
+    ONGOING = "ONGOING",
     IN_PROGRESS = "IN_PROGRESS",
     COMPLETED = "COMPLETED",
     CANCELLED = "CANCELLED",

@@ -82,10 +82,10 @@ public class WebClientSenderService implements MessagingService {
         }
 
         try {
-            Object dispatchResponse = dispatchServiceWebClient.sendCheckPoint(event).block();
+
             Object vehicleResponse = vehicleWebClientService.sendCheckPoint(event).block();
 
-            logger.info("✅ Checkpoint dispatch response: {}", formatterService.convertToJson(dispatchResponse));
+
             logger.info("✅ Checkpoint vehicle response: {}", formatterService.convertToJson(vehicleResponse));
         } catch (Exception e) {
             logger.error("❌ Failed to fanout vehicle checkpoint update: {}", e.getMessage(), e);

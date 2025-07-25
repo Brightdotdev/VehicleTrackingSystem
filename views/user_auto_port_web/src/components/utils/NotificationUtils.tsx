@@ -92,7 +92,7 @@ export const HandleNewNotifications = ({ newNotificationProps }: { newNotificati
           
     <h3 className='text-normal text-muted-foreground'>New Notifications</h3>  
     <div className='flex flex-col gap-2 items-center justify-start'>
-      {newNotificationProps.map((notification: NotificationData) => (
+      {[...newNotificationProps].reverse().map((notification: NotificationData) => (
         <NotificationCard notificationItem={notification} key={notification.id} />
       ))}         
     </div>
@@ -106,7 +106,7 @@ export const HandleReadNotifications = ({ readNotificationProps }: { readNotific
           
     <h3 className='text-normal text-muted-foreground'>Read Notifications</h3>  
     <div className='flex flex-col gap-2 items-center justify-start'>
-      {readNotificationProps.map((notification: NotificationData) => (
+      {[...readNotificationProps].reverse().map((notification: NotificationData) => (
         <NotificationCard notificationItem={notification} key={notification.id} />
       ))}         
     </div>

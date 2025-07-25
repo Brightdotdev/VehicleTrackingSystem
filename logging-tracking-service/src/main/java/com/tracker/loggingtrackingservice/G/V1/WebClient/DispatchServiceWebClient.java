@@ -40,15 +40,4 @@ public class DispatchServiceWebClient {
                 .bodyToMono(new ParameterizedTypeReference<>() {});
     }
 
-
-
-    public Mono<Map<String, Object>> sendCheckPoint(UtilRecords.vehicleLocationUpdate dispatchRequest) {
-        return dispatchWebClient.post()
-                .uri("/internal/logs/dispatch-validated")
-                .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(dispatchRequest)
-                .retrieve()
-                .bodyToMono(new ParameterizedTypeReference<>() {});
-    }
-
 }

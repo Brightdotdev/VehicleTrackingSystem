@@ -71,7 +71,7 @@ const DispatchPageComponent = () => {
 
     </div>
   ) : (
-    dispatches.map((dispatch: DispatchRequestDto, index: number) => (
+    [...dispatches].reverse().map((dispatch: DispatchRequestDto, index: number) => (
       <VehicleRequestCard
         key={index}
         {...dispatch}

@@ -51,7 +51,7 @@ const VehicleInfoSection = () => {
       No Vehicle Data
     </div>
   ) : (
-    vehicles.map((vehicle: VehicleDTO, index: number) => (
+    [...vehicles].reverse().map((vehicle: VehicleDTO, index: number) => (
       <VehicleInfoCard
         key={index}
         {...vehicle}

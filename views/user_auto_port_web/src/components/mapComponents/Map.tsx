@@ -42,11 +42,10 @@ const Map = ({ location, zoom = 13, markerText = 'Location' }: MapProps) => {
     );
     mapRef.current = map;
 
-
-
-L.tileLayer('https://api.maptiler.com/maps/streets/{z}/{x}/{y}.png?key=KlNGeyl8U97QhDzcdNVb', {
-  attribution: '<a href="https://www.maptiler.com/copyright/" target="_blank">© MapTiler</a>'
-}).addTo(map);
+    
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
 
     return () => {
       map.remove();

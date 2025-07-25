@@ -265,7 +265,6 @@ public class VehicleService {
         }
 
         dispatchedVehicle.setDispatchStatus(VehicleEnums.VehicleDispatchStatus.ONGOING);
-        dispatchedVehicle.
         vehicleRepository.save(dispatchedVehicle);
 
 

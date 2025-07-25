@@ -16,6 +16,7 @@ export type DispatchRequestPageStatusPillsProps = {
     | "DISPATCH_DATA"
     | "AVAILABLE"
     | "CLASSIFIED"
+    | "ONGOING"
     | "CARGO"
     | "REGULAR"
     | "TRANSPORT"
@@ -289,11 +290,30 @@ items-center justify-start shadow-xl
       </div>
     );
   } 
-
   
+  else if (props.statusName === "ONGOING") {
+    return (
+     <div
+        className={`
+          h-[2rem] w-[8rem]  text-primary-foreground dark:text-foreground
+          bg-gradient-to-r from-yellow-700 to-yellow-800
+           rounded-full flex items-center justify-start gap-3 pl-4
+          shadow-lg ${props.className || ""}
+          pointer-events-none select-none
+        `}
+        tabIndex={-1}
+        aria-disabled="true">
+        <div className="p-1 rounded-full bg-yellow-100/20">
+        </div>
+        <p className="text-xs lg:text-sm">ONGOING</p>
+      </div>
+    );
+  } 
   
 
-  return null;
+  return (
+    <>Invalid Props Data</>
+  );
 };
 
 
@@ -379,7 +399,7 @@ export const DispatchInfoPagePills = (props: DispatchRequestPageStatusPillsProps
       } else if (props.statusName === "TRANSPORT") {
         return (
           <div
-            className={`${baseClass} lg:w-[12rem] w-[8rem] bg-gradient-to-r from-orange-500/40 to-orange-400 pl-4 ${
+            className={`${baseClass} lg:w-[10rem] w-[8rem] bg-gradient-to-r from-orange-500/40 to-orange-400 pl-4 ${
               props.className || ""
             }`}
           >
@@ -506,8 +526,27 @@ items-center justify-start shadow-xl
     );
   } 
 
-  
+    else if (props.statusName === "ONGOING") {
+    return (
+     <div
+        className={`
+          h-[2rem] w-[8rem]  text-primary-foreground dark:text-foreground
+          bg-gradient-to-r from-teal-700 to-teal-800
+           rounded-full flex items-center justify-start gap-3 pl-4
+          shadow-lg ${props.className || ""}
+          pointer-events-none select-none
+        `}
+        tabIndex={-1}
+        aria-disabled="true">
+        <div className="p-1 rounded-full bg-white">
+        </div>
+        <p className="text-xs lg:text-sm">ONGOING</p>
+      </div>
+    );
+  } 
   
 
-  return null;
+  return (
+    <>Invalid Props Data</>
+  );
 };

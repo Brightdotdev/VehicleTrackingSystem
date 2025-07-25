@@ -26,8 +26,6 @@
         private final TrackingService trackingService;
 
 
-
-
         public UserNotificationService(UserNotificationRepository userNotificationRepository, UserHandler userHandler, TrackingService trackingService) {
             this.userNotificationRepository = userNotificationRepository;
             this.userHandler = userHandler;

@@ -71,7 +71,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
     return;}
 
     getMyNotifications()
-    
+/*     
     const interval = setInterval(() => {
       if (!document.hidden) {
         console.log("Yesh the context was rendered");
@@ -80,7 +80,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
       }
     }, 10000);
 
-    return () => clearInterval(interval);
+    return () => clearInterval(interval); */
 
   }, [lastChecked]);
 

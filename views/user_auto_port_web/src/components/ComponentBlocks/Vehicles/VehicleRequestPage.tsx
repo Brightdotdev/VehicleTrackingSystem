@@ -5,7 +5,6 @@ import {handleDispatchRequest } from '@/lib/handleUserDispatchPage';
 import { HealthText } from '../../utils/UtilComponents';
 import { VehicleInfoPageStatusPills } from '@/components/utils/VehiclePageUtilComponent';
 import { format } from "date-fns";
-import { DateTimePicker } from '@/components/ui/DateTimePicker';
 import { Button } from "@/components/ui/button"
 import {
   Popover,
@@ -20,6 +19,7 @@ import { z } from "zod"
 import { toast } from 'sonner';
 import { getVehicleByVin } from '@/lib/handleVehiclePage';
 import { useUserValidation } from '@/hooks/useUserValidation';
+import { Calendar } from '@/components/ui/MiniCalenderProvider';
 
 const dispatchReasons: reasons[] = [
   {
@@ -49,7 +49,7 @@ const dispatchReasons: reasons[] = [
     return (
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
-          <Button variant="outline" className="w-[150px] justify-start">
+          <Button    type="button" variant="outline" className="w-[150px] justify-start">
             {selectedStatus ? <>{selectedStatus.label}</> : <>Set Reason</>}
           </Button>
         </PopoverTrigger>
@@ -63,7 +63,7 @@ const dispatchReasons: reasons[] = [
   return (
     <Drawer open={open} onOpenChange={setOpen}>
       <DrawerTrigger asChild>
-        <Button variant="outline" className="w-[150px] justify-start">
+        <Button variant="outline"    type="button" className="w-[150px] justify-start">
           {selectedStatus ? <>{selectedStatus.label}</> : <>Set Reason</>}
         </Button>
       </DrawerTrigger>
@@ -440,7 +440,11 @@ h-full p-2 bg-background2 customScrollBar rounded-sm
 <label className="flex flex-col md:gap-1 gap-2 w-full">
   <span className="md:text-normal text-small-2 font-medium">When do You Want your vehicle dispatch to end</span>
 
-      <DateTimePicker value={date} onChange={setDate} />
+
+
+   <Calendar  value={date} onChange={setDate}  />
+
+
 
   <span className="text-xs text-muted-foreground">Please select when you want the dispatch to end.</span>
 

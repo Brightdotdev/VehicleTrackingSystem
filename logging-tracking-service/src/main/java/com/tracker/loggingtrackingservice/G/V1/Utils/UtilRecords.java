@@ -1,5 +1,6 @@
 package com.tracker.loggingtrackingservice.G.V1.Utils;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.tracker.loggingtrackingservice.G.V1.Exceptions.NotFoundException;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -83,6 +84,7 @@ public class UtilRecords {
     public record CheckPoint(
             String latitude,
             String longitude,
+            @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
             LocalDateTime timeStamp
     ) {
         public CheckPoint {
