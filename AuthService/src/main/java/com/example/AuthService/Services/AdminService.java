@@ -19,6 +19,7 @@ import reactor.core.publisher.Mono;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @Service
 public class AdminService {
@@ -36,6 +37,14 @@ public class AdminService {
         LoggingWebClientService = loggingWebClientService;
         this.responseMapperService = responseMapperService;
     }
+
+    public String generateAdminLicence(String name) {
+        String initials = name.replaceAll("[^A-Z]", "").substring(0, 2).toUpperCase();
+        String timestamp = Long.toString(System.currentTimeMillis(), 36).toUpperCase();
+        String rand = UUID.randomUUID().toString().substring(0, 4).toUpperCase();
+        return String.format("ADMIN-LX-%s-%s-%s", initials, timestamp, rand);
+    }
+
 
     public UserModel findAdmin(String email) {
 
@@ -158,7 +167,6 @@ public class AdminService {
         if(!isValidAdminRequestOauth(oAuth2User)){
             throw new AccessException("Not a valid admin for sign up");
         }
-
         String email = oAuth2User.email();
         String name = oAuth2User.name();
         String imageUrl = oAuth2User.picture();
@@ -169,7 +177,8 @@ public class AdminService {
         user.setProvider("GOOGLE_USER_" + oAuth2User.sub());
         user.setValidated(oAuth2User.email_verified());
         user.setRoles(List.of("ROLE_USER","ROLE_ADMIN",  "ROLE_GOOGLE"));
-
+        String adminLicense = generateAdminLicence(name);
+        user.setLicenseKey(adminLicense);
 
         Mono<ApiResponse<Map<String, Object>>> logAdminCreatedResponse  =  LoggingWebClientService.sendAdminCreated(email.trim());
 
@@ -218,7 +227,7 @@ public class AdminService {
         user.setPassword(passwordEncoder.encode(localSignUpRequest.password().trim()));
         user.setProvider("LOCAL_ADMIN_USER");
         user.setRoles(List.of("ROLE_ADMIN"));
-
+        user.setLicenseKey(generateAdminLicence(localSignUpRequest.name().trim()));
 
         Mono<ApiResponse<Map<String, Object>>> logAdminCreatedResponse  =  LoggingWebClientService.sendAdminCreated(localSignUpRequest.email().trim());
 

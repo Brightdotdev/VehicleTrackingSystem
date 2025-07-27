@@ -37,22 +37,31 @@ public class UserModel implements UserDetails {
     @NotNull(message = "We gotta call you something right....We're not strangers here")
     private String name;
 
-
+    @Column(unique = true, nullable = false)
+    private String licenseKey;
     // === Constructors ===
 
-    public UserModel(int id, String email, List<String> roles, String password, String name, boolean isValidated) {
+    public UserModel(int id, String email, List<String> roles, String password, String name, boolean isValidated, String licenseKey) {
         this.id = id;
         this.email = email;
         this.roles = roles;
         this.password = password;
         this.name = name;
         this.isValidated = isValidated;
+        this.licenseKey = licenseKey;
     }
 
     public UserModel() {}
 
-    // === Getters and Setters ===
 
+    // === Getters and Setters ===
+    public String getLicenseKey() {
+        return licenseKey;
+    }
+
+    public void setLicenseKey(String licenseKey){
+        this.licenseKey = licenseKey;
+    }
     public int getId() {
         return id;
     }

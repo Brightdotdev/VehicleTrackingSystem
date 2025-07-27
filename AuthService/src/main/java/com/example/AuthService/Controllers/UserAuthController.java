@@ -4,6 +4,7 @@ package com.example.AuthService.Controllers;
 import com.example.AuthService.Config.JwtConfig;
 import com.example.AuthService.Exceptions.AccessException;
 import com.example.AuthService.Handlers.CookieGenerationHandler;
+import com.example.AuthService.Models.UserModel;
 import com.example.AuthService.Services.UserDetailService;
 import com.example.AuthService.Utils.ApiResponse;
 import com.example.AuthService.Utils.UtilRecords;
@@ -204,6 +205,50 @@ public class UserAuthController {
                 ));}
 
 
+    //  validate user cookie:: localhost:8103/v1/auth/user/get-me
+    @GetMapping("/get-me")
+    public ResponseEntity<ApiResponse<Map<String, Object>>>
+    getUserData(HttpServletRequest request) {
+
+        String jwt = null;
+        if (request.getCookies() != null) {
+            for (Cookie cookie : request.getCookies()) {
+                if ("userDeskToken".equals(cookie.getName())) {
+                    jwt = cookie.getValue();
+                    break;
+                }
+            }
+        }
+
+        Boolean valid = jwt != null && jwtConfig.validateToken(jwt);
+
+        if(!valid){
+            throw new AccessException("Invalid jwt token and cookie");
+        }
+
+        Map<String, Object> response = new HashMap<>();
+
+
+        String email = jwtConfig.extractUsername(jwt);
+
+
+        UserModel userData = userDetailService.getUserData(email);
+
+        Map<String, Object> user = new HashMap<>();
+        user.put("email", email);
+        user.put("username", userData.getName());
+        user.put("licence", userData.getLicenseKey());
+        user.put("image", userData.getUserImage());
+        response.put("user", user);
+        response.put("valid", valid);
+
+
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        200,
+                        "User credentials validated",
+                        response
+                ));}
 
 }
 

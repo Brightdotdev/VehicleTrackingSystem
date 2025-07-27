@@ -17,6 +17,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.UUID;
 
 
 @Service("userDetailsService")
@@ -40,11 +41,23 @@ public class UserDetailService implements UserDetailsService {
         this.authenticationManager = authenticationManager;
         this.passwordEncoder = passwordEncoder;
     }
-
+    public String generateUserLicence(String name) {
+        String initials = name.replaceAll("[^A-Z]", "").substring(0, 2).toUpperCase();
+        String timestamp = Long.toString(System.currentTimeMillis(), 36).toUpperCase();
+        String rand = UUID.randomUUID().toString().substring(0, 4).toUpperCase();
+        return String.format("ME-%s-%s-%s", initials, timestamp, rand);
+    }
 
     @Override
     @Transactional
     public UserDetails loadUserByUsername(String email) {return userService.findByEmail(email);}
+
+
+
+    @Transactional
+    public UserModel getUserData(String email) {
+        return userService.findByEmail(email);
+    }
 
 
 
@@ -93,6 +106,7 @@ public class UserDetailService implements UserDetailsService {
         user.setProvider("LOCAL_USER");
         user.setRoles(List.of("ROLE_USER"));
         user.setUserImage(request.image());
+        user.setLicenseKey(generateUserLicence(request.name().trim()));
         UserModel newUser = userService.save(user);
 
 

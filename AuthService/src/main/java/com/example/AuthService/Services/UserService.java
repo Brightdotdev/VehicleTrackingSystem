@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * Service class for managing user-related operations.
@@ -18,6 +19,16 @@ import java.util.Optional;
 public class UserService {
 
     private final UserRepository userRepository;
+
+
+    public String generateUserLicence(String name) {
+        String initials = name.replaceAll("[^A-Z]", "").substring(0, 2).toUpperCase();
+        String timestamp = Long.toString(System.currentTimeMillis(), 36).toUpperCase();
+        String rand = UUID.randomUUID().toString().substring(0, 4).toUpperCase();
+        return String.format("ME-%s-%s-%s", initials, timestamp, rand);
+    }
+
+
 
     /**
      * Constructor for dependency injection.
@@ -92,6 +103,7 @@ public class UserService {
                     user.setUserImage(imageUrl);
                     user.setProvider(provider);
                     user.setValidated(email_verified);
+                    user.setLicenseKey(generateUserLicence(name));
                     user.setRoles(List.of("ROLE_USER", "ROLE_GOOGLE"));
                     return userRepository.save(user);
                 }
@@ -146,4 +158,8 @@ public class UserService {
 
         return foundUser;
     }
+
+
+
+
 }
