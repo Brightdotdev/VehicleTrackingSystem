@@ -9,6 +9,7 @@ import React, {
 } from 'react';
 import { NotificationData } from '@/types/utilTypes';
 import { getAllMyNotifications, pollNotifications } from '@/lib/handleUserNotiications';
+import { useUserValidation } from '@/hooks/useUserValidation';
 
 
 
@@ -34,8 +35,6 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
   
   const [notifications, setNotifications] = useState<NotificationData[]>([]);
   const [newNotifications, setLatestNotifications] = useState<NotificationData[]>([]);
-  
-
   const [lastChecked, setLastChecked] = useState(() => {
       if (typeof window !== "undefined") {
         return localStorage.getItem("lastChecked") || new Date().toISOString().replace("Z", "");
@@ -56,9 +55,6 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
   localStorage.setItem("lastChecked", timestamp);
 };
 
-
-
-
   // === Polling logic ===
   useEffect(() => {
 
@@ -69,9 +65,10 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
     console.log("we returned here :: the window was undefined");
     return;}
 
+
     getMyNotifications()
     
-   /*  const interval = setInterval(() => {
+    const interval = setInterval(() => {
       if (!document.hidden) {
         console.log("Yesh the context was rendered");
         getLattestNotifications()
@@ -80,7 +77,8 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
     }, 10000);
 
     return () => clearInterval(interval);
- */
+
+    
   }, [lastChecked]);
 
 
@@ -107,7 +105,9 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
 
 export const useNotifications = () => {
+
   const ctx = useContext(NotificationContext);
+  
   if (!ctx) throw new Error("useNotifications must be used within NotificationProvider");
   return ctx;
 };

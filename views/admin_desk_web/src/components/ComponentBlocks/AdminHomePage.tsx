@@ -30,10 +30,10 @@ const AdminHomePage = () => {
        
         <Usernav />
 
-
+{/* 
    <Suspense fallback={<Loading/>}>
         <MapView locations={randomLocations}  />
-   </Suspense>  
+   </Suspense> */}  
 
       </section>
     )

@@ -105,7 +105,7 @@ const Usernav = ({classNames} : {classNames? : string}) => {
 
   return (
     isAuthenticated ? (
-      <nav className={'fixed top-4 flex items-start justify-between w-screen h-[var(--size-sm)] p-[var(--size-sm-3)] z-10 ' + classNames} >
+      <nav className={'fixed top-2 flex items-start justify-between w-screen h-[var(--size-sm)] p-[var(--size-sm-3)] z-10 ' + classNames} >
 
         <article className="flex items-center justify-start gap-4  p-[var(--space-xs)] bg-accent rounded-lg cursor-pointer">
                 {
@@ -119,14 +119,20 @@ const Usernav = ({classNames} : {classNames? : string}) => {
         
 
 
-                  <WalletProfile />
+                  {/* <WalletProfile /> */}
 
         <Button onClick={() => setNotifIsVisible(true)} variant="outline" className="relative  flex items-center justify-center rounded-full p-[var(--space-sm-1)] h-[var(--space-sm-3)] bg-accent">
             
-             {/* 
-             this is supposed to like get the data from the loggin service and show the notifications
-                  <div className="flex items-center justify-center size-6 text-xxs absolute rounded-full -right-3 -top-2 bg-chart-5 p-[var(--space-xxs)]">9+</div>
-             */}
+             
+             
+        
+              {
+                newNotifications.length > 0 && (
+<div className="flex items-center justify-center size-6 text-xxs absolute rounded-full -right-3 -top-2 bg-chart-5 p-[var(--space-xxs)]">{newNotifications.length > 9 ? "9+" : newNotifications.length}</div>
+                )
+              }
+              
+                  
              
             <Bell className='stroke-foreground hover:stroke-background'  />
         </Button>

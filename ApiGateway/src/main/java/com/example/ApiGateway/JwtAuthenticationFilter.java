@@ -60,22 +60,21 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
         // Check if this is an admin endpoint
         boolean isAdminEndpoint = path.startsWith("/v1/admin");
 
-        String authHeader = request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            token = authHeader.substring(7);
-        }
+
+
         if (isAdminEndpoint) {
-            if (token == null) {
+
+
                 token = getJwtFromCookies(request, "adminDeskCookie");
-            }
+
         } else {
 
-            if (token == null) {
+
                 token = getJwtFromCookies(request, "userDeskToken");
             } if(token == null && getJwtFromCookies(request, "adminDeskCookie") != null ){
                     token = getJwtFromCookies(request, "adminDeskCookie");
                 }
-            }
+
 
         if (token == null) {
             return unauthorizedResponse(exchange, "Unauthorized: Missing or invalid token");

@@ -29,7 +29,7 @@ public class AuthProperties {
     public static class Jwt {
         private String secret;
         private long expiration;
-        private String issuer;
+        private String sender;
 
         public String getSecret() {
             return secret;
@@ -47,12 +47,12 @@ public class AuthProperties {
             this.expiration = expiration;
         }
 
-        public String getIssuer() {
-            return issuer;
+        public String getSender() {
+            return sender;
         }
 
-        public void setIssuer(String issuer) {
-            this.issuer = issuer;
+        public void setSender(String sender) {
+            this.sender = sender;
         }
     }
 

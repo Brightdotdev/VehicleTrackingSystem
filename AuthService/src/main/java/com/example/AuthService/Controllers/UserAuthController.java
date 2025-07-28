@@ -3,6 +3,8 @@ package com.example.AuthService.Controllers;
 
 import com.example.AuthService.Config.JwtConfig;
 import com.example.AuthService.Exceptions.AccessException;
+import com.example.AuthService.Exceptions.ConflictException;
+import com.example.AuthService.Exceptions.NotFoundException;
 import com.example.AuthService.Handlers.CookieGenerationHandler;
 import com.example.AuthService.Models.UserModel;
 import com.example.AuthService.Services.UserDetailService;
@@ -22,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/v1/auth/user")
@@ -46,7 +49,7 @@ public class UserAuthController {
 
         UtilRecords.LoginServiceResponse userDatabaseSignIn = userDetailService.handleUserSignUp(request);
 
-        String jwt = jwtConfig.generateToken(userDatabaseSignIn.auth(), "",userDatabaseSignIn.user().getName());
+        String jwt = jwtConfig.generateToken(userDatabaseSignIn.auth(),userDatabaseSignIn.user().getName());
 
      String cookie = cookieHandler.createJwtCookie(jwt);
 
@@ -71,7 +74,7 @@ public class UserAuthController {
 
         UtilRecords.LoginServiceResponse userDatabaseSignIn = userDetailService.handleOath2UserSignIn(request);
 
-        String jwt = jwtConfig.generateToken(userDatabaseSignIn.auth(),request.picture(),userDatabaseSignIn.user().getName());
+        String jwt = jwtConfig.generateToken(userDatabaseSignIn.auth(),userDatabaseSignIn.user().getName());
 
         String cookie = cookieHandler.createJwtCookie(jwt);
 
@@ -96,7 +99,7 @@ public class UserAuthController {
 
         UtilRecords.LoginServiceResponse userDatabaseSignIn = userDetailService.handleUserOath2UserLogIn(request);
 
-        String jwt = jwtConfig.generateToken(userDatabaseSignIn.auth(),"",userDatabaseSignIn.user().getName());
+        String jwt = jwtConfig.generateToken(userDatabaseSignIn.auth(), userDatabaseSignIn.user().getName());
 
         String cookie = cookieHandler.createJwtCookie(jwt);
 
@@ -125,7 +128,7 @@ public class UserAuthController {
 
         UtilRecords.LoginServiceResponse userDatabaseLogin = userDetailService.handleUserLocalLogIn(request);
 
-        String jwt = jwtConfig.generateToken(userDatabaseLogin.auth(),"",userDatabaseLogin.user().getName());
+        String jwt = jwtConfig.generateToken(userDatabaseLogin.auth(),userDatabaseLogin.user().getName());
         String cookie = cookieHandler.createJwtCookie(jwt);
 
         response.addHeader(HttpHeaders.SET_COOKIE, cookie);
@@ -177,24 +180,40 @@ public class UserAuthController {
             }
         }
 
-        Boolean valid = jwt != null && jwtConfig.validateToken(jwt);
+        boolean valid = jwt != null && jwtConfig.validateToken(jwt);
 
         if(!valid){
-            throw new AccessException("Invalid jwt token and cookie");
+            throw new AccessException("Invalid jwt token and cookie");}
+
+
+        String sender = jwtConfig.getClaims(jwt).get("sender", String.class);
+
+        if(!Objects.equals(sender, jwtConfig.getJwt().getSender())){
+            System.out.println(sender);
+            System.out.println(jwtConfig.getJwt().getSender());
+            throw new ConflictException("The sender doesn't match with the token");
         }
 
+
         Map<String, Object> response = new HashMap<>();
-
         String email = jwtConfig.extractUsername(jwt);
-        List<String> roles = jwtConfig.getClaims(jwt).get("roles", List.class);
-        String username = jwtConfig.getClaims(jwt).get("name", String.class);
 
-        Map<String, Object> user = new HashMap<>();
-        user.put("email", email);
-        user.put("username", username );
-        user.put("roles", roles);
-        response.put("user", user);
-        response.put("valid", valid);
+        UserModel user = userDetailService.getUserData(email);
+
+        if(user == null){
+            throw new NotFoundException("No User Found with tha credentials");
+        }
+
+
+        String username = jwtConfig.getClaims(jwt).get("name", String.class);
+        Map<String, Object> userResponse = new HashMap<>();
+
+        userResponse.put("email", email);
+        userResponse.put("username", username );
+
+
+        response.put("user", userResponse);
+        response.put("valid", true);
 
 
         return ResponseEntity.ok(
@@ -206,6 +225,7 @@ public class UserAuthController {
 
 
     //  validate user cookie:: localhost:8103/v1/auth/user/get-me
+
     @GetMapping("/get-me")
     public ResponseEntity<ApiResponse<Map<String, Object>>>
     getUserData(HttpServletRequest request) {
@@ -220,33 +240,43 @@ public class UserAuthController {
             }
         }
 
-        Boolean valid = jwt != null && jwtConfig.validateToken(jwt);
+        boolean valid = jwt != null && jwtConfig.validateToken(jwt);
 
         if(!valid){
-            throw new AccessException("Invalid jwt token and cookie");
+            throw new AccessException("Invalid jwt token and cookie");}
+
+
+        String sender = jwtConfig.getClaims(jwt).get("sender", String.class);
+
+        if(!Objects.equals(sender, jwtConfig.getJwt().getSender())){
+            System.out.println(sender);
+            System.out.println(jwtConfig.getJwt().getSender());
+            throw new ConflictException("The sender doesn't match with the token");
+        }
+
+        String email = jwtConfig.extractUsername(jwt);
+        UserModel user = userDetailService.getUserData(email);
+
+        if(user == null){
+            throw new NotFoundException("No User Found with tha credentials");
         }
 
         Map<String, Object> response = new HashMap<>();
 
 
-        String email = jwtConfig.extractUsername(jwt);
-
-
-        UserModel userData = userDetailService.getUserData(email);
-
-        Map<String, Object> user = new HashMap<>();
-        user.put("email", email);
-        user.put("username", userData.getName());
-        user.put("licence", userData.getLicenseKey());
-        user.put("image", userData.getUserImage());
-        response.put("user", user);
-        response.put("valid", valid);
+        Map<String, Object> useResponse = new HashMap<>();
+        useResponse.put("email", email);
+        useResponse.put("username", user.getName());
+        useResponse.put("licence", user.getLicenseKey());
+        useResponse.put("image", user.getUserImage());
+        response.put("userData", useResponse);
+        response.put("valid", true);
 
 
         return ResponseEntity.ok(
                 ApiResponse.success(
                         200,
-                        "User credentials validated",
+                        "User credentials retrieved",
                         response
                 ));}
 

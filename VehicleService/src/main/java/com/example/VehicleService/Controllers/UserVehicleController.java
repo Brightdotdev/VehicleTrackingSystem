@@ -61,6 +61,23 @@ public class UserVehicleController {
     }
 
 
+
+    // :: localhost:8106/v1/user/vehicle/get-dispatchable
+
+    @GetMapping("/get-dispatchable")
+    public ResponseEntity<ApiResponse<List<UtilRecords.VehicleApiData>>> getDispatchAble() {
+
+        List<UtilRecords.VehicleApiData> vehicles = vehicleService.getAllDispatchAble();
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        201,
+                        "Vehicles retrieved",
+                        vehicles
+                ));
+    }
+
+
+
 }
 
 

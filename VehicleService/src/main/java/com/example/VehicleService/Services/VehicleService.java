@@ -9,18 +9,15 @@ import com.example.VehicleService.Repositories.VehicleRepository;
 import com.example.VehicleService.Utils.UtilRecords;
 import com.example.VehicleService.Utils.VehicleDataGenerator;
 import com.example.VehicleService.Utils.VehicleEnums;
-import com.example.VehicleService.VehicleServiceApplication;
 import jakarta.transaction.Transactional;
-import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
+import static com.example.VehicleService.Utils.VehicleEnums.VehicleDispatchStatus.*;
 
 @Service
 public class VehicleService {
@@ -209,6 +206,29 @@ public class VehicleService {
         return vehicles;
     }
 
+ @Transactional
+    public
+   List<UtilRecords.VehicleApiData>
+ getAllDispatchAble() {
+       List<VehicleModel> foundVehicles =  vehicleRepository.findAll();
+        List<UtilRecords.VehicleApiData> vehicles =   new ArrayList<>();
+
+        for (VehicleModel vehicle : foundVehicles){
+
+            if(vehicle.getDispatchStatus() == PENDING || vehicle.getDispatchStatus() == ONGOING || vehicle.getDispatchStatus() == IN_PROGRESS ){
+                continue;
+            }
+
+            UtilRecords.VehicleApiData vehicleApi = new UtilRecords.VehicleApiData(
+                vehicle.getVehicleIdentificationNumber(),vehicle.getLicensePlate(),vehicle.getModel(),vehicle.getEngineType(),vehicle.getVehicleType(),vehicle.getVehicleStatus(),vehicle.getDispatchStatus(),vehicle.getDispatchHistory(),vehicle.getVehicleImages(),vehicle.getSafetyScore(),vehicle.getVehicleMetadata(),vehicle.getVehicleAcquiredYear(),vehicle.getHealthAttributes(),vehicle.getWildcardAttributes()
+            ,vehicle.getVehicleLocation());
+            vehicles.add(vehicleApi);
+        }
+        return vehicles;
+    }
+
+
+
 
 
     @Transactional
@@ -234,8 +254,8 @@ public class VehicleService {
         if (dispatchedVehicle == null){
             throw new NotFoundException("The vehicle doesn't even exist boss");
         }if (
-                dispatchedVehicle.getDispatchStatus() != VehicleEnums.VehicleDispatchStatus.IN_PROGRESS &&
-                        dispatchedVehicle.getDispatchStatus() != VehicleEnums.VehicleDispatchStatus.PENDING
+                dispatchedVehicle.getDispatchStatus() != IN_PROGRESS &&
+                        dispatchedVehicle.getDispatchStatus() != PENDING
         )
 
 
@@ -256,7 +276,7 @@ public class VehicleService {
             throw new NotFoundException("The vehicle doesn't even exist boss");
         }
         if(
-                dispatchedVehicle.getDispatchStatus() != VehicleEnums.VehicleDispatchStatus.IN_PROGRESS
+                dispatchedVehicle.getDispatchStatus() != IN_PROGRESS
         ){
             throw new ConflictException("The vehicle is not staged for dispatch");
         }
@@ -302,7 +322,7 @@ public class VehicleService {
             if (vehicle == null) {
                 throw new NotFoundException("No vehicle of that vin found");
             }
-            vehicle.setDispatchStatus(VehicleEnums.VehicleDispatchStatus.PENDING);
+            vehicle.setDispatchStatus(PENDING);
             vehicleRepository.save(vehicle);
 
            return  vehicleHealthService.vehicleDispatchStatus(vehicle, dispatchEvent);
@@ -318,11 +338,11 @@ public class VehicleService {
         if (dispatchedVehicle == null){
             throw new NotFoundException("The vehicle doesn't even exist boss");
         }
-        if(dispatchedVehicle.getDispatchStatus() != VehicleEnums.VehicleDispatchStatus.PENDING){
+        if(dispatchedVehicle.getDispatchStatus() != PENDING){
             throw new ConflictException("The vehicle is not staged for dispatch");
         }
         dispatchedVehicle.addDispatchHistoryEntry(dispatchEvent.dispatchId());
-        dispatchedVehicle.setDispatchStatus(VehicleEnums.VehicleDispatchStatus.IN_PROGRESS);
+        dispatchedVehicle.setDispatchStatus(IN_PROGRESS);
         vehicleRepository.save(dispatchedVehicle);
 
     }

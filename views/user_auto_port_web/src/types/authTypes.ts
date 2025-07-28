@@ -40,3 +40,11 @@ export type User = {
   username: string;
   roles: string[];
 } | null;
+
+export type UserPageData = {
+  email: string;
+  picture?: string;
+  licence: string;
+  username: string;
+  roles: string[];
+} | null;

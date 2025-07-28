@@ -3,6 +3,7 @@ package com.example.AuthService.Controllers;
 
 import com.example.AuthService.Config.JwtConfig;
 import com.example.AuthService.Exceptions.AccessException;
+import com.example.AuthService.Exceptions.ConflictException;
 import com.example.AuthService.Handlers.CookieGenerationHandler;
 import com.example.AuthService.Models.UserModel;
 import com.example.AuthService.Services.AdminService;
@@ -22,10 +23,7 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 @RequestMapping("/v1/auth/admin")
@@ -53,8 +51,8 @@ public class AdminController {
 
         UtilRecords.LoginServiceResponse userDatabaseSignIn = userDetailService.handleAdminLocalSignUp(request);
 
-        String jwt = jwtConfig.generateToken(userDatabaseSignIn.auth(), userDatabaseSignIn.userImage(),userDatabaseSignIn.user().getName());
-    String cookie = cookieHandler.createAdminCooke(jwt);
+        String jwt = jwtConfig.generateToken(userDatabaseSignIn.auth(),userDatabaseSignIn.user().getName());
+             String cookie = cookieHandler.createAdminCooke(jwt);
 
 
 
@@ -79,7 +77,7 @@ public class AdminController {
 
         UtilRecords.LoginServiceResponse userDatabaseSignIn = userDetailService.handleOath2AdminSignUp(request);
 
-        String jwt = jwtConfig.generateToken(userDatabaseSignIn.auth(),request.picture(),userDatabaseSignIn.user().getName());
+        String jwt = jwtConfig.generateToken(userDatabaseSignIn.auth(),userDatabaseSignIn.user().getName());
 
         String cookie = cookieHandler.createAdminCooke(jwt);
 
@@ -107,7 +105,7 @@ public class AdminController {
 
         UtilRecords.LoginServiceResponse userDatabaseSignIn = userDetailService.handleOath2AdminLogIn(adminLoginReq);
 
-        String jwt = jwtConfig.generateToken(userDatabaseSignIn.auth(),userDatabaseSignIn.userImage(),userDatabaseSignIn.user().getName());
+        String jwt = jwtConfig.generateToken(userDatabaseSignIn.auth(),userDatabaseSignIn.user().getName());
 
         String cookie = cookieHandler.createAdminCooke(jwt);
 
@@ -136,7 +134,7 @@ public class AdminController {
 
         UtilRecords.LoginServiceResponse userDatabaseLogin = userDetailService.handleAdminLogIn(request);
 
-        String jwt = jwtConfig.generateToken(userDatabaseLogin.auth(), userDatabaseLogin.userImage(),userDatabaseLogin.user().getName());
+        String jwt = jwtConfig.generateToken(userDatabaseLogin.auth(),userDatabaseLogin.user().getName());
         String cookie = cookieHandler.createAdminCooke(jwt);
 
         response.addHeader(HttpHeaders.SET_COOKIE, cookie);
@@ -186,29 +184,37 @@ public class AdminController {
             }
         }
 
-        Boolean valid = jwt != null && jwtConfig.validateToken(jwt);
+        boolean valid = jwt != null && jwtConfig.validateToken(jwt);
 
         if(!valid){
             throw new AccessException("Invalid jwt token and cookie");
         }
 
+
+
+
+        String sender = jwtConfig.getClaims(jwt).get("sender", String.class);
+
+        if(!Objects.equals(sender, jwtConfig.getJwt().getSender())){
+            System.out.println(sender);
+            System.out.println(jwtConfig.getJwt().getSender());
+            throw new ConflictException("The sender doesn't match with the token");
+        }
+
+
         Map<String, Object> response = new HashMap<>();
 
         String email = jwtConfig.extractUsername(jwt);
-        List<String> roles = jwtConfig.getClaims(jwt).get("roles", List.class);
+
 
         Map<String, Object> user = new HashMap<>();
         UserModel adminData = adminService.findAdmin(email);
         user.put("email", email);
-        user.put("roles", roles);
         user.put("picture", adminData.getUserImage());
         user.put("username", adminData.getName());
 
         response.put("user", user);
-        response.put("valid", valid);
-
-
-
+        response.put("valid", true);
 
 
         return ResponseEntity.ok(
@@ -225,7 +231,6 @@ public class AdminController {
 
 
 
-
         if (!keyReq.adminKey().equals(adminService.getAdminKey().toString())) {
             return ResponseEntity
                     .status(HttpStatus.FORBIDDEN)
@@ -235,10 +240,6 @@ public class AdminController {
         return ResponseEntity.ok(
                 ApiResponse.success(200, "Valid key", true)
         );
-
-
-
-
 }
 }
 

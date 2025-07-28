@@ -249,7 +249,7 @@ public class AdminService {
             throw new ConflictException("Unable to synchronize admin data. Try signing up again.");
         }
 
-        Boolean createdNew = Boolean.TRUE.equals(data.get("createdNew"));
+        boolean createdNew = Boolean.TRUE.equals(data.get("createdNew"));
 
         if (!createdNew) {
             throw new ConflictException("Admin already exists. Try logging in.");

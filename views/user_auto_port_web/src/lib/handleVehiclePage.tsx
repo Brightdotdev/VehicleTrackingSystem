@@ -2,9 +2,9 @@ import { VehicleDTO } from "@/types/VehicleTypes";
 import { dotEnv } from "./dotEnv";
 import { toast } from "sonner";
 
-    export const getAllVehicles  = async () : Promise<VehicleDTO[]>  => {
+    export const getAvailableVehicles  = async () : Promise<VehicleDTO[]>  => {
          try {
-    const response =  await fetch(dotEnv.userVehicleBaseUrl, {
+    const response =  await fetch(`${dotEnv.userVehicleBaseUrl}/get-dispatchable`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json"},

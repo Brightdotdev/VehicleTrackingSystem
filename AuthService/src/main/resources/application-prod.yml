@@ -24,7 +24,7 @@ auth :
   jwt :
     secret: ${JWT_SECRET}
     expiration: ${JWT_EXP}
-    issuer: auth-service
+    sender: ${JWT_TOKEN_SENDER}
 
 
 external:

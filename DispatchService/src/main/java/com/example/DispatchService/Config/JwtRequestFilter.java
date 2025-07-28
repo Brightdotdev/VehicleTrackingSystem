@@ -67,7 +67,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
 
         final List<String> roles = new ArrayList<>();
-        Object image = null;
+
         Object name = null;
         String email = null;
         String token = request.getHeader("x-user-token");
@@ -101,7 +101,6 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                 if (jwtConfig.validateToken(token)) {
                     Claims claims = jwtConfig.getClaims(token);
                     email = claims.getSubject();
-                    image = claims.get("userImage");
                     name = claims.get("name");
 
 
@@ -131,7 +130,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                     new UsernamePasswordAuthenticationToken(email, null, authorities);
 
             Map<String, Object> details = new HashMap<>();
-            details.put("userImage", image);
+
             details.put("name", name);
             authToken.setDetails(details);
 

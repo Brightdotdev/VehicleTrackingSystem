@@ -13,7 +13,7 @@ interface AcceptDispatchModalProps {
   dispatchData: DispatchRequestDto;
 }
 
-const handleAcceptDispatch = (vehicleData: VehicleDTO, dispatchData: DispatchRequestDto, setLoading : (loading: boolean) => void) => {
+const handleAcceptDispatch = ( dispatchData: DispatchRequestDto, setLoading : (loading: boolean) => void) => {
 
 
   if(dispatchData.dispatchAdmin !== null && dispatchData.dispatchStatus ===  DispatchStatus.IN_PROGRESS){
@@ -26,7 +26,6 @@ const handleAcceptDispatch = (vehicleData: VehicleDTO, dispatchData: DispatchReq
   setLoading(false);
   toast.info("Redirecting now")
 
-  window.location.href =`/vehicles/request?vehicleReq=${dispatchData.dispatchId}&vehicle=${vehicleData.vehicleIdentificationNumber}`
 }
 
 
@@ -79,7 +78,7 @@ export const AcceptDispatchModal = ({
               </CredenzaClose>
            <Button
 
-            onClick={() => handleAcceptDispatch(vehicleData,dispatchData, setLoading)}
+            onClick={() => handleAcceptDispatch(dispatchData, setLoading)}
 
           disabled={vehicleData.safetyScore < 63 || ((dispatchData?.wildCards?.length ?? 0) > 0)}>
               {isLoading ? `Accpting....${dispatchData.dispatchRequester}'s request` : "Yes, Accept"}

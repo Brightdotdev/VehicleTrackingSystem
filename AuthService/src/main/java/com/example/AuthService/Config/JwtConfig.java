@@ -36,7 +36,7 @@ public class JwtConfig {
 
 
 
-    public String generateToken(Authentication auth, String userImage, String name) {
+    public String generateToken(Authentication auth, String name) {
 
         Object principal = auth.getPrincipal();
         String username;
@@ -59,8 +59,8 @@ public class JwtConfig {
         return Jwts.builder()
                 .subject(username)
                 .claim("roles", roles)
-                .claim("userImage", userImage)
                 .claim("name", name)
+                .claim("sender", authProperties.getJwt().getSender())
                 .expiration(new Date(System.currentTimeMillis() + getExpiration()))
                 .signWith(getSecretKey())
                 .compact();
@@ -77,6 +77,7 @@ public class JwtConfig {
 
 
 
+    public AuthProperties.Jwt getJwt() {return authProperties.getJwt();}
 
     public String extractUsername(String token) {
         return getClaims(token).getSubject();

@@ -244,7 +244,7 @@ export default function WalletProfile() {
               </div>
 
               {/* Menu Items */}
-              <div className="p-4 space-y-2 border-b border-neutral-200 dark:border-neutral-700">
+        {/*       <div className="p-4 space-y-2 border-b border-neutral-200 dark:border-neutral-700">
                 {menuItems.map((item, index) => (
                   <motion.div
                     key={index}
@@ -271,7 +271,7 @@ export default function WalletProfile() {
                     )}
                   </motion.div>
                 ))}
-              </div>
+              </div> */}
 
               {/* Footer */}
               <div className="p-4 flex items-center justify-between hover:bg-neutral-50 dark:hover:bg-neutral-900 transition-colors duration-200">

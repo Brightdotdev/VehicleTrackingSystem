@@ -21,6 +21,7 @@ export type DispatchRequestPageStatusPillsProps = {
     | "TRANSPORT"
     | "DELIVERY"
     | "NOT_DISPATCHABLE"
+    | "ONGOING"
     | "DISPATCHABLE"
     className?: string;
     userName? : string;
@@ -286,6 +287,24 @@ items-center justify-start shadow-xl
         <div className="p-1 rounded-full bg-yellow-100/20">
         </div>
         <p className="text-xs lg:text-sm">EXPIRED</p>
+      </div>
+    );
+  } 
+  else if (props.statusName === "ONGOING") {
+    return (
+     <div
+        className={`
+          h-[2rem] w-[8rem]  text-primary-foreground dark:text-foreground
+          bg-gradient-to-r from-teal-700 to-teal-800
+           rounded-full flex items-center justify-start gap-3 pl-4
+          shadow-lg ${props.className || ""}
+          pointer-events-none select-none
+        `}
+        tabIndex={-1}
+        aria-disabled="true">
+        <div className="p-1 rounded-full bg-white/90">
+        </div>
+        <p className="text-xs lg:text-sm">ONGOING</p>
       </div>
     );
   } 

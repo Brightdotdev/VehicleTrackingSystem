@@ -1,8 +1,8 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { dotEnv } from "@/lib/dotEnv";
-import { isValidatedUser } from "@/lib/handleUserAuth";
+import { getMyData, isValidatedUser } from "@/lib/handleUserAuth";
 import { deleteCookie } from "@/lib/utils";
-import { User } from "@/types/authTypes";
+import { UserPageData } from "@/types/authTypes";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -20,7 +20,16 @@ import { toast } from "sonner";
             };
 
 
-                        
+            
+            const returnMyData = async () : Promise<UserPageData| undefined> => {
+              return getMyData(setLoading);
+            }
+
+
+            
+
+            
+
       const handleLogOut = async () => {
             toast.info("Routing")
             setLoading(true);
@@ -54,5 +63,5 @@ import { toast } from "sonner";
                 checkValidation();
             }, []);
 
-            return { isValidated , loading , checkValidation, handleLogOut,  userData };
+            return { isValidated , loading ,returnMyData ,checkValidation, handleLogOut,  userData };
         };

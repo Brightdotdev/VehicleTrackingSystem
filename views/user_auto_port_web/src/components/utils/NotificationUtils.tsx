@@ -23,9 +23,10 @@ export const NotificationCard = ({ notificationItem }: { notificationItem: Notif
       if (notificationItem.type === notificationType.DISPATCH_VALIDATED_USER) {
         toast.info("THis is like working the valdiated one");
         await handleDispatchValidatedTracking(notificationItem, loading, setLoading);
+        await setNotificationToRead(notificationItem.id);
       } else {
         toast.info("THis is like working the other ones");
-        // await setNotificationToRead(notificationItem.id);
+        await setNotificationToRead(notificationItem.id);
       }
     } finally {
       setLoading(false);

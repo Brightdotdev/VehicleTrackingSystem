@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react'
 import VehicleInfoCard from '../../ui/Vehicles/VehicleInfoCard'
 import { VehicleDTO } from '@/types/VehicleTypes';
-import { getAllVehicles } from '@/lib/handleVehiclePage';
+import { getAvailableVehicles } from '@/lib/handleVehiclePage';
 
 
 
@@ -15,7 +15,7 @@ const VehicleInfoSection = () => {
   useEffect(  () => {
 
     const getVehicles = async () => {
-      const vehicleApi = await getAllVehicles()
+      const vehicleApi = await getAvailableVehicles()
       console.log(vehicleApi);
       setVehicles(vehicleApi);
     }

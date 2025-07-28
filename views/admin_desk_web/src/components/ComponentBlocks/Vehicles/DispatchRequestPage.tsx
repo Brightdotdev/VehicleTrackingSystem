@@ -259,6 +259,7 @@ setDispatchAble(false);
           "CARGO": "CARGO",
           "CANCELLED": "CANCELLED",
           "REGULAR": "REGULAR",
+          "ONGOING": "ONGOING",
           "TRANSPORT": "TRANSPORT",
           "DELIVERY": "DELIVERY",
           "NOT_DISPATCHABLE": "NOT_DISPATCHABLE",
