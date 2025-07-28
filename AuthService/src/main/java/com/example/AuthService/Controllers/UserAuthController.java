@@ -209,10 +209,15 @@ public class UserAuthController {
         Map<String, Object> userResponse = new HashMap<>();
 
         userResponse.put("email", email);
+
+
+        
         userResponse.put("username", username );
 
 
         response.put("user", userResponse);
+
+
         response.put("valid", true);
 
 
