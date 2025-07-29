@@ -28,7 +28,7 @@ export const  pollNotifications = async (
         }
 
 
-export const setNotificationToRead = async (id : string) => {
+export const markNofiticationAsReadApi = async (id : string) => {
 
   const setToRead = {
     notifId : id

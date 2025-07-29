@@ -2,10 +2,11 @@ import { cn } from '@/lib/utils';
 import { NotificationData, notificationType } from '@/types/utilTypes';
 import React, { useState } from 'react'
 import { Button } from '../ui/button';
-import { setNotificationToRead } from '@/lib/handleUserNotiications';
+
 import { handleDispatchValidatedTracking } from '@/lib/handleUserTracking';
-import { handleTerminateDispatch } from '@/lib/handleUserDispatchPage';
+
 import { toast } from 'sonner';
+import { useNotifications } from '@/contexts/NotificationContext';
 
 
 
@@ -14,7 +15,7 @@ import { toast } from 'sonner';
 export const NotificationCard = ({ notificationItem }: { notificationItem: NotificationData }) => {
   // Local read state to reflect UI changes after API call
   const [loading, setLoading] = useState(false);
-
+const {optimisticSetToRead } = useNotifications()
   const goodCtaMethod = async () => {
     setLoading(true);
     try {
@@ -23,10 +24,9 @@ export const NotificationCard = ({ notificationItem }: { notificationItem: Notif
       if (notificationItem.type === notificationType.DISPATCH_VALIDATED_USER) {
         toast.info("THis is like working the valdiated one");
         await handleDispatchValidatedTracking(notificationItem, loading, setLoading);
-        await setNotificationToRead(notificationItem.id);
+        await optimisticSetToRead(notificationItem);
       } else {
         toast.info("THis is like working the other ones");
-        await setNotificationToRead(notificationItem.id);
       }
     } finally {
       setLoading(false);
@@ -81,49 +81,48 @@ export const NotificationCard = ({ notificationItem }: { notificationItem: Notif
     </article>
   );
 };
+export const HandleReadNotifications = () => {
+  const { readNotifications } = useNotifications();
 
+  const hasNotifications = Array.isArray(readNotifications) && readNotifications.length > 0;
 
+  return (
+    <div className="flex flex-col gap-1 items-start justify-start">
+      <h3 className="text-normal text-muted-foreground">Read Notifications</h3>
 
-
-
-export const HandleNewNotifications = ({ newNotificationProps }: { newNotificationProps: NotificationData[] }) => (
-  
-  
-   <div className="flex flex-col gap-1 items-start justify-start">
-          
-    <h3 className='text-normal text-muted-foreground'>New Notifications</h3>  
-    <div className='flex flex-col gap-2 items-center justify-start'>
-      {[...newNotificationProps].reverse().map((notification: NotificationData) => (
-        <NotificationCard notificationItem={notification} key={notification.id} />
-      ))}         
+      <div className="flex flex-col gap-2 items-center justify-start">
+        {hasNotifications ? (
+          [...readNotifications].reverse().map((notification: NotificationData) => (
+            <NotificationCard notificationItem={notification} key={notification.id} />
+          ))
+        ) : (
+          <p className="text-sm text-muted-foreground italic">No notifications for you, sir 🫡</p>
+        )}
+      </div>
     </div>
-  </div>
-)
+  );
+};
 
+export const HandleUnreadNotifications = () => {
+  const { unreadNotifications } = useNotifications();
 
-export const HandleReadNotifications = ({ readNotificationProps }: { readNotificationProps: NotificationData[] }) => (
- 
- <div className="flex flex-col gap-1 items-start justify-start">
-          
-    <h3 className='text-normal text-muted-foreground'>Read Notifications</h3>  
-    <div className='flex flex-col gap-2 items-center justify-start'>
-      {[...readNotificationProps].reverse().map((notification: NotificationData) => (
-        <NotificationCard notificationItem={notification} key={notification.id} />
-      ))}         
+  const hasUnread = Array.isArray(unreadNotifications) && unreadNotifications.length > 0;
+
+  return (
+    <div className="flex flex-col gap-1 items-start justify-start">
+      <h3 className="text-normal text-muted-foreground">Unread Notifications</h3>
+
+      <div className="flex flex-col gap-2 items-center justify-start">
+        {hasUnread ? (
+          unreadNotifications.map((notification: NotificationData) => (
+            <NotificationCard notificationItem={notification} key={notification.id} />
+          ))
+        ) : (
+          <p className="text-sm text-muted-foreground italic">
+            No unread notifications left. You’re all caught up 🎉
+          </p>
+        )}
+      </div>
     </div>
-  </div>
-)
-
-
-export const HandleUnreadNotifications = ({ readNotificationProps }: { readNotificationProps: NotificationData[] }) => (
- 
- <div className="flex flex-col gap-1 items-start justify-start">
-          
-    <h3 className='text-normal text-muted-foreground'>UnRead Notifications</h3>  
-    <div className='flex flex-col gap-2 items-center justify-start'>
-      {readNotificationProps.map((notification: NotificationData) => (
-        <NotificationCard notificationItem={notification} key={notification.id} />
-      ))}         
-    </div>
-  </div>
-)
+  );
+};

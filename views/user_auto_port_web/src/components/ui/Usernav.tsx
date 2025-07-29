@@ -4,63 +4,27 @@ import React, { useEffect, useState } from 'react'
 import { Button } from './button';
 import { NotificationData } from '@/types/utilTypes';
 import { useNotifications } from '@/contexts/NotificationContext';
-import { HandleNewNotifications, HandleReadNotifications } from '../utils/NotificationUtils';
-import WalletProfile from './UserProfile';
+import { HandleReadNotifications, HandleUnreadNotifications } from '../utils/NotificationUtils';
+import { markNofiticationAsReadApi } from '@/lib/handleUserNotiications';
+import { toast } from 'sonner';
 
 
 
 //// utilitiesssss grah
 
 
-
-
-
-
-
-
-const NotifPopUp = ({ setVisible,notifications ,newNotifications,  isvisible, user }: 
+const NotifPopUp = ({ readNotifications, unreadNotifications, setVisible, isvisible, user }: 
 {
+  readNotifications : NotificationData[],
+  unreadNotifications : NotificationData[],
   setVisible : (isVisible : boolean) => void,
   isvisible : boolean,
-  notifications : NotificationData[],
-  newNotifications : NotificationData[], 
   user : string | undefined
 }) => {
 
-const [unreadNotifications, setUnreadNotifications] = useState<NotificationData[] | null>(null);
-const [readNotifications, setReadNotifications] = useState<NotificationData[] | null>(null);
+  const hasNotifications = Array.isArray(readNotifications) && readNotifications.length > 0;
 
-
-
-useEffect(() => {
-
-  const readNotificationsFilter = () => notifications.filter((n) => n.read)
-
-const unreadNotificationsFilter = () => notifications.filter((n) => !n.read)
-
-let mergedUnread = unreadNotificationsFilter();
-if (newNotifications.length > 0) {
-  // Merge and deduplicate by id (assuming NotificationData has an 'id' field)
-  const newNotifsToAdd = newNotifications.filter(
-    (newNotif) => !mergedUnread.some((notif) => notif.id === newNotif.id)
-  );
-  mergedUnread = [...mergedUnread, ...newNotifsToAdd];
-}
-
-setUnreadNotifications(mergedUnread);
-setReadNotifications(readNotificationsFilter());
-
-
-
-  setUnreadNotifications(unreadNotificationsFilter)
-  setReadNotifications(readNotificationsFilter)
-  
-  console.log(unreadNotificationsFilter)
-console.log(readNotificationsFilter)
-console.log("read notifications ",  readNotifications)
-console.log("new notifications ", newNotifications)
-
-} ,[notifications, newNotifications])
+  const hasUnread = Array.isArray(unreadNotifications) && unreadNotifications.length > 0;
 
 
   return (
@@ -79,17 +43,16 @@ console.log("new notifications ", newNotifications)
   
 
 
-    {
-      Array.isArray(unreadNotifications) && unreadNotifications.length > 0 && (
-        <HandleNewNotifications newNotificationProps={unreadNotifications ?? []} />
-      )
+    {hasNotifications && 
+    <HandleReadNotifications />
     }
-
-    {
-      Array.isArray(readNotifications) && readNotifications.length > 0 && (
-        <HandleReadNotifications readNotificationProps={readNotifications ?? []} />
-      )
-    }         
+    {hasUnread && 
+    <HandleUnreadNotifications /> 
+    }
+    
+    
+    
+                
       </div>
     </article>
   </div>))}
@@ -100,8 +63,7 @@ console.log("new notifications ", newNotifications)
 const Usernav = ({classNames} : {classNames? : string}) => {
   const { isAuthenticated, userData} = useAuth();
     const [notifIsVisible, setNotifIsVisible] = useState(false);
-  const {newNotifications , notifications} = useNotifications()
-
+    const {unreadNotifications , readNotifications} = useNotifications();
 
   return (
     isAuthenticated ? (
@@ -127,8 +89,8 @@ const Usernav = ({classNames} : {classNames? : string}) => {
              
         
               {
-                newNotifications.length > 0 && (
-<div className="flex items-center justify-center size-6 text-xxs absolute rounded-full -right-3 -top-2 bg-chart-5 p-[var(--space-xxs)]">{newNotifications.length > 9 ? "9+" : newNotifications.length}</div>
+                unreadNotifications.length > 0 && (
+<div className="flex items-center justify-center size-6 text-xxs absolute rounded-full -right-3 -top-2 bg-chart-5 p-[var(--space-xxs)]">{unreadNotifications.length > 9 ? "9+" : unreadNotifications.length}</div>
                 )
               }
               
@@ -137,7 +99,7 @@ const Usernav = ({classNames} : {classNames? : string}) => {
             <Bell className='stroke-foreground hover:stroke-background'  />
         </Button>
 
-          <NotifPopUp newNotifications={newNotifications} notifications={notifications} setVisible={setNotifIsVisible} isvisible={notifIsVisible}  user={userData?.username} />
+          <NotifPopUp unreadNotifications={unreadNotifications} readNotifications={readNotifications} setVisible={setNotifIsVisible} isvisible={notifIsVisible}  user={userData?.username} />
 
 
       </nav>

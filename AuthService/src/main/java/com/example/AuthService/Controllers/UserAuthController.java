@@ -211,7 +211,7 @@ public class UserAuthController {
         userResponse.put("email", email);
 
 
-        
+
         userResponse.put("username", username );
 
 
