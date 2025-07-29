@@ -43,7 +43,9 @@ public class ApiResponse <T> {
     public static <T> ApiResponse<T> success(int code, String message, T data) {
         return new ApiResponse<>(true, code, message, data);
     }
-
+    public static <T> ApiResponse<T> ok(int code, String message) {
+        return new ApiResponse<>(true, code, message, null);
+    }
     public static <T> ApiResponse<T> error(int code, String message) {
         return new ApiResponse<>(false, code, message, null);
     }

@@ -67,7 +67,6 @@ public class DispatchModel {
     @NotNull(message = "Status is required")
     private DispatchEnums.DispatchStatus dispatchStatus;
 
-
     @Convert(converter = MapToJsonConverter.class)
     @Column(columnDefinition = "TEXT")
     private Map<String, Object> dispatchMetadata;

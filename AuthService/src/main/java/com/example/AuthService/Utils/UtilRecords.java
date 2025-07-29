@@ -26,12 +26,17 @@ public class UtilRecords {
             String name,
             String image,
             String email,
-            String password
+            String password,
+            UserEnums.UserRole userStatus
     ) {
         public UserLocalSignUp {
             // Name must not be null or blank
             if (name == null || name.isBlank()) {
                 throw new IllegalArgumentException("Name is required");
+            }
+            // Name must not be null or blank
+            if (userStatus == null ) {
+                throw new IllegalArgumentException("User role is required");
             }
             // Email must not be null/blank and must match pattern
             if (email == null || email.isBlank()) {

@@ -74,6 +74,7 @@ public class UserService {
                     user.setValidated(email_verified);
                     user.setLicenseKey(generateUserLicence(name));
                     user.setRoles(List.of("ROLE_USER", "ROLE_GOOGLE"));
+
                     return userRepository.save(user);
                 }
         return foundUser;

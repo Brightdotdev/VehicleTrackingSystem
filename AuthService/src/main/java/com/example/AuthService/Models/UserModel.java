@@ -9,7 +9,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.time.LocalDate; // <-- for license expiry
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
@@ -47,17 +46,17 @@ public class UserModel implements UserDetails {
     // ========================= NEW FIELDS =========================
 
     // Optional: Expiry date for driver's license
-    private LocalDate licenseExpiry;
+    private LocalDateTime licenseExpiry;
 
-    // Optional: Points used for dispatching vehicles (defaults to 1500 when applicable)
-    private Integer dispatchPoints;
+    @ElementCollection(fetch = FetchType.EAGER)
+    private List<Integer> dispatchPoints;
 
-    // Optional: A fun/visual field for ID-like or level representation
+
     private LocalDateTime lastDispatched;
 
 
 
-    @Enumerated()
+    @Enumerated(EnumType.STRING)
     private UserEnums.UserRole userStatus;
 
     // ========================= CONSTRUCTORS =========================
@@ -78,6 +77,14 @@ public class UserModel implements UserDetails {
 
     public String getLicenseKey() {
         return licenseKey;
+    }
+
+    public UserEnums.UserRole getUserStatus() {
+        return userStatus;
+    }
+
+    public void setUserStatus(UserEnums.UserRole userStatus){
+        this.userStatus = userStatus;
     }
 
     public void setLicenseKey(String licenseKey){
@@ -150,19 +157,25 @@ public class UserModel implements UserDetails {
 
     // ========== NEW FIELD ACCESSORS ==========
 
-    public LocalDate getLicenseExpiry() {
+    public LocalDateTime getLicenseExpiry() {
         return licenseExpiry;
     }
 
-    public void setLicenseExpiry(LocalDate licenseExpiry) {
+    public void setLicenseExpiry(LocalDateTime licenseExpiry) {
         this.licenseExpiry = licenseExpiry;
     }
 
-    public Integer getDispatchPoints() {
+    public List<Integer> getDispatchPoints() {
         return dispatchPoints;
     }
 
-    public void setDispatchPoints(Integer dispatchPoints) {
+
+
+    public void addToDispatchPoint(Integer point) {
+        this.dispatchPoints.add(point);
+    }
+
+    public void setDispatchPoints(List<Integer> dispatchPoints) {
         this.dispatchPoints = dispatchPoints;
     }
 

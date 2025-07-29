@@ -4,6 +4,7 @@ import com.example.AuthService.Exceptions.AccessException;
 import com.example.AuthService.Exceptions.ConflictException;
 import com.example.AuthService.Exceptions.NotFoundException;
 import com.example.AuthService.Models.UserModel;
+import com.example.AuthService.Utils.UserEnums;
 import com.example.AuthService.Utils.UtilRecords;
 import com.example.AuthService.WebClient.LoggingWebClientService;
 import jakarta.transaction.Transactional;
@@ -16,6 +17,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -57,6 +60,24 @@ public class UserDetailService implements UserDetailsService {
     @Transactional
     public UserModel getUserData(String email) {
         return userService.findByEmail(email);
+    }
+
+  @Transactional
+    public void updateUserScore(String email, Integer score, Long dispatchId) {
+
+        UserModel user = userService.findByEmail(email);
+
+      if(user == null){
+          throw new NotFoundException("No User Found with tha credentials");
+      }
+
+      if(dispatchId == null){
+          throw new NotFoundException("No Dispatch represented to update the scores");
+      }
+
+
+      user.addToDispatchPoint(score);
+      userService.save(user);
     }
 
 
@@ -107,7 +128,22 @@ public class UserDetailService implements UserDetailsService {
         user.setRoles(List.of("ROLE_USER"));
         user.setUserImage(request.image());
         user.setLicenseKey(generateUserLicence(request.name().trim()));
+
+
+        //        extra fields
+
+        user.addToDispatchPoint(10000);
+        LocalDateTime now = LocalDateTime.now();
+
+        // Add 2 years to the current date and time
+        LocalDateTime twoWeeks = now.plusWeeks(2);
+
+        user.setLicenseExpiry(twoWeeks);
+        user.setUserStatus(request.userStatus());
         UserModel newUser = userService.save(user);
+
+
+
 
 
             auth = authenticationManager.authenticate(

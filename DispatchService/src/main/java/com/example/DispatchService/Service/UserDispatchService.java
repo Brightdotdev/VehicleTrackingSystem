@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -65,13 +66,26 @@ public class UserDispatchService {
 
 
             if (dispatchModel.getDispatchStatus().equals(DispatchEnums.DispatchStatus.PENDING)) {
-                throw new InvalidRequestException("Vehicle already requested by another user", 401);
+                throw new InvalidRequestException("Vehicle already requested by another user", 403);
+            }
+
+            if (dispatchModel.getDispatchStatus().equals(DispatchEnums.DispatchStatus.ONGOING)) {
+                throw new InvalidRequestException("The current vehicle is already in dispatch an ongoing dispatch", 403);
             }
 
             if (dispatchModel.getDispatchStatus().equals(DispatchEnums.DispatchStatus.IN_PROGRESS)) {
-                throw new InvalidRequestException("The current vehicle is already in dispatch and cannot be booked", 401);
+                throw new InvalidRequestException("The current vehicle is already staged for dispatch and cannot be booked", 403);
             }
         }
+
+
+
+
+        if(!(boolean) scoreIsEnough(requestBody).get("isEnough")){
+            throw new InvalidRequestException("Your Score is Too Low For Dispatch", 403);
+        }
+
+
 
         UtilRecords.dispatchRequestBodyDTO requestBodyDTO
                 = new UtilRecords.dispatchRequestBodyDTO(requestBody.vehicleName(),requestBody.vehicleIdentificationNumber(),requestBody.vehicleStatus(),requestBody.dispatchReason(),userName,requestBody.dispatchEndTime(), null);
@@ -392,6 +406,61 @@ public class UserDispatchService {
     }
 
 
+
+
+
+    // UTIL METHODS YAYYYY
+
+    public static Integer calculateRemainingScoreFromDays(LocalDateTime lastActivityTime, LocalDateTime now, double currentScore, double costPerDay) {
+
+
+        long totalHours = Duration.between(lastActivityTime, now).toHours();
+
+
+        double halfDayBlocks = Math.ceil(totalHours / 12.0);
+
+        double totalDays = halfDayBlocks * 0.5;
+
+        double totalDeduction = totalDays * costPerDay;
+
+        return (int) Math.max(0, currentScore - totalDeduction);}
+
+
+
+    private static    Map<String, Object> scoreIsEnough(UtilRecords.dispatchRequestBody requestBody) {
+        Integer userScore;
+        LocalDateTime now = LocalDateTime.now();
+
+        double costPerDay = 500;
+
+        userScore = calculateRemainingScoreFromDays(requestBody.dispatchEndTime(),now,requestBody.userDispatchScore(),costPerDay);
+
+
+        if(requestBody.vehicleStatus() == DispatchEnums.VehicleStatus.CLASSIFIED){
+            userScore -= 1000;
+        }else if(requestBody.vehicleStatus() == DispatchEnums.VehicleStatus.CARGO){
+            userScore -= 300;
+        }else if(requestBody.vehicleStatus() == DispatchEnums.VehicleStatus.REGULAR){
+            userScore -= 200;
+        }else if(requestBody.vehicleStatus() == DispatchEnums.VehicleStatus.TRANSPORT){
+            userScore -= 400;
+        }
+
+
+        if(requestBody.dispatchReason() == DispatchEnums.DispatchReason.CLASSIFIED){
+            userScore -= 1000;
+        }else if(requestBody.dispatchReason() == DispatchEnums.DispatchReason.DELIVERY){
+            userScore -= 200;
+        }else if(requestBody.dispatchReason() == DispatchEnums.DispatchReason.TRANSPORT){
+            userScore -= 150;
+        }
+
+        Map<String, Object> response = new HashMap<>();
+
+       response.put("isEnough", userScore > 0);
+       response.put("score", userScore);
+        return response;
+    }
 
     private static boolean isStillValidDispatch(DispatchModel dispatch) {
         if(dispatch.getDispatchStatus() == DispatchEnums.DispatchStatus.EXPIRED ){

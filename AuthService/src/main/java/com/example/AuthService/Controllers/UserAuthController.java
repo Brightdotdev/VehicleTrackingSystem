@@ -274,9 +274,12 @@ public class UserAuthController {
         useResponse.put("username", user.getName());
         useResponse.put("licence", user.getLicenseKey());
         useResponse.put("image", user.getUserImage());
+        useResponse.put("dispatchPoints", user.getDispatchPoints().getLast());
+        useResponse.put("userStatus", user.getUserStatus());
+        useResponse.put("licenceExp", user.getLicenseExpiry());
+        useResponse.put("lastDispatched", user.getLastDisaptched());
         response.put("userData", useResponse);
         response.put("valid", true);
-
 
         return ResponseEntity.ok(
                 ApiResponse.success(
@@ -284,6 +287,8 @@ public class UserAuthController {
                         "User credentials retrieved",
                         response
                 ));}
+
+
 
 }
 

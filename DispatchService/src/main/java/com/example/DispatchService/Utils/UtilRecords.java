@@ -121,10 +121,15 @@ public class UtilRecords {
             @Enumerated(EnumType.STRING)
             DispatchEnums.DispatchReason dispatchReason,
             String dispatchRequester,
+            Integer userDispatchScore,
             LocalDateTime dispatchEndTime
     ) {
         public dispatchRequestBody {
             if (vehicleName == null || vehicleName.isBlank()) {
+                throw new IllegalArgumentException("vehicleName is required");
+            }
+
+            if (userDispatchScore == null) {
                 throw new IllegalArgumentException("vehicleName is required");
             }
             if (vehicleIdentificationNumber == null || vehicleIdentificationNumber.isBlank()) {

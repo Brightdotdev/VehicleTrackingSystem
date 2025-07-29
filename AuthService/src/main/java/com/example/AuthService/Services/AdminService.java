@@ -7,6 +7,7 @@ import com.example.AuthService.Exceptions.NotFoundException;
 import com.example.AuthService.Models.UserModel;
 import com.example.AuthService.Repositories.UserRepository;
 import com.example.AuthService.Utils.ApiResponse;
+import com.example.AuthService.Utils.UserEnums;
 import com.example.AuthService.Utils.UtilRecords;
 import com.example.AuthService.WebClient.LoggingWebClientService;
 import jakarta.transaction.Transactional;
@@ -16,6 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -42,7 +44,7 @@ public class AdminService {
         String initials = name.replaceAll("[^A-Z]", "").substring(0, 2).toUpperCase();
         String timestamp = Long.toString(System.currentTimeMillis(), 36).toUpperCase();
         String rand = UUID.randomUUID().toString().substring(0, 4).toUpperCase();
-        return String.format("ADMIN-LX-%s-%s-%s", initials, timestamp, rand);
+        return String.format("VIP-%s-%s-%s-X-X-L", initials, timestamp, rand);
     }
 
 
@@ -177,8 +179,21 @@ public class AdminService {
         user.setProvider("GOOGLE_USER_" + oAuth2User.sub());
         user.setValidated(oAuth2User.email_verified());
         user.setRoles(List.of("ROLE_USER","ROLE_ADMIN",  "ROLE_GOOGLE"));
-        String adminLicense = generateAdminLicence(name);
-        user.setLicenseKey(adminLicense);
+        user.setLicenseKey(generateAdminLicence(name.trim()));
+
+        //        extra fields
+
+        user.addToDispatchPoint(10000);
+        LocalDateTime now = LocalDateTime.now();
+
+        // Add 2 years to the current date and time
+        LocalDateTime twoYearsLater = now.plusYears(2);
+
+        user.setLicenseExpiry(twoYearsLater);
+        user.setUserStatus(UserEnums.UserRole.ADMIN);
+
+
+
 
         Mono<ApiResponse<Map<String, Object>>> logAdminCreatedResponse  =  LoggingWebClientService.sendAdminCreated(email.trim());
 
@@ -228,6 +243,21 @@ public class AdminService {
         user.setProvider("LOCAL_ADMIN_USER");
         user.setRoles(List.of("ROLE_ADMIN"));
         user.setLicenseKey(generateAdminLicence(localSignUpRequest.name().trim()));
+
+
+
+
+//        extra fields
+
+        user.addToDispatchPoint(5000);
+        LocalDateTime now = LocalDateTime.now();
+
+        // Add 2 years to the current date and time
+        LocalDateTime twoYearsLater = now.plusYears(2);
+
+        user.setLicenseExpiry(twoYearsLater);
+        user.setUserStatus(UserEnums.UserRole.ADMIN);
+
 
         Mono<ApiResponse<Map<String, Object>>> logAdminCreatedResponse  =  LoggingWebClientService.sendAdminCreated(localSignUpRequest.email().trim());
 
