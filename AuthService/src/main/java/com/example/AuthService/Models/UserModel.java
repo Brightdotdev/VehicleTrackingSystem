@@ -1,5 +1,6 @@
 package com.example.AuthService.Models;
 
+import com.example.AuthService.Utils.UserEnums;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
@@ -8,6 +9,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDate; // <-- for license expiry
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,7 +29,7 @@ public class UserModel implements UserDetails {
 
     private String userImage;
 
-    private String provider = "LOCAL_USER" ;
+    private String provider = "LOCAL_USER";
 
     @ElementCollection(fetch = FetchType.EAGER)
     private List<String> roles = List.of("ROLE_USER");
@@ -34,12 +37,30 @@ public class UserModel implements UserDetails {
     private String password;
 
     private boolean isValidated;
+
     @NotNull(message = "We gotta call you something right....We're not strangers here")
     private String name;
 
     @Column(unique = true, nullable = false)
     private String licenseKey;
-    // === Constructors ===
+
+    // ========================= NEW FIELDS =========================
+
+    // Optional: Expiry date for driver's license
+    private LocalDate licenseExpiry;
+
+    // Optional: Points used for dispatching vehicles (defaults to 1500 when applicable)
+    private Integer dispatchPoints;
+
+    // Optional: A fun/visual field for ID-like or level representation
+    private LocalDateTime lastDispatched;
+
+
+
+    @Enumerated()
+    private UserEnums.UserRole userStatus;
+
+    // ========================= CONSTRUCTORS =========================
 
     public UserModel(int id, String email, List<String> roles, String password, String name, boolean isValidated, String licenseKey) {
         this.id = id;
@@ -53,8 +74,8 @@ public class UserModel implements UserDetails {
 
     public UserModel() {}
 
+    // ========================= GETTERS & SETTERS =========================
 
-    // === Getters and Setters ===
     public String getLicenseKey() {
         return licenseKey;
     }
@@ -62,6 +83,7 @@ public class UserModel implements UserDetails {
     public void setLicenseKey(String licenseKey){
         this.licenseKey = licenseKey;
     }
+
     public int getId() {
         return id;
     }
@@ -83,9 +105,8 @@ public class UserModel implements UserDetails {
     }
 
     public void setUserImage(String userImage) {
-        this.userImage = UserModel.this.userImage;
+        this.userImage = userImage;
     }
-
 
     public List<String> getRoles() {
         return roles;
@@ -115,12 +136,9 @@ public class UserModel implements UserDetails {
         this.provider = provider;
     }
 
-
-
     public void setPassword(String password) {
         this.password = password;
     }
-
 
     public void setValidated(boolean isValidated) {
         this.isValidated = isValidated;
@@ -130,18 +148,40 @@ public class UserModel implements UserDetails {
         return isValidated;
     }
 
-    // === UserDetails Implementation ===
+    // ========== NEW FIELD ACCESSORS ==========
+
+    public LocalDate getLicenseExpiry() {
+        return licenseExpiry;
+    }
+
+    public void setLicenseExpiry(LocalDate licenseExpiry) {
+        this.licenseExpiry = licenseExpiry;
+    }
+
+    public Integer getDispatchPoints() {
+        return dispatchPoints;
+    }
+
+    public void setDispatchPoints(Integer dispatchPoints) {
+        this.dispatchPoints = dispatchPoints;
+    }
+
+    public LocalDateTime getLastDisaptched() {
+        return lastDispatched;
+    }
+
+    public void setLastDispatched(LocalDateTime lastDispatched) {
+        this.lastDispatched = lastDispatched;
+    }
+
+    // ========== UserDetails INTERFACE IMPLEMENTATION ==========
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        // Convert each role string to a SimpleGrantedAuthority
         return roles.stream()
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
     }
-
-
-
 
     @Override
     public String getPassword() {
@@ -155,21 +195,21 @@ public class UserModel implements UserDetails {
 
     @Override
     public boolean isAccountNonExpired() {
-        return true; // Change based on your logic
+        return true; // you can add real logic later
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return true; // Change based on your logic
+        return true; // you can add real logic later
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return true; // Change based on your logic
+        return true; // you can add real logic later
     }
 
     @Override
     public boolean isEnabled() {
-        return true; // Change based on your logic
+        return true; // you can add real logic later
     }
 }
