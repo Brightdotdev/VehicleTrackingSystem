@@ -79,6 +79,10 @@ spring:
               - "Authorization"
             max-age: 3600
 
+
+
+
+
 auth:
   api:
     key : thisIsMyApiKey
