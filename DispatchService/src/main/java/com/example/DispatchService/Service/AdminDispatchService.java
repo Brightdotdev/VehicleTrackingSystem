@@ -220,6 +220,7 @@ public class AdminDispatchService {
             return dispatch;
         }
 
+
         if(dispatch.getDispatchStatus() == DispatchEnums.DispatchStatus.CANCELLED){
             dispatch.addToDispatchMetadata("DispatchStatus", "Dispatch Is Cancelled");
             dispatchRepository.save(dispatch);
@@ -248,6 +249,8 @@ public class AdminDispatchService {
             Duration remainingTime = Duration.between(now, expiry);
 
             // Add metadata to result list
+
+
             dispatch.addToDispatchMetadata("expiresInMinutes", remainingTime.toMinutes());
             dispatch.addToDispatchMetadata("expiresInHours", remainingTime.toHours());
             dispatchRepository.save(dispatch);
