@@ -36,6 +36,7 @@ public class UserDetailService implements UserDetailsService {
 
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
+    static Double newUserPoints = 5000.0;
 
     @Autowired
     public UserDetailService(UserService userService, AdminService adminService, @Lazy AuthenticationManager authenticationManager, @Lazy PasswordEncoder passwordEncoder, ResponseMapperService responseMapperService) {
@@ -63,7 +64,7 @@ public class UserDetailService implements UserDetailsService {
     }
 
   @Transactional
-    public void updateUserScore(String email, Integer score, Long dispatchId) {
+    public void updateUserScore(String email, Double score, Long dispatchId) {
 
         UserModel user = userService.findByEmail(email);
 
@@ -76,7 +77,12 @@ public class UserDetailService implements UserDetailsService {
       }
 
 
-      user.addToDispatchPoint(score);
+      List<Double> points = user.getDispatchPoints();
+
+      Double userPrevScore =  points.isEmpty() ? 0.0 :  user.getDispatchPoints().getLast();
+      Double finalScore = userPrevScore + score;
+
+      user.addToDispatchPoint(finalScore);
       userService.save(user);
     }
 
@@ -132,7 +138,7 @@ public class UserDetailService implements UserDetailsService {
 
         //        extra fields
 
-        user.addToDispatchPoint(10000);
+        user.addToDispatchPoint(newUserPoints);
         LocalDateTime now = LocalDateTime.now();
 
         // Add 2 years to the current date and time

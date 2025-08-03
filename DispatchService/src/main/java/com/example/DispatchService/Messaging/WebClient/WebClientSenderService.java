@@ -6,6 +6,7 @@ import com.example.DispatchService.Messaging.MessagingService;
 import com.example.DispatchService.Messaging.ResponseMapperService;
 import com.example.DispatchService.Utils.UtilRecords;
 import com.example.DispatchService.WebClient.LoggingServiceWebClientService;
+import com.example.DispatchService.WebClient.UserServiceWebClientService;
 import com.example.DispatchService.WebClient.VehicleWebClientService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,17 +24,19 @@ public class WebClientSenderService implements MessagingService {
     private final JsonMapper jsonMapper;
     private final VehicleWebClientService vehicleWebClientService;
     private final LoggingServiceWebClientService loggingServiceWebClientService;
+    private final UserServiceWebClientService userServiceWebClientService;
     private final ResponseMapperService responseMapperService;
 
     public WebClientSenderService(
             JsonMapper jsonMapper,
             VehicleWebClientService vehicleWebClientService,
-            LoggingServiceWebClientService loggingServiceWebClientService,
+            LoggingServiceWebClientService loggingServiceWebClientService, UserServiceWebClientService userServiceWebClientService,
             ResponseMapperService responseMapperService
     ) {
         this.jsonMapper = jsonMapper;
         this.vehicleWebClientService = vehicleWebClientService;
         this.loggingServiceWebClientService = loggingServiceWebClientService;
+        this.userServiceWebClientService = userServiceWebClientService;
         this.responseMapperService = responseMapperService;
     }
 
@@ -135,5 +138,23 @@ jsonMapper.convertToJson(event)
             logger.error("Failed to broadcast validated dispatch event", e);
             throw new ConflictException("Broadcast failed for dispatch validated event");
         }
+    }
+
+
+    public  void updateUserScore(UtilRecords.DispatchScoreUpdateDto event){
+        if (event == null || event.dispatchId() == null) {
+            logger.warn("Invalid dispatch score update event: {}", event);
+            return;
+        }
+
+        try {
+            Object vehicleResponse = userServiceWebClientService.updateUserDispatchScore(event).block();
+      logger.info("user vehicle score update event sent (vehicle): {}", jsonMapper.convertToJson(vehicleResponse));
+        } catch (Exception e) {
+            logger.error("Failed to Send User Score update", e);
+            throw new ConflictException("Failed to Send User Score update event");
+        }
+
+
     }
 }

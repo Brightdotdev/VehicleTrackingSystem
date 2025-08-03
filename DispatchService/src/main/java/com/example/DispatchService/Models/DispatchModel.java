@@ -90,6 +90,12 @@ public class DispatchModel {
 
     private Boolean canDispatch;
 
+
+
+    private Double dispatchCost;
+
+
+
     public void addToDispatchMetadata(String key, Object value) {
         if (this.dispatchMetadata == null) {
             this.dispatchMetadata = new HashMap<>();
@@ -100,7 +106,7 @@ public class DispatchModel {
     public DispatchModel() {
     }
 
-    public DispatchModel(Long dispatchId, String dispatchRequester, String dispatchAdmin, String dispatchVehicleId, List<String> dispatchRequesterRole, DispatchEnums.VehicleStatus vehicleClass, LocalDateTime dispatchRequestTime, LocalDateTime dispatchRequestApproveTime, LocalDateTime dispatchStartTime, LocalDateTime dispatchEndTime, DispatchEnums.DispatchReason dispatchReason, DispatchEnums.DispatchStatus dispatchStatus, Map<String, Object> dispatchMetadata, Double dispatchReviewScore, String vehicleName, List<Map<String, Boolean>> wildCards, String userImage,List<Map<String, Double>> healthAttributes, Double safetyScore, String vehicleImage, Boolean canDispatch) {
+    public DispatchModel(Long dispatchId, String dispatchRequester, String dispatchAdmin, String dispatchVehicleId, List<String> dispatchRequesterRole, DispatchEnums.VehicleStatus vehicleClass, LocalDateTime dispatchRequestTime, LocalDateTime dispatchRequestApproveTime, LocalDateTime dispatchStartTime, LocalDateTime dispatchEndTime, DispatchEnums.DispatchReason dispatchReason, DispatchEnums.DispatchStatus dispatchStatus, Map<String, Object> dispatchMetadata, Double dispatchReviewScore, String vehicleName, List<Map<String, Boolean>> wildCards, String userImage,List<Map<String, Double>> healthAttributes, Double safetyScore, String vehicleImage, Boolean canDispatch , Double dispatchCost) {
         this.dispatchId = dispatchId;
         this.dispatchRequester = dispatchRequester;
         this.dispatchAdmin = dispatchAdmin;
@@ -122,6 +128,7 @@ public class DispatchModel {
         this.safetyScore = safetyScore;
         this.vehicleImage = vehicleImage;
         this.canDispatch = canDispatch;
+        this.dispatchCost = dispatchCost;
     }
 
     public Long getDispatchId() {
@@ -174,6 +181,15 @@ public class DispatchModel {
 
     public List<String> getDispatchRequesterRole() {
         return dispatchRequesterRole;
+    }
+
+
+    public Double getDispatchCost() {
+        return dispatchCost;
+    }
+
+    public void setDispatchCost(Double dispatchCost) {
+        this.dispatchCost = dispatchCost;
     }
 
     public void setDispatchRequesterRole(List<String> dispatchRequesterRole) {

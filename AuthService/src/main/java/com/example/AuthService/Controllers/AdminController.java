@@ -240,58 +240,5 @@ public class AdminController {
         return ResponseEntity.ok(
                 ApiResponse.success(200, "Valid key", true)
         );
-}
-
-
-
-
-
-
-    // admin update score:: localhost:8103/v1/auth/admin/update-score
-
-    public record DispatchPoints (String user,Long dispatchId , Integer score) {}
-
-    @GetMapping("/update-score")
-    public ResponseEntity<ApiResponse<Void>>
-    adminUpdateScore(HttpServletRequest request, @Valid AdminController.DispatchPoints dispatchPoint) {
-
-        String jwt = null;
-        if (request.getCookies() != null) {
-            for (Cookie cookie : request.getCookies()) {
-                if ("adminDeskCookie".equals(cookie.getName())) {
-                    jwt = cookie.getValue();
-                    break;
-                }
-            }
-        }
-
-        boolean valid = jwt != null && jwtConfig.validateToken(jwt);
-
-        if(!valid){
-            throw new AccessException("Invalid jwt token and cookie");
-        }
-
-        String sender = jwtConfig.getClaims(jwt).get("sender", String.class);
-
-        if(!Objects.equals(sender, jwtConfig.getJwt().getSender())){
-            System.out.println(sender);
-            System.out.println(jwtConfig.getJwt().getSender());
-            throw new ConflictException("The sender doesn't match with the token");
-        }
-
-        String email = jwtConfig.extractUsername(jwt);
-
-        UserModel adminData = adminService.findAdmin(email);
-        if(adminData == null){
-            throw new AccessException("Not a valid admin");
-        }
-        userDetailService.updateUserScore(email, dispatchPoint.score(), dispatchPoint.dispatchId());
-
-        return ResponseEntity.ok(
-                ApiResponse.ok(
-                        200,
-                        "Yeah wtv"
-                ));}
-
-}
+}}
 

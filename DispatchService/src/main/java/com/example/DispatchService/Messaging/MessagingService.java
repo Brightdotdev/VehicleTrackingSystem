@@ -9,6 +9,9 @@ public interface MessagingService {
     public  Map<String, Object> sendDispatchRequestedEvent(UtilRecords.dispatchRequestBodyDTO event);
 
 
+    public  void updateUserScore(UtilRecords.DispatchScoreUpdateDto event);
+
+
     public void sendDispatchCreatedEventNoResponse(UtilRecords.dispatchRequestBodyDTO event);
 
     public void sendDispatchCompletedFanoutFromDispatchService(UtilRecords.DispatchEndedDTO event);

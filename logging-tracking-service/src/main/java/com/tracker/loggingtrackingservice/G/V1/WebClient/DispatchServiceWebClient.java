@@ -33,7 +33,7 @@ public class DispatchServiceWebClient {
 
     public Mono<Map<String, Object>> sendTrackingInitializationMessage(UtilRecords.StartTrackingDTO dispatchRequest) {
         return dispatchWebClient.post()
-                .uri("/internal/dispatch//track")
+                .uri("/internal/dispatch/track/start")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(dispatchRequest)
                 .retrieve()

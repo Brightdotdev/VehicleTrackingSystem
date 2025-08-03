@@ -1,9 +1,12 @@
 package com.example.DispatchService.Messaging.RabbitMq;
 
 
+import com.example.DispatchService.Exceptions.ConflictException;
+import com.example.DispatchService.Messaging.JsonMapper;
 import com.example.DispatchService.Messaging.MessagingService;
 import com.example.DispatchService.Messaging.ResponseMapperService;
 import com.example.DispatchService.Utils.UtilRecords;
+import com.example.DispatchService.WebClient.UserServiceWebClientService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -26,15 +29,19 @@ public class RabbitMqSenderService implements MessagingService {
     private static final String DISPATCH_CREATED_FANOUT = "dispatch.created.fanOut";
     private static final String DISPATCH_COMPLETED_FANOUT = "completed.dispatch.fanOut.provider.dispatch.service";
     private static final String DISPATCH_VALIDATED_FANOUT = "dispatch.validated.fanOut.provider.dispatch";
+    private static final String UPDATE_SCORE_FANOUT = "dispatch.update.score.fanOut.provider.dispatch";
 
     // === Routing Keys ===
     private static final String DISPATCH_CREATED_DIRECT_EXCHANGE_KEY = "dispatch.created.key";
 
+    private final JsonMapper jsonMapper;
+    private final UserServiceWebClientService userServiceWebClientService;
 
-
-    public RabbitMqSenderService(RabbitTemplate rabbitTemplate, RabbitMqResponseMapper rabbitMqResponseMapper, ResponseMapperService responseMapperService) {
+    public RabbitMqSenderService(RabbitTemplate rabbitTemplate, ResponseMapperService responseMapperService, JsonMapper jsonMapper, UserServiceWebClientService userServiceWebClientService) {
         this.rabbitTemplate = rabbitTemplate;
         this.responseMapperService = responseMapperService;
+        this.jsonMapper = jsonMapper;
+        this.userServiceWebClientService = userServiceWebClientService;
     }
 
 
@@ -124,4 +131,25 @@ public class RabbitMqSenderService implements MessagingService {
             throw new RuntimeException("Failed to send dispatch validated event", e);
         }
     }
+
+    public  void updateUserScore(UtilRecords.DispatchScoreUpdateDto event){
+
+     logger.warn("There's no rabbit mq representation of this method using web client instead");
+
+        if (event == null || event.dispatchId() == null) {
+            logger.warn("Invalid dispatch score update event: {}", event);
+            return;
+        }
+
+        try {
+            Object vehicleResponse = userServiceWebClientService.updateUserDispatchScore(event).block();
+            logger.info("user vehicle score update event sent (vehicle): {}", jsonMapper.convertToJson(vehicleResponse));
+        } catch (Exception e) {
+            logger.error("Failed to Send User Score update", e);
+            throw new ConflictException("Failed to Send User Score update event");
+        }
+
+
+    }
+
 }

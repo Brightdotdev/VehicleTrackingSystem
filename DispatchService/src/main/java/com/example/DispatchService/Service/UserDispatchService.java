@@ -23,6 +23,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.example.DispatchService.Utils.DispatchEnums.DispatchReason.CLASSIFIED;
+import static com.example.DispatchService.Utils.DispatchEnums.DispatchReason.TRANSPORT;
+import static com.example.DispatchService.Utils.DispatchEnums.DispatchStatus.ONGOING;
+import static com.example.DispatchService.Utils.DispatchEnums.VehicleStatus.CARGO;
+import static com.example.DispatchService.Utils.DispatchEnums.VehicleStatus.REGULAR;
+
 @Service
 public class UserDispatchService {
 
@@ -32,6 +38,10 @@ public class UserDispatchService {
 
     private final ResponseMapperService dispatchResponseMapper;
     private final MessagingService messagingService;
+
+
+    static double costPerDay = 500;
+
 
     public UserDispatchService(DispatchRepository dispatchRepository, ResponseMapperService dispatchResponseMapper, MessagingService messagingService) {
         this.dispatchRepository = dispatchRepository;
@@ -69,7 +79,7 @@ public class UserDispatchService {
                 throw new InvalidRequestException("Vehicle already requested by another user", 403);
             }
 
-            if (dispatchModel.getDispatchStatus().equals(DispatchEnums.DispatchStatus.ONGOING)) {
+            if (dispatchModel.getDispatchStatus().equals(ONGOING)) {
                 throw new InvalidRequestException("The current vehicle is already in dispatch an ongoing dispatch", 403);
             }
 
@@ -78,17 +88,13 @@ public class UserDispatchService {
             }
         }
 
-
-
-
         if(!(boolean) scoreIsEnough(requestBody).get("isEnough")){
             throw new InvalidRequestException("Your Score is Too Low For Dispatch", 403);
         }
 
-
-
         UtilRecords.dispatchRequestBodyDTO requestBodyDTO
                 = new UtilRecords.dispatchRequestBodyDTO(requestBody.vehicleName(),requestBody.vehicleIdentificationNumber(),requestBody.vehicleStatus(),requestBody.dispatchReason(),userName,requestBody.dispatchEndTime(), null);
+
 
 
         Map<String, Object> dispatchResult = (Map<String, Object>) messagingService.sendDispatchRequestedEvent(requestBodyDTO);
@@ -100,9 +106,18 @@ public class UserDispatchService {
 
         UtilRecords.DispatchResponseDTO finalResponse = dispatchResponseMapper.dispatchResponseMapper(dispatchResult);
 
+
         DispatchModel finalDispatchModel = getDispatchModel(finalResponse,userName,userRole,userImage,requestBody);
 
         DispatchModel savedModel =  dispatchRepository.save(finalDispatchModel);
+        Object rawScore = scoreIsEnough(requestBody).get("finalUserScore");
+        double finalScore = rawScore instanceof Number ? ((Number) rawScore).doubleValue() : 0.0;
+        double negatedScore = -finalScore;
+
+        UtilRecords.DispatchScoreUpdateDto userScoreUpdate = new UtilRecords.DispatchScoreUpdateDto(requestBody.dispatchRequester(),savedModel.getDispatchId(), negatedScore);
+
+
+        messagingService.updateUserScore(userScoreUpdate);
 
         UtilRecords.dispatchRequestBodyDTO finalDispatchDto
                 = new UtilRecords.dispatchRequestBodyDTO(savedModel.getVehicleName(),savedModel.getDispatchVehicleId(),savedModel.getVehicleClass(),savedModel.getDispatchReason(),userName,requestBody.dispatchEndTime(), savedModel.getDispatchId());
@@ -125,6 +140,9 @@ public class UserDispatchService {
 
         DispatchModel dispatch = dispatchRepository.findByDispatchIdAndDispatchRequester(dispatchId,userName);
 
+        if(dispatch == null){
+            throw new NotFoundException("No Dispatch Connected to that user is found");
+        }
 
         if(!isStillValidDispatch(dispatch)){
             return null;
@@ -134,11 +152,23 @@ public class UserDispatchService {
             throw new InvalidRequestException("An external user cannot cancel another user's dispatch", 400);
         }
 
-        dispatch.addToDispatchMetadata("dispatchStatus", "Your dispatch has been canceled");
-        dispatch.setDispatchStatus(DispatchEnums.DispatchStatus.CANCELLED);
-        dispatch.setDispatchRequestApproveTime(LocalDateTime.now());
-        UtilRecords.DispatchEndedDTO dispatchEnded = new UtilRecords.DispatchEndedDTO(true,LocalDateTime.now(),dispatch.getDispatchVehicleId(),userName,dispatch.getVehicleName(),dispatchId);
+        if(dispatch.getDispatchStatus() == ONGOING){
+            Double userRefund  = calculateOngoingRefund(dispatch);
+            UtilRecords.DispatchScoreUpdateDto userScoreUpdate = new UtilRecords.DispatchScoreUpdateDto(userName,dispatchId, userRefund);
+            messagingService.updateUserScore(userScoreUpdate);
 
+
+            dispatch.setDispatchStatus(DispatchEnums.DispatchStatus.CANCELLED);
+            UtilRecords.DispatchEndedDTO dispatchEnded = new UtilRecords.DispatchEndedDTO(true,LocalDateTime.now(),dispatch.getDispatchVehicleId(),userName,dispatch.getVehicleName(),dispatchId);
+
+            messagingService.sendDispatchCompletedFanoutFromDispatchService(
+                    dispatchEnded);
+            return dispatchRepository.save(dispatch);
+        }
+
+
+        dispatch.setDispatchStatus(DispatchEnums.DispatchStatus.CANCELLED);
+        UtilRecords.DispatchEndedDTO dispatchEnded = new UtilRecords.DispatchEndedDTO(true,LocalDateTime.now(),dispatch.getDispatchVehicleId(),userName,dispatch.getVehicleName(),dispatchId);
         messagingService.sendDispatchCompletedFanoutFromDispatchService(
                 dispatchEnded);
         return dispatchRepository.save(dispatch);
@@ -252,13 +282,11 @@ public class UserDispatchService {
                 continue;
             }
 
-            // If dispatch is still valid (not expired, cancelled, or completed)
-            // Add time-remaining metadata
             Duration remainingTime = Duration.between(now, expiry);
             dispatch.addToDispatchMetadata("expiresInMinutes", remainingTime.toMinutes());
             dispatch.addToDispatchMetadata("expiresInHours", remainingTime.toHours());
 
-            validDispatches.add(dispatch); // Only valid dispatches are added to the result
+            validDispatches.add(dispatch);
         }
 
         // Save updates (e.g., updated expired statuses)
@@ -353,13 +381,30 @@ public class UserDispatchService {
             throw new NotFoundException("Dispatch not found");
         }
 
+
+        if(!foundUserDispatch.getDispatchRequester().equals(trackingEvent.dispatchRequester())){
+            throw new ConflictException("User not valid for tracking external dispatch");
+        }
+
         if (!isStillValidDispatch(foundUserDispatch)) {
-        throw new ConflictException("The dispatch is not valid");
+        throw new ConflictException("The dispatch is not valid for tracking");
         }
 
 
-        foundUserDispatch.setDispatchStatus(DispatchEnums.DispatchStatus.ONGOING);
+        foundUserDispatch.setDispatchStatus(ONGOING);
         foundUserDispatch.setDispatchStartTime(LocalDateTime.now());
+
+        // new scoree depending on the dispatch when it is actually like given out
+        UtilRecords.dispatchRequestBody dispatchRequest = new UtilRecords.dispatchRequestBody(foundUserDispatch.getVehicleName(),foundUserDispatch.getDispatchVehicleId(),foundUserDispatch.getVehicleClass(),foundUserDispatch.getDispatchReason(),foundUserDispatch.getDispatchRequester(),0.0,foundUserDispatch.getDispatchEndTime(),LocalDateTime.now());
+
+        // making the difference and returning the excess dispatch points
+        Double dispatchNewPrice  = calculateDispatchPrice(dispatchRequest);
+        Double oldPrice = foundUserDispatch.getDispatchCost();
+        Double discountDifference =  oldPrice - dispatchNewPrice;
+        foundUserDispatch.setDispatchCost(dispatchNewPrice);
+
+        UtilRecords.DispatchScoreUpdateDto userScoreUpdate = new UtilRecords.DispatchScoreUpdateDto(foundUserDispatch.getDispatchRequester(),foundUserDispatch.getDispatchId(), discountDifference);
+        messagingService.updateUserScore(userScoreUpdate);
         dispatchRepository.save(foundUserDispatch);
     }
 
@@ -378,8 +423,7 @@ public class UserDispatchService {
     }
 
 
-
-    /** Util static methods  (im too lazy to create a file for it) **/
+    /** Util static methods  (its minimal so it's redundant to create a file for it) **/
 
     private static DispatchModel getDispatchModel(
     UtilRecords.DispatchResponseDTO requestBody,
@@ -390,11 +434,11 @@ public class UserDispatchService {
         finalDispatchBody.setDispatchVehicleId(dispatchRequestBody.vehicleIdentificationNumber());
         finalDispatchBody.setDispatchRequesterRole(roles);
         finalDispatchBody.setUserImage(userImage);
-        finalDispatchBody.setVehicleImage(requestBody.vehicleImage().get(0));
+        finalDispatchBody.setVehicleImage(requestBody.vehicleImage().getFirst());
         finalDispatchBody.setDispatchRequester(userName);
         finalDispatchBody.setDispatchReason(dispatchRequestBody.dispatchReason());
         finalDispatchBody.setDispatchStatus(DispatchEnums.DispatchStatus.PENDING);
-        finalDispatchBody.setDispatchRequestTime(LocalDateTime.now());
+        finalDispatchBody.setDispatchRequestTime(dispatchRequestBody.dispatchRequestTime());
         finalDispatchBody.setVehicleClass(dispatchRequestBody.vehicleStatus());
         finalDispatchBody.setDispatchEndTime(dispatchRequestBody.dispatchEndTime());
         finalDispatchBody.setVehicleName(dispatchRequestBody.vehicleName());
@@ -407,67 +451,120 @@ public class UserDispatchService {
 
 
 
+    public static Double calculateDispatchPrice(UtilRecords.dispatchRequestBody dispatchRequestBody) {
 
+        double vehicleClassScore = 0;
+        double totalScoreForDays = 0;
+        double dispatchReasonScore = 0;
 
-    // UTIL METHODS YAYYYY
-
-    public static Integer calculateRemainingScoreFromDays(LocalDateTime lastActivityTime, LocalDateTime now, double currentScore, double costPerDay) {
-
-
-        long totalHours = Duration.between(lastActivityTime, now).toHours();
-
+        long totalHours = Duration.between(dispatchRequestBody.dispatchRequestTime(), dispatchRequestBody.dispatchEndTime()).toHours();
 
         double halfDayBlocks = Math.ceil(totalHours / 12.0);
+        double totalDays = (halfDayBlocks * 0.5);
+        totalScoreForDays = (totalDays * costPerDay);
 
-        double totalDays = halfDayBlocks * 0.5;
 
-        double totalDeduction = totalDays * costPerDay;
+        if(dispatchRequestBody.vehicleStatus() == DispatchEnums.VehicleStatus.CLASSIFIED){
+            vehicleClassScore = 1000;
+        }else if(dispatchRequestBody.vehicleStatus() == CARGO){
+            vehicleClassScore = 300;
+        }else if(dispatchRequestBody.vehicleStatus() == REGULAR){
+            vehicleClassScore = 200;
+        }else if(dispatchRequestBody.vehicleStatus() == DispatchEnums.VehicleStatus.TRANSPORT){
+            vehicleClassScore = 400;
+        }
 
-        return (int) Math.max(0, currentScore - totalDeduction);}
+
+        if(dispatchRequestBody.dispatchReason() == CLASSIFIED){
+            dispatchReasonScore = 1000;
+        }else if(dispatchRequestBody.dispatchReason() == DispatchEnums.DispatchReason.DELIVERY){
+            dispatchReasonScore = 200;
+        }else if(dispatchRequestBody.dispatchReason() == TRANSPORT){
+            dispatchReasonScore = 150;
+        }
+
+        return dispatchReasonScore + vehicleClassScore + totalScoreForDays;
+    }
 
 
 
     private static    Map<String, Object> scoreIsEnough(UtilRecords.dispatchRequestBody requestBody) {
-        Integer userScore;
-        LocalDateTime now = LocalDateTime.now();
 
-        double costPerDay = 500;
+        Double dispatchPrice = calculateDispatchPrice(requestBody);
 
-        userScore = calculateRemainingScoreFromDays(requestBody.dispatchEndTime(),now,requestBody.userDispatchScore(),costPerDay);
-
-
-        if(requestBody.vehicleStatus() == DispatchEnums.VehicleStatus.CLASSIFIED){
-            userScore -= 1000;
-        }else if(requestBody.vehicleStatus() == DispatchEnums.VehicleStatus.CARGO){
-            userScore -= 300;
-        }else if(requestBody.vehicleStatus() == DispatchEnums.VehicleStatus.REGULAR){
-            userScore -= 200;
-        }else if(requestBody.vehicleStatus() == DispatchEnums.VehicleStatus.TRANSPORT){
-            userScore -= 400;
-        }
-
-
-        if(requestBody.dispatchReason() == DispatchEnums.DispatchReason.CLASSIFIED){
-            userScore -= 1000;
-        }else if(requestBody.dispatchReason() == DispatchEnums.DispatchReason.DELIVERY){
-            userScore -= 200;
-        }else if(requestBody.dispatchReason() == DispatchEnums.DispatchReason.TRANSPORT){
-            userScore -= 150;
-        }
+        double costAfterPay = requestBody.userDispatchScore() - dispatchPrice;
 
         Map<String, Object> response = new HashMap<>();
 
-       response.put("isEnough", userScore > 0);
-       response.put("score", userScore);
-        return response;
+       response.put("isEnough", costAfterPay > 0);
+       response.put("finalUserScore", costAfterPay);
+       response.put("price", dispatchPrice);
+       return response;
+    }
+    public Double calculateOngoingRefund(DispatchModel dispatch) {
+
+        LocalDateTime startTime  = dispatch.getDispatchStartTime(); // more generous
+        LocalDateTime cancelTime = LocalDateTime.now();
+        LocalDateTime endTime    = dispatch.getDispatchEndTime();
+
+        // Validate
+        if (startTime == null || endTime == null) return 0.0;
+        if (cancelTime.isAfter(endTime)) return 0.0;
+        if (cancelTime.isBefore(startTime)) return 0.0;
+
+        // Time-based calculations
+        long totalDurationMinutes = Duration.between(startTime, endTime).toMinutes();
+        long remainingMinutes     = Duration.between(cancelTime, endTime).toMinutes();
+
+        if (totalDurationMinutes <= 0 || remainingMinutes <= 0) return 0.0;
+
+        double unusedRatio = (double) remainingMinutes / totalDurationMinutes;
+
+        // Recalculate original time-based cost
+        long totalHours = Duration.between(startTime, endTime).toHours();
+
+        return getRefundable(dispatch, totalHours, unusedRatio);
     }
 
-    private static boolean isStillValidDispatch(DispatchModel dispatch) {
+
+    private static double getRefundable(DispatchModel dispatch, long totalHours, double unusedRatio) {
+        double halfDayBlocks = Math.ceil(totalHours / 12.0);
+        double totalDays = halfDayBlocks * 0.5;
+        double timeBasedCost = totalDays * costPerDay;
+
+        // Flat fees based on vehicle status and reason
+        double vehicleClassScore = switch (dispatch.getVehicleClass()) {
+            case CLASSIFIED -> 1000;
+            case CARGO      -> 300;
+            case REGULAR    -> 200;
+            case TRANSPORT  -> 400;
+        };
+
+        double dispatchReasonScore = switch (dispatch.getDispatchReason()) {
+            case CLASSIFIED -> 1000;
+            case DELIVERY   -> 200;
+            case TRANSPORT  -> 150;
+        };
+
+        double flatFees = vehicleClassScore + dispatchReasonScore;
+
+        double refundableFlat = flatFees * 0.1;
+        return (timeBasedCost * unusedRatio) + refundableFlat;
+    }
+
+
+    private static Boolean isStillValidDispatch(DispatchModel dispatch) {
         if(dispatch.getDispatchStatus() == DispatchEnums.DispatchStatus.EXPIRED ){
-        throw new NotFoundException("Dispatch not found in staging must be expired");
+        throw new ConflictException("Dispatch not found in staging must be expired");
         }
+
+        LocalDateTime endTime     = dispatch.getDispatchEndTime();
+        LocalDateTime now = LocalDateTime.now();
         if(dispatch.getDispatchStatus() == DispatchEnums.DispatchStatus.CANCELLED ){
-            throw new NotFoundException("Dispatch not found in staging Dispatch is Cancelled");
+            throw new ConflictException("Dispatch not found in staging Dispatch is Cancelled");
+        }
+        if (endTime != null && endTime.isBefore(now)) {
+            throw new ConflictException("Dispatch has already ended.");
         }
         return true;
     }

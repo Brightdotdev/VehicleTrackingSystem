@@ -88,17 +88,16 @@ public class AdminDispatchService {
         if(!isStillValidDispatch(dispatch)){
             return null;}
 
-        if(dispatchCancelReason.isEmpty()){
-            dispatch.addToDispatchMetadata("dispatchApprovalStatus", "Dispatch cancelled by admin");
-        }
         UtilRecords.DispatchEndedDTO dispatchEndedDTO = new UtilRecords.DispatchEndedDTO(true,LocalDateTime.now(),dispatch.getDispatchVehicleId(),dispatch.getDispatchRequester(),dispatch.getVehicleName(),dispatchId);
 
         messagingService.sendDispatchCompletedFanoutFromDispatchService(dispatchEndedDTO);
-
-        dispatch.addToDispatchMetadata("dispatchApprovalStatus", dispatchCancelReason);
         dispatch.setDispatchAdmin(adminEmail);
         dispatch.setDispatchStatus(DispatchEnums.DispatchStatus.CANCELLED);
-        dispatch.setDispatchRequestApproveTime(LocalDateTime.now());
+
+
+        UtilRecords.DispatchScoreUpdateDto userScoreUpdate = new UtilRecords.DispatchScoreUpdateDto(dispatch.getDispatchRequester(),dispatch.getDispatchId(), dispatch.getDispatchCost());
+
+        messagingService.updateUserScore(userScoreUpdate);
         return dispatchRepository.save(dispatch);
     }
 
@@ -298,14 +297,17 @@ public class AdminDispatchService {
 
 
     private static boolean isStillValidDispatch(DispatchModel dispatch) {
-        if(dispatch.getDispatchAdmin() != null){
-            throw  new ConflictException("This dispatch is already tracked by another admin");}
-
         if(dispatch.getDispatchStatus() == DispatchEnums.DispatchStatus.EXPIRED ){
-            throw new NotFoundException("Dispatch not found in staging must be expired");
+            throw new ConflictException("Dispatch not found in staging must be expired");
         }
+
+        LocalDateTime endTime     = dispatch.getDispatchEndTime();
+        LocalDateTime now = LocalDateTime.now();
         if(dispatch.getDispatchStatus() == DispatchEnums.DispatchStatus.CANCELLED ){
-            throw new NotFoundException("Dispatch not found in staging Dispatch is Cancelled");
+            throw new ConflictException("Dispatch not found in staging Dispatch is Cancelled");
+        }
+        if (endTime != null && endTime.isBefore(now)) {
+            throw new ConflictException("Dispatch has already ended.");
         }
         return true;
     }

@@ -32,7 +32,7 @@ public class AdminService {
     private final UserRepository userRepository;
     private final LoggingWebClientService LoggingWebClientService;
     private final ResponseMapperService responseMapperService;
-
+    static Double newAdminPoints = 10000.0;
     public AdminService(PasswordEncoder passwordEncoder, UserRepository userRepository, LoggingWebClientService loggingWebClientService, ResponseMapperService responseMapperService) {
         this.passwordEncoder = passwordEncoder;
         this.userRepository = userRepository;
@@ -183,7 +183,7 @@ public class AdminService {
 
         //        extra fields
 
-        user.addToDispatchPoint(10000);
+        user.addToDispatchPoint(newAdminPoints);
         LocalDateTime now = LocalDateTime.now();
 
         // Add 2 years to the current date and time
@@ -249,7 +249,7 @@ public class AdminService {
 
 //        extra fields
 
-        user.addToDispatchPoint(5000);
+        user.addToDispatchPoint(newAdminPoints);
         LocalDateTime now = LocalDateTime.now();
 
         // Add 2 years to the current date and time

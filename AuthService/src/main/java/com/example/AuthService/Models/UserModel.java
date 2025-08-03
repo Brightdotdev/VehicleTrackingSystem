@@ -4,12 +4,12 @@ import com.example.AuthService.Utils.UserEnums;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -43,25 +43,22 @@ public class UserModel implements UserDetails {
     @Column(unique = true, nullable = false)
     private String licenseKey;
 
-    // ========================= NEW FIELDS =========================
-
-    // Optional: Expiry date for driver's license
     private LocalDateTime licenseExpiry;
 
     @ElementCollection(fetch = FetchType.EAGER)
-    private List<Integer> dispatchPoints;
-
+    private List<Double> dispatchPoints = new ArrayList<>();
 
     private LocalDateTime lastDispatched;
-
-
 
     @Enumerated(EnumType.STRING)
     private UserEnums.UserRole userStatus;
 
-    // ========================= CONSTRUCTORS =========================
+    // ===== Constructors =====
 
-    public UserModel(int id, String email, List<String> roles, String password, String name, boolean isValidated, String licenseKey) {
+    public UserModel() {}
+
+    public UserModel(int id, String email, List<String> roles, String password, String name,
+                     boolean isValidated, String licenseKey) {
         this.id = id;
         this.email = email;
         this.roles = roles;
@@ -71,25 +68,7 @@ public class UserModel implements UserDetails {
         this.licenseKey = licenseKey;
     }
 
-    public UserModel() {}
-
-    // ========================= GETTERS & SETTERS =========================
-
-    public String getLicenseKey() {
-        return licenseKey;
-    }
-
-    public UserEnums.UserRole getUserStatus() {
-        return userStatus;
-    }
-
-    public void setUserStatus(UserEnums.UserRole userStatus){
-        this.userStatus = userStatus;
-    }
-
-    public void setLicenseKey(String licenseKey){
-        this.licenseKey = licenseKey;
-    }
+    // ===== Getters and Setters =====
 
     public int getId() {
         return id;
@@ -115,12 +94,36 @@ public class UserModel implements UserDetails {
         this.userImage = userImage;
     }
 
+    public String getProvider() {
+        return provider;
+    }
+
+    public void setProvider(String provider) {
+        this.provider = provider;
+    }
+
     public List<String> getRoles() {
         return roles;
     }
 
     public void setRoles(List<String> roles) {
         this.roles = roles;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public boolean isValidated() {
+        return isValidated;
+    }
+
+    public void setValidated(boolean validated) {
+        isValidated = validated;
     }
 
     public String getName() {
@@ -131,31 +134,13 @@ public class UserModel implements UserDetails {
         this.name = name;
     }
 
-    public void setUsername(String email) {
-        this.email = email;
+    public String getLicenseKey() {
+        return licenseKey;
     }
 
-    public String getProvider() {
-        return provider;
+    public void setLicenseKey(String licenseKey) {
+        this.licenseKey = licenseKey;
     }
-
-    public void setProvider(String provider) {
-        this.provider = provider;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public void setValidated(boolean isValidated) {
-        this.isValidated = isValidated;
-    }
-
-    public boolean isValidated() {
-        return isValidated;
-    }
-
-    // ========== NEW FIELD ACCESSORS ==========
 
     public LocalDateTime getLicenseExpiry() {
         return licenseExpiry;
@@ -165,21 +150,22 @@ public class UserModel implements UserDetails {
         this.licenseExpiry = licenseExpiry;
     }
 
-    public List<Integer> getDispatchPoints() {
+    public List<Double> getDispatchPoints() {
         return dispatchPoints;
     }
 
-
-
-    public void addToDispatchPoint(Integer point) {
-        this.dispatchPoints.add(point);
-    }
-
-    public void setDispatchPoints(List<Integer> dispatchPoints) {
+    public void setDispatchPoints(List<Double> dispatchPoints) {
         this.dispatchPoints = dispatchPoints;
     }
 
-    public LocalDateTime getLastDisaptched() {
+    public void addToDispatchPoint(Double point) {
+        if (this.dispatchPoints == null) {
+            this.dispatchPoints = new ArrayList<>();
+        }
+        this.dispatchPoints.add(point);
+    }
+
+    public LocalDateTime getLastDispatched() {
         return lastDispatched;
     }
 
@@ -187,7 +173,15 @@ public class UserModel implements UserDetails {
         this.lastDispatched = lastDispatched;
     }
 
-    // ========== UserDetails INTERFACE IMPLEMENTATION ==========
+    public UserEnums.UserRole getUserStatus() {
+        return userStatus;
+    }
+
+    public void setUserStatus(UserEnums.UserRole userStatus) {
+        this.userStatus = userStatus;
+    }
+
+    // ===== Spring Security Methods =====
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -197,32 +191,27 @@ public class UserModel implements UserDetails {
     }
 
     @Override
-    public String getPassword() {
-        return password;
-    }
-
-    @Override
     public String getUsername() {
         return email;
     }
 
     @Override
     public boolean isAccountNonExpired() {
-        return true; // you can add real logic later
+        return true; // Add logic later
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return true; // you can add real logic later
+        return true; // Add logic later
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return true; // you can add real logic later
+        return true; // Add logic later
     }
 
     @Override
     public boolean isEnabled() {
-        return true; // you can add real logic later
+        return true; // Add logic later
     }
 }

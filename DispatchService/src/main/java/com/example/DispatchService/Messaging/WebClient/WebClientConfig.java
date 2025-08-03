@@ -24,6 +24,16 @@ public class WebClientConfig {
                 .build();
     }
 
+
+    @Bean
+    public WebClient userWebClient(
+            @Value("${external.services.user.base-url}") String baseUrl) {
+        return WebClient.builder()
+                .baseUrl(baseUrl)
+                .defaultHeader("X-Internal-API-Key", authProperties.getApi().getKey())
+                .build();
+    }
+
     @Bean
     public WebClient vehicleWebClient(
             @Value("${external.services.vehicle.base-url}") String baseUrl) {

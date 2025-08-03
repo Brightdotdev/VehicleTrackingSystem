@@ -37,6 +37,11 @@ external:
       base-url: http://localhost:8104
     vehicle:
       base-url: http://localhost:8106
+    auth:
+      base-url: http://localhost:8103
+
+
+
 auth:
   api:
     key : thisIsMyApiKey

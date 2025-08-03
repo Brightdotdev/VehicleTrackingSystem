@@ -51,7 +51,7 @@ public class WebClientReceiverController {
     /**
      * ✅ Handle dispatch tracking (logs service sends this)
      */
-    @PostMapping("/track")
+    @PostMapping("/track/start")
     public ResponseEntity<ApiResponse<String>> handleDispatchTrackingQueue(
             @Valid @RequestBody UtilRecords.StartTrackingDTO trackingEvent
     ) {

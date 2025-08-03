@@ -121,8 +121,9 @@ public class UtilRecords {
             @Enumerated(EnumType.STRING)
             DispatchEnums.DispatchReason dispatchReason,
             String dispatchRequester,
-            Integer userDispatchScore,
-            LocalDateTime dispatchEndTime
+            Double userDispatchScore,
+            LocalDateTime dispatchEndTime,
+            LocalDateTime dispatchRequestTime
     ) {
         public dispatchRequestBody {
             if (vehicleName == null || vehicleName.isBlank()) {
@@ -141,9 +142,12 @@ public class UtilRecords {
             if (dispatchReason == null) {
                 throw new IllegalArgumentException("dispatchReason is required");
             }
-            // dispatchRequester may be optional; only enforce non-null if needed
+
             if (dispatchEndTime == null) {
                 throw new IllegalArgumentException("dispatchEndTime is required");
+            }
+            if (dispatchRequestTime == null) {
+                throw new IllegalArgumentException("dispatch req time is required");
             }
         }
     }
@@ -211,6 +215,9 @@ public class UtilRecords {
 
         }
     }
+
+
+    public record DispatchScoreUpdateDto (String user,Long dispatchId , Double score) {}
 
 
     // -------------------------------
