@@ -4,6 +4,7 @@ import {  LastStep } from "@/components/ui/auth/LastStepForm";
 import { useRouter, useSearchParams } from "next/navigation";
 import Loading from "@/components/ui/Loading";
 import { useUserValidation } from "@/hooks/useUserValidation";
+import UserSignUpMultiStep from "@/components/ui/auth/UserSignUpMultiStep";
 
 export default function Home() {
   const { loading, isValidated, checkValidation } = useUserValidation()
@@ -32,8 +33,7 @@ export default function Home() {
   return(
    <div className="flex items-center justify-center w-screen h-screen md:py-[var(--space-xs)]">
     {
-      loading ? <Loading/> : 
-       <LastStep  pageSender={pageSender ?? ""}/>
+      loading ? <Loading/> : <UserSignUpMultiStep/>
     }
 
    </div>    

@@ -279,7 +279,7 @@ public class UserAuthController {
         useResponse.put("dispatchPoints", user.getDispatchPoints().getLast());
         useResponse.put("userStatus", user.getUserStatus());
         useResponse.put("licenceExp", user.getLicenseExpiry());
-        useResponse.put("lastDispatched", user.getLastDisaptched());
+
         response.put("userData", useResponse);
         response.put("valid", true);
 

@@ -48,7 +48,6 @@ public class UserModel implements UserDetails {
     @ElementCollection(fetch = FetchType.EAGER)
     private List<Double> dispatchPoints = new ArrayList<>();
 
-    private LocalDateTime lastDispatched;
 
     @Enumerated(EnumType.STRING)
     private UserEnums.UserRole userStatus;
@@ -165,13 +164,6 @@ public class UserModel implements UserDetails {
         this.dispatchPoints.add(point);
     }
 
-    public LocalDateTime getLastDispatched() {
-        return lastDispatched;
-    }
-
-    public void setLastDispatched(LocalDateTime lastDispatched) {
-        this.lastDispatched = lastDispatched;
-    }
 
     public UserEnums.UserRole getUserStatus() {
         return userStatus;
