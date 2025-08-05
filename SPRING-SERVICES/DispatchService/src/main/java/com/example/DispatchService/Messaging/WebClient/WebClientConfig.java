@@ -27,7 +27,7 @@ public class WebClientConfig {
 
     @Bean
     public WebClient userWebClient(
-            @Value("${external.services.user.base-url}") String baseUrl) {
+            @Value("${external.services.auth.base-url}") String baseUrl) {
         return WebClient.builder()
                 .baseUrl(baseUrl)
                 .defaultHeader("X-Internal-API-Key", authProperties.getApi().getKey())

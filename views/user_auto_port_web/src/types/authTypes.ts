@@ -19,6 +19,8 @@ export interface UserGoogleSignUp {
     picture: string;
     email: string;
     email_verified: boolean;
+    userStatus? : UserStatus;
+
 }
 
 export interface UserLocalLogIn {
@@ -31,7 +33,16 @@ export interface UserLocalSignUp {
     name: string;
     email: string;
     password : string;
+    userStatus? : UserStatus;
 }
+
+export enum UserStatus {
+  DRIVER = "DRIVER",
+  TRANSPORTER = "TRANSPORTER",
+  ADMIN = "ADMIN",
+  CIVILIAN = "CIVILIAN"
+}
+
 
  
 export type User = {

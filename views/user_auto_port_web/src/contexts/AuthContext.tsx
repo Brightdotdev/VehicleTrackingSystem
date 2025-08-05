@@ -2,6 +2,7 @@
 
 import { dotEnv } from "@/lib/dotEnv";
 import { deleteCookie, getCookie } from "@/lib/utils";
+import { UserLocalSignUp, UserStatus } from "@/types/authTypes";
 import React, { createContext, useContext, useEffect, useState, ReactNode } from "react";
 
 type User = {
@@ -20,8 +21,8 @@ type AuthContextType = {
   logInData :  { email : string, password  : string } ,
   setLogInData : (logInInfo : { email : string, password  : string }) => void,
 
-  signUpData : { email : string, name : string , password  : string },
-  setSignUpData : (signUpInfo : { email : string, name : string , password  : string }) => void,
+  signUpData : UserLocalSignUp,
+  setSignUpData : (signUpInfo : UserLocalSignUp) => void,
   
   googleLogInData :  { email : string, name : string , picture: string, } ,
   setGoogleLogInData : (googleLogInInfo : { email : string, name: string, picture : string }) => void,

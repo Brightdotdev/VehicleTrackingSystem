@@ -4,14 +4,18 @@ import Link from 'next/link';
 import VehicleRequestCard from './VehicleRequestCard';
 import { getMyValidDispatches } from '@/lib/handleUserDispatchPage';
 import { ArrowUpRight, Info } from 'lucide-react';
+import { useUserValidation } from '@/hooks/useUserValidation';
 
 
 const DispatchPageComponent = () => {
 
  const [dispatches, setDipatches] = useState<DispatchRequestDto[]>([]);
- 
-
+  const {returnMyData}  = useUserValidation()
     const handleUserDispatchPage = async () => {
+
+      const me  = await  returnMyData()
+      console.log(me);
+
         const myActiveDisaptches = await getMyValidDispatches();
           console.log(myActiveDisaptches)
         if(myActiveDisaptches.length > 0){

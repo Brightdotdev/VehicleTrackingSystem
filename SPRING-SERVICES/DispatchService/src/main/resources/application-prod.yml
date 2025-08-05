@@ -45,7 +45,7 @@ external:
       base-url: ${LOGGING_URL}
     vehicle:
       base-url: ${VEHICLE_URL}
-    user:
+    auth:
       base-url: ${AUTH_URL}
 
 
