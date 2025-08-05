@@ -15,14 +15,15 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { RadioGroup, RadioGroupItem } from "./radio-group"
+import { Check } from "lucide-react"
 
 const FormSchema = z.object({
-  type: z.enum(["all", "mentions", "none"], {
+  type: z.enum(["DRIVER", "TRANSPORTER", "CIVILIAN"], {
     required_error: "You need to select a notification type.",
   }),
 })
 
-export function RadioGroupForm() {
+export function UserPreference() {
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
   })
@@ -45,36 +46,46 @@ export function RadioGroupForm() {
           name="type"
           render={({ field }) => (
             <FormItem className="space-y-3">
-              <FormLabel>Notify me about...</FormLabel>
+              <FormLabel className="text-medium">Select the category that best represents your driving role.</FormLabel>
               <FormControl>
-                <RadioGroup
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                  className="flex flex-col"
-                >
-                  <FormItem className="flex items-center gap-3">
-                    <FormControl>
-                      <RadioGroupItem value="all" />
-                    </FormControl>
-                    <FormLabel className="font-normal">
-                      All new messages
-                    </FormLabel>
-                  </FormItem>
-                  <FormItem className="flex items-center gap-3">
-                    <FormControl>
-                      <RadioGroupItem value="mentions" />
-                    </FormControl>
-                    <FormLabel className="font-normal">
-                      Direct messages and mentions
-                    </FormLabel>
-                  </FormItem>
-                  <FormItem className="flex items-center gap-3">
-                    <FormControl>
-                      <RadioGroupItem value="none" />
-                    </FormControl>
-                    <FormLabel className="font-normal">Nothing</FormLabel>
-                  </FormItem>
-                </RadioGroup>
+<RadioGroup
+  onValueChange={field.onChange}
+  value={field.value} // control the value
+  className="flex flex-col gap-4"
+>
+  {["DRIVER", "TRANSPORTER", "CIVILIAN"].map((option) => {
+    const isSelected = field.value === option
+
+    return (
+      <FormItem key={option}>
+        <label
+          className={`
+            relative flex items-center justify-between w-full h-20 cursor-pointer border p-4 rounded-md
+            transition-colors
+            hover:bg-accent
+            ${isSelected ? "bg-muted ring-2 ring-ring" : ""}
+          `}
+        >
+          {/* Visually hidden but functionally present radio */}
+          <FormControl>
+            <RadioGroupItem value={option} className="sr-only" />
+          </FormControl>
+
+          {/* Option text */}
+          <span className="font-normal">{option}</span>
+
+          {/* Check icon shown only when selected */}
+          {isSelected && (
+            <Check className="absolute top-2 right-2 h-5 w-5 text-primary" />
+          )}
+        </label>
+      </FormItem>
+    )
+  })}
+</RadioGroup>
+
+
+      
               </FormControl>
               <FormMessage />
             </FormItem>

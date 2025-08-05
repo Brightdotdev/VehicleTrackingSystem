@@ -1,6 +1,5 @@
 "use client";
 import React, { useEffect } from "react";
-import {  LastStep } from "@/components/ui/auth/LastStepForm";
 import { useRouter, useSearchParams } from "next/navigation";
 import Loading from "@/components/ui/Loading";
 import { useUserValidation } from "@/hooks/useUserValidation";
@@ -13,6 +12,7 @@ export default function Home() {
   const pageSender : string  | null = searchParams.get("sender");
 
   useEffect(() => {
+    console.log( "the sender ", pageSender)
 
   if (!pageSender ||
      (pageSender !== "local-sign-up" &&
@@ -33,7 +33,8 @@ export default function Home() {
   return(
    <div className="flex items-center justify-center w-screen h-screen md:py-[var(--space-xs)]">
     {
-      loading ? <Loading/> : <UserSignUpMultiStep/>
+      loading ? <Loading/> : pageSender !== null ? <UserSignUpMultiStep pageSender={pageSender}/> : 
+        null
     }
 
    </div>    
