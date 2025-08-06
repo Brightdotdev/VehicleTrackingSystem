@@ -188,4 +188,6 @@ export interface DispatchRequestDto {
     dispatchReason: DispatchReason;
     dispatchRequester: string; 
     dispatchEndTime: string; 
+    userDispatchScore : number;
+    dispatchRequestTime : string;
 }

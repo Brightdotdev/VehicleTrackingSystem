@@ -1,7 +1,6 @@
 import { DispatchReason, DispatchRequestBody, VehicleDTO, VehicleStatus } from '@/types/VehicleTypes';
 import { ArrowLeft,  CarFront,  CircleHelp, Cog, HeartPulse, IdCard, Info,  Shield, TimerIcon} from 'lucide-react'
 import React, { useEffect, useState } from 'react'
-import {handleDispatchRequest } from '@/lib/handleUserDispatchPage';
 import { HealthText } from '../../utils/UtilComponents';
 import { VehicleInfoPageStatusPills } from '@/components/utils/VehiclePageUtilComponent';
 import { format } from "date-fns";
@@ -20,6 +19,7 @@ import { toast } from 'sonner';
 import { getVehicleByVin } from '@/lib/handleVehiclePage';
 import { useUserValidation } from '@/hooks/useUserValidation';
 import { Calendar } from '@/components/ui/MiniCalenderProvider';
+import UserDispatchReqPopUp from '@/components/ui/UserDispatchReqPopUp';
 
 const dispatchReasons: reasons[] = [
   {
@@ -110,11 +110,6 @@ function StatusList({
 }
 
 
-
-
-
-
-
 const VehicleNamePill = (
   { model, isDispatchable} : { model? : string,isDispatchable : boolean}
 ) => {
@@ -137,19 +132,19 @@ const VehicleNamePill = (
 }
 
 
-
-
 const VehicleRequestPage = ({vehicleVin} : {vehicleVin : string}) => {
   
-    const { userData } = useUserValidation()
+    const { userData , returnMyData } = useUserValidation()
   const [vehicleData, setVehicleData] = useState<VehicleDTO | undefined>(undefined);
   const [isDispatchable, setDispatchAble] = useState<boolean>(false);
+  const [openDispatchCostCalculator, setOpenDispatchCostCalculator] = useState<boolean>(false);
+  const [loading, setLoading]  = useState<boolean>(false)
+
   // Form state
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [selectedStatus, setSelectedStatus] = useState<reasons | undefined>();
-
+  const [dispatchData, setDispatchData] = useState<DispatchRequestBody | undefined>(undefined);
   // Zod schema for validation
-
   const requestSchema = z.object({
     date: z.date({ required_error: "Please select a dispatch end date" }),
     reason: z.object({
@@ -158,22 +153,16 @@ const VehicleRequestPage = ({vehicleVin} : {vehicleVin : string}) => {
     }).nullable().refine(val => val !== undefined, { message: "Please select a reason" }),
   });
 
-
   // Submit handler
   const handleSubmit = async (e: React.FormEvent, selectedDate : Date, submitedStatus : reasons) => {
     e.preventDefault();
+    const me = await returnMyData();
+
     const dateFormat = selectedDate ? format(selectedDate, "yyyy-MM-dd'T'HH:mm:ss"): "";
-
-
       console.log("date format: ", dateFormat )
       console.log("selected reason: ", submitedStatus)
-
       console.log("Java LocalDateTime:", date);
       console.log("Reason normal:", selectedStatus);
-      
-      
-
-
 
     if (
       selectedStatus?.value === DispatchReason.CLASSIFIED &&
@@ -199,11 +188,14 @@ const VehicleRequestPage = ({vehicleVin} : {vehicleVin : string}) => {
       vehicleStatus: vehicleData?.vehicleStatus as VehicleStatus,
       dispatchReason: submitedStatus?.value as DispatchReason,
       dispatchRequester: userData?.email ?? "",
-      dispatchEndTime: dateFormat 
+      dispatchEndTime: dateFormat ,
+      userDispatchScore : me?.dispatchPoints ?? 0
     }
-    console.log(dispatchData)
-    const result = requestSchema.safeParse({ date, reason: selectedStatus });
 
+
+    setDispatchData(dispatchData);
+    const result = requestSchema.safeParse({ date, reason: selectedStatus });
+  
     if (!result.success) {
       result.error.errors.forEach(err => {
         toast.error("Validation Error...please double check your form request");
@@ -211,23 +203,13 @@ const VehicleRequestPage = ({vehicleVin} : {vehicleVin : string}) => {
       return;
     }
 
-    toast("Submitting Request...");
-
-
-    const response = await handleDispatchRequest(dispatchData);
-    
-    console.log(response);
+    toast("Calculating Your cost...");
+    setOpenDispatchCostCalculator(true);
   };
 
-  
-useEffect(() => {
-    if (!date) {
-      setDate(new Date(Date.now() + 24 * 60 * 60 * 1000));
-    }
-  }, []);
-  
+
   useEffect(() =>{
-    
+
     const handleVehiclePage = async () =>{
        const vData = await getVehicleByVin(vehicleVin);
         setVehicleData(vData)
@@ -237,10 +219,9 @@ const hasLowSafetyScore = (vData?.safetyScore || 0 ) <  63 ;
 const canDispatch = hasLowSafetyScore ? false : hasWildcardDispatch  ? false : true
 
 setDispatchAble(canDispatch);
-} 
+ if (!date) {  setDate(new Date(Date.now() + 24 * 60 * 60 * 1000));}}
 
 handleVehiclePage();
-
   }, [])
   
 
@@ -276,13 +257,9 @@ handleVehiclePage();
              isDispatchable  ?
                 <VehicleInfoPageStatusPills statusName="DISPATCHABLE" className='absolute bottom-2 right-8 sahdow-lg' />
                 : <VehicleInfoPageStatusPills statusName="NOT_DISPATCHABLE" className='absolute bottom-2 right-2 sahdow-lg' />
-                       
-                  
                        }
         </article>
-        
 <div className="w-full h-full flex items-center justify-between flex-col md:p-[var(--space-sm)]">
-
   <div className="pt-8 py-4 md:pt-0 w-full flex items-center justify-between  md:h-[var(--size-md)]">
     <h3 className="md:text-medium text-normal-2">
       {vehicleData?.model} 
@@ -351,9 +328,6 @@ handleVehiclePage();
 </div>
 
 
-
-
-
 <div className="flex md:items-center items-start justify-center gap-2">
   <div className="flex items-center justify-center">
 
@@ -384,16 +358,11 @@ handleVehiclePage();
   </div>
 )}
 
-
-
-
-
  </article>
 
 <article className="flex flex-col items-center justify-start gap-2 w-full h-full  lg:w-[48%]
 h-full p-2 bg-background2 customScrollBar rounded-sm
 ">
-
 
 <h4 className='flex items-center justify-center bg-background rounded-sm w-full py-[var(--size-sm)]'>
   Fill This To Get The Vehicle
@@ -416,7 +385,7 @@ h-full p-2 bg-background2 customScrollBar rounded-sm
     return;
   }
 
-  // If dispatch ends today, check if time is after now
+  
   const isSameDay =
     date.getFullYear() === now.getFullYear() &&
     date.getMonth() === now.getMonth() &&
@@ -433,8 +402,6 @@ h-full p-2 bg-background2 customScrollBar rounded-sm
     return;
   }
   handleSubmit(e, date, selectedStatus);
-
-
    } } >
 
 <label className="flex flex-col md:gap-1 gap-2 w-full">
@@ -477,6 +444,7 @@ h-full p-2 bg-background2 customScrollBar rounded-sm
 </div>
 
 
+<UserDispatchReqPopUp   loading={loading} setLoading={setLoading} setOpen={setOpenDispatchCostCalculator}  open={openDispatchCostCalculator} dispatchReqBody={dispatchData ?? undefined  } />
 
   
       </section>

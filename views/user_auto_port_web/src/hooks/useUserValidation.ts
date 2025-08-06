@@ -11,6 +11,7 @@ import { toast } from "sonner";
     ) => {
         const [isValidated, setValidated] = useState<boolean | null>(null);
         const [loading, setLoading] = useState(true);
+  
         
         const {setUser, userData} = useAuth();
  

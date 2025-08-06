@@ -46,9 +46,19 @@ public class UserDetailService implements UserDetailsService {
         this.passwordEncoder = passwordEncoder;
     }
     public String generateUserLicence(String name) {
-        String initials = name.replaceAll("[^A-Z]", "").substring(0, 2).toUpperCase();
+        if (name == null || name.isEmpty()) {
+            throw new IllegalArgumentException("Name cannot be null/empty");
+        }
+
+        // Extract at least 2 initials (pad with 'X' if needed)
+        String filtered = name.replaceAll("[^A-Z]", "");
+        String initials = (filtered.length() >= 2)
+                ? filtered.substring(0, 2)
+                : (filtered + "XX").substring(0, 2); // Pad with 'X'
+
         String timestamp = Long.toString(System.currentTimeMillis(), 36).toUpperCase();
         String rand = UUID.randomUUID().toString().substring(0, 4).toUpperCase();
+
         return String.format("ME-%s-%s-%s", initials, timestamp, rand);
     }
 

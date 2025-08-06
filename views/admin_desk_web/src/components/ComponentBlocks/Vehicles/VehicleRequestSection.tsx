@@ -31,7 +31,7 @@ const VehicleRequestSection = () => {
   return (
     <section
       className="md:w-[90%] w-full rounded-xl grid gap-4 
-        place-items-center bg-background2
+        place-items-center 
         items-center md:p-4 md:pb-12
         justify-end content-start 
         h-[80vh] overflow-y-auto no-scrollbar"

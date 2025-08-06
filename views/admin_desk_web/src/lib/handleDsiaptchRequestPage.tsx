@@ -3,33 +3,43 @@ import { toast } from "sonner";
 import { dotEnv } from "./dotEnv";
 
 
-    export const getAllDispatchRequests  = async (active? : boolean) : Promise<DispatchRequestDto[]>  => {
-            
-      const baseUrl = active ? `${dotEnv.adminDispatchesBaseUrl}/get-all/active` : `${dotEnv.adminDispatchesBaseUrl}/get-all`;
+// Fetches all dispatch requests, either active or all depending on the `active` flag
+export const getAllDispatchRequests = async (
+  active?: boolean
+): Promise<DispatchRequestDto[]> => {
+  // Build the correct URL based on whether 'active' is true or not
+  const baseUrl = active
+    ? `${dotEnv.adminDispatchesBaseUrl}/get-all/active`
+    : `${dotEnv.adminDispatchesBaseUrl}/get-all`;
+
+  try {
     
-      try {
-    const response =  await fetch(baseUrl, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json"},
-          credentials: "include"});
+    const response = await fetch(baseUrl, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+    });
 
-        
-          console.log(response)
-          const data  = await response.json();
+    
+    const data = await response.json();
 
-        if(data.data !== null){
-        return data.data;  
-      }
-        else{
-        toast.error("The vehicle is data acc empty");
-          return [];
-        }
-    } catch (error) {  
-        toast.error("Somethinggg went wrong");
-        return [];
-    }};
-        
+    
+    if (response.ok && data?.data) {
+      return data.data;
+    } else {
+    
+      toast.error("No dispatch data available.");
+      return [];
+    }
+  } catch (error) {
+    
+    toast.error("Something went wrong while fetching dispatch data.");
+    return [];
+  }
+};
+
 
 
     //actual uusage of the appi grahhhh

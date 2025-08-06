@@ -54,8 +54,12 @@ export type User = {
 
 export type UserPageData = {
   email: string;
-  picture?: string;
+  image?: string;
   licence: string;
   username: string;
+  dispatchPoints : number;
+  joinedAt : string;
+  licenceExp : string; 
+  userStatus : UserStatus
   roles: string[];
 } | null;

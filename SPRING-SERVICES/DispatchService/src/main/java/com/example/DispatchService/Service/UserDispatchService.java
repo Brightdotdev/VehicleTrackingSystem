@@ -23,11 +23,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.example.DispatchService.Utils.DispatchEnums.DispatchReason.CLASSIFIED;
-import static com.example.DispatchService.Utils.DispatchEnums.DispatchReason.TRANSPORT;
 import static com.example.DispatchService.Utils.DispatchEnums.DispatchStatus.ONGOING;
-import static com.example.DispatchService.Utils.DispatchEnums.VehicleStatus.CARGO;
-import static com.example.DispatchService.Utils.DispatchEnums.VehicleStatus.REGULAR;
+
 
 @Service
 public class UserDispatchService {
@@ -466,20 +463,20 @@ public class UserDispatchService {
 
         if(dispatchRequestBody.vehicleStatus() == DispatchEnums.VehicleStatus.CLASSIFIED){
             vehicleClassScore = 1000;
-        }else if(dispatchRequestBody.vehicleStatus() == CARGO){
+        }else if(dispatchRequestBody.vehicleStatus() == DispatchEnums.VehicleStatus.CARGO){
             vehicleClassScore = 300;
-        }else if(dispatchRequestBody.vehicleStatus() == REGULAR){
+        }else if(dispatchRequestBody.vehicleStatus() == DispatchEnums.VehicleStatus.REGULAR){
             vehicleClassScore = 200;
         }else if(dispatchRequestBody.vehicleStatus() == DispatchEnums.VehicleStatus.TRANSPORT){
             vehicleClassScore = 400;
         }
 
 
-        if(dispatchRequestBody.dispatchReason() == CLASSIFIED){
+        if(dispatchRequestBody.dispatchReason() == DispatchEnums.DispatchReason.CLASSIFIED){
             dispatchReasonScore = 1000;
         }else if(dispatchRequestBody.dispatchReason() == DispatchEnums.DispatchReason.DELIVERY){
             dispatchReasonScore = 200;
-        }else if(dispatchRequestBody.dispatchReason() == TRANSPORT){
+        }else if(dispatchRequestBody.dispatchReason() == DispatchEnums.DispatchReason.TRANSPORT){
             dispatchReasonScore = 150;
         }
 

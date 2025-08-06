@@ -131,7 +131,7 @@ public class UtilRecords {
             }
 
             if (userDispatchScore == null) {
-                throw new IllegalArgumentException("vehicleName is required");
+                throw new IllegalArgumentException("user dispatch score is required");
             }
             if (vehicleIdentificationNumber == null || vehicleIdentificationNumber.isBlank()) {
                 throw new IllegalArgumentException("vehicleIdentificationNumber is required");

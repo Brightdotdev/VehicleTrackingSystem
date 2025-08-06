@@ -52,6 +52,11 @@ public class UserModel implements UserDetails {
     @Enumerated(EnumType.STRING)
     private UserEnums.UserRole userStatus;
 
+
+    @Column(name = "joined_at", updatable = false)
+    private LocalDateTime joinedAt = LocalDateTime.now();
+
+
     // ===== Constructors =====
 
     public UserModel() {}
@@ -120,6 +125,17 @@ public class UserModel implements UserDetails {
     public boolean isValidated() {
         return isValidated;
     }
+
+
+
+    public LocalDateTime getJoinedAt() {
+        return joinedAt;
+    }
+
+    public void setJoinedAt(LocalDateTime joinedAt) {
+        this.joinedAt = joinedAt;
+    }
+
 
     public void setValidated(boolean validated) {
         isValidated = validated;
