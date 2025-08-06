@@ -1,5 +1,6 @@
 package com.example.AuthService.Services;
 
+import com.example.AuthService.Controllers.UserInternalController;
 import com.example.AuthService.Exceptions.AccessException;
 import com.example.AuthService.Exceptions.ConflictException;
 import com.example.AuthService.Exceptions.NotFoundException;
@@ -8,6 +9,8 @@ import com.example.AuthService.Utils.UserEnums;
 import com.example.AuthService.Utils.UtilRecords;
 import com.example.AuthService.WebClient.LoggingWebClientService;
 import jakarta.transaction.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -29,6 +32,7 @@ public class UserDetailService implements UserDetailsService {
 
     @Autowired
     private LoggingWebClientService LoggingWebClientService;
+    private static final Logger logger = LoggerFactory.getLogger(UserDetailService.class);
 
 
     private final UserService userService;
@@ -73,29 +77,33 @@ public class UserDetailService implements UserDetailsService {
         return userService.findByEmail(email);
     }
 
-  @Transactional
+
+    @Transactional
     public void updateUserScore(String email, Double score, Long dispatchId) {
+        logger.debug("Starting user score update: email={}, score={}, dispatchId={}", email, score, dispatchId);
 
         UserModel user = userService.findByEmail(email);
+        if (user == null) {
+            logger.warn("User not found: {}", email);
+            throw new NotFoundException("No User Found with that credentials");
+        }
 
-      if(user == null){
-          throw new NotFoundException("No User Found with tha credentials");
-      }
+        if (dispatchId == null) {
+            logger.warn("Dispatch ID is null for user: {}", email);
+            throw new NotFoundException("No Dispatch represented to update the scores");
+        }
 
-      if(dispatchId == null){
-          throw new NotFoundException("No Dispatch represented to update the scores");
-      }
+        List<Double> points = user.getDispatchPoints();
+        Double previousScore = points.isEmpty() ? 0.0 : points.getLast();
+        Double finalScore = previousScore + score;
 
+        logger.info("Previous score: {}, New score to add: {}, Final score: {}", previousScore, score, finalScore);
 
-      List<Double> points = user.getDispatchPoints();
+        user.addToDispatchPoint(finalScore);
+        userService.save(user);
 
-      Double userPrevScore =  points.isEmpty() ? 0.0 :  user.getDispatchPoints().getLast();
-      Double finalScore = userPrevScore + score;
-
-      user.addToDispatchPoint(finalScore);
-      userService.save(user);
+        logger.info("Score saved successfully for user: {}", email);
     }
-
 
 
     @Transactional

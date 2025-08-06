@@ -119,8 +119,6 @@ export const getMyValidDispatches = async (): Promise<DispatchRequestDto[]> => {
             onClick: () => window.location.href = "/vehicles",
           },
         })
-
-            console.log(data.message)
             return data;
           }
           console.log(data)

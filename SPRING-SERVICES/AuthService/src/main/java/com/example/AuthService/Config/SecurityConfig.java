@@ -16,6 +16,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -25,6 +26,10 @@ public class SecurityConfig {
     @Autowired
     @Lazy
     private UserDetailService userDetailService;
+
+
+    @Autowired
+    private JwtRequestFilter jwtRequestFilter;
 
 
     @Bean
@@ -57,7 +62,10 @@ public class SecurityConfig {
                         .requestMatchers("/").permitAll()
                 .requestMatchers("/internal/**").authenticated()
                         .requestMatchers("/error").permitAll()
-                .anyRequest().authenticated());
+                .anyRequest().authenticated())
+                .authenticationProvider(authenticationProvider())
+                .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class); // Add this line
+
         return httpSecurity.build();
     }
 }

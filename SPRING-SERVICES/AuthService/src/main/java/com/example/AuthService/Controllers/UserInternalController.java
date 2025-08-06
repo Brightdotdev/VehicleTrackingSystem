@@ -15,6 +15,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
@@ -37,17 +39,25 @@ public class UserInternalController {
 
     //  :: localhost:8103/internal/auth/dispatch/update-score
 
-    @PostMapping("/dispatch/update-score")
-    public ResponseEntity<ApiResponse<Void>>
-    adminUpdateScore(@Valid DispatchUpdateDto updateDto ) {
+    private static final Logger logger = LoggerFactory.getLogger(UserInternalController.class);
 
+    @PostMapping("/dispatch/update-score")
+    public ResponseEntity<ApiResponse<Void>> adminUpdateScore(@Valid @RequestBody DispatchUpdateDto updateDto) {
+        // Log incoming request
+        logger.info("Received score update request: user={}, score={}, dispatchId={}",
+                updateDto.user(), updateDto.score(), updateDto.dispatchId());
+
+        // Delegate to service
         userDetailService.updateUserScore(updateDto.user(), updateDto.score(), updateDto.dispatchId());
 
+        // Log success
+        logger.info("Score updated successfully for user: {}", updateDto.user());
+
         return ResponseEntity.ok(
-                ApiResponse.ok(
-                        200,
-                        "Yeah wtv"
-                ));}
+                ApiResponse.ok(200, "Yeah wtv")
+        );
+    }
+
 
 }
 

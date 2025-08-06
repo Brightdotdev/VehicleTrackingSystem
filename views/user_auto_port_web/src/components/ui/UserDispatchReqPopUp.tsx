@@ -32,7 +32,7 @@ const handleDispatchRequestFunc = async (
   console.log(response);
 
   // Check if the response is successful
-  if (response?.ok || response?.success) {
+  if (response?.canDispatch == true) {
     toast.success("Yup! The dispatch is accepted");
 
     // Optional: small delay for better UX before redirecting
