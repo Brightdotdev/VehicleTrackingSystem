@@ -12,6 +12,11 @@ export type reasons = {
 }
 
 
+export interface dispatchCostResponse {
+  isEnough: boolean;
+  finalUserScore: number;
+  price: number;
+}
 
 export  interface NotificationData {
   dispatchId : number;

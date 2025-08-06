@@ -1,7 +1,8 @@
-import { DispatchRequestBody, DispatchRequestDto} from "@/types/VehicleTypes";
+import { DispatchReason, DispatchRequestBody, DispatchRequestDto, VehicleStatus} from "@/types/VehicleTypes";
 import { toast } from "sonner";
 import { dotEnv } from "./dotEnv";
 import { da } from "date-fns/locale";
+import { dispatchCostResponse } from "@/types/utilTypes";
 
 
 
@@ -153,3 +154,75 @@ export const getMyValidDispatches = async (): Promise<DispatchRequestDto[]> => {
           }}
        catch (error) {
         console.log(error)}}
+
+
+
+const calculateDispatchPrice = (dispatchRequestBody: DispatchRequestBody) => {
+  const costPerDay = Number(dotEnv.costPerDay ?? 0 );
+  if (isNaN(costPerDay)) throw new Error("Invalid costPerDay in .env");
+
+
+  const start = new Date(dispatchRequestBody.dispatchRequestTime);
+  const end = new Date(dispatchRequestBody.dispatchEndTime);
+  if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+    throw new Error("Invalid dispatch start or end time");
+  }
+
+  const diffInMs = end.getTime() - start.getTime();
+  const totalHours = diffInMs / (1000 * 60 * 60);
+  const halfDayBlocks = Math.ceil(totalHours / 12);
+  const totalDays = halfDayBlocks * 0.5;
+  const totalScoreForDays = totalDays * costPerDay;
+
+  let vehicleClassScore = 0;
+  let dispatchReasonScore = 0;
+
+  switch (dispatchRequestBody.vehicleStatus) {
+    case VehicleStatus.CLASSIFIED:
+      vehicleClassScore = 1000;
+      break;
+    case VehicleStatus.CARGO:
+      vehicleClassScore = 300;
+      break;
+    case VehicleStatus.REGULAR:
+      vehicleClassScore = 200;
+      break;
+    case VehicleStatus.TRANSPORT:
+      vehicleClassScore = 400;
+      break;
+  }
+
+  switch (dispatchRequestBody.dispatchReason) {
+    case DispatchReason.CLASSIFIED:
+      dispatchReasonScore = 1000;
+      break;
+    case DispatchReason.DELIVERY:
+      dispatchReasonScore = 200;
+      break;
+    case DispatchReason.TRANSPORT:
+      dispatchReasonScore = 150;
+      break;
+  }
+
+  return dispatchReasonScore + vehicleClassScore + totalScoreForDays;
+};
+
+
+        export const calculateDispatchCost = (requestBody : DispatchRequestBody) : dispatchCostResponse  =>   {
+          
+       const dispatchPrice : number = calculateDispatchPrice(requestBody);
+   
+    
+console.log("userDispatchScore:", requestBody.userDispatchScore);
+console.log("dispatchPrice:", dispatchPrice);
+
+        const costAfterPay : number = requestBody.userDispatchScore - dispatchPrice;
+
+    const response = {
+  isEnough: costAfterPay > 0,
+  finalUserScore: costAfterPay,
+  price: dispatchPrice,
+};
+return response;}
+
+    

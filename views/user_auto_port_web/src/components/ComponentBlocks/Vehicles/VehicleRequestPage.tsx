@@ -189,7 +189,8 @@ const VehicleRequestPage = ({vehicleVin} : {vehicleVin : string}) => {
       dispatchReason: submitedStatus?.value as DispatchReason,
       dispatchRequester: userData?.email ?? "",
       dispatchEndTime: dateFormat ,
-      userDispatchScore : me?.dispatchPoints ?? 0
+      userDispatchScore : me?.dispatchPoints ?? 0,
+      dispatchRequestTime : new Date().toISOString().slice(0, 19)
     }
 
 
