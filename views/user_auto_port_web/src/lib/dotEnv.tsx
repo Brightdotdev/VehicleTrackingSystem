@@ -26,9 +26,10 @@
     const userTrackingBaseUrl = process.env.NEXT_PUBLIC_USER_TRACKING_BASE_URL || "";
     const costPerDay = process.env.NEXT_PUBLIC_COST_PER_DAY ?? 0;
     const getMyDataLink = process.env.NEXT_PUBLIC_SPRING_GET_MY_DATA || "";
-
+    
 
   export const dotEnv = {
+    
     getMyDataLink,
     costPerDay,
     userTrackingBaseUrl,

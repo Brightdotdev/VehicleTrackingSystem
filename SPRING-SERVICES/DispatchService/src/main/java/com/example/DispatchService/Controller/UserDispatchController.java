@@ -137,7 +137,7 @@ public class UserDispatchController {
         return ResponseEntity.ok(
                 ApiResponse.success(
                         201,
-                        "Dispatch retrival Success",
+                        "Dispatch retrieval Success",
                         myDispatchModels
                 ));
     }

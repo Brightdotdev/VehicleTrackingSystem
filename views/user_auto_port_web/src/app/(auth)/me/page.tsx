@@ -1,19 +1,58 @@
 "use client";
 
 
+import { Button } from '@/components/ui/button';
 import UserLicenceCard from '@/components/ui/CreditCardDemo';
+import UserDispatchHistory from '@/components/ui/UserDispatchHistory';
 import { useUserValidation } from '@/hooks/useUserValidation';
-import { UserPageData } from '@/types/authTypes';
+import { UserPageData, UserStatus } from '@/types/authTypes';
+import { format, parseISO } from 'date-fns';
+import { ArrowBigRight, ArrowUpLeft, ArrowUpRight, Baby, Fuel, Timer, X } from 'lucide-react';
+import Link from 'next/link';
 import { lazy, useEffect, useState } from 'react';
 
 
 
 
 
+const UserLisence = (
+  {isCarOpen , setIsCardOpen  , userStatus , userName, userLisence, lisenceExp } :
+  {isCarOpen : boolean , setIsCardOpen : (isCardOpen : boolean) => void , userStatus : UserStatus, userName : string, userLisence : string ,lisenceExp : string}) => {
+  return (
+      <section className="z-30 flex items-center justify-center w-screen h-screen bg-background2 absolute top-0 left-0">
+
+        <Button className="flex items-center jutify-center absolute lg:top-6  lg:right-6 bottom-4 right-4 h-fit lg:rounded-full lg:size-10" onClick={ () => setIsCardOpen(false)}>
+
+        <X className='hidden lg:flex' />
+        <span className='flex items-center justify-center gap-4 group lg:hidden flex'>
+        <ArrowUpLeft className="transition-transform duration-200 group-hover:-rotate-45" />
+          Go Back
+        </span>
+      </Button>
+
+
+
+
+          
+
+     <UserLicenceCard userStatus={userStatus} userName={userName} userLisence={userLisence} lisenceExp={lisenceExp}/>
+
+
+      </section>
+  )
+}
+
+
+
 export default function Page() {
   const { returnMyData} = useUserValidation();
   const [userData, setUserData] = useState<UserPageData | undefined>(null);
+  const [isCardOpen, setOpenCard] = useState(true)
   
+
+const formatReadableDate = (dateStr: string) => {
+  return format(parseISO(dateStr), "MM/yy")
+}
 
   
     const handleUserData  = async () => {
@@ -33,57 +72,123 @@ export default function Page() {
   
   if (!userData || !userData.username || !userData.licence || !userData.licenceExp) return null;
 
-    return (
+
+  if(isCardOpen) return  <UserLisence isCarOpen={isCardOpen}  setIsCardOpen={setOpenCard} userLisence={userData.licence} userName={userData.username} userStatus={userData.userStatus} lisenceExp={userData.licenceExp} />
+
+  
+  return (
   
       <div className="flex flex-col gap-4 items-center justify-start w-screen h-screen">
+<main className="lg:w-[98vw] w-screen lg:h-[80vh] md:h-[90vh]  flex flex-col items-center justify-start flex-wrap md:p-4 scorllebleElement">
 
-      <main className="w-[98vw]  h-[80vh] bg-green-400 flex flex-col items-center justify-start flex-wrap p-4">
 
+      
 
-          <section className="flex flex-col items-center justify-start h-full w-[65%] bg-yellow-300 gap-4 ">
+          <section className="flex flex-col items-center justify-start h-full lg:w-[68%] w-full  gap-4 ">
             
-          <article className="w-full h-[70%] bg-red-400 flex items-center justify-center self-start rounded-md">
+          <article className="w-full h-[70%] flex items-start justify-start self-start rounded-md bg-background2 p-4">
     
-     
 
-<div className="flex item-center justify-center gap-2 p-2 self-end justify-end">
-     <UserLicenceCard userStatus={userData?.userStatus} userName={userData?.username} userLisence={userData?.licence} lisenceExp={userData?.licenceExp}/>
+<div className="flex items-start justify-center flex-col gap-8 w-full">
+
+
+{/* user profile stuff */}
+<div className="flex items-center justify-center gap-2">
+    
+    <img className="lg:size-20 md:size-10 size-8  bg-blue-200 rounded-full" src="/userProfilePlaceHolder.png" />
+       <h4 className="lg:text-medium-2 text-normal flex items-center justify-center gap-2">
+      {userData.username.toLocaleUpperCase()} <span>•</span> <span className="text-muted-foreground"> {userData.userStatus}</span>
+     </h4>
 </div>
 
+{/* USER DATA SECTION STUFF */}
+
+<div className="flex items-start justify-center flex-col gap-4">
+  
+
+
+<h2 className="bodyText flex items-center justify-center gap-2">
+   <Baby className='size-4 text-green-400' />
+<span className="mutedText"> Member since: </span> 
+<div className="flex items-center justify-center gap-1">
+ {formatReadableDate(userData.joinedAt)}</div>
+</h2>
+
+<h2 className="bodyText flex items-center justify-center gap-2">
+ <Fuel className='size-4 text-blue-400' />
+<span className="mutedText"> Dispatch Points: </span> 
+<div className="flex items-center justify-center gap-1">
+    {userData.dispatchPoints}
+</div>
+</h2>
+
+<h2 className="bodyText flex items-center justify-center gap-2">
+   <Timer className='size-4 text-red-400' />  
+<span className="mutedText">Lisence Expires In: </span>  
+<div className="flex items-center justify-center gap-1">
+  {formatReadableDate(userData.licenceExp)}
+</div>
+</h2>
+
+</div>
+
+<Button className='self-end' onClick={() => setOpenCard(true)}>
+  View Drivers card
+</Button>
+
+
+</div>
+
+
     
           </article>
 
 
-          <article className="w-full h-[30%] bg-blue-400 flex items-center justify-center self-start rounded-md">
-        {
-          userData?.email
-        }
-          </article>
+<section className="lg:hidden w-full  rounded-md  flex items-start justify-center flex-col  rounded-md">
+          <UserDispatchHistory/>
+          </section>
 
+    <footer className="w-full py-8 px-4 text-center bg-background2  rounded-md ">
+      {/* App name and tagline */}
+      <div className="mb-4">
+        <h2 className="text-xl font-semibold">AutoPort</h2>
+        <p className="text-sm">Simplifying dispatch and safety tracking</p>
+      </div>
+
+      {/* Navigation links */}
+      <div className="flex justify-center gap-4 text-sm mutedText mb-4">
+        <Link
+          href="/privacy-policy"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="hover:underline"
+        >
+          Privacy Policy
+        </Link>
+        <span>•</span>
+        <Link
+          href="/terms-of-service"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="hover:underline"
+        >
+          Terms of Use
+        </Link>
+      </div>
+
+      {/* Copyright */}
+      <p className="text-xs">
+        &copy; {new Date().getFullYear()} AutoPort Inc. All rights reserved.
+      </p>
+    </footer>
           </section>
 
 
 
-          <section className="lg:w-[30%] w-full h-[100%] bg-red-400 flex items-start justify-center flex-col  rounded-md">
-
-            <h4 className="titleTex">
-              My Dispatch History
-            </h4>
-        {
-          userData?.email
-        }
+          <section className="lg:w-[30%] lg:h-full  rounded-md  lg:flex hidden items-start justify-center flex-col  rounded-md">
+          <UserDispatchHistory/>
           </section>
-
-
-
-     {/*    <div className="w-full h-[20rem] rounded-sm bg-red-300">
-          <img src="/placeholder.png" alt=""  className='max-w-full max-h-full object-cover'/>
-        
-
-        </div> */}
-
-
-      </main>
+          </main>
      </div>
     )
 }
