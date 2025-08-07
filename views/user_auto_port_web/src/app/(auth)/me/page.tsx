@@ -1,7 +1,7 @@
 "use client";
 
 
-import Example from '@/components/ui/CreditCardDemo';
+import UserLicenceCard from '@/components/ui/CreditCardDemo';
 import { useUserValidation } from '@/hooks/useUserValidation';
 import { UserPageData } from '@/types/authTypes';
 import { lazy, useEffect, useState } from 'react';
@@ -44,7 +44,12 @@ export default function Page() {
             
           <article className="w-full h-[70%] bg-red-400 flex items-center justify-center self-start rounded-md">
     
-        <Example userName={userData?.username} userLisence={userData?.licence} lisenceExp={userData?.licenceExp}/>
+     
+
+<div className="flex item-center justify-center gap-2 p-2 self-end justify-end">
+     <UserLicenceCard userStatus={userData?.userStatus} userName={userData?.username} userLisence={userData?.licence} lisenceExp={userData?.licenceExp}/>
+</div>
+
     
           </article>
 
@@ -59,8 +64,11 @@ export default function Page() {
 
 
 
-          <section className="lg:w-[30%] w-full h-[100%] bg-red-400 flex items-center justify-center rounded-md">
+          <section className="lg:w-[30%] w-full h-[100%] bg-red-400 flex items-start justify-center flex-col  rounded-md">
 
+            <h4 className="titleTex">
+              My Dispatch History
+            </h4>
         {
           userData?.email
         }
