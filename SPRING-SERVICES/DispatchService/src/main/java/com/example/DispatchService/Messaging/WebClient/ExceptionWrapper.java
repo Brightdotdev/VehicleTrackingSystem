@@ -7,6 +7,7 @@ import com.example.DispatchService.Exceptions.NotFoundException;
 import com.example.DispatchService.Utils.ApiResponse;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
+
 public class ExceptionWrapper {
 
     public static <T> ResponseEntity<ApiResponse<T>> wrapExceptions(SupplierWithExceptions<ResponseEntity<ApiResponse<T>>> handler) {

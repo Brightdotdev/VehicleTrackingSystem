@@ -1,9 +1,22 @@
 import { toast } from "sonner";
 import { dotEnv } from "./dotEnv";
+import { getMyData } from "./handleUserAuth";
 
-export const  pollNotifications = async (
-      lastChecked : string , setLastChecked : (lastChecked : string) => void) => {
-       const  response = await fetch(`${dotEnv.userNotificationBaseUrl}/new-after?since=${lastChecked}`,
+export const  pollNotifications = async ( lastChecked : string , setLastChecked : (lastChecked : string) => void) => {
+      
+        try {
+
+
+          
+      console.log("Yeah this is actually happening")
+    const userDara = await getMyData()
+    console.log(userDara)
+      if(userDara === undefined) {
+        console.log("Not a validated user")
+        return [] }
+
+
+           const  response = await fetch(`${dotEnv.userNotificationBaseUrl}/new-after?since=${lastChecked}`,
        {   method: "GET",
            headers: {
           "Content-Type": "application/json"},
@@ -21,15 +34,20 @@ export const  pollNotifications = async (
           setLastChecked(now);
             return notifications;
           }else{
+              toast.error("This is what is looping the the poll")
             toast.error(message)
             return [] 
           }
+        } catch (error) {
+          console.log(error)
+        }
       
         }
 
 
 export const markNofiticationAsReadApi = async (id : string) => {
 
+  try {
   const setToRead = {
     notifId : id
   }
@@ -50,9 +68,23 @@ export const markNofiticationAsReadApi = async (id : string) => {
               toast.error(message)
               return [] 
             }
+  } catch (error) {
+    console.log(error)
+  }
+
 }
 
 export const getAllMyNotifications = async () => {
+
+    try {
+          
+      console.log("Yeah this is actually happening")
+    const userDara = await getMyData()
+    console.log(userDara)
+      if(userDara === undefined) {
+        console.log("Not a validated user")
+        return [] }
+
 
     const  response = await fetch(`${dotEnv.userNotificationBaseUrl}/get-all-me`,
        {   method: "GET",
@@ -61,14 +93,20 @@ export const getAllMyNotifications = async () => {
           credentials: "include"})
        
           const data = await response.json();
+
           console.log("data response of all my notifications" , data)
-            const  {code , success , message , data : notifications} = data;
+            const {code , success , message , data : notifications} = data;
 
             if(success || code === 200){
               return notifications;
             }
             else{
+              toast.error("This is what is looping the getallmynotifications")
               toast.error(message)
               return [] 
             }
+    } catch (error) {
+      console.log(error);
+    }
+
         }

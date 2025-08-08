@@ -6,15 +6,11 @@ import com.example.DispatchService.Models.DispatchModel;
 import com.example.DispatchService.Service.UserDispatchService;
 import com.example.DispatchService.Utils.ApiResponse;
 import com.example.DispatchService.Utils.UtilRecords;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Arrays;
 import java.util.List;
 
 @RestController
@@ -43,9 +39,6 @@ public class UserDispatchController {
 
 
         DispatchModel  dispatchResponse =  userDispatchService.requestVehicleDispatch(requestBody, userHandler.getCurrentUser(),userHandler.getUserImage(), userHandler.getRoles());
-
-
-
 
         if (dispatchResponse == null) {
             return ResponseEntity
@@ -81,14 +74,14 @@ public class UserDispatchController {
     ) {
 
         //  UtilRecords.DispatchResponseDTO
-        DispatchModel  dispatchResponse =  userDispatchService.getMyDispatchByVinAndId(dispatchId, userHandler.getCurrentUser(), vin);
+        DispatchModel  dispatchResponse =  userDispatchService.revalidateDispatchByIdUserAndVehicleId(userHandler.getCurrentUser(),dispatchId, vin);
 
         if (dispatchResponse == null) {
             return ResponseEntity
                     .status(HttpStatus.FORBIDDEN)
                     .body(ApiResponse.error(
                             403,
-                            "Your request couldn't be processed"
+                            "Your dispatch couldn't be processed"
                     ));
         }
 
@@ -96,7 +89,7 @@ public class UserDispatchController {
         return ResponseEntity.ok(
                 ApiResponse.success(
                         201,
-                        "Dispatch retrival success",
+                        "Dispatch retrieval success",
                         dispatchResponse
                 )
         );
@@ -158,22 +151,6 @@ public class UserDispatchController {
     }
 
 
-    // :: localhost:8105/v1/user/dispatch/revalidate-dispatch-by-me-with-id
-    @GetMapping("/revalidate-dispatch-by-me-with-id")
-    public
-    ResponseEntity<ApiResponse<DispatchModel>>
-    revalidateSingleDispatch(@Valid @RequestParam Long dispatchId,
-                             @RequestParam String vehicleId) {
-
-        DispatchModel metadata = userDispatchService.revalidateDispatchByIdUserAndVehicleId(userHandler.getCurrentUser(),dispatchId,vehicleId );
-
-        return ResponseEntity.ok(
-                ApiResponse.success(
-                        201,
-                        "Dispatch retrival Success",
-                        metadata
-                ));
-    }
 
 
 

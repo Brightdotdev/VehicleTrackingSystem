@@ -1,11 +1,11 @@
-"use client"
+"use client";
 
 import Loading from '@/components/ui/Loading';
-import UnvalidatedPage from '@/components/UnvalidatedPage';
-import { useUserValidation } from '@/hooks/useUserValidation';
 import dynamic from 'next/dynamic';
-import React, { useEffect } from 'react';
+import { useUserValidation } from '@/hooks/useUserValidation';
+import React, { useEffect, useState } from 'react';
 
+// Lazy load your pages for performance
 const AdminHomePage = dynamic(() => import('@/components/ComponentBlocks/AdminHomePage'), {
   loading: () => <Loading />,
   ssr: false,
@@ -17,19 +17,27 @@ const AdminWelcomePage = dynamic(() => import('@/components/ComponentBlocks/Admi
 });
 
 export default function Page() {
-  const { isValidated, loading, checkValidation ,adminDetails } = useUserValidation();
- 
+  const { isValidated, loading, checkValidation, adminDetails } = useUserValidation();
+
+  const [initialCheckDone, setInitialCheckDone] = useState(false);
+
+  useEffect(() => {
+    const runValidation = async () => {
+      await checkValidation();
+      setInitialCheckDone(true);
+    };
+
+    runValidation();
+  }, []);
+
   
+  if (!initialCheckDone || loading) return <Loading />;
 
-useEffect(() => {
-  checkValidation();
-}, []);
+  
+  const missingDetails =
+    !adminDetails?.username || !adminDetails.licence || !adminDetails.licenceExp;
 
-    
-if (loading) return <Loading />;
+  if (missingDetails) return <AdminWelcomePage />;
 
-if (!adminDetails?.username || !adminDetails.licence || !adminDetails.licenceExp) return <UnvalidatedPage />;
-
-return isValidated ? <AdminHomePage /> : <AdminWelcomePage />;
-
+  return isValidated ? <AdminHomePage /> : <AdminWelcomePage />;
 }

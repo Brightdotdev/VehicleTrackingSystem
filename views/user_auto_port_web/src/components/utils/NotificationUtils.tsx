@@ -7,6 +7,7 @@ import { handleDispatchValidatedTracking } from '@/lib/handleUserTracking';
 
 import { toast } from 'sonner';
 import { useNotifications } from '@/contexts/NotificationContext';
+import { handleTerminateDispatch } from '@/lib/handleUserDispatchPage';
 
 
 
@@ -19,14 +20,14 @@ const {optimisticSetToRead } = useNotifications()
   const goodCtaMethod = async () => {
     setLoading(true);
     try {
-      toast.info(notificationItem.type);
+      
 
       if (notificationItem.type === notificationType.DISPATCH_VALIDATED_USER) {
-        toast.info("THis is like working the valdiated one");
+      
         await handleDispatchValidatedTracking(notificationItem, loading, setLoading);
         await optimisticSetToRead(notificationItem);
       } else {
-        toast.info("THis is like working the other ones");
+       await optimisticSetToRead(notificationItem);
       }
     } finally {
       setLoading(false);
@@ -38,11 +39,10 @@ const {optimisticSetToRead } = useNotifications()
     setLoading(true);
     try {
       if (notificationItem.type === notificationType.DISPATCH_VALIDATED_USER) {
-        toast.info("THis is like working the valdiated one");
-        // await handleTerminateDispatch(notificationItem.dispatchId, notificationItem.vehicleId);
+     
+        await handleTerminateDispatch(notificationItem.dispatchId, notificationItem.vehicleId);
       } else {
-        toast.info("THis is like working the other ones");
-        // await setNotificationToRead(notificationItem.id);
+       await optimisticSetToRead(notificationItem);
       }
     } finally {
       setLoading(false);
@@ -81,8 +81,7 @@ const {optimisticSetToRead } = useNotifications()
     </article>
   );
 };
-export const HandleReadNotifications = () => {
-  const { readNotifications } = useNotifications();
+export const HandleReadNotifications = ({readNotifications} : {readNotifications : NotificationData[]}) => {
 
   const hasNotifications = Array.isArray(readNotifications) && readNotifications.length > 0;
 
@@ -103,9 +102,9 @@ export const HandleReadNotifications = () => {
   );
 };
 
-export const HandleUnreadNotifications = () => {
-  const { unreadNotifications } = useNotifications();
+export const HandleUnreadNotifications = ({unreadNotifications} : {unreadNotifications : NotificationData[]}) => {
 
+  
   const hasUnread = Array.isArray(unreadNotifications) && unreadNotifications.length > 0;
 
   return (

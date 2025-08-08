@@ -18,11 +18,14 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.example.DispatchService.Utils.DispatchEnums.DispatchStatus.*;
+
 @Service
 public class AdminDispatchService {
     private final DispatchRepository dispatchRepository;
 
     private final MessagingService messagingService;
+    static double costPerDay = 500;
 
     public AdminDispatchService(DispatchRepository dispatchRepository, MessagingService messagingService) {
         this.dispatchRepository = dispatchRepository;
@@ -88,18 +91,48 @@ public class AdminDispatchService {
         if(!isStillValidDispatch(dispatch)){
             return null;}
 
-        UtilRecords.DispatchEndedDTO dispatchEndedDTO = new UtilRecords.DispatchEndedDTO(true,LocalDateTime.now(),dispatch.getDispatchVehicleId(),dispatch.getDispatchRequester(),dispatch.getVehicleName(),dispatchId);
 
-        messagingService.sendDispatchCompletedFanoutFromDispatchService(dispatchEndedDTO);
         dispatch.setDispatchAdmin(adminEmail);
-        dispatch.setDispatchStatus(DispatchEnums.DispatchStatus.CANCELLED);
+
+        if (dispatch.getDispatchStatus() == ONGOING) {
+            Double userRefund = calculateOngoingRefund(dispatch);
+            UtilRecords.DispatchScoreUpdateDto userScoreUpdate =
+                    new UtilRecords.DispatchScoreUpdateDto(dispatch.getDispatchRequester(), dispatchId, userRefund);
+            messagingService.updateUserScore(userScoreUpdate);
+
+            dispatch.setDispatchStatus(DispatchEnums.DispatchStatus.CANCELLED);
+
+            UtilRecords.DispatchEndedDTO dispatchEnded =
+                    new UtilRecords.DispatchEndedDTO(true, LocalDateTime.now(),
+                            dispatch.getDispatchVehicleId(), dispatch.getDispatchRequester(),
+                            dispatch.getVehicleName(), dispatchId);
+            messagingService.sendDispatchCompletedFanoutFromDispatchService(dispatchEnded);
+            return dispatchRepository.save(dispatch);
+        }
 
 
-        UtilRecords.DispatchScoreUpdateDto userScoreUpdate = new UtilRecords.DispatchScoreUpdateDto(dispatch.getDispatchRequester(),dispatch.getDispatchId(), dispatch.getDispatchCost());
+        if (dispatch.getDispatchStatus() == PENDING || dispatch.getDispatchStatus() == IN_PROGRESS) {
+            Double fullRefund = dispatch.getDispatchCost();
 
-        messagingService.updateUserScore(userScoreUpdate);
-        return dispatchRepository.save(dispatch);
-    }
+            UtilRecords.DispatchScoreUpdateDto userScoreUpdate =
+                    new UtilRecords.DispatchScoreUpdateDto(dispatch.getDispatchRequester(), dispatchId, fullRefund);
+
+            messagingService.updateUserScore(userScoreUpdate);
+
+            dispatch.setDispatchStatus(DispatchEnums.DispatchStatus.CANCELLED);
+
+            // Notify system of cancellation (user-triggered)
+            UtilRecords.DispatchEndedDTO dispatchEnded =
+                    new UtilRecords.DispatchEndedDTO(true, LocalDateTime.now(),
+                            dispatch.getDispatchVehicleId(), dispatch.getDispatchRequester(),
+                            dispatch.getVehicleName(), dispatchId);
+
+            messagingService.sendDispatchCompletedFanoutFromDispatchService(dispatchEnded);
+            return dispatchRepository.save(dispatch);
+        }
+
+
+        throw new InvalidRequestException("Only ONGOING or PENDING dispatches can be cancelled by the user", 400);}
 
 
 
@@ -107,7 +140,7 @@ public class AdminDispatchService {
     public List<DispatchModel>  revalidateAllActiveDispatch(){
 
         List<DispatchModel> foundVehicleDispatches = dispatchRepository.findAll();
-        List<DispatchModel> activeDispatchMetadata = new ArrayList<>();
+        List<DispatchModel> activeDispatches = new ArrayList<>();
 
         for(DispatchModel dispatch : foundVehicleDispatches ){
             if(
@@ -122,31 +155,44 @@ public class AdminDispatchService {
 
 
             if (expiry.isBefore(now)) {
+
+                if (dispatch.getDispatchStatus() == DispatchEnums.DispatchStatus.IN_PROGRESS ||
+                        dispatch.getDispatchStatus() == PENDING) {
+
+                    // Refund the dispatch cost
+                    UtilRecords.DispatchScoreUpdateDto userScoreRefund =
+                            new UtilRecords.DispatchScoreUpdateDto(
+                                    dispatch.getDispatchRequester(),
+                                    dispatch.getDispatchId(),
+                                    dispatch.getDispatchCost()
+                            );
+                    messagingService.updateUserScore(userScoreRefund);
+                }
+
+                // Set status to expired and add metadata
                 dispatch.setDispatchStatus(DispatchEnums.DispatchStatus.EXPIRED);
-            UtilRecords.DispatchEndedDTO dispatchEndedDTO = new UtilRecords.DispatchEndedDTO(false,LocalDateTime.now(),dispatch.getDispatchVehicleId(),dispatch.getDispatchRequester(),dispatch.getVehicleName(),dispatch.getDispatchId());
-                messagingService.sendDispatchCompletedFanoutFromDispatchService(dispatchEndedDTO);
-                dispatchRepository.save(dispatch);
-            }
+                dispatch.addToDispatchMetadata("DispatchStatus", "Dispatch Is Expired");
 
-            if (expiry.isAfter(now)) {
+                // Notify via dispatch ended fanout
+                UtilRecords.DispatchEndedDTO dispatchEnded = new UtilRecords.DispatchEndedDTO(
+                        false,
+                        now,
+                        dispatch.getDispatchVehicleId(),
+                        dispatch.getDispatchRequester(),
+                        dispatch.getVehicleName(),
+                        dispatch.getDispatchId()
+                );
+                messagingService.sendDispatchCompletedFanoutFromDispatchService(dispatchEnded);
 
-                // Still active — calculate time remaining
-                Duration remainingTime = Duration.between(now, expiry);
-
-
-                dispatch.addToDispatchMetadata("DispatchRequester", dispatch.getDispatchRequester());
-                dispatch.addToDispatchMetadata("DispatchId", dispatch.getDispatchId());
-
-                dispatch.addToDispatchMetadata("vehicleId", dispatch.getDispatchVehicleId());
-                dispatch.addToDispatchMetadata("status", dispatch.getDispatchStatus().name());
-                dispatch.addToDispatchMetadata("expiresInMinutes", remainingTime.toMinutes());
-                dispatch.addToDispatchMetadata("expiresInHours", remainingTime.toHours());
-                activeDispatchMetadata.add(dispatch);
-                dispatchRepository.save(dispatch);
+                // Save changes
+                continue;
+            }else {
+                activeDispatches.add(dispatch);
             }
 
         }
-        return activeDispatchMetadata;
+        dispatchRepository.saveAll(foundVehicleDispatches);
+        return activeDispatches;
     }
 
     @Transactional
@@ -167,39 +213,33 @@ public class AdminDispatchService {
                 }
             }
 
-            // Add metadata for active dispatches (including those just expired)
+
             if (dispatch.getDispatchStatus() != DispatchEnums.DispatchStatus.COMPLETED &&
                     dispatch.getDispatchStatus() != DispatchEnums.DispatchStatus.CANCELLED) {
 
                 LocalDateTime expiry = dispatch.getDispatchEndTime();
                 LocalDateTime now = LocalDateTime.now();
 
-                if (expiry.isAfter(now)) {
-                    Duration remainingTime = Duration.between(now, expiry);
-                    dispatch.addToDispatchMetadata("expiresInMinutes", remainingTime.toMinutes());
-                    dispatch.addToDispatchMetadata("expiresInHours", remainingTime.toHours());
-                } else {
-                    // For expired dispatches, you might want to set these to 0 or negative values
-                    Duration pastTime = Duration.between(expiry, now);
-                    dispatch.addToDispatchMetadata("expiredSinceMinutes", pastTime.toMinutes());
-                    dispatch.addToDispatchMetadata("expiredSinceHours", pastTime.toHours());
+                if (expiry.isBefore(now)) {
+                    if (dispatch.getDispatchStatus() == DispatchEnums.DispatchStatus.IN_PROGRESS ||
+                            dispatch.getDispatchStatus() == PENDING) {
+
+                        UtilRecords.DispatchScoreUpdateDto userScoreRefund =
+                                new UtilRecords.DispatchScoreUpdateDto(
+                                        dispatch.getDispatchRequester(),
+                                        dispatch.getDispatchId(),
+                                        dispatch.getDispatchCost()
+                                );
+                        messagingService.updateUserScore(userScoreRefund);
+                    }
+
                     dispatch.setDispatchStatus(DispatchEnums.DispatchStatus.EXPIRED);
                     UtilRecords.DispatchEndedDTO dispatchEndedDTO = new UtilRecords.DispatchEndedDTO(false,LocalDateTime.now(),dispatch.getDispatchVehicleId(),dispatch.getDispatchRequester(),dispatch.getVehicleName(),dispatch.getDispatchId());
                     messagingService.sendDispatchCompletedFanoutFromDispatchService(dispatchEndedDTO);
-                    dispatchRepository.save(dispatch);
-                }
 
-                dispatch.addToDispatchMetadata("DispatchRequester", dispatch.getDispatchRequester());
-                dispatch.addToDispatchMetadata("DispatchId", dispatch.getDispatchId());
-                dispatch.addToDispatchMetadata("vehicleId", dispatch.getDispatchVehicleId());
-                dispatch.addToDispatchMetadata("status", dispatch.getDispatchStatus().name());
-            }
-
-            dispatchRepository.save(dispatch);
-            returnList.add(dispatch);
+                }}
         }
-
-        return returnList;
+        return dispatchRepository.saveAll(allDispatches);
     }
 
 
@@ -214,59 +254,32 @@ public class AdminDispatchService {
             throw new NotFoundException("Dispatch Not found ooo");
         }
 
-        if(dispatch.getDispatchStatus() == DispatchEnums.DispatchStatus.EXPIRED){
-            dispatch.addToDispatchMetadata("DispatchStatus", "Dispatch Is Expired");
-            dispatchRepository.save(dispatch);
-            return dispatch;
-        }
-
-
-        if(dispatch.getDispatchStatus() == DispatchEnums.DispatchStatus.CANCELLED){
-            dispatch.addToDispatchMetadata("DispatchStatus", "Dispatch Is Cancelled");
-            dispatchRepository.save(dispatch);
-            return dispatch;
-        }
-
-        if(dispatch.getDispatchStatus() == DispatchEnums.DispatchStatus.COMPLETED){
-            dispatch.addToDispatchMetadata("DispatchStatus", "Dispatch Is Completed");
-            dispatchRepository.save(dispatch);
-            return dispatch;
-        }
-
         LocalDateTime expiry = dispatch.getDispatchEndTime();
         LocalDateTime now = LocalDateTime.now();
 
         if (expiry.isBefore(now)) {
-            // dispatch just got expired
+
+            if (dispatch.getDispatchStatus() == DispatchEnums.DispatchStatus.IN_PROGRESS ||
+                    dispatch.getDispatchStatus() == PENDING) {
+
+                // Refund dispatch cost
+                UtilRecords.DispatchScoreUpdateDto refundDto =
+                        new UtilRecords.DispatchScoreUpdateDto(
+                                dispatch.getDispatchRequester(),
+                                dispatch.getDispatchId(),
+                                dispatch.getDispatchCost()
+                        );
+                messagingService.updateUserScore(refundDto);
+            }
+
             dispatch.setDispatchStatus(DispatchEnums.DispatchStatus.EXPIRED);
-            dispatch.addToDispatchMetadata("DispatchStatus", "Dispatch Is Expired");
-            dispatchRepository.save(dispatch);
-            return dispatch;
-        }
+            UtilRecords.DispatchEndedDTO dispatchEndedDTO = new UtilRecords.DispatchEndedDTO(false,LocalDateTime.now(),dispatch.getDispatchVehicleId(),dispatch.getDispatchRequester(),dispatch.getVehicleName(),dispatch.getDispatchId());
+            messagingService.sendDispatchCompletedFanoutFromDispatchService(dispatchEndedDTO);
+          return  dispatchRepository.save(dispatch);
+        }else {
 
-        if (expiry.isAfter(now)) {
-            // Still active — calculate time remaining
-            Duration remainingTime = Duration.between(now, expiry);
+            return dispatch;}}
 
-            // Add metadata to result list
-
-
-            dispatch.addToDispatchMetadata("expiresInMinutes", remainingTime.toMinutes());
-            dispatch.addToDispatchMetadata("expiresInHours", remainingTime.toHours());
-            dispatchRepository.save(dispatch);
-            return dispatch;
-        }
-        return dispatch;
-
-
-    }
-
-
-
-
-    public List<DispatchModel> getAllDispatch(){
-        return   dispatchRepository.findAll();
-    }
 
 
 
@@ -300,20 +313,88 @@ public class AdminDispatchService {
 
 
     private static boolean isStillValidDispatch(DispatchModel dispatch) {
-        if(dispatch.getDispatchStatus() == DispatchEnums.DispatchStatus.EXPIRED ){
-            throw new ConflictException("Dispatch not found in staging must be expired");
+        if (dispatch == null) {
+            throw new IllegalArgumentException("Dispatch cannot be null");
         }
 
-        LocalDateTime endTime     = dispatch.getDispatchEndTime();
+        if (dispatch.getDispatchStatus() == DispatchEnums.DispatchStatus.EXPIRED) {
+            throw new ConflictException("Dispatch is expired");
+        }
+
+        if (dispatch.getDispatchStatus() == DispatchEnums.DispatchStatus.CANCELLED) {
+            throw new ConflictException("Dispatch is cancelled");
+        }
+
+        if (dispatch.getDispatchStatus() == DispatchEnums.DispatchStatus.COMPLETED) {
+            throw new ConflictException("Dispatch is completed");
+        }
+
+        if (dispatch.getDispatchEndTime() == null) {
+            throw new ConflictException("Dispatch end time is not set");
+        }
+
+
+        LocalDateTime endTime = dispatch.getDispatchEndTime();
         LocalDateTime now = LocalDateTime.now();
-        if(dispatch.getDispatchStatus() == DispatchEnums.DispatchStatus.CANCELLED ){
-            throw new ConflictException("Dispatch not found in staging Dispatch is Cancelled");
+
+        if (endTime.isBefore(now)) {
+            throw new ConflictException("Dispatch has already ended");
         }
-        if (endTime != null && endTime.isBefore(now)) {
-            throw new ConflictException("Dispatch has already ended.");
-        }
+
         return true;
     }
+
+    public Double calculateOngoingRefund(DispatchModel dispatch) {
+
+        LocalDateTime startTime  = dispatch.getDispatchStartTime(); // more generous
+        LocalDateTime cancelTime = LocalDateTime.now();
+        LocalDateTime endTime    = dispatch.getDispatchEndTime();
+
+        // Validate
+        if (startTime == null || endTime == null) return 0.0;
+        if (cancelTime.isAfter(endTime)) return 0.0;
+        if (cancelTime.isBefore(startTime)) return 0.0;
+
+        // Time-based calculations
+        long totalDurationMinutes = Duration.between(startTime, endTime).toMinutes();
+        long remainingMinutes     = Duration.between(cancelTime, endTime).toMinutes();
+
+        if (totalDurationMinutes <= 0 || remainingMinutes <= 0) return 0.0;
+
+        double unusedRatio = (double) remainingMinutes / totalDurationMinutes;
+
+        // Recalculate original time-based cost
+        long totalHours = Duration.between(startTime, endTime).toHours();
+
+        return getRefundable(dispatch, totalHours, unusedRatio);
+    }
+
+
+    private static double getRefundable(DispatchModel dispatch, long totalHours, double unusedRatio) {
+        double halfDayBlocks = Math.ceil(totalHours / 12.0);
+        double totalDays = halfDayBlocks * 0.5;
+        double timeBasedCost = totalDays * costPerDay;
+
+        // Flat fees based on vehicle status and reason
+        double vehicleClassScore = switch (dispatch.getVehicleClass()) {
+            case CLASSIFIED -> 1000;
+            case CARGO      -> 300;
+            case REGULAR    -> 200;
+            case TRANSPORT  -> 400;
+        };
+
+        double dispatchReasonScore = switch (dispatch.getDispatchReason()) {
+            case CLASSIFIED -> 1000;
+            case DELIVERY   -> 200;
+            case TRANSPORT  -> 150;
+        };
+
+        double flatFees = vehicleClassScore + dispatchReasonScore;
+
+        double refundableFlat = flatFees * 0.1;
+        return (timeBasedCost * unusedRatio) + refundableFlat;
+    }
+
 
 
 

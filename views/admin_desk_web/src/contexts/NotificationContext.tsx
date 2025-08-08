@@ -7,108 +7,156 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { NotificationData } from '@/types/utilTypes'
-import { getAdminNotifications, pollNotifications } from '@/lib/handleUserNotiications';
+
+import { NotificationData } from '@/types/utilTypes';
+import {
+  getAdminNotifications,
+  pollNotifications,
+  setNotificationToRead, // ✅ Don't forget to import this
+} from '@/lib/handleUserNotiications';
+
+import { toast } from 'sonner';
 
 
-
-
-// ====== Notification type ======
-
-
-
-type NotificationContextType = {
+// ====== Admin Notification Context Type ======
+type AdminNotificationContextType = {
   notifications: NotificationData[];
   newNotifications: NotificationData[];
-  getMyNotifications : () => void;
-  getLattestNotifications : () => void;
   updateLastChecked: (lastChecked: string) => void;
+  getMyNotifications: () => void;
+  getLattestNotifications: () => void;
+  optimisticSetToRead: (notification: NotificationData) => Promise<void>;
 };
 
 
-const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
+// ====== Create Context ======
+const AdminNotificationContext = createContext<AdminNotificationContextType | undefined>(undefined);
 
 
-
-
-export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  
+// ====== Provider ======
+export const AdminNotificationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [notifications, setNotifications] = useState<NotificationData[]>([]);
-  const [newNotifications, setLatestNotifications] = useState<NotificationData[]>([]);
-  
+  const [newNotifications, setNewNotifications] = useState<NotificationData[]>([]);
 
   const [lastChecked, setLastChecked] = useState(() => {
-      if (typeof window !== "undefined") {
-        return localStorage.getItem("lastChecked") ||         new Date().toISOString().replace("Z", "");
-      } else {
-        return new Date().toISOString().replace("Z", "")}});
-
-        
-
-
-  
-// ==== extra coontext methods ====
-
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('admin_lastChecked') || new Date().toISOString();
+    }
+    return new Date().toISOString();
+  });
 
   const lastCheckedRef = useRef(lastChecked);
-    const updateLastChecked = (timestamp: string) => {
-  setLastChecked(timestamp);
-  lastCheckedRef.current = timestamp;
-  localStorage.setItem("lastChecked", timestamp);
-};
 
+  // ===== Update Last Checked Timestamp =====
+  const updateLastChecked = (timestamp: string) => {
+    setLastChecked(timestamp);
+    lastCheckedRef.current = timestamp;
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('admin_lastChecked', timestamp);
+    }
+  };
 
+  // ===== Fetch All Admin Notifications =====
+  const getMyNotifications = async () => {
+    try {
+      const data = await getAdminNotifications();
+      setNotifications(data);
+      setNewNotifications(data); // Assume initial data includes new
+    } catch (error) {
+      toast.error('Failed to fetch admin notifications');
+      console.error(error);
+    }
+  };
 
+  // ===== Poll for Latest Notifications =====
+  const getLattestNotifications = async () => {
+    try {
+      const latest = await pollNotifications(lastCheckedRef.current, updateLastChecked);
 
-  // === Polling logic ===
+      // Deduplicate
+      const dedupedNew = latest.filter(
+        (notif : NotificationData) => !newNotifications.some((n) => n.id === notif.id)
+      );
+      const dedupedAll = latest.filter(
+        (notif : NotificationData ) => !notifications.some((n) => n.id === notif.id)
+      );
+
+      // Merge in
+      setNewNotifications((prev) => [...prev, ...dedupedNew]);
+      setNotifications((prev) => [...prev, ...dedupedAll]);
+    } catch (error) {
+      toast.error('Failed to poll new admin notifications');
+      console.error(error);
+    }
+  };
+
+  // ===== Optimistically Mark a Notification as Read =====
+  const optimisticSetToRead = async (notificationData: NotificationData) => {
+    const updatedNotification = { ...notificationData, read: true };
+
+    const prevNotifications = [...notifications];
+    const prevNew = [...newNotifications];
+
+    // Optimistically update notifications
+    setNotifications((prev) =>
+      prev.map((notif) =>
+        notif.id === updatedNotification.id ? updatedNotification : notif
+      )
+    );
+
+    // Optimistically remove from newNotifications
+    setNewNotifications((prev) =>
+      prev.filter((notif) => notif.id !== updatedNotification.id)
+    );
+
+    try {
+      await setNotificationToRead(updatedNotification.id);
+    } catch (error) {
+      toast.error('Failed to mark notification as read. Rolling back.');
+
+      // Rollback
+      setNotifications(prevNotifications);
+      setNewNotifications(prevNew);
+    }
+  };
+
+  // ===== Polling Setup =====
   useEffect(() => {
+    if (typeof window === 'undefined') return;
 
-    console.log("Yesh the context was rendered");
+    getMyNotifications();
 
-
-  if (typeof window === "undefined") {
-    console.log("we returned here :: the window was undefined");
-    return;}
-
-    getMyNotifications()
-/*     
     const interval = setInterval(() => {
       if (!document.hidden) {
-        console.log("Yesh the context was rendered");
-        getLattestNotifications()
-        localStorage.setItem("lastChecked", lastChecked); 
+        getLattestNotifications();
+        localStorage.setItem('admin_lastChecked', lastCheckedRef.current);
       }
     }, 10000);
 
-    return () => clearInterval(interval); */
+    return () => clearInterval(interval);
+  }, []);
 
-  }, [lastChecked]);
-
-
-
-  const getLattestNotifications = async () => {
-        const latestNotification = await pollNotifications(lastCheckedRef.current, updateLastChecked);
-        setLatestNotifications(latestNotification);
-  }
-
-  
-
-   const getMyNotifications = async () => {
-      const notifcationData = await getAdminNotifications();
-      setNotifications(notifcationData);
-      setLatestNotifications(notifcationData);
-    };
-  
+  // ===== Provide State and Functions =====
   return (
-    <NotificationContext.Provider value={{ updateLastChecked,newNotifications, notifications, getMyNotifications, getLattestNotifications }}>
+    <AdminNotificationContext.Provider
+      value={{
+        notifications,
+        newNotifications,
+        updateLastChecked,
+        getMyNotifications,
+        getLattestNotifications,
+        optimisticSetToRead, // ✅ Injected into context
+      }}
+    >
       {children}
-    </NotificationContext.Provider>
+    </AdminNotificationContext.Provider>
   );
 };
 
 
-export const useNotifications = () => {
-  const ctx = useContext(NotificationContext);
-  if (!ctx) throw new Error("useNotifications must be used within NotificationProvider");
+// ===== Custom Hook =====
+export const useAdminNotifications = () => {
+  const ctx = useContext(AdminNotificationContext);
+  if (!ctx) throw new Error('useAdminNotifications must be used within AdminNotificationProvider');
   return ctx;
 };

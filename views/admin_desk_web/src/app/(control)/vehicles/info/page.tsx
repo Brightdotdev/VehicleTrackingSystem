@@ -1,58 +1,75 @@
 "use client";
 
+import InvalidLinkPage from '@/components/ui/InvalidLinkPage';
 import Loading from '@/components/ui/Loading';
 import UnvalidatedPage from '@/components/UnvalidatedPage';
+
 import { useUserValidation } from '@/hooks/useUserValidation';
 import { Loader2 } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { lazy, Suspense, useEffect } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
+// Lazy load the actual page content
+const VehicleInfoPage = lazy(() =>
+  import('../../../../components/ComponentBlocks/Vehicles/VehicleInfoPage')
+);
 
-export default function page() {
-
+export default function Page() {
   const router = useRouter();
-
-  
   const searchParams = useSearchParams();
-  
-  const vehicle = searchParams.get('vehicle');
 
-  const {loading, isValidated, checkValidation} = useUserValidation();
-  const VehcileInfoPage = lazy(() => import('../../../../components/ComponentBlocks/Vehicles/VehicleInfoPage'));
-  
-  
+  const rawVehicle = searchParams.get('vehicle');
+  const vehicle = rawVehicle ?? null;
+
+  const { loading, isValidated, checkValidation } = useUserValidation();
+
+  const [checkComplete, setCheckComplete] = useState(false);
+  const [invalidParams, setInvalidParams] = useState(false);
+
   useEffect(() => {
+    // 🔒 Check if required query param is missing
+    if (!vehicle) {
+      toast.error("Invalid or missing vehicle parameter");
+      setInvalidParams(true);
+      return;
+    }
 
-    if(!vehicle){
-      toast.error("No Valid params for page")
-      router.replace("/vehicles")}
+    // ✅ Proceed to run auth validation
+    const validate = async () => {
+      await checkValidation();
+      setCheckComplete(true);
+    };
 
-    checkValidation();
-  
-    
+    validate();
   }, []);
 
-
- if (loading || isValidated === null) {
-    return <Loading />; 
+  // ⏳ Block premature rendering
+  if (!checkComplete || loading || isValidated === null) {
+    return <Loading />;
   }
 
-   if (!isValidated) {
-    return (
-     <UnvalidatedPage/>
-    );
+  // ❌ Invalid user
+  if (!isValidated) {
+    return <UnvalidatedPage />;
   }
 
-
-    if (isValidated && vehicle)
-      return (
-        <Suspense fallback={<div className='flex items-center justify-center size-screen'>
-           <Loader2 className="animate-spin mr-l stroke-foreground" />
-        Vehicle info page Loading....</div>}>
-        <VehcileInfoPage vehicleVin={vehicle}  />
-        </Suspense>
-      );
-    
-      
+  // ❌ Invalid link — Show back button to recover
+  if (invalidParams) {
+    return <InvalidLinkPage />;
   }
+
+  // ✅ All good — render main content
+  return (
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center size-screen gap-2">
+          <Loader2 className="animate-spin stroke-foreground" />
+          Vehicle Info page loading...
+        </div>
+      }
+    >
+      <VehicleInfoPage vehicleVin={vehicle!} />
+    </Suspense>
+  );
+}

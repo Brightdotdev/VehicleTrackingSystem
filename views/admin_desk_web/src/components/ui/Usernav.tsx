@@ -1,66 +1,29 @@
 import { useAuth } from '@/contexts/AuthContext'
 import { Bell, X } from 'lucide-react';
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { Button } from './button';
-import { cn } from '@/lib/utils';
 import { NotificationData } from '@/types/utilTypes';
-import { useNotifications } from '@/contexts/NotificationContext';
-import { HandleNewNotifications, HandleReadNotifications } from '../utils/NotificationUtils';
+import { useAdminNotifications } from '@/contexts/NotificationContext';
+import { HandleReadNotifications, HandleUnreadNotifications } from '../utils/NotificationUtils';
+
 
 
 
 //// utilitiesssss grah
 
 
-
-
-
-
-
-
-const NotifPopUp = ({ setVisible,notifications ,newNotifications,  isvisible, user }: 
+const NotifPopUp = ({ readNotifications, unreadNotifications, setVisible, isvisible, user }: 
 {
+  readNotifications : NotificationData[],
+  unreadNotifications : NotificationData[],
   setVisible : (isVisible : boolean) => void,
   isvisible : boolean,
-  notifications : NotificationData[],
-  newNotifications : NotificationData[], 
   user : string | undefined
 }) => {
 
-const [unreadNotifications, setUnreadNotifications] = useState<NotificationData[] | null>(null);
-const [readNotifications, setReadNotifications] = useState<NotificationData[] | null>(null);
+  const hasNotifications = Array.isArray(readNotifications) && readNotifications.length > 0;
 
-
-
-useEffect(() => {
-
-  const readNotificationsFilter = () => notifications.filter((n) => n.read)
-
-const unreadNotificationsFilter = () => notifications.filter((n) => !n.read)
-
-let mergedUnread = unreadNotificationsFilter();
-if (newNotifications.length > 0) {
-  // Merge and deduplicate by id (assuming NotificationData has an 'id' field)
-  const newNotifsToAdd = newNotifications.filter(
-    (newNotif) => !mergedUnread.some((notif) => notif.id === newNotif.id)
-  );
-  mergedUnread = [...mergedUnread, ...newNotifsToAdd];
-}
-
-setUnreadNotifications(mergedUnread);
-setReadNotifications(readNotificationsFilter());
-
-
-
-  setUnreadNotifications(unreadNotificationsFilter)
-  setReadNotifications(readNotificationsFilter)
-  
-  console.log(unreadNotificationsFilter)
-console.log(readNotificationsFilter)
-console.log("read notifications ",  readNotifications)
-console.log("new notifications ", newNotifications)
-
-} ,[notifications, newNotifications])
+  const hasUnread = Array.isArray(unreadNotifications) && unreadNotifications.length > 0;
 
 
   return (
@@ -79,17 +42,16 @@ console.log("new notifications ", newNotifications)
   
 
 
-    {
-      Array.isArray(unreadNotifications) && unreadNotifications.length > 0 && (
-        <HandleNewNotifications newNotificationProps={unreadNotifications ?? []} />
-      )
+    {hasNotifications && 
+    <HandleReadNotifications notifications={readNotifications} />
     }
-
-    {
-      Array.isArray(readNotifications) && readNotifications.length > 0 && (
-        <HandleReadNotifications readNotificationProps={readNotifications ?? []} />
-      )
-    }         
+    {hasUnread && 
+    <HandleUnreadNotifications newNotifications={unreadNotifications} /> 
+    }
+    
+    
+    
+                
       </div>
     </article>
   </div>))}
@@ -100,12 +62,11 @@ console.log("new notifications ", newNotifications)
 const Usernav = ({classNames} : {classNames? : string}) => {
   const { isAuthenticated, userData} = useAuth();
     const [notifIsVisible, setNotifIsVisible] = useState(false);
-  const {newNotifications , notifications} = useNotifications()
-
+    const {newNotifications, notifications} = useAdminNotifications();
 
   return (
     isAuthenticated ? (
-      <nav className={'fixed top-4 flex items-center justify-between w-screen h-[var(--size-sm)] p-[var(--size-sm-3)] z-10 ' + classNames} >
+      <nav className={'fixed top-2 flex items-start justify-between w-screen h-[var(--size-sm)] p-[var(--size-sm-3)] z-10 ' + classNames} >
 
         <article className="flex items-center justify-start gap-4  p-[var(--space-xs)] bg-accent rounded-lg cursor-pointer">
                 {
@@ -117,17 +78,27 @@ const Usernav = ({classNames} : {classNames? : string}) => {
             </h3>
         </article>
         
+
+
+                  {/* <WalletProfile /> */}
+
         <Button onClick={() => setNotifIsVisible(true)} variant="outline" className="relative  flex items-center justify-center rounded-full p-[var(--space-sm-1)] h-[var(--space-sm-3)] bg-accent">
             
-             {/* 
-             this is supposed to like get the data from the loggin service and show the notifications
-                  <div className="flex items-center justify-center size-6 text-xxs absolute rounded-full -right-3 -top-2 bg-chart-5 p-[var(--space-xxs)]">9+</div>
-             */}
+             
+             
+        
+              {
+                newNotifications.length > 0 && (
+<div className="flex items-center justify-center size-6 text-xxs absolute rounded-full -right-3 -top-2 bg-chart-5 p-[var(--space-xxs)]">{newNotifications.length > 9 ? "9+" : newNotifications.length}</div>
+                )
+              }
+              
+                  
              
             <Bell className='stroke-foreground hover:stroke-background'  />
         </Button>
 
-          <NotifPopUp newNotifications={newNotifications} notifications={notifications} setVisible={setNotifIsVisible} isvisible={notifIsVisible}  user={userData?.username} />
+          <NotifPopUp unreadNotifications={notifications} readNotifications={newNotifications} setVisible={setNotifIsVisible} isvisible={notifIsVisible}  user={userData?.username} />
 
 
       </nav>

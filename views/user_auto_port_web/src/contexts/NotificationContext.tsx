@@ -7,206 +7,165 @@ import React, {
   useRef,
   useState,
 } from 'react';
+
 import { NotificationData } from '@/types/utilTypes';
-import { getAllMyNotifications, markNofiticationAsReadApi, pollNotifications } from '@/lib/handleUserNotiications';
-import { useUserValidation } from '@/hooks/useUserValidation';
+import {
+  getAllMyNotifications,
+  markNofiticationAsReadApi,
+  pollNotifications,
+} from '@/lib/handleUserNotiications';
 import { toast } from 'sonner';
 
 
-
-// ====== Notification type ======
-
-
-
+// ========== Context Type ==========
 type NotificationContextType = {
   readNotifications: NotificationData[];
   unreadNotifications: NotificationData[];
-  getMyNotifications : () => void;
-  getLattestNotifications : () => void;
+  getMyNotifications: () => void;
+  getLattestNotifications: () => void;
   updateLastChecked: (lastChecked: string) => void;
   optimisticSetToRead: (notificationData: NotificationData) => Promise<void>;
 };
 
 
+// ========== Create Context ==========
 const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
 
 
-
-
+// ========== Provider ==========
 export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  
   const [notifications, setNotifications] = useState<NotificationData[]>([]);
   const [newNotifications, setLatestNotifications] = useState<NotificationData[]>([]);
   const [readNotifications, setReadNotifications] = useState<NotificationData[]>([]);
   const [unreadNotifications, setUnreadNotifications] = useState<NotificationData[]>([]);
-  
 
   const [lastChecked, setLastChecked] = useState(() => {
-      if (typeof window !== "undefined") {
-        return localStorage.getItem("lastChecked") || new Date().toISOString().replace("Z", "");
-      } else {
-        return new Date().toISOString().replace("Z", "")}});
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('lastChecked') || new Date().toISOString();
+    }
+    return new Date().toISOString();
+  });
 
-
-
-
-
-  const { isValidated } = useUserValidation();
   const lastCheckedRef = useRef(lastChecked);
-  
-// ==== extra coontext methods ====
 
+  // ========== Update LocalStorage + Ref ==========
+  const updateLastChecked = (timestamp: string) => {
+    setLastChecked(timestamp);
+    lastCheckedRef.current = timestamp;
+    localStorage.setItem('lastChecked', timestamp);
+  };
 
-    const updateLastChecked = (timestamp: string) => {
-  setLastChecked(timestamp);
-  lastCheckedRef.current = timestamp;
-  localStorage.setItem("lastChecked", timestamp);
-};
-
-  // === Polling logic ===
+  // ========== Polling for New Notifications ==========
   useEffect(() => {
-      if (!isValidated || typeof window === 'undefined') return;
+    getMyNotifications();
 
-    console.log("Yeah the context was rendered");
-
-    getMyNotifications()
-    
     const interval = setInterval(() => {
       if (!document.hidden) {
-        console.log("Yesh the context was rendered");
-        getLattestNotifications()
-        localStorage.setItem("lastChecked", lastChecked); 
+        console.log('Polling for new notifications');
+        getLattestNotifications();
+        localStorage.setItem('lastChecked', lastCheckedRef.current);
       }
-    }, 10000);
+    }, 10000); // 10 seconds
 
     return () => clearInterval(interval);
+  }, []);
 
-    
-  }, [lastChecked]);
-
-
-
+  // ========== Process All Notifications ==========
   useEffect(() => {
+    const allNotifications = [...notifications];
 
-      if (!isValidated || typeof window === 'undefined') return;
+    // Deduplicate new notifications and merge
+    newNotifications.forEach((newNotif) => {
+      const exists = allNotifications.some((n) => n.id === newNotif.id);
+      if (!exists) {
+        allNotifications.push(newNotif);
+      }
+    });
 
+    // Separate read and unread
+    const read = allNotifications.filter((n) => n.read);
+    const unread = allNotifications.filter((n) => !n.read);
 
-      const readNotificationsFilter = () => notifications.filter((n) => n.read)
+    // Set updated state
+    setReadNotifications(read);
+    setUnreadNotifications(unread);
+  }, [notifications, newNotifications]);
 
-const unreadNotificationsFilter = () => notifications.filter((n) => !n.read)
+  // ========== Optimistic Read Update ==========
+  const optimisticSetToRead = async (notificationData: NotificationData) => {
+    const updatedNotification = { ...notificationData, read: true };
 
-let mergedUnread = unreadNotificationsFilter();
-if (newNotifications.length > 0) {
-  // Merge and deduplicate by id (assuming NotificationData has an 'id' field)
-  const newNotifsToAdd = newNotifications.filter(
-    (newNotif) => !mergedUnread.some((notif) => notif.id === newNotif.id)
-  );
-  mergedUnread = [...mergedUnread, ...newNotifsToAdd];
-}
+    // Backup current state in case we need to revert
+    const previousUnread = [...unreadNotifications];
+    const previousRead = [...readNotifications];
 
-
-
-
-
-  setUnreadNotifications(unreadNotificationsFilter)
-  setReadNotifications(readNotificationsFilter)
-  
-  console.log(unreadNotificationsFilter)
-console.log(readNotificationsFilter)
-console.log("read notifications ",  readNotifications)
-console.log("new notifications ", newNotifications)
-
-
-  } ,[notifications, newNotifications])
-
-
-const optimisticSetToRead = async (notificationData : NotificationData)  => {
-
-  // set it to read localy
-  
-  const updatedNotification = { ...notificationData, read: true };
-
-  // set to read and add to the read array
-  setReadNotifications((previousNotifications) => {
-    
-    if (!previousNotifications) return [updatedNotification];
-
-    const exists = previousNotifications.find((notif) => notif.id === updatedNotification.id);
-
-
-    if (exists) {
-      return previousNotifications.map((notifs) =>
-        notifs.id === updatedNotification.id ? { ...notifs, ...updatedNotification } : notifs
-      );
-    } else {
-      return [...previousNotifications, updatedNotification];
-    }
-  })
-
-  
-  
-  // remove it from the unread array too 
-  
-  setUnreadNotifications((previousNotifications) => 
-     previousNotifications ? previousNotifications.filter((notif) => notif.id !== updatedNotification.id) : [])
-
-try {
- await markNofiticationAsReadApi(updatedNotification.id)
-}catch (error) {
-    
-  toast.error("We couldnt set the notification to read")
- 
-  
-  
-
-  
-
-// 2. Add to unread notifications
-setUnreadNotifications((previous) => {
-  if (!previous) return [updatedNotification];
-
-  const exists = previous.find((notif) => notif.id === updatedNotification.id);
-  if (exists) {
-    return previous.map((notif) =>
-      notif.id === updatedNotification.id ? { ...notif, ...updatedNotification } : notif
+    // Optimistically update local state
+    setUnreadNotifications((prev) =>
+      prev.filter((notif) => notif.id !== updatedNotification.id)
     );
-  } else {
-    return [...previous, updatedNotification];
-  }
-});
+    setReadNotifications((prev) => {
+      const exists = prev.find((notif) => notif.id === updatedNotification.id);
+      if (exists) {
+        return prev.map((notif) =>
+          notif.id === updatedNotification.id ? updatedNotification : notif
+        );
+      } else {
+        return [...prev, updatedNotification];
+      }
+    });
 
-// 3. Remove from read notifications
-setReadNotifications((previous) =>
-  previous ? previous.filter((notif) => notif.id !== updatedNotification.id) : []
-);}}
+    try {
+      await markNofiticationAsReadApi(updatedNotification.id);
+    } catch (error) {
+      toast.error('Failed to mark notification as read. Rolling back.');
 
+      // Revert state
+      setUnreadNotifications(previousUnread);
+      setReadNotifications(previousRead);
+    }
+  };
 
+  // ========== Fetch All Notifications ==========
+  const getMyNotifications = async () => {
+    try {
+      const data = await getAllMyNotifications();
+      setNotifications(data);
+    } catch (error) {
+      toast.error('Failed to fetch notifications');
+    }
+  };
 
+  // ========== Fetch Only New Notifications ==========
   const getLattestNotifications = async () => {
-        const latestNotification = await pollNotifications(lastCheckedRef.current, updateLastChecked);
-        setLatestNotifications(latestNotification);
-  }
+    try {
+      const latest = await pollNotifications(lastCheckedRef.current, updateLastChecked);
+      setLatestNotifications(latest);
+    } catch (error) {
+      toast.error('Failed to poll notifications');
+    }
+  };
 
-  
-   const getMyNotifications = async () => {
-      const notifcationData = await getAllMyNotifications();
-      setNotifications(notifcationData);
-    };
-  
-
-
+  // ========== Return Provider ==========
   return (
-    <NotificationContext.Provider value={{ updateLastChecked,readNotifications, unreadNotifications, getMyNotifications, getLattestNotifications,optimisticSetToRead }}>
+    <NotificationContext.Provider
+      value={{
+        readNotifications,
+        unreadNotifications,
+        getMyNotifications,
+        getLattestNotifications,
+        updateLastChecked,
+        optimisticSetToRead,
+      }}
+    >
       {children}
     </NotificationContext.Provider>
   );
 };
 
 
+// ========== Context Consumer Hook ==========
 export const useNotifications = () => {
-
   const ctx = useContext(NotificationContext);
-  
-  if (!ctx) throw new Error("useNotifications must be used within NotificationProvider");
+  if (!ctx) throw new Error('useNotifications must be used within NotificationProvider');
   return ctx;
 };

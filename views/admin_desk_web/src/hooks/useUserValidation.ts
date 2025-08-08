@@ -9,7 +9,7 @@ import { toast } from "sonner";
 
     export const useUserValidation = (
     ) => {
-        const [isValidated, setValidated] = useState<boolean | null>(null);
+        const [isValidated, setValidated] = useState<boolean | null>(false);
         const [loading, setLoading] = useState(true);
         const [adminDetails, setAdminDetails] = useState<AdminDetails | null>(null)
   

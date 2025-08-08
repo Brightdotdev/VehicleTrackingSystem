@@ -111,35 +111,56 @@ export const handleGoogleLogIn = async (
 
 
 
+// Function to fetch and validate user data
+export const getMyData = async (
+  setLoading?: (loading: boolean) => void
+): Promise<UserPageData | undefined> => {
+  try {
+    // Start loading if the callback was passed
+    setLoading?.(true);
 
-// validate the user outside the context again
-    export  const getMyData  = async  (
-    setLoading : (loading : boolean) => void
-  ) : Promise<UserPageData | undefined> => {
-
- try {
     const response = await fetch(dotEnv.getMyDataLink, {
-   method: "GET", headers: { "Content-Type": "application/json"},credentials: "include"});
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+    });
 
-console.log(response)
-  const userResponseData  = await response.json();
-  
-  console.log(userResponseData);
-  
-        const {code , success , data : { valid, userData  }} = userResponseData
-        
-        if(valid && code === 200 && userData.email !== null && success === true ){
-            return userData;
-        } else{
-          toast.error("Something went wrong")
-          return null
-        }
-      } catch (error) {
-        console.log(error)
-      } finally {
-      setLoading(false)}};
+    console.log(response);
 
+    // Check response type before parsing
+    const userResponseData = await response.json();
+    console.log(userResponseData);
 
+    // Safe destructuring with fallback
+    const {
+      code,
+      success,
+      data = {},
+    } = userResponseData ?? {};
+
+    const { valid, userData } = data;
+
+    // Validate that all necessary values are present
+    if (
+      valid === true &&
+      code === 200 &&
+      success === true &&
+      userData &&
+      userData.email !== null
+    ) {
+      return userData;
+    } else {
+      toast.error('Something went wrong');
+      return undefined;
+    }
+  } catch (error) {
+    console.error('Failed to fetch user data:', error);
+    return undefined;
+  } finally {
+    // End loading if the callback was passed
+    setLoading?.(false);
+  }
+};
 
 
 

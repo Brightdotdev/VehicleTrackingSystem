@@ -1,20 +1,11 @@
 "use client";
 
-import { useUserValidation } from '@/hooks/useUserValidation';
 import Link from 'next/link';
-import { lazy, useEffect } from 'react';
+import React from 'react';
 
-
-
-const DispatchPageComponent = lazy(() => import("../../../components/ComponentBlocks/Dispatches/DispatchPageComponent"));
 
 export default function Page() {
-  const {loading, isValidated, checkValidation} = useUserValidation();
 
-  useEffect(() => {
-    checkValidation();
-  }, []);
-  
     return (
   
       <div className="flex flex-col gap-4 items-center justify-center w-screen h-screen">

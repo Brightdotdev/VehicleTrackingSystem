@@ -1,114 +1,121 @@
 import { cn } from '@/lib/utils';
 import { NotificationData, notificationType } from '@/types/utilTypes';
-import React from 'react'
+import React, { useState } from 'react'
 import { Button } from '../ui/button';
-import { setNotificationToRead } from '@/lib/handleUserNotiications';
+
+import { toast } from 'sonner';
+import { useAdminNotifications } from '@/contexts/NotificationContext';
 
 
 
 
 // notification card
-
-export const NotificationCard = ({notificationItem} : {notificationItem : NotificationData}) =>{
-
-    const goodCtaMethod = () => {
-          return setNotificationToRead(notificationItem.id)
-    }
-
-    
-    const badCtaMethod = () => {
-            return setNotificationToRead(notificationItem.id)
+export const NotificationCard = ({ notificationItem }: { notificationItem: NotificationData }) => {
   
+  const {optimisticSetToRead } = useAdminNotifications()
+  
+  const [loading, setLoading] = useState(false);
+  
+  const goodCtaMethod = async () => {
+    setLoading(true);
+    try {
+      toast.info(notificationItem.type);
+      if (notificationItem.type === notificationType.DISPATCH_CREATED_ADMIN) {
+        setLoading(true)
+        toast.info("THis is like working the valdiated one")
+        window.location.href = `/vehicle/request?vehicleReq=${notificationItem.dispatchId}& vehicle=${notificationItem.vehicleId}`
+        await optimisticSetToRead(notificationItem);
+      } else {
+        toast.info("THis is like working the other ones");
+        await optimisticSetToRead(notificationItem);
+      }
+    } finally {
+      setLoading(false);
     }
+  };
 
+  // Handles the bad CTA click
+  const badCtaMethod = async () => {
+    setLoading(true);
+    try {
+        await optimisticSetToRead(notificationItem);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    return (
-  <article className={cn(
-    "w-full rounded-sm flex flex-col items-start justify-center gap-xs p-[var(--space-sm)]",
-    notificationItem.isActionNotif ? "bg-blue-950/10" : "",
-    notificationItem.read ? "bg-blue-950/5" : "bg-blue-950/10"
-  )}>
+  return (
+    <article
+      className={cn(
+        'w-full rounded-sm flex flex-col items-start justify-center gap-xs p-[var(--space-sm)]',
+        notificationItem.isActionNotif ? 'bg-blue-950/10' : '',
+        notificationItem.read ? 'bg-blue-950/5' : 'bg-blue-950/10'
+      )}
+    >
+      <div className="flex items-center justify-between w-full">
+        <h4 className="text-body">{notificationItem.title}</h4>
+      </div>
 
+      <p className="text-muted-foreground text-small">{notificationItem.message}</p>
 
-<div className="flex items-center justify-between w-full">
-    <h4 className="text-body">{notificationItem.title}</h4>
-</div>
-
-    <p className="text-muted-foreground text-small">{notificationItem.message}</p>
-{notificationItem.isActionNotif && (
-  <div className="flex gap-2 items-center justify-center">
-    <Button onClick={() => goodCtaMethod()}>{notificationItem.goodNotificationCta}</Button>
-    <Button>{notificationItem.badNotificationCta}</Button>
-  </div>
-)}
-
-{!notificationItem.read && (
-    notificationItem.isActionNotif ? (
+      {!notificationItem.read && (
         <div className="flex gap-2 items-center justify-center">
-      {notificationItem.goodNotificationCta && (
-        <Button onClick={() => goodCtaMethod()}>
-          {notificationItem.goodNotificationCta}
-        </Button>
+          {notificationItem.goodNotificationCta && (
+            <Button onClick={goodCtaMethod} disabled={loading}>
+              {loading ? "Loading..." : notificationItem.goodNotificationCta}
+            </Button>
+          )}
+
+          {notificationItem.isActionNotif && notificationItem.badNotificationCta && (
+            <Button onClick={badCtaMethod} disabled={loading}>
+              {loading ? "Loading..." : notificationItem.badNotificationCta}
+            </Button>
+          )}
+        </div>
       )}
-      {notificationItem.badNotificationCta && (
-        <Button onClick={() => badCtaMethod()} >{notificationItem.badNotificationCta}</Button>
-      )}
+    </article>
+  );
+};
+export const HandleReadNotifications = ({ notifications} : {notifications : NotificationData[]} ) => {
+
+  const hasNotifications = Array.isArray(notifications) && notifications.length > 0;
+
+  return (
+    <div className="flex flex-col gap-1 items-start justify-start">
+      <h3 className="text-normal text-muted-foreground">Read Notifications</h3>
+
+      <div className="flex flex-col gap-2 items-center justify-start">
+        {hasNotifications ? (
+          [...notifications].reverse().map((notification: NotificationData) => (
+            <NotificationCard notificationItem={notification} key={notification.id} />
+          ))
+        ) : (
+          <p className="text-sm text-muted-foreground italic">No notifications for you, sir 🫡</p>
+        )}
+      </div>
     </div>
-  ) : (
-    notificationItem.goodNotificationCta && (
-      <Button onClick={() => goodCtaMethod()}>
-        {notificationItem.goodNotificationCta}
-      </Button>
-    )
-  )
-)}
+  );
+};
 
-  </article>
-);
-}
+export const HandleUnreadNotifications = ({newNotifications } : {newNotifications : NotificationData[]}) => {
 
+  const hasUnread = Array.isArray(newNotifications) && newNotifications.length > 0;
 
+  return (
+    <div className="flex flex-col gap-1 items-start justify-start">
+      <h3 className="text-normal text-muted-foreground">Unread Notifications</h3>
 
-
-
-export const HandleNewNotifications = ({ newNotificationProps }: { newNotificationProps: NotificationData[] }) => (
-  
-  
-   <div className="flex flex-col gap-1 items-start justify-start">
-          
-    <h3 className='text-normal text-muted-foreground'>New Notifications</h3>  
-    <div className='flex flex-col gap-2 items-center justify-start'>
-      {newNotificationProps.map((notification: NotificationData) => (
-        <NotificationCard notificationItem={notification} key={notification.id} />
-      ))}         
+      <div className="flex flex-col gap-2 items-center justify-start">
+        {hasUnread ? (
+          newNotifications.map((notification: NotificationData) => (
+            <NotificationCard notificationItem={notification} key={notification.id} />
+          ))
+        ) : (
+          <p className="text-sm text-muted-foreground italic">
+            No unread notifications left. You’re all caught up 🎉
+          </p>
+        )}
+      </div>
     </div>
-  </div>
-)
-
-
-export const HandleReadNotifications = ({ readNotificationProps }: { readNotificationProps: NotificationData[] }) => (
- 
- <div className="flex flex-col gap-1 items-start justify-start">
-          
-    <h3 className='text-normal text-muted-foreground'>Read Notifications</h3>  
-    <div className='flex flex-col gap-2 items-center justify-start'>
-      {readNotificationProps.map((notification: NotificationData) => (
-        <NotificationCard notificationItem={notification} key={notification.id} />
-      ))}         
-    </div>
-  </div>
-)
-
-
-export const HandleUnreadNotifications = ({ readNotificationProps }: { readNotificationProps: NotificationData[] }) => (
- 
- <div className="flex flex-col gap-1 items-start justify-start">
-          
-    <h3 className='text-normal text-muted-foreground'>UnRead Notifications</h3>  
-    <div className='flex flex-col gap-2 items-center justify-start'>
-      {readNotificationProps.map((notification: NotificationData) => (
-        <NotificationCard notificationItem={notification} key={notification.id} />
-      ))}         
-    </div>
-  </div>
-)
+  );
+};

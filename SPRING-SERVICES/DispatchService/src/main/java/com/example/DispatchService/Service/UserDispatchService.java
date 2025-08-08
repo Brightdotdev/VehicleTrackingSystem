@@ -11,11 +11,9 @@ import com.example.DispatchService.Repositories.DispatchRepository;
 import com.example.DispatchService.Utils.DispatchEnums;
 import com.example.DispatchService.Utils.UtilRecords;
 import jakarta.transaction.Transactional;
-import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -23,7 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.example.DispatchService.Utils.DispatchEnums.DispatchStatus.ONGOING;
+import static com.example.DispatchService.Utils.DispatchEnums.DispatchStatus.*;
 
 
 @Service
@@ -72,7 +70,7 @@ public class UserDispatchService {
             }
 
 
-            if (dispatchModel.getDispatchStatus().equals(DispatchEnums.DispatchStatus.PENDING)) {
+            if (dispatchModel.getDispatchStatus().equals(PENDING)) {
                 throw new InvalidRequestException("Vehicle already requested by another user", 403);
             }
 
@@ -126,122 +124,86 @@ public class UserDispatchService {
 
 
 
+
     /** canceling a dispatch (user(dispatch requester)) **/
-
     @Transactional
-    public DispatchModel userCancelingDispatch(String userName ,List<String> userRole, Long dispatchId){
+    public DispatchModel userCancelingDispatch(String userName, List<String> userRole, Long dispatchId) {
 
-        if(userRole.isEmpty()){
-            throw new InvalidRequestException("No user role provided", 400);}
+        // Ensure the user has at least one role
+        if (userRole.isEmpty()) {
+            throw new InvalidRequestException("No user role provided", 400);
+        }
 
+        // Look for the dispatch by ID and the user who created it
+        DispatchModel dispatch = dispatchRepository.findByDispatchIdAndDispatchRequester(dispatchId, userName);
 
-        DispatchModel dispatch = dispatchRepository.findByDispatchIdAndDispatchRequester(dispatchId,userName);
-
-        if(dispatch == null){
+        if (dispatch == null) {
             throw new NotFoundException("No Dispatch Connected to that user is found");
         }
 
-        if(!isStillValidDispatch(dispatch)){
+
+        if (!isStillValidDispatch(dispatch)) {
             return null;
         }
 
-        if(!dispatch.getDispatchRequester().equals(userName)){
+
+        if (!dispatch.getDispatchRequester().equals(userName)) {
             throw new InvalidRequestException("An external user cannot cancel another user's dispatch", 400);
         }
 
-        if(dispatch.getDispatchStatus() == ONGOING){
-            Double userRefund  = calculateOngoingRefund(dispatch);
-            UtilRecords.DispatchScoreUpdateDto userScoreUpdate = new UtilRecords.DispatchScoreUpdateDto(userName,dispatchId, userRefund);
+
+        if (dispatch.getDispatchStatus() == ONGOING) {
+            Double userRefund = calculateOngoingRefund(dispatch);
+
+            UtilRecords.DispatchScoreUpdateDto userScoreUpdate =
+                    new UtilRecords.DispatchScoreUpdateDto(userName, dispatchId, userRefund);
+
             messagingService.updateUserScore(userScoreUpdate);
 
-
             dispatch.setDispatchStatus(DispatchEnums.DispatchStatus.CANCELLED);
-            UtilRecords.DispatchEndedDTO dispatchEnded = new UtilRecords.DispatchEndedDTO(true,LocalDateTime.now(),dispatch.getDispatchVehicleId(),userName,dispatch.getVehicleName(),dispatchId);
 
-            messagingService.sendDispatchCompletedFanoutFromDispatchService(
-                    dispatchEnded);
+
+            UtilRecords.DispatchEndedDTO dispatchEnded =
+                    new UtilRecords.DispatchEndedDTO(true, LocalDateTime.now(),
+                            dispatch.getDispatchVehicleId(), userName,
+                            dispatch.getVehicleName(), dispatchId);
+
+            messagingService.sendDispatchCompletedFanoutFromDispatchService(dispatchEnded);
             return dispatchRepository.save(dispatch);
         }
 
 
-        dispatch.setDispatchStatus(DispatchEnums.DispatchStatus.CANCELLED);
-        UtilRecords.DispatchEndedDTO dispatchEnded = new UtilRecords.DispatchEndedDTO(true,LocalDateTime.now(),dispatch.getDispatchVehicleId(),userName,dispatch.getVehicleName(),dispatchId);
-        messagingService.sendDispatchCompletedFanoutFromDispatchService(
-                dispatchEnded);
-        return dispatchRepository.save(dispatch);
+        if (dispatch.getDispatchStatus() == PENDING || dispatch.getDispatchStatus() == IN_PROGRESS) {
+            Double fullRefund = dispatch.getDispatchCost();
+
+            UtilRecords.DispatchScoreUpdateDto userScoreUpdate =
+                    new UtilRecords.DispatchScoreUpdateDto(userName, dispatchId, fullRefund);
+
+            messagingService.updateUserScore(userScoreUpdate);
+
+            dispatch.setDispatchStatus(DispatchEnums.DispatchStatus.CANCELLED);
+
+            // Notify system of cancellation (user-triggered)
+            UtilRecords.DispatchEndedDTO dispatchEnded =
+                    new UtilRecords.DispatchEndedDTO(true, LocalDateTime.now(),
+                            dispatch.getDispatchVehicleId(), userName,
+                            dispatch.getVehicleName(), dispatchId);
+
+            messagingService.sendDispatchCompletedFanoutFromDispatchService(dispatchEnded);
+            return dispatchRepository.save(dispatch);
+        }
+
+
+        throw new InvalidRequestException("Only ONGOING or PENDING dispatches can be cancelled by the user", 400);
     }
 
 
 
 
-
-
     @Transactional
-    public List<DispatchModel>  revalidateMyDispatches(String user){
-
+    public List<DispatchModel> revalidateMyDispatches(String user) {
         List<DispatchModel> userDispatches = dispatchRepository.findAllByDispatchRequester(user);
         List<DispatchModel> allMyDispatches = new ArrayList<>();
-
-        for (DispatchModel dispatch : userDispatches ){
-            if(dispatch.getDispatchStatus() == DispatchEnums.DispatchStatus.EXPIRED){
-                dispatch.addToDispatchMetadata("DispatchStatus", "Dispatch Is Expired");
-                allMyDispatches.add(dispatch);
-            }
-
-            if(dispatch.getDispatchStatus() == DispatchEnums.DispatchStatus.CANCELLED){
-                dispatch.addToDispatchMetadata("DispatchStatus", "Dispatch Is Cancelled");
-
-                allMyDispatches.add(dispatch);
-
-            }
-
-            if(dispatch.getDispatchStatus() == DispatchEnums.DispatchStatus.COMPLETED){
-                dispatch.addToDispatchMetadata("DispatchStatus", "Dispatch Is Completed");
-
-                allMyDispatches.add(dispatch);
-
-            }
-
-            LocalDateTime expiry = dispatch.getDispatchEndTime();
-            LocalDateTime now = LocalDateTime.now();
-
-            if (expiry.isBefore(now)) {
-                // dispatch just got expired
-                dispatch.setDispatchStatus(DispatchEnums.DispatchStatus.EXPIRED);
-                dispatch.addToDispatchMetadata("DispatchStatus", "Dispatch Is Expired");
-
-                UtilRecords.DispatchEndedDTO dispatchEnded = new UtilRecords.DispatchEndedDTO(false,LocalDateTime.now(),dispatch.getDispatchVehicleId(),user,dispatch.getVehicleName(),dispatch.getDispatchId());
-
-                messagingService.sendDispatchCompletedFanoutFromDispatchService(dispatchEnded);
-
-
-                allMyDispatches.add(dispatch);}
-
-
-
-            if (expiry.isAfter(now)) {
-                // Still active — calculate time remaining
-                Duration remainingTime = Duration.between(now, expiry);
-
-                // Add metadata to result list
-                dispatch.addToDispatchMetadata("expiresInMinutes", remainingTime.toMinutes());
-                dispatch.addToDispatchMetadata("expiresInHours", remainingTime.toHours());
-
-                allMyDispatches.add(dispatch);
-            }
-        }
-        dispatchRepository.saveAll(allMyDispatches);
-       return  allMyDispatches;
-    }
-
-
-    @Transactional
-    public List<DispatchModel> revalidateMyActiveDispatches(String user) {
-
-
-        List<DispatchModel> userDispatches = dispatchRepository.findAllByDispatchRequester(user);
-
-        List<DispatchModel> validDispatches = new ArrayList<>();
 
         LocalDateTime now = LocalDateTime.now();
 
@@ -249,8 +211,23 @@ public class UserDispatchService {
             LocalDateTime expiry = dispatch.getDispatchEndTime();
 
 
+            // ========== Case 4: Just Expired ==========
             if (expiry.isBefore(now)) {
+                // Refund only if dispatch was never completed
+                if (dispatch.getDispatchStatus() == DispatchEnums.DispatchStatus.IN_PROGRESS ||
+                        dispatch.getDispatchStatus() == PENDING) {
 
+                    // Refund dispatch cost
+                    UtilRecords.DispatchScoreUpdateDto refundDto =
+                            new UtilRecords.DispatchScoreUpdateDto(
+                                    dispatch.getDispatchRequester(),
+                                    dispatch.getDispatchId(),
+                                    dispatch.getDispatchCost()
+                            );
+                    messagingService.updateUserScore(refundDto);
+                }
+
+                // Update status and notify
                 dispatch.setDispatchStatus(DispatchEnums.DispatchStatus.EXPIRED);
                 dispatch.addToDispatchMetadata("DispatchStatus", "Dispatch Is Expired");
 
@@ -262,31 +239,68 @@ public class UserDispatchService {
                         dispatch.getVehicleName(),
                         dispatch.getDispatchId()
                 );
-
                 messagingService.sendDispatchCompletedFanoutFromDispatchService(dispatchEnded);
-                dispatchRepository.save(dispatch);
+            }
+        }
+       return dispatchRepository.saveAll(allMyDispatches);
+    }
+
+    @Transactional
+    public List<DispatchModel> revalidateMyActiveDispatches(String user) {
+        List<DispatchModel> userDispatches = dispatchRepository.findAllByDispatchRequester(user);
+        List<DispatchModel> validDispatches = new ArrayList<>();
+        LocalDateTime now = LocalDateTime.now();
+
+        for (DispatchModel dispatch : userDispatches) {
+            LocalDateTime expiry = dispatch.getDispatchEndTime();
+
+            // ===== Dispatch has expired =====
+            if (expiry.isBefore(now)) {
+
+                // Only refund if it was IN_PROGRESS or PENDING
+                if (dispatch.getDispatchStatus() == DispatchEnums.DispatchStatus.IN_PROGRESS ||
+                        dispatch.getDispatchStatus() == PENDING) {
+
+                    // Refund the dispatch cost
+                    UtilRecords.DispatchScoreUpdateDto userScoreRefund =
+                            new UtilRecords.DispatchScoreUpdateDto(
+                                    dispatch.getDispatchRequester(),
+                                    dispatch.getDispatchId(),
+                                    dispatch.getDispatchCost()
+                            );
+                    messagingService.updateUserScore(userScoreRefund);
+                }
+
+                // Set status to expired and add metadata
+                dispatch.setDispatchStatus(DispatchEnums.DispatchStatus.EXPIRED);
+                dispatch.addToDispatchMetadata("DispatchStatus", "Dispatch Is Expired");
+
+                // Notify via dispatch ended fanout
+                UtilRecords.DispatchEndedDTO dispatchEnded = new UtilRecords.DispatchEndedDTO(
+                        false,
+                        now,
+                        dispatch.getDispatchVehicleId(),
+                        user,
+                        dispatch.getVehicleName(),
+                        dispatch.getDispatchId()
+                );
+                messagingService.sendDispatchCompletedFanoutFromDispatchService(dispatchEnded);
                 continue;
             }
 
 
             if (dispatch.getDispatchStatus() == DispatchEnums.DispatchStatus.CANCELLED) {
-                dispatch.addToDispatchMetadata("DispatchStatus", "Dispatch Is Cancelled");
+
                 continue;
             }
 
             if (dispatch.getDispatchStatus() == DispatchEnums.DispatchStatus.COMPLETED) {
-                dispatch.addToDispatchMetadata("DispatchStatus", "Dispatch Is Completed");
                 continue;
             }
-
-            Duration remainingTime = Duration.between(now, expiry);
-            dispatch.addToDispatchMetadata("expiresInMinutes", remainingTime.toMinutes());
-            dispatch.addToDispatchMetadata("expiresInHours", remainingTime.toHours());
 
             validDispatches.add(dispatch);
         }
 
-        // Save updates (e.g., updated expired statuses)
         dispatchRepository.saveAll(userDispatches);
 
         return validDispatches;
@@ -296,59 +310,61 @@ public class UserDispatchService {
 
 
     @Transactional
-    public DispatchModel  revalidateDispatchByIdUserAndVehicleId(String user,Long dispatchId,String vehicleId){
+    public DispatchModel  revalidateDispatchByIdUserAndVehicleId(String user, Long dispatchId,String vehicleId){
 
         DispatchModel dispatch = dispatchRepository.findByDispatchRequesterAndDispatchIdAndDispatchVehicleId(user, dispatchId, vehicleId);
 
 
-        if(dispatch.getDispatchStatus() == DispatchEnums.DispatchStatus.EXPIRED){
-            dispatch.addToDispatchMetadata("DispatchStatus", "Dispatch Is Expired");
-            dispatchRepository.save(dispatch);
-            return dispatch;
-        }
-
-        if(dispatch.getDispatchStatus() == DispatchEnums.DispatchStatus.CANCELLED){
-            dispatch.addToDispatchMetadata("DispatchStatus", "Dispatch Is Cancelled");
-            dispatchRepository.save(dispatch);
-            return dispatch;
-        }
-
-        if(dispatch.getDispatchStatus() == DispatchEnums.DispatchStatus.COMPLETED){
-            dispatch.addToDispatchMetadata("DispatchStatus", "Dispatch Is Completed");
-            dispatchRepository.save(dispatch);
-            return dispatch;
-        }
 
         LocalDateTime expiry = dispatch.getDispatchEndTime();
         LocalDateTime now = LocalDateTime.now();
 
         if (expiry.isBefore(now)) {
             // dispatch just got expired
+
+            // Only refund if it was IN_PROGRESS or PENDING
+            if (dispatch.getDispatchStatus() == DispatchEnums.DispatchStatus.IN_PROGRESS ||
+                    dispatch.getDispatchStatus() == PENDING) {
+
+                // Refund the dispatch cost
+                UtilRecords.DispatchScoreUpdateDto userScoreRefund =
+                        new UtilRecords.DispatchScoreUpdateDto(
+                                dispatch.getDispatchRequester(),
+                                dispatch.getDispatchId(),
+                                dispatch.getDispatchCost()
+                        );
+                messagingService.updateUserScore(userScoreRefund);
+            }
+
+            // Set status to expired and add metadata
+            dispatch.setDispatchStatus(DispatchEnums.DispatchStatus.EXPIRED);
             dispatch.setDispatchStatus(DispatchEnums.DispatchStatus.EXPIRED);
             dispatch.addToDispatchMetadata("DispatchStatus", "Dispatch Is Expired");
-            dispatchRepository.save(dispatch);
+
+
+            UtilRecords.DispatchEndedDTO dispatchEnded = new UtilRecords.DispatchEndedDTO(
+                    false,
+                    now,
+                    dispatch.getDispatchVehicleId(),
+                    user,
+                    dispatch.getVehicleName(),
+                    dispatch.getDispatchId()
+            );
+            messagingService.sendDispatchCompletedFanoutFromDispatchService(dispatchEnded);
+
+           return dispatchRepository.save(dispatch);
+
+        }else {
             return dispatch;
         }
-
-        if (expiry.isAfter(now)) {
-            // Still active — calculate time remaining
-            Duration remainingTime = Duration.between(now, expiry);
-
-            // Add metadata to result list
-             dispatch.addToDispatchMetadata("expiresInMinutes", remainingTime.toMinutes());
-            dispatch.addToDispatchMetadata("expiresInHours", remainingTime.toHours());
-            dispatchRepository.save(dispatch);
-              return dispatch;
-        }
-        return dispatch;
     }
 
 
-    public DispatchModel getMyDispatchByVinAndId(@Valid Long dispatchId, String currentUser, @Valid String vin) {
-        return dispatchRepository
-                .findByDispatchIdAndDispatchRequesterAndDispatchVehicleId(dispatchId, currentUser, vin)
-                .orElseThrow(() -> new NotFoundException("Dispatch Doesn't exist"));}
 
+
+
+
+    // this is handled and received from other services...that's why it dosn't send messages cause its an internal method
 
     @Transactional
     public void completeDispatch(UtilRecords.DispatchEndedDTO dispatchEnded){
@@ -364,13 +380,13 @@ public class UserDispatchService {
         if(!dispatch.getDispatchRequester().equals(dispatchEnded.receiver())){
             throw new InvalidRequestException("Uhm how did this even happen", 400);
         }
-        dispatch.addToDispatchMetadata("dispatchCompleteStatus", "Your dispatch has been completed");
+
         dispatch.setDispatchStatus(DispatchEnums.DispatchStatus.COMPLETED);
         dispatch.setDispatchEndTime(dispatchEnded.timeStamp());
 
     }
 
-
+@Transactional
     public void handleDispatchTracking(UtilRecords.StartTrackingDTO trackingEvent) {
         DispatchModel foundUserDispatch = dispatchRepository.findByDispatchId(trackingEvent.dispatchId());
 
@@ -434,7 +450,7 @@ public class UserDispatchService {
         finalDispatchBody.setVehicleImage(requestBody.vehicleImage().getFirst());
         finalDispatchBody.setDispatchRequester(userName);
         finalDispatchBody.setDispatchReason(dispatchRequestBody.dispatchReason());
-        finalDispatchBody.setDispatchStatus(DispatchEnums.DispatchStatus.PENDING);
+        finalDispatchBody.setDispatchStatus(PENDING);
         finalDispatchBody.setDispatchRequestTime(dispatchRequestBody.dispatchRequestTime());
         finalDispatchBody.setVehicleClass(dispatchRequestBody.vehicleStatus());
         finalDispatchBody.setDispatchEndTime(dispatchRequestBody.dispatchEndTime());

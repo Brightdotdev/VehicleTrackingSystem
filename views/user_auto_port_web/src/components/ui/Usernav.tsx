@@ -1,12 +1,11 @@
 import { useAuth } from '@/contexts/AuthContext'
 import { Bell, X } from 'lucide-react';
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { Button } from './button';
 import { NotificationData } from '@/types/utilTypes';
 import { useNotifications } from '@/contexts/NotificationContext';
 import { HandleReadNotifications, HandleUnreadNotifications } from '../utils/NotificationUtils';
-import { markNofiticationAsReadApi } from '@/lib/handleUserNotiications';
-import { toast } from 'sonner';
+
 
 
 
@@ -44,10 +43,10 @@ const NotifPopUp = ({ readNotifications, unreadNotifications, setVisible, isvisi
 
 
     {hasNotifications && 
-    <HandleReadNotifications />
+    <HandleReadNotifications  readNotifications={readNotifications}/>
     }
     {hasUnread && 
-    <HandleUnreadNotifications /> 
+    <HandleUnreadNotifications  unreadNotifications={unreadNotifications} /> 
     }
     
     

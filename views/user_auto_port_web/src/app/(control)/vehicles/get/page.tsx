@@ -1,62 +1,60 @@
 "use client";
 
-import Loading from '@/components/ui/Loading';
-import UnvalidatedPage from '@/components/utils/UnvalidatedPage';
-import { useUserValidation } from '@/hooks/useUserValidation';
-import { Loader2 } from 'lucide-react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { lazy, Suspense, useEffect } from 'react';
-import { toast } from 'sonner';
+import { lazy, Suspense, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { toast } from "sonner";
 
+import Loading from "@/components/ui/Loading";
+import UnvalidatedPage from "@/components/utils/UnvalidatedPage";
+import { useUserValidation } from "@/hooks/useUserValidation";
 
-export default function page() {
+// Lazy-load the component only after validation
+const VehicleRequestPage = lazy(() =>
+  import(
+    "@/components/ComponentBlocks/Vehicles/VehicleRequestPage"
+  )
+);
 
+export default function Page() {
   const router = useRouter();
-
-  
   const searchParams = useSearchParams();
-  
-  const vehicle = searchParams.get('vehicle');
 
-  const {loading, isValidated, checkValidation} = useUserValidation();
-  const VehicleRequestPage = lazy(() => import('../../../../components/ComponentBlocks/Vehicles/VehicleRequestPage'));
-  
-  
+  // 🚗 Extract required query param
+  const vehicle = searchParams.get("vehicle");
+
+  // 🔒 User validation hook
+  const { loading, isValidated, checkValidation } = useUserValidation();
+
   useEffect(() => {
+    // 🧱 Defensive check: if vehicle param is missing, redirect and toast
+    if (!vehicle) {
+      toast.error("Invalid or missing vehicle information.");
+      router.replace("/vehicles");
+    }
 
-    if(!vehicle){
-      toast.error("No Valid params for page")
-      router.replace("/vehicles")}
-
+    // ✅ Start validation
     checkValidation();
-  
-    
   }, []);
 
-
-   
- if (loading || isValidated === null) {
-    return <Loading />; 
+  // ⏳ Still validating
+  if (loading || isValidated === null) {
+    return <Loading />;
   }
 
-
+  // 🚫 User is not authorized
   if (!isValidated) {
+    return <UnvalidatedPage />;
+  }
+
+  // 🚀 All checks passed: render page
+  if (isValidated && vehicle) {
     return (
-     <UnvalidatedPage/>
+      <Suspense fallback={<Loading />}>
+        <VehicleRequestPage vehicleVin={vehicle} />
+      </Suspense>
     );
   }
 
-
-  
-    if (isValidated && vehicle)
-      return (
-        <Suspense fallback={<div className='w-screen h-screen flex items-center justify-center gap-2 '>
-                   <Loader2 className="animate-spin ml-2 stroke-foreground" />
-        Dispatch Request Loading...
-        </div>}>
-          <VehicleRequestPage vehicleVin={vehicle} />
-        </Suspense>
-      );
-    
-      
-  }
+  // 🛑 Extra fallback (just in case)
+  return null;
+}

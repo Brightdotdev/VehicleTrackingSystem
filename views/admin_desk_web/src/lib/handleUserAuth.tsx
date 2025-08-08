@@ -1,5 +1,5 @@
 // src/lib/authLibrary/handleUserAuth.ts
-import { AdminDetails, AdminGoogleLogIn, AdminGoogleSignUp, AdminLocalLogIn, AdminLocalSignUp, GoogleUser, User, UserPageData } from "@/types/authTypes";
+import { AdminDetails, AdminGoogleLogIn, AdminGoogleSignUp, AdminLocalLogIn, AdminLocalSignUp, GoogleUser, User } from "@/types/authTypes";
 import { useGoogleLogin } from "@react-oauth/google";
 import axios from "axios";
 import { toast } from "sonner";
