@@ -47,7 +47,7 @@ const UserLisence = (
 export default function Page() {
   const { returnMyData} = useUserValidation();
   const [userData, setUserData] = useState<UserPageData | undefined>(null);
-  const [isCardOpen, setOpenCard] = useState(true)
+  const [isCardOpen, setOpenCard] = useState(false)
   
 
 const formatReadableDate = (dateStr: string) => {
@@ -86,7 +86,7 @@ const formatReadableDate = (dateStr: string) => {
 
           <section className="flex flex-col items-center justify-start h-full lg:w-[68%] w-full  gap-4 ">
             
-          <article className="w-full h-[70%] flex items-start justify-start self-start rounded-md bg-background2 p-4">
+          <article className="w-full h-[70%] flex items-start justify-start self-start md:rounded-md bg-background2 p-4">
     
 
 <div className="flex items-start justify-center flex-col gap-8 w-full">
@@ -144,11 +144,11 @@ const formatReadableDate = (dateStr: string) => {
           </article>
 
 
-<section className="lg:hidden w-full  rounded-md  flex items-start justify-center flex-col  rounded-md">
+<section className="lg:hidden w-full  md:rounded-md  flex items-start justify-center flex-col  md:rounded-md">
           <UserDispatchHistory/>
           </section>
 
-    <footer className="w-full py-8 px-4 text-center bg-background2  rounded-md ">
+    <footer className="w-full py-8 px-4 text-center bg-background2  md:rounded-md ">
       {/* App name and tagline */}
       <div className="mb-4">
         <h2 className="text-xl font-semibold">AutoPort</h2>
@@ -185,7 +185,7 @@ const formatReadableDate = (dateStr: string) => {
 
 
 
-          <section className="lg:w-[30%] lg:h-full  rounded-md  lg:flex hidden items-start justify-center flex-col  rounded-md">
+          <section className="lg:w-[30%] lg:h-full  md:rounded-md  lg:flex hidden items-start justify-center flex-col  md:rounded-md">
           <UserDispatchHistory/>
           </section>
           </main>

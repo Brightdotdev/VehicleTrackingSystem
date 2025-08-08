@@ -20,6 +20,7 @@ public class TrackingModel {
 
 
     @Column(unique = true)
+
     private Long dispatchId;
 
     private String dispatchAdmin;

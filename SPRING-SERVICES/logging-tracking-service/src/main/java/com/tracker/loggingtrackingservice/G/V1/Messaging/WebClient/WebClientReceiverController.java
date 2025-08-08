@@ -1,6 +1,6 @@
 package com.tracker.loggingtrackingservice.G.V1.Messaging.WebClient;
 
-import com.tracker.loggingtrackingservice.G.V1.Repositories.AdminRepository;
+
 import com.tracker.loggingtrackingservice.G.V1.Services.AdminNotificationService;
 import com.tracker.loggingtrackingservice.G.V1.Services.UserNotificationService;
 import com.tracker.loggingtrackingservice.G.V1.Services.TrackingService;
@@ -10,7 +10,7 @@ import com.tracker.loggingtrackingservice.G.V1.Utils.UtilRecords;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
+
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -51,8 +51,8 @@ public class WebClientReceiverController {
         });
     }
 
+
     @PostMapping("/dispatch-created")
-    @Transactional
     public ResponseEntity<ApiResponse<Void>> handleDispatchCreatedNotification(@RequestBody UtilRecords.dispatchRequestBodyDTO event) {
         logger.info("📦 Received /dispatch-created payload: {}", jsonMapper.convertToJson(event));
 
@@ -62,14 +62,15 @@ public class WebClientReceiverController {
         }
 
         return wrapExceptions(() -> {
+            trackingService.handleDispatchTrackingInitialisation(event);
             userNotificationService.sendCreatedDispatchNotification(event);
             adminNotificationService.sendCreatedDispatchNotificationsForAdmin(event);
             return ResponseEntity.ok(ApiResponse.ok(200, "Dispatch created processed"));
         });
     }
 
+
     @PostMapping("/dispatch-completed")
-    @Transactional
     public ResponseEntity<ApiResponse<Void>> handleDispatchCompleted(@RequestBody UtilRecords.DispatchEndedDTO event) {
         logger.info("📦 Received /dispatch-completed payload: {}", jsonMapper.convertToJson(event));
 
@@ -84,8 +85,8 @@ public class WebClientReceiverController {
         });
     }
 
+
     @PostMapping("/dispatch-validated")
-    @Transactional
     public ResponseEntity<ApiResponse<Void>> handleDispatchValidated(@RequestBody UtilRecords.ValidatedDispatch event) {
         logger.info("📦 Received /dispatch-validated payload: {}", jsonMapper.convertToJson(event));
 
@@ -102,7 +103,6 @@ public class WebClientReceiverController {
     }
 
     @PostMapping("/start-tracking")
-    @Transactional
     public ResponseEntity<ApiResponse<Void>> handleTrackingDispatchNotif(@RequestBody UtilRecords.StartTrackingDTO trackingEvent) {
         logger.info("📦 Received /start-tracking payload: {}", jsonMapper.convertToJson(trackingEvent));
 

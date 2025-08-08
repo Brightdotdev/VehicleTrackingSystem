@@ -51,7 +51,7 @@ public class RabbitMqReceiverService {
             if (event == null || event.vehicleIdentificationNumber() == null) {
                 throw new IllegalArgumentException("Invalid dispatchCreated event received");
             }
-
+            trackingService.handleDispatchTrackingInitialisation(event);
             userNotificationService.sendCreatedDispatchNotification(event);
             adminNotificationService.sendCreatedDispatchNotificationsForAdmin(event);
         });

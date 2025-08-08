@@ -1,7 +1,6 @@
 import { DispatchReason, DispatchRequestBody, DispatchRequestDto, VehicleStatus} from "@/types/VehicleTypes";
 import { toast } from "sonner";
 import { dotEnv } from "./dotEnv";
-import { da } from "date-fns/locale";
 import { dispatchCostResponse } from "@/types/utilTypes";
 
 
@@ -26,11 +25,23 @@ import { dispatchCostResponse } from "@/types/utilTypes";
         const data  = await response.json();
         console.log(response)
         console.log(data)
-        toast.info("Yeah these are my active the Dispatchs")
-        return data;
+        
+          
+      if(data.data !==  null){
+        toast.info(data.message)
+        return data.data;
+        }else{
+      toast.error("You have No Dispatch History?")
+      toast.error(data.message)
+      return []
+    }
+
+
       } catch (error) {
         console.log(error)
         toast.error("Somethinggg went wrong...argggghh")
+      return []
+  
       }
     }
 
@@ -51,7 +62,7 @@ export const getMyValidDispatches = async (): Promise<DispatchRequestDto[]> => {
     if(data.data !==  null){
     return data.data;
     }else{
-      toast.error("You have No Ongoing Dispatches")
+      toast.error(data.message)
       return []
     }
 
@@ -142,14 +153,10 @@ export const getMyValidDispatches = async (): Promise<DispatchRequestDto[]> => {
           console.log(response)
 
           const data  = await response.json();
+ 
+          toast.info(data.message)
             console.log(data)
-          if(data.data === null) {
-            toast.error(data.message)
-            return data;
-          }else{
-            
-            return data.data;
-          }}
+        }
        catch (error) {
         console.log(error)}}
 

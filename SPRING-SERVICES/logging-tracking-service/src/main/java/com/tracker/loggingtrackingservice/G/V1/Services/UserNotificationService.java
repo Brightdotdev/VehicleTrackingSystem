@@ -1,7 +1,6 @@
     package com.tracker.loggingtrackingservice.G.V1.Services;
 
     import com.tracker.loggingtrackingservice.G.V1.Config.UserHandler;
-    import com.tracker.loggingtrackingservice.G.V1.Exceptions.AccessException;
     import com.tracker.loggingtrackingservice.G.V1.Exceptions.InvalidTaskRequestException;
     import com.tracker.loggingtrackingservice.G.V1.Exceptions.NotFoundException;
     import com.tracker.loggingtrackingservice.G.V1.Models.UserNotificationModel;
@@ -9,6 +8,8 @@
     import com.tracker.loggingtrackingservice.G.V1.Utils.LogEnums;
     import com.tracker.loggingtrackingservice.G.V1.Utils.UtilRecords;
     import jakarta.transaction.Transactional;
+    import org.slf4j.Logger;
+    import org.slf4j.LoggerFactory;
     import org.springframework.stereotype.Service;
 
     import java.time.LocalDateTime;
@@ -20,6 +21,7 @@
     public class UserNotificationService {
 
 
+        private static final Logger logger = LoggerFactory.getLogger(UserNotificationService.class);
 
         private final UserNotificationRepository userNotificationRepository;
         private final UserHandler userHandler;
@@ -99,24 +101,31 @@
         }
 
 
-
-        // if a dispatch is completed do this
         public void completedDispatchNotification(UtilRecords.DispatchEndedDTO dispatchEvent) {
+
+            logger.info("Entered completedDispatchNotification method");
+
             String receiver = dispatchEvent.receiver();
             Boolean wasCancelled = dispatchEvent.wasCancelled();
+            String vehicleName = dispatchEvent.vehicleName();
+
+            logger.debug("Dispatch event details - Receiver: {}, Vehicle: {}, WasCancelled: {}", receiver, vehicleName, wasCancelled);
+
             String message;
-            if(wasCancelled){
-                 message = "Hello your dispatch for the" + dispatchEvent.vehicleName()
+
+            // Check if the dispatch was cancelled
+            if (wasCancelled) {
+                message = "Hello your dispatch for the " + vehicleName
                         + " has been cancelled....thank you for your using Auto Port";
+                logger.info("Dispatch was cancelled. Notification message set accordingly.");
+            } else {
+                message = "Hello your dispatch for the " + vehicleName
+                        + " is completed and has been expired....thank you for your using Auto Port";
+                logger.info("Dispatch completed. Notification message set accordingly.");
             }
 
-            message = "Hello your dispatch for the" + dispatchEvent.vehicleName()
-                    + " is completed and has been expired....thank you for your using Auto Port";
-
-
-       UserNotificationModel userNotificationModel = new UserNotificationModel();
-
-            // Set up the notification model
+            // Create and populate UserNotificationModel
+            UserNotificationModel userNotificationModel = new UserNotificationModel();
             userNotificationModel.setCreatedAt(LocalDateTime.now());
             userNotificationModel.setTitle("Dispatch Request ");
             userNotificationModel.setRead(false);
@@ -124,17 +133,30 @@
             userNotificationModel.setType(LogEnums.NotificationType.INFO);
             userNotificationModel.setMessage(message);
 
-            // Save and send notification
+            logger.debug("Notification model populated: {}", userNotificationModel);
+
+            // Save the notification
             UserNotificationModel savedNotification = userNotificationRepository.save(userNotificationModel);
+            logger.info("Notification saved with ID: {}", savedNotification.getId());
 
+            // Create DTO for sending/returning the notification
+            UtilRecords.NotificationDto dispatchCompletedNotif = new UtilRecords.NotificationDto(
+                    message,
+                    savedNotification.getTitle(),
+                    savedNotification.getId(),
+                    false,
+                    null,
+                    null,
+                    receiver,
+                    false
+            );
 
-            UtilRecords.NotificationDto dispatchCompletedNotif = new UtilRecords.NotificationDto(message, savedNotification.getTitle()
-                    ,savedNotification.getId(),false,null,null,receiver,false);
+            logger.debug("Notification DTO created: {}", dispatchCompletedNotif);
 
-
+            // Stop tracking service for the dispatch
             trackingService.stopTracking(dispatchEvent);
+            logger.info("Tracking stopped for dispatch event.");
         }
-
 
 
         // set notifications to read

@@ -36,7 +36,7 @@ const userStatusText = (userStatus : UserStatus) =>{
     if(userName === undefined || userLisence === undefined || lisenceExp === undefined ) return null
 
 return (
-        <CreditCard className='w-[20rem]'>
+        <CreditCard className='md:w-[20rem] w-[18rem]'>
     <CreditCardFlipper>
       <CreditCardFront className="bg-[#063573]">
         

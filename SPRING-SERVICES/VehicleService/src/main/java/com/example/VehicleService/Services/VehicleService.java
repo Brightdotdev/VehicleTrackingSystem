@@ -10,6 +10,8 @@ import com.example.VehicleService.Utils.UtilRecords;
 import com.example.VehicleService.Utils.VehicleDataGenerator;
 import com.example.VehicleService.Utils.VehicleEnums;
 import jakarta.transaction.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.ArrayList;
@@ -28,7 +30,7 @@ public class VehicleService {
 
     private final VehicleRepository vehicleRepository;
     private final VehicleHealthService vehicleHealthService;
-
+    private static final Logger logger = LoggerFactory.getLogger(VehicleService.class);
     public VehicleService(VehicleRepository vehicleRepository, VehicleHealthService vehicleHealthService) {
         this.vehicleRepository = vehicleRepository;
         this.vehicleHealthService = vehicleHealthService;
@@ -247,25 +249,39 @@ public class VehicleService {
 
     @Transactional
     public void completedDispatch(UtilRecords.DispatchEndedDTO dispatchEvent) {
+        logger.info("Starting completedDispatch process for VIN: {}", dispatchEvent.vehicleIdentificationNumber());
 
-        VehicleModel dispatchedVehicle = vehicleRepository.
-                findByVehicleIdentificationNumber(dispatchEvent.vehicleIdentificationNumber());
+        // Fetch the vehicle by its VIN
+        VehicleModel dispatchedVehicle = vehicleRepository
+                .findByVehicleIdentificationNumber(dispatchEvent.vehicleIdentificationNumber());
 
-        if (dispatchedVehicle == null){
+        // Check if vehicle was found
+        if (dispatchedVehicle == null) {
+            logger.error("Vehicle not found for VIN: {}", dispatchEvent.vehicleIdentificationNumber());
             throw new NotFoundException("The vehicle doesn't even exist boss");
-        }if (
-                dispatchedVehicle.getDispatchStatus() != IN_PROGRESS &&
-                        dispatchedVehicle.getDispatchStatus() != PENDING
-        )
+        }
 
+        logger.debug("Vehicle found: {} with dispatch status: {}",
+                dispatchedVehicle.getVehicleIdentificationNumber(),
+                dispatchedVehicle.getDispatchStatus());
 
+        // Only update dispatch status if it's IN_PROGRESS or PENDING
+        if (dispatchedVehicle.getDispatchStatus() != VehicleEnums.VehicleDispatchStatus.IN_PROGRESS &&
+                dispatchedVehicle.getDispatchStatus() != VehicleEnums.VehicleDispatchStatus.PENDING) {
 
             dispatchedVehicle.setDispatchStatus(VehicleEnums.VehicleDispatchStatus.AVAILABLE);
-        vehicleRepository.save(dispatchedVehicle);
+            logger.info("Dispatch status updated to AVAILABLE for VIN: {}",
+                    dispatchedVehicle.getVehicleIdentificationNumber());
 
+            // Save the updated vehicle to the repository
+            vehicleRepository.save(dispatchedVehicle);
+            logger.info("Vehicle saved with updated dispatch status for VIN: {}",
+                    dispatchedVehicle.getVehicleIdentificationNumber());
+        } else {
+            logger.info("Vehicle dispatch status remains unchanged (IN_PROGRESS or PENDING) for VIN: {}",
+                    dispatchedVehicle.getVehicleIdentificationNumber());
+        }
     }
-
-
     @Transactional
     public void handleDispatchTracking(UtilRecords.StartTrackingDTO trackingEvent){
 

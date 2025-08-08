@@ -133,25 +133,32 @@ public class TrackingService {
     @Transactional
     public void handleValidatedDispatchTracking(UtilRecords.ValidatedDispatch dispatchValidatedEvent) {
 
+        Optional<TrackingModel> foundTrackingDispatch = trackingRepository.findByDispatchIdAndDispatchRequester(dispatchValidatedEvent.dispatchId(), dispatchValidatedEvent.dispatchRequester());
+
+        if(foundTrackingDispatch.isEmpty()){
+            throw new NotFoundException("NO Intialized dispatch tracker for this dispatch");
+        }
+        TrackingModel trackingModel = foundTrackingDispatch.get();
+        trackingModel.setDispatchAdmin(dispatchValidatedEvent.dispatchAdmin());
+        trackingRepository.save(trackingModel);
+    }
+
+
+
+    public void handleDispatchTrackingInitialisation(UtilRecords.dispatchRequestBodyDTO dispatchValidatedEvent) {
+
         TrackingModel trackingModel = new TrackingModel();
-
-
         trackingModel.setDispatchId(dispatchValidatedEvent.dispatchId());
         trackingModel.setCreatedAt(LocalDateTime.now());
         trackingModel.setDispatchReason(dispatchValidatedEvent.dispatchReason());
         trackingModel.setDispatchEndTime(dispatchValidatedEvent.dispatchEndTime());
-
         trackingModel.setDispatchStatus(LogEnums.DispatchStatus.IN_PROGRESS);
-        trackingModel.setDispatchAdmin(dispatchValidatedEvent.dispatchAdmin());
-
         trackingModel.setVehicleIdentificationNumber(dispatchValidatedEvent.vehicleIdentificationNumber());
 
         trackingModel.setDispatchRequester(dispatchValidatedEvent.dispatchRequester());
         trackingModel.setVehicleName(dispatchValidatedEvent.vehicleName());
-
         trackingRepository.save(trackingModel);
     }
-
 
     //** utitiessss
 

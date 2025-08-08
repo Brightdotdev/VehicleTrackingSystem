@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { DispatchRequestPageStatusPills, DispatchRequestPageStatusPillsProps } from './RequestPageUtilComponents';
 import { DispatchRequestDto } from '@/types/VehicleTypes';
 import { ArrowUpRight, Info } from 'lucide-react';
-import { getMyValidDispatches } from '@/lib/handleUserDispatchPage';
+import { getAllMyDIspatches } from '@/lib/handleUserDispatchPage';
 import Link from 'next/link';
 
 const UserDispatchHistory = () => {
@@ -10,8 +10,9 @@ const UserDispatchHistory = () => {
     const [dispatchHistory, setDispatchHistory] = useState<DispatchRequestDto[]>([])
 
     const getUserHistory =  async () => {
-        const userDispatchHistory = await getMyValidDispatches();
-        setDispatchHistory([])
+        const userDispatchHistory = await getAllMyDIspatches();
+        console.log(userDispatchHistory)
+        setDispatchHistory(userDispatchHistory)
     }
 
 
