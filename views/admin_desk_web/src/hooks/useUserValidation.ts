@@ -2,6 +2,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { dotEnv } from "@/lib/dotEnv";
 import { isValidatedUser } from "@/lib/handleUserAuth";
 import { deleteCookie } from "@/lib/utils";
+import { AdminDetails } from "@/types/authTypes";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -10,16 +11,17 @@ import { toast } from "sonner";
     ) => {
         const [isValidated, setValidated] = useState<boolean | null>(null);
         const [loading, setLoading] = useState(true);
+        const [adminDetails, setAdminDetails] = useState<AdminDetails | null>(null)
+  
+        
         const {setUser, userData} = useAuth();
-      
-
+ 
         const checkValidation = async () => {
                 setLoading(true);
-             await isValidatedUser(setLoading,setValidated,setUser);
-                
-            };
+             await isValidatedUser(setLoading,setValidated,setUser,setAdminDetails);
+            };   
 
-            
+        
       const handleLogOut = async () => {
             toast.info("Routing")
             setLoading(true);
@@ -49,12 +51,9 @@ import { toast } from "sonner";
             }
           };
 
-
-
-
             useEffect(() => {
                 checkValidation();
             }, []);
 
-            return { isValidated , loading , checkValidation, handleLogOut , userData };
+            return { isValidated , loading ,checkValidation, handleLogOut, adminDetails, userData };
         };

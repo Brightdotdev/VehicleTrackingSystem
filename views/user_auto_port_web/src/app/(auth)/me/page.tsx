@@ -4,6 +4,7 @@
 import { Button } from '@/components/ui/button';
 import UserLicenceCard from '@/components/ui/CreditCardDemo';
 import UserDispatchHistory from '@/components/ui/UserDispatchHistory';
+import UnvalidatedPage from '@/components/utils/UnvalidatedPage';
 import { useUserValidation } from '@/hooks/useUserValidation';
 import { UserPageData, UserStatus } from '@/types/authTypes';
 import { format, parseISO } from 'date-fns';
@@ -30,14 +31,7 @@ const UserLisence = (
         </span>
       </Button>
 
-
-
-
-          
-
      <UserLicenceCard userStatus={userStatus} userName={userName} userLisence={userLisence} lisenceExp={lisenceExp}/>
-
-
       </section>
   )
 }
@@ -70,7 +64,8 @@ const formatReadableDate = (dateStr: string) => {
 
   }, []);
   
-  if (!userData || !userData.username || !userData.licence || !userData.licenceExp) return null;
+  if (!userData || !userData.username || !userData.licence || !userData.licenceExp) return <UnvalidatedPage/>
+  
 
 
   if(isCardOpen) return  <UserLisence isCarOpen={isCardOpen}  setIsCardOpen={setOpenCard} userLisence={userData.licence} userName={userData.username} userStatus={userData.userStatus} lisenceExp={userData.licenceExp} />

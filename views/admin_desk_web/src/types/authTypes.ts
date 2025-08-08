@@ -49,3 +49,24 @@ export type User = {
   username: string;
   roles: string[];
 } | null;
+
+
+
+export enum UserStatus {
+  DRIVER = "DRIVER",
+  TRANSPORTER = "TRANSPORTER",
+  ADMIN = "ADMIN",
+  CIVILIAN = "CIVILIAN"
+}
+
+
+export type AdminDetails = {
+  email: string;
+  image?: string;
+  licence: string;
+  username: string;
+  joinedAt : string;
+  licenceExp : string; 
+  userStatus : UserStatus
+  roles: string[];
+} | null;

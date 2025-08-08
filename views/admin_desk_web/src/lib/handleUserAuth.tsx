@@ -1,5 +1,5 @@
 // src/lib/authLibrary/handleUserAuth.ts
-import { AdminGoogleLogIn, AdminGoogleSignUp, AdminLocalLogIn, AdminLocalSignUp, GoogleUser, User } from "@/types/authTypes";
+import { AdminDetails, AdminGoogleLogIn, AdminGoogleSignUp, AdminLocalLogIn, AdminLocalSignUp, GoogleUser, User, UserPageData } from "@/types/authTypes";
 import { useGoogleLogin } from "@react-oauth/google";
 import axios from "axios";
 import { toast } from "sonner";
@@ -160,7 +160,8 @@ export const handleGoogleLogIn = async (
         export  const isValidatedUser  = async  (
     setLoading : (loading : boolean) => void ,
     setValidated : (isValidated : boolean) => void,
-        setUser : (user : User) => void
+        setUser : (user : User) => void,
+        setAdminDetails : (adminUser : AdminDetails) => void
   ) => {
  try {
     const response = await fetch(dotEnv.cookieValidationLink, {
@@ -174,8 +175,8 @@ console.log(response)
       
         if(valid && code === 200 && user.email !== null && success === true ){
           setUser(user);
-          return setValidated(true);
-        
+          setAdminDetails(user);
+          return setValidated(true);        
         } 
         return setValidated(false);
       } catch (error) {

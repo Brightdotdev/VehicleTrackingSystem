@@ -4,6 +4,7 @@ package com.example.AuthService.Controllers;
 import com.example.AuthService.Config.JwtConfig;
 import com.example.AuthService.Exceptions.AccessException;
 import com.example.AuthService.Exceptions.ConflictException;
+import com.example.AuthService.Exceptions.NotFoundException;
 import com.example.AuthService.Handlers.CookieGenerationHandler;
 import com.example.AuthService.Models.UserModel;
 import com.example.AuthService.Services.AdminService;
@@ -213,6 +214,12 @@ public class AdminController {
         user.put("picture", adminData.getUserImage());
         user.put("username", adminData.getName());
 
+        user.put("licenceExp", adminData.getLicenseExpiry());
+        user.put("joinedAt", adminData.getJoinedAt());
+
+        user.put("userStatus", adminData.getUserStatus());
+        user.put("licence", adminData.getLicenseKey());
+
         response.put("user", user);
         response.put("valid", true);
 
@@ -240,5 +247,16 @@ public class AdminController {
         return ResponseEntity.ok(
                 ApiResponse.success(200, "Valid key", true)
         );
-}}
+}
+
+
+
+
+
+
+
+
+
+
+}
 

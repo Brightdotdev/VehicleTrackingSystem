@@ -18,7 +18,7 @@ const AdminWelcomePage = dynamic(() => import('@/components/ComponentBlocks/Admi
 });
 
 export default function Page() {
-  const { isValidated, loading, checkValidation } = useUserValidation();
+  const { isValidated, loading, checkValidation ,adminDetails } = useUserValidation();
   const searchParams = useSearchParams();
   const redirected = searchParams.get("redirected");
 
