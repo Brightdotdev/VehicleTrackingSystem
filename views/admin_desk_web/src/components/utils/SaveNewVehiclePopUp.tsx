@@ -80,6 +80,10 @@ const [imageInput, setImageInput] = useState("");
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     
     e.preventDefault();
+      if (form.vehicleImages.length === 0) {
+    alert("Please add at least one vehicle image before saving.");
+    return;
+  }
     setLoading(true);
     setForm(prev => ({
       ...prev,
