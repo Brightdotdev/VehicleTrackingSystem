@@ -44,159 +44,220 @@ public class UserDispatchService {
         this.messagingService = messagingService;
     }
 
-
-    /**  creating a dispatch requesting for one  **/
-
     @Transactional
-    public
-    //UtilRecords.DispatchResponseDTO
-            DispatchModel requestVehicleDispatch(UtilRecords.dispatchRequestBody requestBody, String userName,String userImage , List<String> userRole) {
+    public DispatchModel requestVehicleDispatch(
+            UtilRecords.dispatchRequestBody requestBody,
+            String userName,
+            String userImage,
+            List<String> userRole) {
 
-        DispatchModel dispatchFinalModel = new DispatchModel();
-        Boolean canDispatch = false;
+        // --- Log entry point and parameters ---
+        logger.info("[DispatchRequest] Starting requestVehicleDispatch");
+        logger.debug("[DispatchRequest] Request body: {}", requestBody);
+        logger.debug("[DispatchRequest] User: {}, Roles: {}, Image: {}", userName, userRole, userImage);
 
-        List<DispatchModel> foundVehicleDispatches = dispatchRepository.findByDispatchVehicleId(requestBody.vehicleIdentificationNumber());
+        boolean canDispatch;
 
-        System.out.println(foundVehicleDispatches);
+        // --- Fetch all dispatches for this vehicle ---
+        List<DispatchModel> foundVehicleDispatches =
+                dispatchRepository.findByDispatchVehicleId(requestBody.vehicleIdentificationNumber());
+        logger.debug("[DispatchRequest] Found {} existing dispatch records for vehicle VIN: {}",
+                foundVehicleDispatches.size(), requestBody.vehicleIdentificationNumber());
 
-
+        // --- Check for conflicting dispatch statuses ---
         for (DispatchModel dispatchModel : foundVehicleDispatches) {
-            if (
-                    dispatchModel.getDispatchStatus() == DispatchEnums.DispatchStatus.COMPLETED ||
-                            dispatchModel.getDispatchStatus() == DispatchEnums.DispatchStatus.CANCELLED ||
-                            dispatchModel.getDispatchStatus() == DispatchEnums.DispatchStatus.EXPIRED
-            ) {
+            logger.trace("[DispatchRequest] Checking dispatch record ID={} with status={}",
+                    dispatchModel.getDispatchId(), dispatchModel.getDispatchStatus());
+
+            if (dispatchModel.getDispatchStatus() == DispatchEnums.DispatchStatus.COMPLETED ||
+                    dispatchModel.getDispatchStatus() == DispatchEnums.DispatchStatus.CANCELLED ||
+                    dispatchModel.getDispatchStatus() == DispatchEnums.DispatchStatus.EXPIRED) {
                 continue;
             }
 
-
             if (dispatchModel.getDispatchStatus().equals(PENDING)) {
+                logger.warn("[DispatchRequest] Conflict: Vehicle already requested by another user");
                 throw new InvalidRequestException("Vehicle already requested by another user", 403);
             }
 
             if (dispatchModel.getDispatchStatus().equals(ONGOING)) {
-                throw new InvalidRequestException("The current vehicle is already in dispatch an ongoing dispatch", 403);
+                logger.warn("[DispatchRequest] Conflict: Vehicle already in ongoing dispatch");
+                throw new InvalidRequestException("The current vehicle is already in an ongoing dispatch", 403);
             }
 
             if (dispatchModel.getDispatchStatus().equals(DispatchEnums.DispatchStatus.IN_PROGRESS)) {
+                logger.warn("[DispatchRequest] Conflict: Vehicle staged for dispatch");
                 throw new InvalidRequestException("The current vehicle is already staged for dispatch and cannot be booked", 403);
             }
         }
 
-        if(!(boolean) scoreIsEnough(requestBody).get("isEnough")){
+        // --- Score check ---
+        Map<String, Object> scoreCheck = scoreIsEnough(requestBody);
+        logger.debug("[DispatchRequest] Score check result: {}", scoreCheck);
+
+        if (!(boolean) scoreCheck.get("isEnough")) {
+            logger.warn("[DispatchRequest] User score too low for dispatch");
             throw new InvalidRequestException("Your Score is Too Low For Dispatch", 403);
         }
 
-        UtilRecords.dispatchRequestBodyDTO requestBodyDTO
-                = new UtilRecords.dispatchRequestBodyDTO(requestBody.vehicleName(),requestBody.vehicleIdentificationNumber(),requestBody.vehicleStatus(),requestBody.dispatchReason(),userName,requestBody.dispatchEndTime(), null);
+        // --- Prepare DTO for dispatch request ---
+        UtilRecords.dispatchRequestBodyDTO requestBodyDTO =
+                new UtilRecords.dispatchRequestBodyDTO(
+                        requestBody.vehicleName(),
+                        requestBody.vehicleIdentificationNumber(),
+                        requestBody.vehicleStatus(),
+                        requestBody.dispatchReason(),
+                        userName,
+                        requestBody.dispatchEndTime(),
+                        null
+                );
+        logger.debug("[DispatchRequest] Created requestBodyDTO: {}", requestBodyDTO);
 
+        // --- Send dispatch request event ---
+        Map<String, Object> dispatchResult = messagingService.sendDispatchRequestedEvent(requestBodyDTO);
+        logger.debug("[DispatchRequest] Dispatch event response: {}", dispatchResult);
 
-
-        Map<String, Object> dispatchResult = (Map<String, Object>) messagingService.sendDispatchRequestedEvent(requestBodyDTO);
-        System.out.println(dispatchResult);
         if (dispatchResult.containsKey("canDispatch")) {
             canDispatch = (Boolean) dispatchResult.get("canDispatch");
+            logger.debug("[DispatchRequest] canDispatch flag: {}", canDispatch);
         }
 
+        // --- Map response to DTO ---
+        UtilRecords.DispatchResponseDTO finalResponse =
+                dispatchResponseMapper.dispatchResponseMapper(dispatchResult);
+        logger.debug("[DispatchRequest] Mapped final response DTO: {}", finalResponse);
 
-        UtilRecords.DispatchResponseDTO finalResponse = dispatchResponseMapper.dispatchResponseMapper(dispatchResult);
+        // --- Create and save DispatchModel ---
+        DispatchModel finalDispatchModel = getDispatchModel(finalResponse, userName, userRole, userImage, requestBody, (Double) scoreCheck.get("price"));
+        DispatchModel savedModel = dispatchRepository.save(finalDispatchModel);
+        logger.info("[DispatchRequest] DispatchModel saved with ID: {}", savedModel.getDispatchId());
 
-
-        DispatchModel finalDispatchModel = getDispatchModel(finalResponse,userName,userRole,userImage,requestBody);
-
-        DispatchModel savedModel =  dispatchRepository.save(finalDispatchModel);
-        Object rawScore = scoreIsEnough(requestBody).get("finalUserScore");
+        // --- Update user score ---
+        Object rawScore = scoreCheck.get("finalUserScore");
         double finalScore = rawScore instanceof Number ? ((Number) rawScore).doubleValue() : 0.0;
         double negatedScore = -finalScore;
+        logger.debug("[DispatchRequest] Final score: {}, negated: {}", finalScore, negatedScore);
 
-        UtilRecords.DispatchScoreUpdateDto userScoreUpdate = new UtilRecords.DispatchScoreUpdateDto(requestBody.dispatchRequester(),savedModel.getDispatchId(), negatedScore);
-
-
+        UtilRecords.DispatchScoreUpdateDto userScoreUpdate =
+                new UtilRecords.DispatchScoreUpdateDto(requestBody.dispatchRequester(),
+                        savedModel.getDispatchId(),
+                        negatedScore);
         messagingService.updateUserScore(userScoreUpdate);
+        logger.debug("[DispatchRequest] Sent user score update: {}", userScoreUpdate);
 
-        UtilRecords.dispatchRequestBodyDTO finalDispatchDto
-                = new UtilRecords.dispatchRequestBodyDTO(savedModel.getVehicleName(),savedModel.getDispatchVehicleId(),savedModel.getVehicleClass(),savedModel.getDispatchReason(),userName,requestBody.dispatchEndTime(), savedModel.getDispatchId());
-
-
+        // --- Send created event without waiting for response ---
+        UtilRecords.dispatchRequestBodyDTO finalDispatchDto =
+                new UtilRecords.dispatchRequestBodyDTO(
+                        savedModel.getVehicleName(),
+                        savedModel.getDispatchVehicleId(),
+                        savedModel.getVehicleClass(),
+                        savedModel.getDispatchReason(),
+                        userName,
+                        requestBody.dispatchEndTime(),
+                        savedModel.getDispatchId()
+                );
         messagingService.sendDispatchCreatedEventNoResponse(finalDispatchDto);
+        logger.info("[DispatchRequest] Dispatch created event sent for ID: {}", savedModel.getDispatchId());
+
+        // --- Exit logger ---
+        logger.info("[DispatchRequest] Completed requestVehicleDispatch successfully for user: {}", userName);
         return savedModel;
     }
 
 
 
 
-    /** canceling a dispatch (user(dispatch requester)) **/
     @Transactional
     public DispatchModel userCancelingDispatch(String userName, List<String> userRole, Long dispatchId) {
 
+        logger.info("=== User Canceling Dispatch Request ===");
+        logger.debug("Request received with userName={}, userRole={}, dispatchId={}", userName, userRole, dispatchId);
+
         // Ensure the user has at least one role
         if (userRole.isEmpty()) {
+            logger.warn("User '{}' has no roles assigned. Throwing InvalidRequestException.", userName);
             throw new InvalidRequestException("No user role provided", 400);
         }
 
-        // Look for the dispatch by ID and the user who created it
+        // Look for the dispatch by ID and requester
+        logger.debug("Looking up dispatch for ID={} and requester={}", dispatchId, userName);
         DispatchModel dispatch = dispatchRepository.findByDispatchIdAndDispatchRequester(dispatchId, userName);
 
         if (dispatch == null) {
+            logger.error("No dispatch found for user '{}' with dispatchId={}", userName, dispatchId);
             throw new NotFoundException("No Dispatch Connected to that user is found");
         }
+        logger.info("Dispatch found: status={}, cost={}, vehicleId={}",
+                dispatch.getDispatchStatus(), dispatch.getDispatchCost(), dispatch.getDispatchVehicleId());
 
-
+        // Check if dispatch is still valid
         if (!isStillValidDispatch(dispatch)) {
+            logger.warn("Dispatch ID={} for user '{}' is no longer valid for cancellation.", dispatchId, userName);
             return null;
         }
 
-
+        // Ensure requester matches
         if (!dispatch.getDispatchRequester().equals(userName)) {
+            logger.error("User '{}' attempted to cancel another user's dispatch (owner={})",
+                    userName, dispatch.getDispatchRequester());
             throw new InvalidRequestException("An external user cannot cancel another user's dispatch", 400);
         }
 
-
+        // Handle ONGOING dispatch cancellation
         if (dispatch.getDispatchStatus() == ONGOING) {
+            logger.info("Cancelling ONGOING dispatch ID={} for user '{}'", dispatchId, userName);
+
             Double userRefund = calculateOngoingRefund(dispatch);
+            logger.debug("Calculated ongoing refund amount: {}", userRefund);
 
             UtilRecords.DispatchScoreUpdateDto userScoreUpdate =
                     new UtilRecords.DispatchScoreUpdateDto(userName, dispatchId, userRefund);
-
             messagingService.updateUserScore(userScoreUpdate);
+            logger.info("User score updated with refund of {}", userRefund);
 
             dispatch.setDispatchStatus(DispatchEnums.DispatchStatus.CANCELLED);
-
+            logger.debug("Dispatch status set to CANCELLED");
 
             UtilRecords.DispatchEndedDTO dispatchEnded =
                     new UtilRecords.DispatchEndedDTO(true, LocalDateTime.now(),
                             dispatch.getDispatchVehicleId(), userName,
                             dispatch.getVehicleName(), dispatchId);
-
             messagingService.sendDispatchCompletedFanoutFromDispatchService(dispatchEnded);
+            logger.info("Sent 'dispatch completed' fanout for cancelled ONGOING dispatch");
+
             return dispatchRepository.save(dispatch);
         }
 
-
+        // Handle PENDING or IN_PROGRESS cancellation
         if (dispatch.getDispatchStatus() == PENDING || dispatch.getDispatchStatus() == IN_PROGRESS) {
+            logger.info("Cancelling {} dispatch ID={} for user '{}'", dispatch.getDispatchStatus(), dispatchId, userName);
+
             Double fullRefund = dispatch.getDispatchCost();
+            logger.debug("Full refund amount: {}", fullRefund);
 
             UtilRecords.DispatchScoreUpdateDto userScoreUpdate =
                     new UtilRecords.DispatchScoreUpdateDto(userName, dispatchId, fullRefund);
-
             messagingService.updateUserScore(userScoreUpdate);
+            logger.info("User score updated with full refund of {}", fullRefund);
 
             dispatch.setDispatchStatus(DispatchEnums.DispatchStatus.CANCELLED);
+            logger.debug("Dispatch status set to CANCELLED");
 
-            // Notify system of cancellation (user-triggered)
             UtilRecords.DispatchEndedDTO dispatchEnded =
                     new UtilRecords.DispatchEndedDTO(true, LocalDateTime.now(),
                             dispatch.getDispatchVehicleId(), userName,
                             dispatch.getVehicleName(), dispatchId);
-
             messagingService.sendDispatchCompletedFanoutFromDispatchService(dispatchEnded);
+            logger.info("Sent 'dispatch completed' fanout for cancelled {} dispatch", dispatch.getDispatchStatus());
+
             return dispatchRepository.save(dispatch);
         }
 
-
+        // If status is not valid for cancellation
+        logger.error("Attempt to cancel dispatch ID={} with invalid status={}",
+                dispatchId, dispatch.getDispatchStatus());
         throw new InvalidRequestException("Only ONGOING or PENDING dispatches can be cancelled by the user", 400);
     }
-
 
 
 
@@ -364,7 +425,7 @@ public class UserDispatchService {
 
 
 
-    // this is handled and received from other services...that's why it dosn't send messages cause its an internal method
+    // this is handled and received from other services...that's why it doesn't send messages 'cause it's an internal method
 
     @Transactional
     public void completeDispatch(UtilRecords.DispatchEndedDTO dispatchEnded){
@@ -407,7 +468,7 @@ public class UserDispatchService {
         foundUserDispatch.setDispatchStatus(ONGOING);
         foundUserDispatch.setDispatchStartTime(LocalDateTime.now());
 
-        // new scoree depending on the dispatch when it is actually like given out
+        // new score depending on the dispatch when it is actually like given out
         UtilRecords.dispatchRequestBody dispatchRequest = new UtilRecords.dispatchRequestBody(foundUserDispatch.getVehicleName(),foundUserDispatch.getDispatchVehicleId(),foundUserDispatch.getVehicleClass(),foundUserDispatch.getDispatchReason(),foundUserDispatch.getDispatchRequester(),0.0,foundUserDispatch.getDispatchEndTime(),LocalDateTime.now());
 
         // making the difference and returning the excess dispatch points
@@ -441,7 +502,7 @@ public class UserDispatchService {
     private static DispatchModel getDispatchModel(
     UtilRecords.DispatchResponseDTO requestBody,
     String userName, List<String> roles,String userImage,
-    UtilRecords.dispatchRequestBody dispatchRequestBody) {
+    UtilRecords.dispatchRequestBody dispatchRequestBody, double dispatchCost) {
 
         DispatchModel finalDispatchBody = new DispatchModel();
         finalDispatchBody.setDispatchVehicleId(dispatchRequestBody.vehicleIdentificationNumber());
@@ -459,6 +520,7 @@ public class UserDispatchService {
         finalDispatchBody.setHealthAttributes(requestBody.healthAttributes());
         finalDispatchBody.setWildCards(requestBody.wildCards());
         finalDispatchBody.setSafetyScore(requestBody.safetyScore());
+        finalDispatchBody.setDispatchCost(dispatchCost);
         return finalDispatchBody;
     }
 
@@ -467,7 +529,7 @@ public class UserDispatchService {
     public static Double calculateDispatchPrice(UtilRecords.dispatchRequestBody dispatchRequestBody) {
 
         double vehicleClassScore = 0;
-        double totalScoreForDays = 0;
+        double totalScoreForDays;
         double dispatchReasonScore = 0;
 
         long totalHours = Duration.between(dispatchRequestBody.dispatchRequestTime(), dispatchRequestBody.dispatchEndTime()).toHours();
