@@ -74,18 +74,24 @@ export const markNofiticationAsReadApi = async (id : string) => {
 
 }
 
-export const getAllMyNotifications = async () => {
+export const getAllMyNotifications = async (
+   isAuthenticated : boolean ,setIsAuthenticated : (isAuthenticated : boolean) => void
+) => {
+
 
     try {
-          
-      console.log("Yeah this is actually happening")
-    const userDara = await getMyData()
-    console.log(userDara)
+      
+             if(!isAuthenticated){            
+    
+      const userDara = await getMyData()
+      console.log(userDara)
       if(userDara === undefined) {
-        console.log("Not a validated user")
-        return [] }
-
-
+        setIsAuthenticated(false)
+        return [] 
+      }else{
+      setIsAuthenticated(true)}}
+  
+      
     const  response = await fetch(`${dotEnv.userNotificationBaseUrl}/get-all-me`,
        {   method: "GET",
            headers: {

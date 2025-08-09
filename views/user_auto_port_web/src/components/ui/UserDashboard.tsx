@@ -46,7 +46,11 @@ if(userData === null) return <UnvalidatedPage/>
 
   return (
     <div className="flex flex-col gap-4 items-center justify-start w-screen h-screen">
-      <main className="lg:w-[98vw] w-screen lg:h-[80vh] md:h-[90vh] flex flex-col items-center justify-start flex-wrap md:p-4 scorllebleElement">
+      <main className="lg:w-[98vw] w-screen lg:h-[80vh] md:h-[90vh] flex flex-col items-center justify-start flex-wrap md:p-4 overflow-y-auto overflow-hidden overflow-y-scroll lg:overlow-hidden lg:customScrollBar">
+
+      
+
+      
         <section className="flex flex-col items-center justify-start h-full lg:w-[68%] w-full  gap-4 ">
           <article className="w-full h-[70%] flex items-start justify-start self-start md:rounded-md bg-background2 p-4">
             <div className="flex items-start justify-center flex-col gap-8 w-full">

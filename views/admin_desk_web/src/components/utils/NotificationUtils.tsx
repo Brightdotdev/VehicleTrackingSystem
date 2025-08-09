@@ -5,13 +5,14 @@ import { Button } from '../ui/button';
 
 import { toast } from 'sonner';
 import { useAdminNotifications } from '@/contexts/NotificationContext';
+import { useRouter } from 'next/navigation';
 
 
 
 
 // notification card
 export const NotificationCard = ({ notificationItem }: { notificationItem: NotificationData }) => {
-  
+  const router = useRouter();
   const {optimisticSetToRead } = useAdminNotifications()
   
   const [loading, setLoading] = useState(false);
@@ -22,8 +23,9 @@ export const NotificationCard = ({ notificationItem }: { notificationItem: Notif
       toast.info(notificationItem.type);
       if (notificationItem.type === notificationType.DISPATCH_CREATED_ADMIN) {
         setLoading(true)
-        toast.info("THis is like working the valdiated one")
-        window.location.href = `/vehicle/request?vehicleReq=${notificationItem.dispatchId}& vehicle=${notificationItem.vehicleId}`
+        toast.info(JSON.stringify(notificationItem))
+         router.push("/vehicles?tab=requests");
+        
         await optimisticSetToRead(notificationItem);
       } else {
         toast.info("THis is like working the other ones");

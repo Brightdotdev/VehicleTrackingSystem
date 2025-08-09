@@ -37,12 +37,13 @@ const AdminNotificationContext = createContext<AdminNotificationContextType | un
 export const AdminNotificationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [notifications, setNotifications] = useState<NotificationData[]>([]);
   const [newNotifications, setNewNotifications] = useState<NotificationData[]>([]);
+  const [isAuthenticated, setAuthenticated]  = useState(false);
 
   const [lastChecked, setLastChecked] = useState(() => {
     if (typeof window !== 'undefined') {
-      return localStorage.getItem('admin_lastChecked') || new Date().toISOString();
+      return localStorage.getItem('admin_lastChecked') ||  new Date().toISOString().replace("Z", "");
     }
-    return new Date().toISOString();
+   return new Date().toISOString().replace("Z", "");
   });
 
   const lastCheckedRef = useRef(lastChecked);
@@ -59,9 +60,8 @@ export const AdminNotificationProvider: React.FC<{ children: React.ReactNode }> 
   // ===== Fetch All Admin Notifications =====
   const getMyNotifications = async () => {
     try {
-      const data = await getAdminNotifications();
+      const data = await getAdminNotifications(isAuthenticated,setAuthenticated);
       setNotifications(data);
-      setNewNotifications(data); // Assume initial data includes new
     } catch (error) {
       toast.error('Failed to fetch admin notifications');
       console.error(error);
@@ -71,7 +71,7 @@ export const AdminNotificationProvider: React.FC<{ children: React.ReactNode }> 
   // ===== Poll for Latest Notifications =====
   const getLattestNotifications = async () => {
     try {
-      const latest = await pollNotifications(lastCheckedRef.current, updateLastChecked);
+      const latest = await pollNotifications(lastCheckedRef.current,setLastChecked);
 
       // Deduplicate
       const dedupedNew = latest.filter(
@@ -80,8 +80,7 @@ export const AdminNotificationProvider: React.FC<{ children: React.ReactNode }> 
       const dedupedAll = latest.filter(
         (notif : NotificationData ) => !notifications.some((n) => n.id === notif.id)
       );
-
-      // Merge in
+      
       setNewNotifications((prev) => [...prev, ...dedupedNew]);
       setNotifications((prev) => [...prev, ...dedupedAll]);
     } catch (error) {
@@ -126,13 +125,15 @@ export const AdminNotificationProvider: React.FC<{ children: React.ReactNode }> 
 
     getMyNotifications();
 
+
+    if(!isAuthenticated) return
+
     const interval = setInterval(() => {
       if (!document.hidden) {
         getLattestNotifications();
         localStorage.setItem('admin_lastChecked', lastCheckedRef.current);
       }
     }, 10000);
-
     return () => clearInterval(interval);
   }, []);
 

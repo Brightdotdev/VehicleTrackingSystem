@@ -5,12 +5,20 @@ import { toast } from "sonner";
 
 
 
-export const handleDispatchValidatedTracking  = async (notification : NotificationData , loading :boolean , setLoading : (loading : boolean) => void) => {
+export const handleDispatchValidatedTracking  = async (notification : NotificationData , loading :boolean , setLoading : (loading : boolean) => void, setWorked : (worked : boolean) => void) => {
         setLoading(true);
 
-    console.log( "Yeah this is the handle dispatch validated tracking notification")
-    console.log(notification)
+    toast.info( "Yeah this is the handle dispatch validated tracking notification")
+    toast.info(JSON.stringify(notification))
     const userLocation  = await getUsersLocation(setLoading);
+    
+    toast.info("This is the users location oo")
+    toast.info(JSON.stringify(userLocation))
+    if(userLocation === undefined || userLocation === null) {
+      toast.error("We cant seem to get your exact loacation...the dispatch cant be processed")
+      return setWorked(false);
+    }
+
     toast.info(JSON.stringify(userLocation))
     
     try {
@@ -27,10 +35,14 @@ export const handleDispatchValidatedTracking  = async (notification : Notificati
             console.log(data)
           if(data.data === null) {
             toast.error(data.message)
+            setWorked(false)
             return data;
           }else{
             toast.info(data.message)
+            setWorked(true);
+            setLoading(false);
             return data.data;
+
           }}
        catch (error) {
         console.log(error)}

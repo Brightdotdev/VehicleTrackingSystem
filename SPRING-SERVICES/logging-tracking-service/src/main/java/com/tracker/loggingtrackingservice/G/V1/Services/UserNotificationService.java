@@ -80,11 +80,11 @@
                     + dispatchValidatedEvent.dispatchReason() + ".\nEnjoy your dispatch! (or wtv)";
 
 
-            UserNotificationModel pastDispatchNotif = userNotificationRepository.findByDispatchIdAndVehicleId(dispatchValidatedEvent.dispatchId(),dispatchValidatedEvent.vehicleIdentificationNumber());
+            Optional<UserNotificationModel> pastDispatchNotif = userNotificationRepository.findFirstByDispatchIdAndVehicleId(dispatchValidatedEvent.dispatchId(),dispatchValidatedEvent.vehicleIdentificationNumber());
 
-            if(pastDispatchNotif == null){
+            if(pastDispatchNotif.isEmpty()) {
                 throw new NotFoundException("No Initialisation Notification for this dispatch");
-            }
+        }
 
             UserNotificationModel newNotification = new UserNotificationModel();
             newNotification.setCreatedAt(LocalDateTime.now());

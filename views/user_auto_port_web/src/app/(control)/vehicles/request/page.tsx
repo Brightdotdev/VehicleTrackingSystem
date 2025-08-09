@@ -62,5 +62,5 @@ export default function Page() {
   }
 
   // 🛑 Edge guard
-  return <>Something Went wrong try loging in again</>;
+  return <>Something Went wrong try loging in again....</>;
 }

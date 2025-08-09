@@ -1,9 +1,12 @@
 import { toast } from "sonner";
 import { dotEnv } from "./dotEnv";
+import { getMyData } from "./handleUserAuth";
 
-export const  pollNotifications = async (
-      lastChecked : string , setLastChecked : (lastChecked : string) => void) => {
-       const  response = await fetch(`${dotEnv.notificationBaseUrl}/new-after?since=${lastChecked}`,
+
+export const  pollNotifications = async ( lastChecked : string , setLastChecked : (lastChecked : string) => void) => {
+      
+        try {
+           const  response = await fetch(`${dotEnv.notificationBaseUrl}/new-after?since=${lastChecked}`,
        {   method: "GET",
            headers: {
           "Content-Type": "application/json"},
@@ -21,18 +24,30 @@ export const  pollNotifications = async (
           setLastChecked(now);
             return notifications;
           }else{
+              toast.error("This is what is looping the the poll")
             toast.error(message)
             return [] 
           }
+        } catch (error) {
+          console.log(error)
+        }
       
         }
+        
 
+export const getAdminNotifications = async ( isAuthenticated : boolean ,setAuthenticated : (isAuthenticated :boolean) => void) => {
 
-const setNotiicationToRead = () => {
+  try{
+
+          if(!isAuthenticated){            
     
-}
-
-export const getAdminNotifications = async () => {
+      const userDara = await getMyData()
+      console.log(userDara)
+      if(userDara === undefined) {
+        setAuthenticated(false)
+        return [] 
+      }else{
+      setAuthenticated(true)}}
 
     const  response = await fetch(`${dotEnv.notificationBaseUrl}`,
        {   method: "GET",
@@ -51,6 +66,11 @@ export const getAdminNotifications = async () => {
               toast.error(message)
               return [] 
             }
+      }catch(error){
+        console.log(error);
+      }
+
+
         }
 
 

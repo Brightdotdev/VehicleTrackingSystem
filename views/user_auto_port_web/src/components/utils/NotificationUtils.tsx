@@ -16,17 +16,22 @@ import { handleTerminateDispatch } from '@/lib/handleUserDispatchPage';
 export const NotificationCard = ({ notificationItem }: { notificationItem: NotificationData }) => {
   // Local read state to reflect UI changes after API call
   const [loading, setLoading] = useState(false);
+  const [worked, setWorked] = useState(false);
 const {optimisticSetToRead } = useNotifications()
   const goodCtaMethod = async () => {
     setLoading(true);
+    toast.info("Yeah i was clicked")
     try {
       
-
       if (notificationItem.type === notificationType.DISPATCH_VALIDATED_USER) {
-      
-        await handleDispatchValidatedTracking(notificationItem, loading, setLoading);
-        await optimisticSetToRead(notificationItem);
-      } else {
+        toast.info("we are here")
+        await handleDispatchValidatedTracking(notificationItem, loading, setLoading, setWorked);
+    
+          if(worked){
+        await optimisticSetToRead(notificationItem)  
+          }
+    } else {
+        setWorked(true)
        await optimisticSetToRead(notificationItem);
       }
     } finally {
@@ -71,7 +76,7 @@ const {optimisticSetToRead } = useNotifications()
             </Button>
           )}
 
-          {notificationItem.isActionNotif && notificationItem.badNotificationCta && (
+          {notificationItem.badNotificationCta && (
             <Button onClick={badCtaMethod} disabled={loading}>
               {loading ? "Loading..." : notificationItem.badNotificationCta}
             </Button>

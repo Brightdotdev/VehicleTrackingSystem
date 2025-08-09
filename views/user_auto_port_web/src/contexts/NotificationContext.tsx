@@ -38,7 +38,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const [newNotifications, setLatestNotifications] = useState<NotificationData[]>([]);
   const [readNotifications, setReadNotifications] = useState<NotificationData[]>([]);
   const [unreadNotifications, setUnreadNotifications] = useState<NotificationData[]>([]);
-
+  const [isAuthenticated ,setIsAuthenticated] = useState(false);
   const [lastChecked, setLastChecked] = useState(() => {
     if (typeof window !== 'undefined') {
       return localStorage.getItem('lastChecked') || new Date().toISOString();
@@ -57,7 +57,12 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
   // ========== Polling for New Notifications ==========
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
     getMyNotifications();
+
+
+    if(!isAuthenticated) return
 
     const interval = setInterval(() => {
       if (!document.hidden) {
@@ -128,7 +133,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
   // ========== Fetch All Notifications ==========
   const getMyNotifications = async () => {
     try {
-      const data = await getAllMyNotifications();
+      const data = await getAllMyNotifications( isAuthenticated ,setIsAuthenticated);
       setNotifications(data);
     } catch (error) {
       toast.error('Failed to fetch notifications');

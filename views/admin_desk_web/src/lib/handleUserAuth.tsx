@@ -187,7 +187,27 @@ console.log(response)
 
 
 
+// get my data 
 
+       export  const getMyData  = async  () => {
+ try {
+    const response = await fetch(dotEnv.cookieValidationLink, {
+   method: "GET", headers: { "Content-Type": "application/json"},credentials: "include"});
+
+console.log(response)
+  const userResponseData  = await response.json();
+  console.log(userResponseData);
+  
+  const {code , success , data : { valid, user  }} = userResponseData;
+      
+        if(valid && code === 200 && user.email !== null && success === true ){
+         return user  
+        } 
+        return undefined;
+      } catch (error) {
+        console.log(error)
+        return undefined;
+      }};
 
 
 // log in with local form
