@@ -38,6 +38,6 @@ public class WebClientHelper {
                                 "Unexpected error: " + ex.getMessage()
                         ))
                 )
-                .block(); // Block because you want synchronous execution
+                .block();
     }
 }

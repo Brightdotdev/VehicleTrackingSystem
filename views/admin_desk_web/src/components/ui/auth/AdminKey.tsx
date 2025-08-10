@@ -21,9 +21,9 @@ import {
 } from "@/components/ui/auth/input-otp"
 import { toast } from "sonner"
 import { useAuth } from "@/contexts/AuthContext"
-import { handleAdminLocalLogInSubmit, handleAdminLocalSignUp, handleGoogleLogIn, handleGoogleSignUp} from "@/lib/handleUserAuth"
+import { handleAdminLocalLogInSubmit, handleAdminLocalSignUp} from "@/lib/handleUserAuth"
 import { useState } from "react"
-import { AdminGoogleLogIn, AdminGoogleSignUp, AdminLocalLogIn, AdminLocalSignUp } from "@/types/authTypes"
+import { AdminLocalLogIn, AdminLocalSignUp } from "@/types/authTypes"
 import { Loader2 } from "lucide-react"
 
 
@@ -37,7 +37,7 @@ const FormSchema = z.object({ pin: z
 export function AdminKeyForm({pageSender} : {pageSender: string} ) {
     const { signUpData, logInData,googleUserData } = useAuth()
       const [loading, setLoading] = useState(false);
-      const getAdminKey = () => form.getValues("pin");
+      
       const setAdminKey = (value: string) => form.setValue("pin", value);
       let imgSrc = null;
 
@@ -78,33 +78,11 @@ if (pageSender === "google-log-in") {
         adminKey: data.pin
       };
       console.log(userInfo)
-
       handleAdminLocalSignUp(userInfo, setLoading, setAdminKey);
     } 
-
-     else if (pageSender === "google-sign-up") {
-      const userInfo: AdminGoogleSignUp = {
-        name : googleUserData.given_name,
-        email: googleUserData.email,
-        sub : googleUserData.sub,
-        email_verified : googleUserData.email_verified,
-        adminKey: data.pin,
-        picture : googleUserData.picture
-      }
-      console.log(userInfo)
-      handleGoogleSignUp(userInfo, setAdminKey, setLoading);
-    } 
-     else if (pageSender === "google-log-in") {
-      const userInfo: AdminGoogleLogIn = {
-        email: googleUserData.email,
-        adminKey: data.pin
-      };
-      console.log(userInfo)
-
-      handleGoogleLogIn(userInfo, setAdminKey, setLoading);
-    } else{
-      toast.error("Then who sent you here boss...you're not allowed to be here lmao");
-      return
+ else{
+      toast.error("Invalid Page params redirecting");
+      return window.location.replace("/")
     }
   }
 
@@ -126,7 +104,7 @@ if (pageSender === "google-log-in") {
             pageSender === "google-sign-up" ? `Hello ${googleUserData.given_name}` :
            `Hello ${signUpData.name}` }</h2>
 
-            <h3 className="mutedText">{pageSender === "log-in" ? "We'll like you to input the admin key to Log in" :  "We'll like you to input the admin key to sign up"}</h3>
+            <h3 className="mutedText">{pageSender === "form-log-in" ? "We'll like you to input the admin key to Log in" :  "We'll like you to input the admin key to sign up"}</h3>
        </article>
         <FormField
           control={form.control}

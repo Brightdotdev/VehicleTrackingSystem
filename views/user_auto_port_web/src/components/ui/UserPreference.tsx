@@ -17,7 +17,6 @@ export function UserPreference({
 }: UserPreferenceProps) {
   const handleStatusSelect = (status: UserStatus) => {
     if (pageSender === "form-sign-up") {
-      toast.info(`this is what thet seeclected ${status}`)
       onUserStatusChange(status)
     } else {
       toast.error("Invalid signup type")

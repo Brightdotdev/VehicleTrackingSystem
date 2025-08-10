@@ -65,7 +65,13 @@ className='
         }
 
         <p className='bodyText'>or   {"  "}
-          <Link href="/welcome-back">
+          <Link href="/welcome-back"
+          onClick={() => {
+  toast.info("Log in you in now");
+  setLoading(true)
+}}
+          
+          >
           <span className='cursor-pointer underline underline-offset-1'>
           Log in To Continue </span>
           </Link>

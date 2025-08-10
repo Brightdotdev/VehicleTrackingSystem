@@ -13,5 +13,4 @@ public interface TrackingRepository extends MongoRepository<TrackingModel, Strin
 
     Optional<TrackingModel>  findByDispatchIdAndDispatchRequester(Long dispatchId,String dispatchRequester);
 
-    void flush();
 }

@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { Info } from 'lucide-react';
 
 import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
 import markerIcon from 'leaflet/dist/images/marker-icon.png';
@@ -84,28 +85,44 @@ const Map = ({ location, zoom = 13, markerText = 'Location' }: MapProps) => {
     }
   }, [latLng, zoom, markerText, loading]);
 
-  // Loading shimmer
+ 
+  
+
+  
+  // Loading Skeleton
   if (loading) {
     return (
-      <div className="w-full h-full flex items-center justify-center bg-gray-100 rounded-lg relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-gray-100 via-gray-200 to-gray-100 animate-shimmer" />
-        <p className="z-10 text-gray-500 font-medium">Loading map...</p>
+      <div className="w-full h-full flex items-center justify-center rounded-lg relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-background2  to-background animate-shimmer" />
+        <p className="z-10 font-medium">Loading map...</p>
       </div>
     );
   }
 
-  // Fallback for failures or missing data
+  // Fallbacks
   if (mapFailed || !latLng) {
     return (
-      <div className="flex items-center justify-center h-full bg-red-50 rounded-lg">
-        <p className="text-red-600 font-semibold">
-          {!latLng
-            ? 'No location data available.'
-            : 'Map failed to load. Please try again later.'}
+      <section className="flex flex-col gap-4 items-center justify-center h-full w-md">
+        <Info/>
+
+   <p className="subtitleText2 font-semibold">
+
+              {!latLng === null
+            ? 'Looks like the vehicle Locations are unavalable'
+            : "Hm...we can't acces the map right now"}
         </p>
-      </div>
+  
+      <p  className='mutedText'>
+              {latLng === null
+            ? 'Your dispatch Location is not Avaliable right now'
+            : 'Apologies the map is not avaliable right now'}
+  
+      </p>      
+   
+      </section>
     );
   }
+
 
   return <div id="map" style={{ height: '98%', width: '99%', borderRadius: '1rem' }} />;
 };

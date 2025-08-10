@@ -214,21 +214,9 @@ console.log(response)
  export const handleAdminLocalLogInSubmit = async (
     userInfo  : AdminLocalLogIn,
    setLoading : (loading : boolean) => void,
-   setAdminKey : (adminKey : string) => void,
-   retryCount = 0) => {
+   setAdminKey : (adminKey : string) => void) => {
       
-    if (retryCount > 3) {
-        retryCount = 0
-        setLoading(false)
-        toast("We couldn't communicate with the server.", {
-                action: {
-                  label: 'One more time?',
-                  onClick: () => window.location.replace("/welcome-back"),
-                },
-              })
-           return;
-    }
-
+    
     try {
     
     handleAdminReqKeyValidation("/welcome-back",userInfo.adminKey,setLoading,setAdminKey);
@@ -244,6 +232,19 @@ console.log(response)
 
         const data = await response.json();
 
+        
+          if (!data.success || data.code !== 404 || !data.data) {
+           setLoading(false)
+           return toast("Invalid Login Credentials", {
+                action: {
+                  label: "Create New Account?",
+                  onClick: () => window.location.replace("/join-us"),
+                },
+              })
+            }
+
+
+
         if (data.status !== 200 || data.code !== 200 || !data.data) {
         setLoading(false)
         toast.error(data.message)
@@ -251,14 +252,12 @@ console.log(response)
       }
 
       
-        toast.success("Login successful!")
-
+        toast.success("Login successful!..redirecting now")
+      window.location.replace("/");
     } catch (err: any) {
       toast.error(err.message || "Login failed")
     } finally {
       setLoading(false)
-      window.location.replace("/");
-
     }
   }
 

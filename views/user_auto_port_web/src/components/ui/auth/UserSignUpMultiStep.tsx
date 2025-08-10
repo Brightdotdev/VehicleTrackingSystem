@@ -19,12 +19,13 @@ const UserSignUpMultiStep = ({ pageSender }: { pageSender: string }) => {
   const { signUpData, googleUserData } = useAuth()
   const [step, setStep] = useState(1)
   const [validationError, setValidationError] = useState(false)
+  const [termsError, setTermsError] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
   
   const [formData, setFormData] = useState<FormData>({
     name: pageSender === "form-sign-up" ? signUpData.name : googleUserData.given_name,
-    agree: true,
+    agree: false,
     userStatus: signUpData.userStatus
   })
 
@@ -50,6 +51,7 @@ const UserSignUpMultiStep = ({ pageSender }: { pageSender: string }) => {
   }
 
   const handleSubmit = async () => {
+    
     setIsLoading(true)
     try {
       if (pageSender === "form-sign-up") {
@@ -60,6 +62,11 @@ const UserSignUpMultiStep = ({ pageSender }: { pageSender: string }) => {
           userStatus: formData.userStatus!
         }
         
+
+        if(!formData.agree) {
+        return  setTermsError(true)
+        }
+
         if (!userInfo.name || !userInfo.email || !userInfo.password || !userInfo.userStatus) {
           toast.error("Incomplete data provided")
           router.replace("/join-us")
@@ -68,25 +75,9 @@ const UserSignUpMultiStep = ({ pageSender }: { pageSender: string }) => {
         
         await handleUserLocalSignUp(userInfo, setIsLoading)
       } 
-      else if (pageSender === "google-sign-up") {
-        const userInfo: UserGoogleSignUp = {
-          name: formData.name,
-          email: googleUserData.email,
-          sub: googleUserData.sub,
-          email_verified: googleUserData.email_verified,
-          picture: googleUserData.picture,
-          userStatus: formData.userStatus!
-        }
-        
-        if (!userInfo.name || !userInfo.email || !userInfo.sub || !userInfo.userStatus) {
-          toast.error("Incomplete Google sign-up data")
-          return
-        }
-        
-        await handleGoogleSignUp(userInfo, setIsLoading)
-      }
       else {
-        toast.error("Invalid sign up method")
+        toast.error("Invalid sign in parameters")
+        return window.location.replace("/")
       }
     } catch (error) {
       toast.error("An error occurred during sign up")
@@ -117,11 +108,11 @@ const UserSignUpMultiStep = ({ pageSender }: { pageSender: string }) => {
               selectedStatus={formData.userStatus}
             />
           ) : (
+
             <LastStep
-              pageSender={pageSender}
+            termsError={termsError}
               name={formData.name}
               onNameChange={(name) => handleFormChange('name', name)}
-              agree={formData.agree}
               onAgreeChange={(agree) => handleFormChange('agree', agree)}
               isLoading={isLoading}
               imgSrc={pageSender === "google-sign-up" ? googleUserData.picture : null}
@@ -129,9 +120,11 @@ const UserSignUpMultiStep = ({ pageSender }: { pageSender: string }) => {
           )}
         </div>
 
-        {validationError && (
+        {(validationError && !isLoading) && (
           <p className="text-sm text-red-300 dark:text-red-400">Please select a user type before proceeding</p>
         )}
+
+ 
 
         <div className="w-full flex justify-between items-center">
           {step === 2 && (

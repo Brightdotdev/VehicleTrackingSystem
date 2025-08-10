@@ -24,29 +24,27 @@ const FormSchema = z.object({
 type FormValues = z.infer<typeof FormSchema>
 
 type LastStepProps = {
-  pageSender: string
+  termsError : boolean,
   name: string
   onNameChange: (name: string) => void
-  agree: boolean
   onAgreeChange: (agree: boolean) => void
   isLoading: boolean
   imgSrc?: string | null
 }
 
 export function LastStep({
-  pageSender,
   name,
   onNameChange,
-  agree,
   onAgreeChange,
   isLoading,
-  imgSrc
+  imgSrc, 
+  termsError
 }: LastStepProps) {
   const form = useForm<FormValues>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
       name,
-      agree : true,
+      agree : false,
     },
   })
 
@@ -130,6 +128,14 @@ export function LastStep({
                       </a>
                       , and data collection for optimal experience.
                     </label>
+
+
+
+              {(termsError && !isLoading) && (
+          <p className="text-sm text-red-300 dark:text-red-400">Uhm you need to agree to our terms of use (consent)</p>
+        )}
+
+
                     <FormMessage />
                   </div>
                 </FormControl>

@@ -198,22 +198,10 @@ console.log(response)
 // log in with local form
  export const handleUserLocalLogInSubmit = async (
     userInfo  : UserLocalLogIn,
-   setLoading : (loading : boolean) => void,
-   retryCount = 0) => {
-      
-    if (retryCount > 3) {
-        retryCount = 0
-        setLoading(false)
-        toast("We couldn't communicate with the server.", {
-                action: {
-                  label: 'One more time?',
-                  onClick: () => window.location.replace("/welcome-back"),
-                },
-              })
-           return;
-    }
-
-    try {
+   setLoading : (loading : boolean) => void) => {
+    
+    
+      try {
       setLoading(true);
         
       const response = await fetch(dotEnv.userLocalLogInLink, {
@@ -226,10 +214,25 @@ console.log(response)
         });
 
         const data = await response.json();
+        console.log(data);
+
+
+        if (!data.success || data.code !== 404 || !data.data) {
+           setLoading(false)
+           return toast("Invalid Login Credentials", {
+                action: {
+                  label: "Create New Account?",
+                  onClick: () => window.location.replace("/join-us"),
+                },
+              })
+            }
+
+
 
         if (!data.success || data.code !== 201 || !data.data) {
         setLoading(false)
-        throw new Error("Login failed...trying again")}
+        throw new Error("Login failed...trying again")
+      }
 
       
         toast.success("Login successful!")

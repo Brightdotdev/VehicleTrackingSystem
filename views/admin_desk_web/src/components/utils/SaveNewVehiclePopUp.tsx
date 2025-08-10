@@ -17,6 +17,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { EngineType, VehicleType, VehicleStatus, FormProps } from "@/types/VehicleTypes";
 import { handleSaveVehicleForm } from "@/lib/handleVehiclePage";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 
 
@@ -81,7 +82,7 @@ const [imageInput, setImageInput] = useState("");
     
     e.preventDefault();
       if (form.vehicleImages.length === 0) {
-    alert("Please add at least one vehicle image before saving.");
+    toast.error("C'mon add at least one vehicle image before saving.");
     return;
   }
     setLoading(true);

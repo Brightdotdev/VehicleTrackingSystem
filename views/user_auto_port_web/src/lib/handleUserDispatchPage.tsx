@@ -28,11 +28,9 @@ import { dispatchCostResponse } from "@/types/utilTypes";
         
           
       if(data.data !==  null){
-        toast.info(data.message)
         return data.data;
         }else{
       toast.error("You have No Dispatch History?")
-      toast.error(data.message)
       return []
     }
 
@@ -62,7 +60,6 @@ export const getMyValidDispatches = async (): Promise<DispatchRequestDto[]> => {
     if(data.data !==  null){
     return data.data;
     }else{
-      toast.error(data.message)
       return []
     }
 
@@ -94,7 +91,6 @@ export const getMyValidDispatches = async (): Promise<DispatchRequestDto[]> => {
             if(data.data !== null){
         return data.data;
             }else{
-              toast.error("There was an issue getting this dispatch")
               toast.error(data.message)
               return []
             }

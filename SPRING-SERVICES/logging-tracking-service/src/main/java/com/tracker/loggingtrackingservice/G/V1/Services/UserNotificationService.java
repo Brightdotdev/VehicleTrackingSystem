@@ -108,6 +108,7 @@ public class UserNotificationService {
         boolean wasCancelled = dispatchEvent.wasCancelled();
         String vehicleName = dispatchEvent.vehicleName();
 
+        trackingService.stopTracking(dispatchEvent);
         logger.debug("Dispatch event details - Receiver: {}, Vehicle: {}, WasCancelled: {}", receiver, vehicleName, wasCancelled);
 
         String message = wasCancelled
@@ -131,7 +132,6 @@ public class UserNotificationService {
         logger.info("Notification saved with ID: {}", savedNotification.getId());
 
         // Stop tracking for the dispatch
-        trackingService.stopTracking(dispatchEvent);
         logger.info("Tracking stopped for dispatch event.");
     }
 

@@ -8,6 +8,8 @@ import 'leaflet/dist/leaflet.css';
 import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
 import markerIcon from 'leaflet/dist/images/marker-icon.png';
 import markerShadow from 'leaflet/dist/images/marker-shadow.png';
+import { Info } from 'lucide-react';
+import Link from 'next/link';
 
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: markerIcon2x.src ?? markerIcon2x,
@@ -99,9 +101,9 @@ const Map = () => {
   // Loading Skeleton
   if (loading) {
     return (
-      <div className="w-full h-full flex items-center justify-center bg-gray-100 rounded-lg relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-gray-100 via-gray-200 to-gray-100 animate-shimmer" />
-        <p className="z-10 text-gray-500 font-medium">Loading map...</p>
+      <div className="w-full h-full flex items-center justify-center rounded-lg relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-background2  to-background animate-shimmer" />
+        <p className="z-10 font-medium">Loading map...</p>
       </div>
     );
   }
@@ -109,13 +111,24 @@ const Map = () => {
   // Fallbacks
   if (mapFailed || locations === null) {
     return (
-      <div className="flex items-center justify-center h-full bg-red-50 rounded-lg">
-        <p className="text-red-600 font-semibold">
-          {locations === null
-            ? 'Failed to load location data.'
-            : 'Map failed to load. Please try again later.'}
+      <section className="flex flex-col gap-4 items-center justify-center h-full w-md">
+        <Info/>
+
+   <p className="subtitleText2 font-semibold">
+
+              {locations === null
+            ? 'Looks like the vehicle Locations are unavalable'
+            : "Hm...we can't acces the map right now"}
         </p>
-      </div>
+  
+      <Link href="vehicles?tab=vehicles" className='mutedText underline hover:underline-offset-4 underline-offset-3'>
+              {locations === null
+            ? 'Get the veehicles manually'
+            : 'Just check the vehicle page'}
+  
+      </Link>      
+   
+      </section>
     );
   }
 

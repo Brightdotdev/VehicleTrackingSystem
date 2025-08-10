@@ -87,7 +87,7 @@ export const DispatchRequestPageStatusPills = (props: DispatchRequestPageStatusP
             }`}
           >
             <Truck />
-            <p className="text-small lg:text-body">CARGO</p>
+            <p className="text-xs lg:text-sm">CARGO</p>
           </div>
         );
       } else if (props.statusName === "CLASSIFIED") {
@@ -98,7 +98,7 @@ export const DispatchRequestPageStatusPills = (props: DispatchRequestPageStatusP
             }`}
           >
             <Badge className="size-3 lg:size-4" />
-            <p className="text-small lg:text-body">CLASSIFIED</p>
+            <p className="text-xs lg:text-sm">CLASSIFIED</p>
           </div>
         );
       } else if (props.statusName === "DELIVERY") {
@@ -109,7 +109,7 @@ export const DispatchRequestPageStatusPills = (props: DispatchRequestPageStatusP
             }`}
           >
             <BikeIcon className="size-3 lg:size-4" />
-            <p className="text-small lg:text-body">DELIVERY</p>
+            <p className="text-xs lg:text-sm">DELIVERY</p>
           </div>
         );
       } else if (props.statusName === "REGULAR") {
@@ -131,7 +131,7 @@ export const DispatchRequestPageStatusPills = (props: DispatchRequestPageStatusP
             }`}
           >
             <BusFront className="size-3 lg:size-5" />
-            <p className="text-small lg:text-body">TRANSPORT</p>
+            <p className="text-xs lg:text-sm">TRANSPORT</p>
           </div>
         );
       } else if (props.statusName === "DISPATCHABLE") {
@@ -147,7 +147,7 @@ export const DispatchRequestPageStatusPills = (props: DispatchRequestPageStatusP
         tabIndex={-1}
         aria-disabled="true"
       >
-        <p className="text-small lg:text-body">DISPATCHABLE</p>
+        <p className="text-xs lg:text-sm">DISPATCHABLE</p>
         <div className="p-1 rounded-full bg-green-100/20">
           <Check className="size-3 lg:size-4" />
         </div>
@@ -166,7 +166,7 @@ export const DispatchRequestPageStatusPills = (props: DispatchRequestPageStatusP
         tabIndex={-1}
         aria-disabled="true"
       >
-        <p className="text-small lg:text-body">NOT DISPATCHABLE</p>
+        <p className="text-xs lg:text-sm">NOT DISPATCHABLE</p>
         <div className="p-1 rounded-full bg-red-100/40">
           <Minus className="size-3 lg:size-4" />
         </div>
@@ -369,25 +369,25 @@ export const DispatchInfoPagePills = (props: DispatchRequestPageStatusPillsProps
             }`}
           >
             <div className="w-2 h-2 rounded-full bg-white"></div>
-            <p className="text-small lg:text-body">CLASSIFIED</p>
+            <p className="text-xs lg:text-sm">CLASSIFIED</p>
           </div>
         );
       } else if (props.statusName === "DELIVERY") {
         return (
           <div
-            className={`${baseClass} w-[9rem] bg-gradient-to-r from-blue-900/80 to-blue-800/80 pl-4 ${
+            className={`${baseClass}  md:h-[2rem] md:w-[8rem] w-[6rem] h-[1.5rem] bg-gradient-to-r from-blue-900/80 to-blue-800/80 pl-4 ${
               props.className || ""
             }`}
           >
             <div className="w-2 h-2 rounded-full bg-white"></div>
   
-            <p className="text-small lg:text-body">DELIVERY</p>
+            <p className="text-xs lg:text-sm">DELIVERY</p>
           </div>
         );
       } else if (props.statusName === "REGULAR") {
         return (
           <div
-            className={`${baseClass} xl:w-[9rem] w-[7rem] bg-gradient-to-r from-blue-900/40 to-blue-800 pl-4 ${
+            className={`${baseClass}  md:h-[2rem] md:w-[8rem] w-[6rem] h-[1.5rem] bg-gradient-to-r from-blue-900/40 to-blue-800 pl-4 ${
               props.className || ""
             }`}
           >
@@ -399,12 +399,12 @@ export const DispatchInfoPagePills = (props: DispatchRequestPageStatusPillsProps
       } else if (props.statusName === "TRANSPORT") {
         return (
           <div
-            className={`${baseClass} lg:w-[10rem] w-[8rem] bg-gradient-to-r from-orange-500/40 to-orange-400 pl-4 ${
+            className={`${baseClass} lg:w-[10rem]  md:h-[2rem] md:w-[8rem] w-[6rem] h-[1.5rem] bg-gradient-to-r from-orange-500/40 to-orange-400 pl-4 ${
               props.className || ""
             }`}
           >
             <div className="w-2 h-2 rounded-full bg-white"></div>
-            <p className="text-small lg:text-body">TRANSPORT</p>
+            <p className="text-xs lg:text-sm">TRANSPORT</p>
           </div>
         );
       } 
@@ -438,7 +438,7 @@ items-center justify-start shadow-xl
     return (
      <div
         className={`
-       h-[2rem] w-[8rem]  text-primary-foreground dark:text-foreground
+      md:h-[2rem] md:w-[8rem] w-[6rem] h-[1.5rem]  text-primary-foreground dark:text-foreground
           bg-gradient-to-r from-green-500/40 to-green-600
           rounded-full flex items-center justify-start gap-3 pl-4
           shadow-lg ${props.className || ""}
@@ -456,7 +456,7 @@ items-center justify-start shadow-xl
     return (
      <div
         className={`
-       h-[2rem] w-[8rem]  text-primary-foreground dark:text-foreground
+      md:h-[2rem] md:w-[8rem] w-[6rem] h-[1.5rem]  text-primary-foreground dark:text-foreground
           bg-gradient-to-r from-teal-500/40 to-teal-600
           rounded-full flex items-center justify-start gap-3 pl-4
           shadow-lg ${props.className || ""}
@@ -474,7 +474,7 @@ items-center justify-start shadow-xl
     return (
      <div
         className={`
-          h-[2rem] xl:w-[8rem] w-[7rem]  text-primary-foreground dark:text-foreground
+         md:h-[2rem] md:w-[8rem] w-[6rem] h-[1.5rem] text-primary-foreground dark:text-foreground
           bg-gradient-to-r from-red-500/40 to-red-600
           rounded-full flex items-center justify-start gap-3 pl-4
           shadow-lg ${props.className || ""}
@@ -493,7 +493,7 @@ items-center justify-start shadow-xl
     return (
      <div
         className={`
-          h-[2rem] w-[8rem]  text-primary-foreground dark:text-foreground
+          md:h-[2rem] md:w-[8rem] w-[6rem] h-[1.5rem] text-primary-foreground dark:text-foreground
           bg-gradient-to-r from-yellow-500/40 to-yellow-600
            rounded-full flex items-center justify-start gap-3 pl-4
           shadow-lg ${props.className || ""}
@@ -511,7 +511,7 @@ items-center justify-start shadow-xl
     return (
      <div
         className={`
-          h-[2rem] w-[8rem]  text-primary-foreground dark:text-foreground
+        md:h-[2rem] md:w-[8rem] w-[6rem] h-[1.5rem]  text-primary-foreground dark:text-foreground
           bg-gradient-to-r from-yellow-700/40 to-yellow-800
            rounded-full flex items-center justify-start gap-3 pl-4
           shadow-lg ${props.className || ""}
@@ -530,7 +530,7 @@ items-center justify-start shadow-xl
     return (
      <div
         className={`
-          h-[2rem] w-[8rem]  text-primary-foreground dark:text-foreground
+          md:h-[2rem] md:w-[8rem] w-[6rem] h-[1.5rem]  text-primary-foreground dark:text-foreground
           bg-gradient-to-r from-teal-700 to-teal-800
            rounded-full flex items-center justify-start gap-3 pl-4
           shadow-lg ${props.className || ""}

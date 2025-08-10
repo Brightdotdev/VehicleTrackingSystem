@@ -23,9 +23,7 @@ export const NotificationCard = ({ notificationItem }: { notificationItem: Notif
       toast.info(notificationItem.type);
       if (notificationItem.type === notificationType.DISPATCH_CREATED_ADMIN) {
         setLoading(true)
-        toast.info(JSON.stringify(notificationItem))
          router.push("/vehicles?tab=requests");
-        
         await optimisticSetToRead(notificationItem);
       } else {
         toast.info("THis is like working the other ones");
@@ -68,7 +66,7 @@ export const NotificationCard = ({ notificationItem }: { notificationItem: Notif
             </Button>
           )}
 
-          {notificationItem.isActionNotif && notificationItem.badNotificationCta && (
+          { notificationItem.badNotificationCta && (
             <Button onClick={badCtaMethod} disabled={loading}>
               {loading ? "Loading..." : notificationItem.badNotificationCta}
             </Button>

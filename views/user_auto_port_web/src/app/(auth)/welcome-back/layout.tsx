@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Sign in to your Desk",
-  description: "Log in page for Desk",
+  title: "Sign in to acces your fleet",
+  description: "Log in page for Auto-Port",
   authors: [
     {
       name: "Akinola Bright",
