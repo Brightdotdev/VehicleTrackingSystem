@@ -25,12 +25,12 @@ export function UserPreference({
   }
 
   return (
-    <div className="w-full space-y-8">
-      <div className="space-y-10">
+    <div className="w-full space-y-12">
+      <div className="space-y-24">
         <label className="md:text-medium text-normal">
           Select the category that best represents your driving role.
         </label>
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-4 md:mt-8 mt-16">
           {(["DRIVER", "TRANSPORTER", "CIVILIAN"] as UserStatus[]).map((option) => {
             const isSelected = selectedStatus === option
 

@@ -5,11 +5,9 @@ import { toast } from "sonner";
 
 
 
-export const handleDispatchValidatedTracking  = async (notification : NotificationData , loading :boolean , setLoading : (loading : boolean) => void, setWorked : (worked : boolean) => void) => {
-        setLoading(true);
-
-    toast.info( "Yeah this is the handle dispatch validated tracking notification")
-    toast.info(JSON.stringify(notification))
+export const handleDispatchValidatedTracking  = async (dispatchId  : number, setLoading : (loading : boolean) => void, setWorked : (worked : boolean) => void) => {
+        
+    setLoading(true);
     const userLocation  = await getUsersLocation(setLoading);
     
     toast.info("This is the users location oo")
@@ -23,7 +21,7 @@ export const handleDispatchValidatedTracking  = async (notification : Notificati
     
     try {
         toast.info("Yayyy Tracking finally");
-        const response = await fetch(`${dotEnv.userTrackingBaseUrl}/start/${notification.dispatchId}`,{
+        const response = await fetch(`${dotEnv.userTrackingBaseUrl}/start/${dispatchId}`,{
           method: "PUT",
           headers: {
             "Content-Type": "application/json"},

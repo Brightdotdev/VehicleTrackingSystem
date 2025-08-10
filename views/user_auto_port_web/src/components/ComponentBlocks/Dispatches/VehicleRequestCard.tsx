@@ -1,11 +1,13 @@
 import React from 'react'
-import { DispatchRequestDto } from '@/types/VehicleTypes';
+import { DispatchRequestDto, DispatchStatus } from '@/types/VehicleTypes';
 import {  Check, 
    CircleHelp, 
    GitCommitVertical, 
  Loader2, 
  Minus, Shield, Timer } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { handleDispatchValidatedTracking } from '@/lib/handleUserTracking';
+import { toast } from 'sonner';
 
  
 
@@ -69,6 +71,7 @@ ${userImage ? "pl-1" : "pl-4"}
 const VehicleRequestCard = (vehicleRequest: DispatchRequestDto) => {
 
 const router = useRouter();
+const [worked, setWorked] = React.useState(false);
 const [loading, setLoading] = React.useState(false);
 
 
@@ -142,17 +145,33 @@ items-start justify-start gap-2">
   via-blue-600 to-blue-800 cursor-pointer px-8 py-2 rounded-lg transition-all duration-200 shadow-md hover:from-blue-800 hover:via-blue-700 hover:to-blue-900 hover:scale-105 hover:shadow-xl focus:outline-none ${loading ? "opacity-60 cursor-not-allowed" : ""}`}
   disabled={loading}
   onClick={async () => {
-    setLoading(true);
-    router.push(
-      `dispatch/info?vehicleReqId=${vehicleRequest.dispatchId}&vehicleId=${vehicleRequest.dispatchVehicleId}`
-    );
+   
+   if (vehicleRequest.dispatchStatus === DispatchStatus.IN_PROGRESS) {
+  toast.info("This is what we're doing o");
+  await handleDispatchValidatedTracking(
+    vehicleRequest.dispatchId,
+    setLoading,
+    setWorked
+  );
+  return;
+}
+
+setLoading(true);
+
+router.push(
+  `/dispatch/info?vehicleReqId=${vehicleRequest.dispatchId}&vehicleId=${vehicleRequest.dispatchVehicleId}`
+);
   }}
 >
     {loading ? (
       <Loader2 className="animate-spin ml-2 stroke-foreground" />
   
-    ) : null}
-  Check Dispatch Out
+    ) :
+    vehicleRequest.dispatchStatus === DispatchStatus.IN_PROGRESS ? "Get My Vehicle Now !":
+" Check Dispatch Out"    
+    }
+
+  
 </button>
   
     </article>

@@ -9,6 +9,9 @@ import java.util.Optional;
 public interface TrackingRepository extends MongoRepository<TrackingModel, String> {
 
     Optional<TrackingModel> findByDispatchId(Long dispatchId);
+    Optional<TrackingModel> findFirstByDispatchIdAndDispatchRequester(Long dispatchId, String dispatchRequester);
 
     Optional<TrackingModel>  findByDispatchIdAndDispatchRequester(Long dispatchId,String dispatchRequester);
+
+    void flush();
 }

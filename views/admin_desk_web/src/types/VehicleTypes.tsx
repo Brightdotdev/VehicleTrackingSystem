@@ -37,10 +37,10 @@ export enum VehicleStatus {
 
 /** Dispatch lifecycle states for vehicles */
 export enum VehicleDispatchStatus {
-  IN_TRANSIT = 'IN_TRANSIT',
-  PENDING = 'PENDING',
-  IN_PROGRESS = 'IN_PROGRESS',
-  AVAILABLE = 'AVAILABLE',
+    ONGOING = "ONGOING",
+        PENDING = "PENDING",
+        IN_PROGRESS = "IN_PROGRESS",
+        AVAILABLE = "AVAILABE"
 }
 
 /** Reasons for dispatching a vehicle */

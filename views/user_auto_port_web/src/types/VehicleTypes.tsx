@@ -123,7 +123,7 @@ export interface VehicleDTO {
 export interface DispatchRequestDto {
 
   dispatchId : number;
-
+  dispatchCost : number;
   dispatchRequester: string;
 
   dispatchAdmin?: string;

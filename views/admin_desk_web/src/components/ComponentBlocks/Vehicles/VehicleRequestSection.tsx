@@ -48,7 +48,7 @@ const VehicleRequestSection = () => {
     </div>
         ) : (
           // ✅ Otherwise, map through dispatches
-          dispatches.map((request, index) => (
+          [...dispatches].reverse().map((request, index) => (
             <VehicleRequestCard
               key={index}
               {...request}

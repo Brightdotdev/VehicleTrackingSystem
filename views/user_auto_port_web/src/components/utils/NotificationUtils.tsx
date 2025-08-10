@@ -25,8 +25,7 @@ const {optimisticSetToRead } = useNotifications()
       
       if (notificationItem.type === notificationType.DISPATCH_VALIDATED_USER) {
         toast.info("we are here")
-        await handleDispatchValidatedTracking(notificationItem, loading, setLoading, setWorked);
-    
+        await handleDispatchValidatedTracking(notificationItem.dispatchId, setLoading, setWorked);
           if(worked){
         await optimisticSetToRead(notificationItem)  
           }

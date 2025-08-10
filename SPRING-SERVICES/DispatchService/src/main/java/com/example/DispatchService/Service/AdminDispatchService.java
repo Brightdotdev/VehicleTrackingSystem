@@ -1,6 +1,5 @@
 package com.example.DispatchService.Service;
 
-
 import com.example.DispatchService.Exceptions.ConflictException;
 import com.example.DispatchService.Exceptions.InvalidRequestException;
 import com.example.DispatchService.Exceptions.NotFoundException;
@@ -20,11 +19,17 @@ import java.util.List;
 
 import static com.example.DispatchService.Utils.DispatchEnums.DispatchStatus.*;
 
+/**
+ * Service that handles admin-related dispatch operations such as validation,
+ * cancellation, and revalidation of dispatches.
+ */
 @Service
 public class AdminDispatchService {
-    private final DispatchRepository dispatchRepository;
 
+    private final DispatchRepository dispatchRepository;
     private final MessagingService messagingService;
+
+    // Static cost per day used in refund calculations
     static double costPerDay = 500;
 
     public AdminDispatchService(DispatchRepository dispatchRepository, MessagingService messagingService) {
@@ -32,370 +37,376 @@ public class AdminDispatchService {
         this.messagingService = messagingService;
     }
 
-
-
-    /**  admin validating a dispatch  **/
-
+    /**
+     * Validates a dispatch by an admin. Only users with ROLE_ADMIN can perform this.
+     *
+     * @param adminEmail Admin performing the validation
+     * @param userRole List of user roles
+     * @param dispatchId ID of the dispatch to validate
+     * @return Updated DispatchModel after validation
+     * @throws InvalidRequestException if user role is missing or invalid
+     * @throws NotFoundException if dispatch does not exist
+     * @throws ConflictException if dispatch is no longer valid
+     */
     @Transactional
-    public DispatchModel validateDispatch(String adminEmail , List<String> userRole, Long dispatchId){
+    public DispatchModel validateDispatch(String adminEmail, List<String> userRole, Long dispatchId) {
+        validateAdminRole(userRole);
 
-        if(userRole.isEmpty()){
-            throw new InvalidRequestException("No user role provided", 400);}
+        DispatchModel dispatch = findDispatchOrThrow(dispatchId);
 
-        if(!userRole.contains(String.valueOf("ROLE_ADMIN"))){
-            throw new InvalidRequestException("Not a valid user for this request", 400);}
-
-        DispatchModel dispatch = dispatchRepository.findByDispatchId(dispatchId);
-
-        if(dispatch == null){
-            throw new NotFoundException("Dispatch Not found ooo");
+        if (!isStillValidDispatch(dispatch)) {
+            return null;  // Dispatch expired or invalid
         }
 
-        if(!isStillValidDispatch(dispatch)){
-            return null;
-        }
-
+        // Update dispatch with admin info and new status
         dispatch.setDispatchAdmin(adminEmail);
-        dispatch.setDispatchStatus(DispatchEnums.DispatchStatus.IN_PROGRESS);
+        dispatch.setDispatchStatus(IN_PROGRESS);
         dispatch.setDispatchRequestApproveTime(LocalDateTime.now());
 
-        UtilRecords.ValidatedDispatch dispatchValidatedBroadcast = new UtilRecords.ValidatedDispatch(dispatch.getDispatchId(), dispatch.getVehicleName(), dispatch.getDispatchReason(),dispatch.getDispatchVehicleId(),dispatch.getDispatchRequester(),dispatch.getDispatchAdmin(),dispatch.getDispatchEndTime());
+        // Prepare validated dispatch broadcast event
+        UtilRecords.ValidatedDispatch validatedDispatch = new UtilRecords.ValidatedDispatch(
+                dispatch.getDispatchId(),
+                dispatch.getVehicleName(),
+                dispatch.getDispatchReason(),
+                dispatch.getDispatchVehicleId(),
+                dispatch.getDispatchRequester(),
+                dispatch.getDispatchAdmin(),
+                dispatch.getDispatchEndTime()
+        );
 
-        messagingService.sendDispatchValidatedNoResponse(dispatchValidatedBroadcast);
+        messagingService.sendDispatchValidatedNoResponse(validatedDispatch);
 
         return dispatchRepository.save(dispatch);
     }
 
-
-
-
-    /**  canceling a dispatch (admin) **/
-
+    /**
+     * Cancels a dispatch by an admin. Only ONGOING, PENDING, or IN_PROGRESS dispatches can be cancelled.
+     *
+     * @param adminEmail Admin performing cancellation
+     * @param userRole List of user roles
+     * @param dispatchId Dispatch ID to cancel
+     * @param dispatchCancelReason Reason for cancellation
+     * @return Updated DispatchModel after cancellation
+     * @throws InvalidRequestException if user role invalid or dispatch status disallows cancellation
+     * @throws NotFoundException if dispatch not found
+     * @throws ConflictException if dispatch is invalid
+     */
     @Transactional
-    public DispatchModel cancelDispatch(String adminEmail ,List<String> userRole, Long dispatchId, String dispatchCancelReason){
+    public DispatchModel cancelDispatch(String adminEmail, List<String> userRole, Long dispatchId, String dispatchCancelReason) {
+        validateAdminRole(userRole);
 
-        if(userRole.isEmpty()){
-            throw new InvalidRequestException("No user role provided", 400);}
+        DispatchModel dispatch = findDispatchOrThrow(dispatchId);
 
-        if(!userRole.contains(String.valueOf("ROLE_ADMIN"))){
-            throw new InvalidRequestException("Not a valid user for this request", 400);}
-
-        DispatchModel dispatch = dispatchRepository.findByDispatchId(dispatchId);
-
-
-        if(dispatch == null){
-            throw new NotFoundException("Dispatch not found");
+        if (!isStillValidDispatch(dispatch)) {
+            return null;  // Dispatch expired or invalid
         }
-
-
-        if(!isStillValidDispatch(dispatch)){
-            return null;}
-
 
         dispatch.setDispatchAdmin(adminEmail);
 
-        if (dispatch.getDispatchStatus() == ONGOING) {
-            Double userRefund = calculateOngoingRefund(dispatch);
-            UtilRecords.DispatchScoreUpdateDto userScoreUpdate =
-                    new UtilRecords.DispatchScoreUpdateDto(dispatch.getDispatchRequester(), dispatchId, userRefund);
-            messagingService.updateUserScore(userScoreUpdate);
+        // Handle refund and messaging differently depending on dispatch status
+        switch (dispatch.getDispatchStatus()) {
+            case ONGOING -> {
+                // Calculate partial refund for ongoing dispatch
+                Double refundAmount = calculateOngoingRefund(dispatch);
 
-            dispatch.setDispatchStatus(DispatchEnums.DispatchStatus.CANCELLED);
+                // Notify score update with refund
+                UtilRecords.DispatchScoreUpdateDto scoreUpdate = new UtilRecords.DispatchScoreUpdateDto(
+                        dispatch.getDispatchRequester(),
+                        dispatchId,
+                        refundAmount
+                );
+                messagingService.updateUserScore(scoreUpdate);
 
-            UtilRecords.DispatchEndedDTO dispatchEnded =
-                    new UtilRecords.DispatchEndedDTO(true, LocalDateTime.now(),
-                            dispatch.getDispatchVehicleId(), dispatch.getDispatchRequester(),
-                            dispatch.getVehicleName(), dispatchId);
-            messagingService.sendDispatchCompletedFanoutFromDispatchService(dispatchEnded);
-            return dispatchRepository.save(dispatch);
+                dispatch.setDispatchStatus(CANCELLED);
+
+                // Notify dispatch ended (cancelled)
+                notifyDispatchEnded(dispatch, true);
+
+                return dispatchRepository.save(dispatch);
+            }
+            case PENDING, IN_PROGRESS -> {
+                // Full refund for pending or in-progress dispatches
+                Double fullRefund = dispatch.getDispatchCost();
+
+                UtilRecords.DispatchScoreUpdateDto scoreUpdate = new UtilRecords.DispatchScoreUpdateDto(
+                        dispatch.getDispatchRequester(),
+                        dispatchId,
+                        fullRefund
+                );
+                messagingService.updateUserScore(scoreUpdate);
+
+                dispatch.setDispatchStatus(CANCELLED);
+
+                // Notify dispatch ended (cancelled)
+                notifyDispatchEnded(dispatch, true);
+
+                return dispatchRepository.save(dispatch);
+            }
+            default -> throw new InvalidRequestException(
+                    "Only ONGOING, PENDING or IN_PROGRESS dispatches can be cancelled by the user", 400);
         }
+    }
 
-
-        if (dispatch.getDispatchStatus() == PENDING || dispatch.getDispatchStatus() == IN_PROGRESS) {
-            Double fullRefund = dispatch.getDispatchCost();
-
-            UtilRecords.DispatchScoreUpdateDto userScoreUpdate =
-                    new UtilRecords.DispatchScoreUpdateDto(dispatch.getDispatchRequester(), dispatchId, fullRefund);
-
-            messagingService.updateUserScore(userScoreUpdate);
-
-            dispatch.setDispatchStatus(DispatchEnums.DispatchStatus.CANCELLED);
-
-            // Notify system of cancellation (user-triggered)
-            UtilRecords.DispatchEndedDTO dispatchEnded =
-                    new UtilRecords.DispatchEndedDTO(true, LocalDateTime.now(),
-                            dispatch.getDispatchVehicleId(), dispatch.getDispatchRequester(),
-                            dispatch.getVehicleName(), dispatchId);
-
-            messagingService.sendDispatchCompletedFanoutFromDispatchService(dispatchEnded);
-            return dispatchRepository.save(dispatch);
-        }
-
-
-        throw new InvalidRequestException("Only ONGOING or PENDING dispatches can be cancelled by the user", 400);}
-
-
-
+    /**
+     * Revalidates all active dispatches. Expires those past their end time and handles refunds.
+     *
+     * @return List of currently active dispatches after revalidation
+     */
     @Transactional
-    public List<DispatchModel>  revalidateAllActiveDispatch(){
-
-        List<DispatchModel> foundVehicleDispatches = dispatchRepository.findAll();
+    public List<DispatchModel> revalidateAllActiveDispatch() {
+        List<DispatchModel> allDispatches = dispatchRepository.findAll();
         List<DispatchModel> activeDispatches = new ArrayList<>();
 
-        for(DispatchModel dispatch : foundVehicleDispatches ){
-            if(
-                    dispatch.getDispatchStatus() == DispatchEnums.DispatchStatus.COMPLETED ||
-                    dispatch.getDispatchStatus() == DispatchEnums.DispatchStatus.CANCELLED ||
-                    dispatch.getDispatchStatus() == DispatchEnums.DispatchStatus.EXPIRED
-            ){
-                continue;}
+        LocalDateTime now = LocalDateTime.now();
 
-            LocalDateTime expiry = dispatch.getDispatchEndTime();
-            LocalDateTime now = LocalDateTime.now();
-
-
-            if (expiry.isBefore(now)) {
-
-                if (dispatch.getDispatchStatus() == DispatchEnums.DispatchStatus.IN_PROGRESS ||
-                        dispatch.getDispatchStatus() == PENDING) {
-
-                    // Refund the dispatch cost
-                    UtilRecords.DispatchScoreUpdateDto userScoreRefund =
-                            new UtilRecords.DispatchScoreUpdateDto(
-                                    dispatch.getDispatchRequester(),
-                                    dispatch.getDispatchId(),
-                                    dispatch.getDispatchCost()
-                            );
-                    messagingService.updateUserScore(userScoreRefund);
-                }
-
-                // Set status to expired and add metadata
-                dispatch.setDispatchStatus(DispatchEnums.DispatchStatus.EXPIRED);
-                dispatch.addToDispatchMetadata("DispatchStatus", "Dispatch Is Expired");
-
-                // Notify via dispatch ended fanout
-                UtilRecords.DispatchEndedDTO dispatchEnded = new UtilRecords.DispatchEndedDTO(
-                        false,
-                        now,
-                        dispatch.getDispatchVehicleId(),
-                        dispatch.getDispatchRequester(),
-                        dispatch.getVehicleName(),
-                        dispatch.getDispatchId()
-                );
-                messagingService.sendDispatchCompletedFanoutFromDispatchService(dispatchEnded);
-
-                // Save changes
+        for (DispatchModel dispatch : allDispatches) {
+            if (isDispatchFinalized(dispatch)) {
+                // Skip completed, cancelled, expired
                 continue;
-            }else {
-                activeDispatches.add(dispatch);
             }
 
+            if (dispatch.getDispatchEndTime().isBefore(now)) {
+                // Dispatch expired, handle refunds if necessary
+                handleExpiredDispatchRefund(dispatch);
+                dispatch.setDispatchStatus(EXPIRED);
+                dispatch.addToDispatchMetadata("DispatchStatus", "Dispatch Is Expired");
+
+                notifyDispatchEnded(dispatch, false);
+
+            } else {
+                activeDispatches.add(dispatch);
+            }
         }
-        dispatchRepository.saveAll(foundVehicleDispatches);
+
+        dispatchRepository.saveAll(allDispatches);
+
         return activeDispatches;
     }
 
+    /**
+     * Revalidates all dispatches - expires any dispatch past end time and processes refunds.
+     *
+     * @return Updated list of all dispatches after revalidation
+     */
     @Transactional
     public List<DispatchModel> revalidateAllDispatch() {
         List<DispatchModel> allDispatches = dispatchRepository.findAll();
-        List<DispatchModel> returnList = new ArrayList<>();
+        LocalDateTime now = LocalDateTime.now();
 
         for (DispatchModel dispatch : allDispatches) {
-            // Skip status update for completed/cancelled dispatches
-            if (dispatch.getDispatchStatus() != DispatchEnums.DispatchStatus.COMPLETED &&
-                    dispatch.getDispatchStatus() != DispatchEnums.DispatchStatus.CANCELLED) {
-
-                LocalDateTime expiry = dispatch.getDispatchEndTime();
-                LocalDateTime now = LocalDateTime.now();
-
-                if (expiry.isBefore(now)) {
-                    dispatch.setDispatchStatus(DispatchEnums.DispatchStatus.EXPIRED);
+            if (!isDispatchFinalized(dispatch) && dispatch.getDispatchEndTime().isBefore(now)) {
+                if (dispatch.getDispatchStatus() == IN_PROGRESS || dispatch.getDispatchStatus() == PENDING) {
+                    handleExpiredDispatchRefund(dispatch);
                 }
+                dispatch.setDispatchStatus(EXPIRED);
+                notifyDispatchEnded(dispatch, false);
             }
-
-
-            if (dispatch.getDispatchStatus() != DispatchEnums.DispatchStatus.COMPLETED &&
-                    dispatch.getDispatchStatus() != DispatchEnums.DispatchStatus.CANCELLED) {
-
-                LocalDateTime expiry = dispatch.getDispatchEndTime();
-                LocalDateTime now = LocalDateTime.now();
-
-                if (expiry.isBefore(now)) {
-                    if (dispatch.getDispatchStatus() == DispatchEnums.DispatchStatus.IN_PROGRESS ||
-                            dispatch.getDispatchStatus() == PENDING) {
-
-                        UtilRecords.DispatchScoreUpdateDto userScoreRefund =
-                                new UtilRecords.DispatchScoreUpdateDto(
-                                        dispatch.getDispatchRequester(),
-                                        dispatch.getDispatchId(),
-                                        dispatch.getDispatchCost()
-                                );
-                        messagingService.updateUserScore(userScoreRefund);
-                    }
-
-                    dispatch.setDispatchStatus(DispatchEnums.DispatchStatus.EXPIRED);
-                    UtilRecords.DispatchEndedDTO dispatchEndedDTO = new UtilRecords.DispatchEndedDTO(false,LocalDateTime.now(),dispatch.getDispatchVehicleId(),dispatch.getDispatchRequester(),dispatch.getVehicleName(),dispatch.getDispatchId());
-                    messagingService.sendDispatchCompletedFanoutFromDispatchService(dispatchEndedDTO);
-
-                }}
         }
+
         return dispatchRepository.saveAll(allDispatches);
     }
 
-
-
-
-
+    /**
+     * Revalidates a specific dispatch by ID and vehicle ID.
+     * Expires if past end time and processes refund if applicable.
+     *
+     * @param dispatchId Dispatch ID
+     * @param vehicleId Vehicle ID
+     * @return Updated dispatch model
+     * @throws NotFoundException if dispatch not found
+     */
     @Transactional
     public DispatchModel revalidateDispatchByIdAndVehicleId(@Valid Long dispatchId, String vehicleId) {
-        DispatchModel dispatch = dispatchRepository.findByDispatchIdAndDispatchVehicleId( dispatchId, vehicleId);
+        DispatchModel dispatch = dispatchRepository.findByDispatchIdAndDispatchVehicleId(dispatchId, vehicleId);
 
-        if(dispatch == null){
-            throw new NotFoundException("Dispatch Not found ooo");
+        if (dispatch == null) {
+            throw new NotFoundException("Dispatch Not found");
         }
 
-        LocalDateTime expiry = dispatch.getDispatchEndTime();
         LocalDateTime now = LocalDateTime.now();
 
-        if (expiry.isBefore(now)) {
-
-            if (dispatch.getDispatchStatus() == DispatchEnums.DispatchStatus.IN_PROGRESS ||
-                    dispatch.getDispatchStatus() == PENDING) {
-
-                // Refund dispatch cost
-                UtilRecords.DispatchScoreUpdateDto refundDto =
-                        new UtilRecords.DispatchScoreUpdateDto(
-                                dispatch.getDispatchRequester(),
-                                dispatch.getDispatchId(),
-                                dispatch.getDispatchCost()
-                        );
-                messagingService.updateUserScore(refundDto);
+        if (dispatch.getDispatchEndTime().isBefore(now)) {
+            if (dispatch.getDispatchStatus() == IN_PROGRESS || dispatch.getDispatchStatus() == PENDING) {
+                handleExpiredDispatchRefund(dispatch);
             }
-
-            dispatch.setDispatchStatus(DispatchEnums.DispatchStatus.EXPIRED);
-            UtilRecords.DispatchEndedDTO dispatchEndedDTO = new UtilRecords.DispatchEndedDTO(false,LocalDateTime.now(),dispatch.getDispatchVehicleId(),dispatch.getDispatchRequester(),dispatch.getVehicleName(),dispatch.getDispatchId());
-            messagingService.sendDispatchCompletedFanoutFromDispatchService(dispatchEndedDTO);
-          return  dispatchRepository.save(dispatch);
-        }else {
-
-            return dispatch;}}
-
-
-
-
-    public List<DispatchModel> getVehicleHistory(String vehicleId){
-
-        return   dispatchRepository.findByDispatchVehicleId(vehicleId);
+            dispatch.setDispatchStatus(EXPIRED);
+            notifyDispatchEnded(dispatch, false);
+            return dispatchRepository.save(dispatch);
+        } else {
+            return dispatch;
+        }
     }
 
-
-
-
-
-
-
-    /** Util static methods  (im too lazy to create a file for it) **/
-
-    private static DispatchModel getDispatchModel(UtilRecords.dispatchRequestBody requestBody, String adminEmail, List<String> userRole) {
-        DispatchModel finalDispatchBody = new DispatchModel();
-        finalDispatchBody.setDispatchVehicleId(requestBody.vehicleIdentificationNumber());
-        finalDispatchBody.setDispatchRequesterRole(userRole);
-        finalDispatchBody.setDispatchRequester(adminEmail);
-        finalDispatchBody.setDispatchReason(requestBody.dispatchReason());
-        finalDispatchBody.setDispatchStatus(DispatchEnums.DispatchStatus.PENDING);
-        finalDispatchBody.setVehicleClass(requestBody.vehicleStatus());
-        finalDispatchBody.setDispatchEndTime(requestBody.dispatchEndTime());
-        return finalDispatchBody;
+    /**
+     * Retrieves all dispatch history for a given vehicle ID.
+     *
+     * @param vehicleId Vehicle identification string
+     * @return List of dispatch models for the vehicle
+     */
+    public List<DispatchModel> getVehicleHistory(String vehicleId) {
+        return dispatchRepository.findByDispatchVehicleId(vehicleId);
     }
 
+    /* =====================
+       Private Helper Methods
+       ===================== */
 
+    // Helper: validates that user has ROLE_ADMIN, else throws exception
+    private void validateAdminRole(List<String> userRole) {
+        if (userRole.isEmpty()) {
+            throw new InvalidRequestException("No user role provided", 400);
+        }
+        if (!userRole.contains("ROLE_ADMIN")) {
+            throw new InvalidRequestException("Not a valid user for this request", 400);
+        }
+    }
 
+    // Helper: finds dispatch or throws NotFoundException
+    private DispatchModel findDispatchOrThrow(Long dispatchId) {
+        DispatchModel dispatch = dispatchRepository.findByDispatchId(dispatchId);
+        if (dispatch == null) {
+            throw new NotFoundException("Dispatch not found");
+        }
+        return dispatch;
+    }
 
+    // Checks if dispatch is finalized (COMPLETED, CANCELLED, EXPIRED)
+    private boolean isDispatchFinalized(DispatchModel dispatch) {
+        return dispatch.getDispatchStatus() == COMPLETED
+                || dispatch.getDispatchStatus() == CANCELLED
+                || dispatch.getDispatchStatus() == EXPIRED;
+    }
 
-    private static boolean isStillValidDispatch(DispatchModel dispatch) {
+    /**
+     * Checks if the dispatch is valid (not expired, cancelled, or completed),
+     * else throws ConflictException.
+     *
+     * @param dispatch DispatchModel to check
+     * @return true if valid
+     */
+    private boolean isStillValidDispatch(DispatchModel dispatch) {
         if (dispatch == null) {
             throw new IllegalArgumentException("Dispatch cannot be null");
         }
 
-        if (dispatch.getDispatchStatus() == DispatchEnums.DispatchStatus.EXPIRED) {
-            throw new ConflictException("Dispatch is expired");
-        }
-
-        if (dispatch.getDispatchStatus() == DispatchEnums.DispatchStatus.CANCELLED) {
-            throw new ConflictException("Dispatch is cancelled");
-        }
-
-        if (dispatch.getDispatchStatus() == DispatchEnums.DispatchStatus.COMPLETED) {
-            throw new ConflictException("Dispatch is completed");
+        switch (dispatch.getDispatchStatus()) {
+            case EXPIRED -> throw new ConflictException("Dispatch is expired");
+            case CANCELLED -> throw new ConflictException("Dispatch is cancelled");
+            case COMPLETED -> throw new ConflictException("Dispatch is completed");
         }
 
         if (dispatch.getDispatchEndTime() == null) {
             throw new ConflictException("Dispatch end time is not set");
         }
 
-
-        LocalDateTime endTime = dispatch.getDispatchEndTime();
-        LocalDateTime now = LocalDateTime.now();
-
-        if (endTime.isBefore(now)) {
+        if (dispatch.getDispatchEndTime().isBefore(LocalDateTime.now())) {
             throw new ConflictException("Dispatch has already ended");
         }
 
         return true;
     }
 
+    /**
+     * Helper to send a dispatch ended notification with cancellation flag.
+     *
+     * @param dispatch DispatchModel
+     * @param wasCancelled true if dispatch was cancelled, false if expired normally
+     */
+    private void notifyDispatchEnded(DispatchModel dispatch, boolean wasCancelled) {
+        UtilRecords.DispatchEndedDTO dispatchEnded = new UtilRecords.DispatchEndedDTO(
+                wasCancelled,
+                LocalDateTime.now(),
+                dispatch.getDispatchVehicleId(),
+                dispatch.getDispatchRequester(),
+                dispatch.getVehicleName(),
+                dispatch.getDispatchId()
+        );
+        messagingService.sendDispatchCompletedFanoutFromDispatchService(dispatchEnded);
+    }
+
+    /**
+     * Handles refunds for expired dispatches in IN_PROGRESS or PENDING status.
+     *
+     * @param dispatch DispatchModel to refund
+     */
+    private void handleExpiredDispatchRefund(DispatchModel dispatch) {
+        UtilRecords.DispatchScoreUpdateDto refundDto = new UtilRecords.DispatchScoreUpdateDto(
+                dispatch.getDispatchRequester(),
+                dispatch.getDispatchId(),
+                dispatch.getDispatchCost()
+        );
+        messagingService.updateUserScore(refundDto);
+    }
+
+    /**
+     * Calculates the refund amount for an ongoing dispatch based on unused time.
+     *
+     * @param dispatch DispatchModel currently ongoing
+     * @return refundable amount
+     */
     public Double calculateOngoingRefund(DispatchModel dispatch) {
-
-        LocalDateTime startTime  = dispatch.getDispatchStartTime(); // more generous
+        LocalDateTime startTime = dispatch.getDispatchStartTime();
         LocalDateTime cancelTime = LocalDateTime.now();
-        LocalDateTime endTime    = dispatch.getDispatchEndTime();
+        LocalDateTime endTime = dispatch.getDispatchEndTime();
 
-        // Validate
         if (startTime == null || endTime == null) return 0.0;
         if (cancelTime.isAfter(endTime)) return 0.0;
         if (cancelTime.isBefore(startTime)) return 0.0;
 
-        // Time-based calculations
         long totalDurationMinutes = Duration.between(startTime, endTime).toMinutes();
-        long remainingMinutes     = Duration.between(cancelTime, endTime).toMinutes();
+        long remainingMinutes = Duration.between(cancelTime, endTime).toMinutes();
 
         if (totalDurationMinutes <= 0 || remainingMinutes <= 0) return 0.0;
 
         double unusedRatio = (double) remainingMinutes / totalDurationMinutes;
 
-        // Recalculate original time-based cost
         long totalHours = Duration.between(startTime, endTime).toHours();
 
         return getRefundable(dispatch, totalHours, unusedRatio);
     }
 
-
+    /**
+     * Helper method that calculates refundable amount based on vehicle class,
+     * dispatch reason, and unused time ratio.
+     *
+     * @param dispatch DispatchModel
+     * @param totalHours Total hours of dispatch
+     * @param unusedRatio Portion of unused time (0.0 - 1.0)
+     * @return refundable amount as double
+     */
     private static double getRefundable(DispatchModel dispatch, long totalHours, double unusedRatio) {
+        // Calculate half-day blocks (12 hours each)
         double halfDayBlocks = Math.ceil(totalHours / 12.0);
         double totalDays = halfDayBlocks * 0.5;
+
         double timeBasedCost = totalDays * costPerDay;
 
-        // Flat fees based on vehicle status and reason
-        double vehicleClassScore = switch (dispatch.getVehicleClass()) {
-            case CLASSIFIED -> 1000;
-            case CARGO      -> 300;
-            case REGULAR    -> 200;
-            case TRANSPORT  -> 400;
-        };
+        // Assign flat fees based on vehicle class
+        double flatFees = getFlatFees(dispatch);
 
-        double dispatchReasonScore = switch (dispatch.getDispatchReason()) {
-            case CLASSIFIED -> 1000;
-            case DELIVERY   -> 200;
-            case TRANSPORT  -> 150;
-        };
-
-        double flatFees = vehicleClassScore + dispatchReasonScore;
-
+        // Refundable flat fee portion (10%)
         double refundableFlat = flatFees * 0.1;
+
+        // Total refundable amount is time-based unused cost + flat fee portion
         return (timeBasedCost * unusedRatio) + refundableFlat;
     }
 
+    private static double getFlatFees(DispatchModel dispatch) {
+        double vehicleClassScore = switch (dispatch.getVehicleClass()) {
+            case CLASSIFIED -> 1000;
+            case CARGO -> 300;
+            case REGULAR -> 200;
+            case TRANSPORT -> 400;
+        };
 
+        // Assign flat fees based on dispatch reason
+        double dispatchReasonScore = switch (dispatch.getDispatchReason()) {
+            case CLASSIFIED -> 1000;
+            case DELIVERY -> 200;
+            case TRANSPORT -> 150;
+        };
 
-
+        double flatFees = vehicleClassScore + dispatchReasonScore;
+        return flatFees;
+    }
 }

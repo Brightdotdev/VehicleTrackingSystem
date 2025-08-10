@@ -44,7 +44,6 @@ public class TrackingController {
                 ));}
 
 
-
     /**
      * Endpoint to start a tracking
      */

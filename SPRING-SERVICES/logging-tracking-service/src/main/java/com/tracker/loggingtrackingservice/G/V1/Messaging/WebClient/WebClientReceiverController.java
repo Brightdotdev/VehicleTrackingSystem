@@ -56,7 +56,10 @@ public class WebClientReceiverController {
     public ResponseEntity<ApiResponse<Void>> handleDispatchCreatedNotification(@RequestBody UtilRecords.dispatchRequestBodyDTO event) {
         logger.info("📦 Received /dispatch-created payload: {}", jsonMapper.convertToJson(event));
 
-        if (event == null || event.vehicleIdentificationNumber() == null) {
+        if (event == null || event.vehicleIdentificationNumber() == null
+        || event.dispatchId() == null
+                || event.dispatchRequester() == null
+        ) {
             logger.warn("Invalid dispatchCreated event received: {}", event);
             return ResponseEntity.badRequest().body(ApiResponse.error(400, "Invalid dispatchCreated event"));
         }

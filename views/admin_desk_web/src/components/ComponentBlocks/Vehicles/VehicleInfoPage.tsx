@@ -1,4 +1,4 @@
-import { DispatchRequestDto, VehicleDTO } from '@/types/VehicleTypes';
+import { DispatchRequestDto, VehicleDispatchStatus, VehicleDTO } from '@/types/VehicleTypes';
 import { ArrowLeft,  CarFront,  CircleHelp, Cog, HeartPulse, IdCard, Info,  Shield, TimerIcon, TriangleAlertIcon} from 'lucide-react'
 import React, { useEffect, useState } from 'react'
 import { getVehicleDispatchHistoryApi } from '@/lib/handleDsiaptchRequestPage';
@@ -11,9 +11,7 @@ import { toast } from 'sonner';
 
 
  const markForMentainance =  async  (vehicleVin : string) => {
-          
-      console.log("Mentainingggg grahhh")
-  
+        
         try {
               const response = await fetch(`${dotEnv.adminVehicleBaseUrl}/mark-for-maintenance?vin=${vehicleVin}`, {
           method: 'POST',
@@ -71,21 +69,17 @@ const VehicleInfoPage = ({vehicleVin} : {vehicleVin : string}) => {
     
     const handleVehiclePage = async () =>{
        const vData = await getVehicleByVin(vehicleVin);
-      console.log("Vehicle Dataaa")
-       console.log(vData)
-    setVehicleData(vData);
+       setVehicleData(vData);
     if (vData) {
       const dispatchHistoryApi =  await getVehicleDispatchHistoryApi(vData.vehicleIdentificationNumber)
-      console.log("Vehicle hisory")
-      console.log(dispatchHistoryApi)
+
       setDispatchHistory(dispatchHistoryApi);
 
 
          const hasWildcardDispatch = vData?.wildcardAttributes?.some(attribute => attribute.wildcardValue === true)  
+         
 const hasLowSafetyScore = (vData?.safetyScore || 0 ) <  63 ;
-
 const canDispatch = hasLowSafetyScore ? false : hasWildcardDispatch  ? false : true
-console.log(canDispatch)
 setDispatchAble(canDispatch);
 
     } else {
@@ -236,29 +230,34 @@ handleVehiclePage();
     </span>
   </div>
 )}
-
-
-
 {vehicleData?.wildcardAttributes && vehicleData?.wildcardAttributes.length > 0 && (
-  <div className="flex md:items-center items-start justify-center gap-2 flex-col md:flex-row ">
+  <div className="flex md:items-center items-start justify-center gap-2 flex-col md:flex-row">
     <div className="flex items-center justify-center gap-2 xl:gap-0">
-    <TriangleAlertIcon /> 
-    <span className="text-sm pl-2 font-[500]">Wildcards:</span>
+      <TriangleAlertIcon />
+      <span className="text-sm pl-2 font-[500]">Wildcards:</span>
     </div>
+
+    {/* Text Output */}
     <span className="text-body text-muted-foreground">
-      {vehicleData.wildcardAttributes
-        .map(obj =>
-          Object.entries(obj)
-            .filter(([key, value]) => key !== "id" && key === "wildcardKey" && obj["wildcardValue"] === true)
-            .map(([key, value]) => value)
-            .join(", ")
-        )
-        .filter(Boolean)
-        .join(", ")
-      }
+      {(() => {
+        // Extract matching attributes
+        const matchingAttributes = vehicleData.wildcardAttributes
+          .map(obj =>
+            Object.entries(obj)
+              .filter(([key]) => key !== "id" && key === "wildcardKey" && obj["wildcardValue"] === true)
+              .map(([_, value]) => value)
+              .join(", ")
+          )
+          .filter(Boolean);
+          
+        return matchingAttributes.length > 0
+          ? matchingAttributes.join(", ")
+          : "Yeah no wild cards for this vehicle";
+      })()}
     </span>
   </div>
 )}
+
  </article>
 
 <article className="flex flex-col items-center justify-center gap-4  w-full  lg:w-1/2 h-[--size-sm] ">
@@ -290,7 +289,8 @@ handleVehiclePage();
           "TRANSPORT": "TRANSPORT",
           "DELIVERY": "DELIVERY",
           "NOT_DISPATCHABLE": "NOT_DISPATCHABLE",
-          "DISPATCHABLE": "DISPATCHABLE"
+          "DISPATCHABLE": "DISPATCHABLE",
+          "ONGOING": "ONGOING"
         };
         const mappedStatus = statusMap[dispatch.dispatchStatus as string] || "FAILED TO FETCH";
         return (
@@ -333,19 +333,27 @@ absolute flex items-end justify-end w-full bottom-0 xl:bottom-4 left-0">
       ) : (
         <button
           className="bg-blue-500 text-white px-4 py-2 rounded shadow-sm cursor-pointer"
-          onClick={() => markForMentainance(vehicleVin)}>
+          onClick={() =>{
+            if(vehicleData?.dispatchStatus === VehicleDispatchStatus.IN_PROGRESS){
+              return toast.error("Vehicle Already validated for dsiaptch") 
+            }
+
+            if(vehicleData?.dispatchStatus === VehicleDispatchStatus.ONGOING){
+              return toast.error("Vehicle Already dispatched to a user") 
+            }
+
+            if(vehicleData?.dispatchStatus === VehicleDispatchStatus.PENDING){
+              return toast.error("Vehicle Already staged to a user") 
+            }
+               markForMentainance(vehicleVin)
+          }
+          }>
           Mark for Maintenance
         </button>
       )}
         </div>
-
-
-
 </div>
 
-
-
-  
       </section>
     </main>
   )

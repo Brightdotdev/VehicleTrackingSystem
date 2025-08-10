@@ -27,7 +27,7 @@ const VehicleNamePill = (
 <div className={`bg-white rounded-full w-2 h-2`}>
 </div>
 
-<p className="flex items-center justify-center gap-1  text-small text-primary-foreground  dark:text-foreground">
+<p className="flex items-center justify-center gap-1 text-xs md:text-small text-primary-foreground  dark:text-foreground">
    The  {model} <span className='flex md:hidden' >is {isDispatchable ? " dispatchable" : " not dispatchable" }</span>
  </p>
 
@@ -111,7 +111,7 @@ handleVehiclePage();
 <div className="w-full h-full flex items-center justify-between flex-col md:p-[var(--space-sm)]">
 
   <div className="pt-8 py-4 md:pt-0 w-full flex items-center justify-between  md:h-[var(--size-md)]">
-    <h3 className="md:text-medium text-normal-2">
+    <h3 className="md:text-medium text-normal">
       {vehicleData?.model} 
     </h3>
 
@@ -125,7 +125,7 @@ handleVehiclePage();
   md:justify-between lg:flex-row flex-col  md:pt-4 scorllebleElement customScrollBar"> 
  
 <article
-  className="flex flex-col items-start justify-start gap-6 bg-background2 rounded-sm lg:w-1/2 w-full lg:p-[var(--size-xxs)] pt-4 p-2
+  className="flex flex-col items-start justify-start gap-6 rounded-sm lg:w-1/2 w-full lg:p-[var(--size-xxs)] pt-4 p-2
    min-h-full lg:max-h-[20rem] scorllebleElement customScrollBar"
 >
 
@@ -217,7 +217,7 @@ handleVehiclePage();
 
  </article>
 
-<article className="flex flex-col items-center justify-center gap-4  w-full  lg:w-1/2 h-[--size-sm] ">
+{/* <article className="flex flex-col items-center justify-center gap-4  w-full  lg:w-1/2 h-[--size-sm] ">
 
 <div className="lg:w-2/3 
 min-h-[20rem]
@@ -233,7 +233,7 @@ flex flex-col lg:bg-card lg:p-2 rounded-sm items-center h-fit  justify-start gap
 </div></div>
 
  </article>
-
+ */}
   </div>
 
   
@@ -250,9 +250,7 @@ absolute flex items-end justify-end w-full bottom-0 xl:bottom-4 left-0">
           onClick={() => 
           {
             toast("Finally...routing now")
-            router.push(
-              `vehicles/request?vehicle=${vehicleData?.vehicleIdentificationNumber}`
-            )
+            router.push(`/vehicles/get?vehicle=${vehicleData?.vehicleIdentificationNumber}`)
           }
             
           }>

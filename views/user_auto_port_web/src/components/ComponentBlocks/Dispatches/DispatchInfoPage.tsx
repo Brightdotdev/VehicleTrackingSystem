@@ -49,7 +49,7 @@ const VehicleNamePill = (
 
 
 const DispatchInfoPage = ({vehicleVin, vehicleReqId} : {vehicleVin : string, vehicleReqId : number}) => {
-  const router = useRouter();
+
  const [dispatchData, setDispatchData] = useState<DispatchRequestDto | undefined>(undefined);
  const [vehicleData, setVehicleData] = useState<VehicleDTO | undefined>(undefined);
   

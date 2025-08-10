@@ -5,6 +5,7 @@ import { HealthText } from '@/components/utils/UtilComponents';
 import { DispatchRequestDto } from '@/types/VehicleTypes';
 import React, { useEffect, useState } from 'react';
 import { handleTerminateDispatch } from "@/lib/handleUserDispatchPage";
+import { Fuel } from "lucide-react";
 
 interface DispatchHandlerCardProps {
   dispatchData?: DispatchRequestDto;
@@ -45,6 +46,25 @@ const DispatchHandlerCard: React.FC<DispatchHandlerCardProps> = ({ dispatchData 
       xl:h-[26rem] xl:w-[24rem] w-[96vw] h-[50vh] bg-card rounded-lg z-10'>
       
       <h5 className='text-small-2'>My Request Metadata</h5>
+
+
+    <div className="flex flex-col items-center justify-center gap-4 w-full">
+        <div className="flex w-full items-center justify-between">
+   
+   <div className="flex items-center justify-center gap-2">
+       <Fuel className="size-4 text-blue-400" />
+          <h5 className='text-small-2'>Dispatch Cost</h5>
+   </div>
+          
+          <span className="text-small-2 text-green-300">
+         {dispatchData.dispatchCost}
+
+          </span>
+
+        </div>
+      </div>
+
+
 
       <div className="flex flex-col items-center justify-center gap-4 w-full">
         <div className="flex w-full items-center justify-between">

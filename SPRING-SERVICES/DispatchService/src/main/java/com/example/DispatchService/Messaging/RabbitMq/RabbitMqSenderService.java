@@ -142,7 +142,7 @@ public class RabbitMqSenderService implements MessagingService {
         }
 
         try {
-            Object vehicleResponse = userServiceWebClientService.updateUserDispatchScore(event).block();
+            Object vehicleResponse = userServiceWebClientService.updateUserDispatchScore(event);
             logger.info("user vehicle score update event sent (vehicle): {}", jsonMapper.convertToJson(vehicleResponse));
         } catch (Exception e) {
             logger.error("Failed to Send User Score update", e);

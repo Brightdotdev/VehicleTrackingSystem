@@ -9,6 +9,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
+/**
+ * WebClient-based implementation of MessagingService
+ * responsible for fanout messaging to dispatch and vehicle services.
+ *
+ * Handles dispatch completion, tracking initialization, and location checkpoint events.
+ */
 @Service
 @ConditionalOnProperty(name = "messaging.type", havingValue = "webClient", matchIfMissing = true)
 public class WebClientSenderService implements MessagingService {
@@ -30,7 +36,10 @@ public class WebClientSenderService implements MessagingService {
     }
 
     /**
-     * ✅ Fanout completed dispatch to both dispatch and vehicle services
+     * Fanout a completed dispatch event to both dispatch and vehicle services.
+     * Logs responses and errors.
+     *
+     * @param event the DispatchEndedDTO event containing dispatch completion data
      */
     @Override
     public void sendCompletedDispatchFanOut(UtilRecords.DispatchEndedDTO event) {
@@ -40,8 +49,8 @@ public class WebClientSenderService implements MessagingService {
         }
 
         try {
-            Object dispatchResponse = dispatchServiceWebClient.sendDispatchCompletedMessage(event).block();
-            Object vehicleResponse = vehicleWebClientService.sendDispatchCompletedMessage(event).block();
+            Object dispatchResponse = dispatchServiceWebClient.sendDispatchCompletedMessage(event);
+            Object vehicleResponse = vehicleWebClientService.sendDispatchCompletedMessage(event);
 
             logger.info("✅ Dispatch service response: {}", formatterService.convertToJson(dispatchResponse));
             logger.info("✅ Vehicle service response: {}", formatterService.convertToJson(vehicleResponse));
@@ -51,7 +60,10 @@ public class WebClientSenderService implements MessagingService {
     }
 
     /**
-     * ✅ Fanout tracking initialization event
+     * Fanout a tracking initialization event to dispatch and vehicle services.
+     * Logs responses and errors.
+     *
+     * @param event the StartTrackingDTO event containing tracking initialization data
      */
     @Override
     public void sendTrackingInitializationFanout(UtilRecords.StartTrackingDTO event) {
@@ -61,8 +73,8 @@ public class WebClientSenderService implements MessagingService {
         }
 
         try {
-            Object dispatchResponse = dispatchServiceWebClient.sendTrackingInitializationMessage(event).block();
-            Object vehicleResponse = vehicleWebClientService.sendTrackingInitializationMessage(event).block();
+            Object dispatchResponse = dispatchServiceWebClient.sendTrackingInitializationMessage(event);
+            Object vehicleResponse = vehicleWebClientService.sendTrackingInitializationMessage(event);
 
             logger.info("✅ Tracking init dispatch response: {}", formatterService.convertToJson(dispatchResponse));
             logger.info("✅ Tracking init vehicle response: {}", formatterService.convertToJson(vehicleResponse));
@@ -72,7 +84,10 @@ public class WebClientSenderService implements MessagingService {
     }
 
     /**
-     * ✅ Fanout vehicle location checkpoint update
+     * Fanout a vehicle location checkpoint update event to the vehicle service.
+     * Logs responses and errors.
+     *
+     * @param event the vehicleLocationUpdate event containing location checkpoint data
      */
     @Override
     public void sendTrackingCheckPointFanOut(UtilRecords.vehicleLocationUpdate event) {
@@ -80,12 +95,8 @@ public class WebClientSenderService implements MessagingService {
             logger.warn("⚠️ Invalid vehicle location update: {}", event);
             return;
         }
-
         try {
-
-            Object vehicleResponse = vehicleWebClientService.sendCheckPoint(event).block();
-
-
+            Object vehicleResponse = vehicleWebClientService.sendCheckPoint(event);
             logger.info("✅ Checkpoint vehicle response: {}", formatterService.convertToJson(vehicleResponse));
         } catch (Exception e) {
             logger.error("❌ Failed to fanout vehicle checkpoint update: {}", e.getMessage(), e);

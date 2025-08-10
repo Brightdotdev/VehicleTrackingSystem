@@ -48,8 +48,8 @@ public class ApiResponse <T> {
         return new ApiResponse<>(true, code, message, null);
     }
 
-
     public static <T> ApiResponse<T> error(int code, String message) {
         return new ApiResponse<>(false, code, message, null);
     }
+
 }

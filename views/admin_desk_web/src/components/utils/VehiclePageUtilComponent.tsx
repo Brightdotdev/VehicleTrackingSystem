@@ -19,6 +19,7 @@ export type VehicleInfoPagePropsPills = {
     | "CARGO"
     | "REGULAR"
     | "TRANSPORT"
+    | "ONGOING"
     | "DELIVERY"
     | "NOT_DISPATCHABLE"
     | "DISPATCHABLE"
@@ -67,7 +68,8 @@ export const VehicleInfoPageStatusPills = (props: VehicleInfoPagePropsPills) => 
             <p className="text-xs lg:text-small">PENDING</p>
           </div>
         );
-      } else if (props.statusName === "IN_TRANSIT") {
+      } 
+      else if (props.statusName === "IN_TRANSIT") {
         return (
           <div
             className={`${baseClass} xl:w-[8rem] w-[6rem] bg-gradient-to-r from-green-700/60 to-green-600/60 pl-4 ${
@@ -78,7 +80,22 @@ export const VehicleInfoPageStatusPills = (props: VehicleInfoPagePropsPills) => 
             <p className="text-xs lg:text-small">IN TRANSIT</p>
           </div>
         );
-      } else if (props.statusName === "CARGO") {
+      } 
+      
+      else if (props.statusName === "ONGOING") {
+        return (
+          <div
+            className={`${baseClass} xl:w-[8rem] w-[6rem] bg-gradient-to-r from-teal-700/60 to-teal-600/60 pl-4 ${
+              props.className || ""
+            }`}
+          >
+            <div className="w-2 h-2 rounded-full bg-white"></div>
+            <p className="text-xs lg:text-small">ONGOING</p>
+          </div>
+        );
+      } 
+      
+      else if (props.statusName === "CARGO") {
         return (
           <div
             className={`${baseClass} w-[10rem] bg-gradient-to-r from-yellow-700 to-yellow-600 pl-6 ${
