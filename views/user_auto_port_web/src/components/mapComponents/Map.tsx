@@ -102,14 +102,14 @@ const Map = ({ location, zoom = 13, markerText = 'Location' }: MapProps) => {
   // Fallbacks
   if (mapFailed || !latLng) {
     return (
-      <section className="flex flex-col gap-4 items-center justify-center h-full w-md">
+      <section className="w-full h-full  flex flex-col gap-4 items-center lg:justify-center justify-start h-full w-md">
         <Info/>
 
    <p className="subtitleText2 font-semibold">
 
               {!latLng === null
             ? 'Looks like the vehicle Locations are unavalable'
-            : "Hm...we can't acces the map right now"}
+            : "Hm...we can't acces the map"}
         </p>
   
       <p  className='mutedText'>

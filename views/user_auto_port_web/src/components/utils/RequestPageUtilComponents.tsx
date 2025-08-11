@@ -511,7 +511,7 @@ items-center justify-start shadow-xl
     return (
      <div
         className={`
-        md:h-[2rem] md:w-[8rem] w-[6rem] h-[1.5rem]  text-primary-foreground dark:text-foreground
+       h-[2rem] md:w-[8rem] w-[6rem]   text-primary-foreground dark:text-foreground
           bg-gradient-to-r from-yellow-700/40 to-yellow-800
            rounded-full flex items-center justify-start gap-3 pl-4
           shadow-lg ${props.className || ""}

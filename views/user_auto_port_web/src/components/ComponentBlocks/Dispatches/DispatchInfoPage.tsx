@@ -96,11 +96,6 @@ handleVehiclePage();
 
 
 {vehicleData &&  
-  /* 
-<Map
-  key={`${vehicleData?.location.latitude}-${vehicleData?.location.longitude}`} 
-/> 
-*/
 
 <Map 
   location={{ latitude: vehicleData.location.latitude, longitude: vehicleData.location.longitude }} 
@@ -113,9 +108,7 @@ handleVehiclePage();
 
 
         <VehicleNamePill  model={dispatchData?.vehicleName ?? "Unknown vehicle"} />
-        
-  
-  
+          
   <DispatchHandlerCard dispatchData={dispatchData || undefined} />
   
       </section>

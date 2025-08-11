@@ -29,7 +29,7 @@ public class AdminDispatchService {
     private final DispatchRepository dispatchRepository;
     private final MessagingService messagingService;
 
-    // Static cost per day used in refund calculations
+    
     static double costPerDay = 500;
 
     public AdminDispatchService(DispatchRepository dispatchRepository, MessagingService messagingService) {
@@ -166,13 +166,7 @@ public class AdminDispatchService {
             }
 
             if (dispatch.getDispatchEndTime().isBefore(now)) {
-                // Dispatch expired, handle refunds if necessary
-                handleExpiredDispatchRefund(dispatch);
-                dispatch.setDispatchStatus(EXPIRED);
-                dispatch.addToDispatchMetadata("DispatchStatus", "Dispatch Is Expired");
-
-                notifyDispatchEnded(dispatch, false);
-
+                expireDispatchIfNeeded(dispatch,LocalDateTime.now());
             } else {
                 activeDispatches.add(dispatch);
             }
@@ -195,11 +189,8 @@ public class AdminDispatchService {
 
         for (DispatchModel dispatch : allDispatches) {
             if (!isDispatchFinalized(dispatch) && dispatch.getDispatchEndTime().isBefore(now)) {
-                if (dispatch.getDispatchStatus() == IN_PROGRESS || dispatch.getDispatchStatus() == PENDING) {
-                    handleExpiredDispatchRefund(dispatch);
-                }
-                dispatch.setDispatchStatus(EXPIRED);
-                notifyDispatchEnded(dispatch, false);
+                    expireDispatchIfNeeded(dispatch, LocalDateTime.now());
+
             }
         }
 
@@ -226,12 +217,9 @@ public class AdminDispatchService {
         LocalDateTime now = LocalDateTime.now();
 
         if (dispatch.getDispatchEndTime().isBefore(now)) {
-            if (dispatch.getDispatchStatus() == IN_PROGRESS || dispatch.getDispatchStatus() == PENDING) {
-                handleExpiredDispatchRefund(dispatch);
-            }
-            dispatch.setDispatchStatus(EXPIRED);
-            notifyDispatchEnded(dispatch, false);
-            return dispatchRepository.save(dispatch);
+
+               expireDispatchIfNeeded(dispatch,LocalDateTime.now());
+                 return dispatchRepository.save(dispatch);
         } else {
             return dispatch;
         }
@@ -324,19 +312,7 @@ public class AdminDispatchService {
         messagingService.sendDispatchCompletedFanoutFromDispatchService(dispatchEnded);
     }
 
-    /**
-     * Handles refunds for expired dispatches in IN_PROGRESS or PENDING status.
-     *
-     * @param dispatch DispatchModel to refund
-     */
-    private void handleExpiredDispatchRefund(DispatchModel dispatch) {
-        UtilRecords.DispatchScoreUpdateDto refundDto = new UtilRecords.DispatchScoreUpdateDto(
-                dispatch.getDispatchRequester(),
-                dispatch.getDispatchId(),
-                dispatch.getDispatchCost()
-        );
-        messagingService.updateUserScore(refundDto);
-    }
+
 
     /**
      * Calculates the refund amount for an ongoing dispatch based on unused time.
@@ -406,7 +382,42 @@ public class AdminDispatchService {
             case TRANSPORT -> 150;
         };
 
-        double flatFees = vehicleClassScore + dispatchReasonScore;
-        return flatFees;
+        return vehicleClassScore + dispatchReasonScore;
     }
+
+
+
+
+    /**
+     * 1. If IN_PROGRESS or PENDING → refund.
+     * 2. If ONGOING → mark as COMPLETED before expiring.
+     * 3. Set status to EXPIRED and add metadata.
+     * 4. Send dispatch ended fanout.
+     */
+    private void expireDispatchIfNeeded(DispatchModel dispatch, LocalDateTime now) {
+        switch (dispatch.getDispatchStatus()) {
+            case IN_PROGRESS:
+            case PENDING:
+                // Refund score for incomplete work
+                UtilRecords.DispatchScoreUpdateDto refundDto = new UtilRecords.DispatchScoreUpdateDto(
+                        dispatch.getDispatchRequester(),
+                        dispatch.getDispatchId(),
+                        dispatch.getDispatchCost()
+                );
+                messagingService.updateUserScore(refundDto);
+                dispatch.setDispatchStatus(DispatchEnums.DispatchStatus.EXPIRED);
+                break;
+
+            case ONGOING:
+                dispatch.setDispatchStatus(DispatchEnums.DispatchStatus.COMPLETED);
+                break;
+
+            default:
+                break;
+        }
+
+        notifyDispatchEnded(dispatch,false);
+    }
+
+
 }
