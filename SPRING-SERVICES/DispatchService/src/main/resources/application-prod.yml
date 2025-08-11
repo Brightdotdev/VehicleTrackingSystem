@@ -1,5 +1,5 @@
 server:
-  port: ${APP_PORT}
+  port: ${DISPATCH_SERVICE_APP_PORT}
   forward-headers-strategy: framework
 
 spring:
@@ -8,9 +8,9 @@ spring:
   application:
     name: vehicleService
   datasource:
-    url: ${SQL_URL}
-    username: ${SQL_USER}
-    password: ${SQL_PASSWORD}
+    url: ${DISPATCH_SERVICE_SQL_URL}
+    username: ${DISPATCH_SERVICE_SQL_USER}
+    password: ${DISPATCH_SERVICE_SQL_PASSWORD}
   jpa:
     open-in-view: false
     show-sql: true
@@ -42,11 +42,11 @@ auth:
 external:
   services:
     logging:
-      base-url: ${LOGGING_URL}
+      base-url: ${LOGGING_SERVICE_URL}
     vehicle:
-      base-url: ${VEHICLE_URL}
+      base-url: ${VEHICLE_SERVICE_URL}
     auth:
-      base-url: ${AUTH_URL}
+      base-url: ${AUTH_SERVICE_URL}
 
 
 

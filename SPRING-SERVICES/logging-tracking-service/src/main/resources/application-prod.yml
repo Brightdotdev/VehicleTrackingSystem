@@ -1,5 +1,5 @@
 server:
-  port: ${APP_PORT}
+  port: ${LOGGING_SERVICE_APP_PORT}
   forward-headers-strategy: framework
 
 
@@ -15,7 +15,7 @@ spring :
   data :
     mongodb:
       auto-index-creation : true
-      uri : ${MONGO_URL}
+      uri : ${LOGGING_SERVICE_MONGO_URL}
   rabbitmq:
     host: ${RABBITMQ_URL}
     port: ${RABBITMQ_PORT}
@@ -45,9 +45,9 @@ auth :
 external:
   services:
     vehicle:
-      base-url: ${VEHICLE_URL}
+      base-url: ${VEHICLE_SERVICE_URL}
     dispatch:
-      base-url: ${DISPATCH_URL}
+      base-url: ${DISPATCH_SERVICE_URL}
 
 
 logging:

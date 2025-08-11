@@ -1,4 +1,0 @@
-FROM rabbitmq:3.12.2-management-alpine
-
-ENV RABBITMQ_DEFAULT_USER=me
-ENV RABBITMQ_DEFAULT_PASS=password123**

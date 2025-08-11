@@ -49,113 +49,9 @@ import { dotEnv } from "./dotEnv";
 
 
 
-
-// sign up with google after getting the data
-
-
-export const handleGoogleSignUp = async ( userInfo : AdminGoogleSignUp,
-  setAdminKey : (adminKey : string) => void,
-  setLoading : (loading : boolean) => void,
-  retryCount = 0
-    ) => {
-        
-    if (retryCount > 3) {
-        retryCount = 0
-        setLoading(false)
-        toast("Too many atempts try Signing up again", {
-                action: {
-                  label: 'Try again',
-                  onClick: () => window.location.replace("/join-us"),
-                },
-              })
-              
-      return;
-    }
-  
-
-    try {
-      handleAdminReqKeyValidation("/join-us",userInfo.adminKey,setLoading, setAdminKey);
-      setLoading(true);
     
-        const response = await fetch(dotEnv.adminGoogleSignUpLink, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"},
-        credentials: "include", body: JSON.stringify(userInfo)});
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
 
       
-      
-      toast.message(`Hello ${userInfo.name} welcome to your desk`)
-      setLoading(false)
-      window.location.replace("/");
-    } catch (error) {
-
-      toast("There was an issue saving your data. Retrying...");
-      await handleGoogleSignUp(userInfo,setAdminKey,setLoading , retryCount + 1); 
-    } finally {
-      setLoading(false)}}
-
-
-
-// handle google log in after gettign the data
-
-export const handleGoogleLogIn = async (
-  userInfo : AdminGoogleLogIn,
-  setAdminKey : (adminKey : string) => void ,
-  setLoading : (loading : boolean) => void,
-  retryCount = 0) => {
-  
-    if (retryCount > 3) {
-        setLoading(false)
-        toast("We couldnt log you in for some reason", {
-                action: {
-                  label: 'One more time?',
-                  onClick: () => window.location.replace("/join-us"),
-                },
-              });
-      return;
-    }
-  
-
-    try {
-      handleAdminReqKeyValidation("/welcome-back",userInfo.adminKey,setLoading, setAdminKey);
-
-      setLoading(true);
-
-            const response = await fetch(dotEnv.adminGoogleLogInLink, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json"},
-            credentials: "include", 
-            body: JSON.stringify(userInfo),
-          });
-          console.log(response)
-          if (!response.ok) {
-          const data = await response.json();
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
-
-          const data = await response.json();
-                toast.message(`Logged in succefully..Welcome back!`)
-                setLoading(false)
-               window.location.replace("/");
-              } catch (error) {
-                
-                toast("There was an issue saving your data. Retrying...");
-                await  handleGoogleLogIn(userInfo,setAdminKey, setLoading, retryCount  + 1) 
-              } finally {
-                setLoading(false)
-              }
-          }
-
-
-
-
 // validate the user outside the context again
         export  const isValidatedUser  = async  (
     setLoading : (loading : boolean) => void ,
@@ -210,58 +106,7 @@ console.log(response)
       }};
 
 
-// log in with local form
- export const handleAdminLocalLogInSubmit = async (
-    userInfo  : AdminLocalLogIn,
-   setLoading : (loading : boolean) => void,
-   setAdminKey : (adminKey : string) => void) => {
       
-    
-    try {
-    
-    handleAdminReqKeyValidation("/welcome-back",userInfo.adminKey,setLoading,setAdminKey);
-      setLoading(true);
-        const response = await fetch(dotEnv.adminLocalLogInLink, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include", 
-          body: JSON.stringify(userInfo), 
-        });
-
-        const data = await response.json();
-
-        
-          if (!data.success || data.code !== 404 || !data.data) {
-           setLoading(false)
-           return toast("Invalid Login Credentials", {
-                action: {
-                  label: "Create New Account?",
-                  onClick: () => window.location.replace("/join-us"),
-                },
-              })
-            }
-
-
-
-        if (data.status !== 200 || data.code !== 200 || !data.data) {
-        setLoading(false)
-        toast.error(data.message)
-        throw new Error(data.message || "Login failed")
-      }
-
-      
-        toast.success("Login successful!..redirecting now")
-      window.location.replace("/");
-    } catch (err: any) {
-      toast.error(err.message || "Login failed")
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  
   // sign up with local form
  export const handleAdminLocalSignUp = async (
     userInfo  : AdminLocalSignUp,
@@ -313,129 +158,53 @@ console.log(response)
   }
 
 
-// log in with google
-
-  export const useAdminLogInGoogle = (
-  setGoogleUserData: (googleUser: GoogleUser) => void,
-  setLoading: (googleLoginLoading: boolean) => void,
-  onDone : () => void, maxRetries : number = 3
-) => {
-
-  const login = useGoogleLogin({
-    onSuccess: async (codeResponse) => {
+  
+  // sign up with local form
+ export const handleAdminLocalLogInSubmit = async (
+    userInfo  : AdminLocalLogIn,
+   setLoading : (loading : boolean) => void,
+   setAdminKey : (adminKey : string) => void,
+   retryCount = 0) => {
       
-       let retryCount = 0;
-      async function tryLogin() {
-        try {
-          setLoading(true);
-          
-          const tokenResponse = await axios.post(
-            dotEnv.googleAuthTokenLink,
-            {
-              code: codeResponse.code,
-              client_id: dotEnv.googleCleintId,
-              client_secret: dotEnv.googleClientSecret,
-              redirect_uri: dotEnv.googleAuthRedirectLink,
-              grant_type: "authorization_code",
-            }
-          );
-          const accessToken = tokenResponse.data.access_token;
+    if (retryCount > 3) {
+        retryCount = 0
+        setLoading(false)
+        toast("We couldn't communicate with the server.", {
+                action: {
+                  label: 'One more time?',
+                  onClick: () => window.location.replace("/join-us"),
+                },
+              })
+           return;
+    }
 
-          const googleResponse = await axios.get(
-            dotEnv.versionInfoLink,
-            {
-              headers: {
-                Authorization: `Bearer ${accessToken}`,
-              }
-            }
-          );
-      const pageExpTime = Date.now() + 5 * 60 * 1000;
-          setGoogleUserData({ ...googleResponse.data, pageExpTime });
-          
-
-          toast.info(`just a sec..`);
-          if (onDone) onDone();
-        } catch (error) {
-          retryCount++;
-          if (retryCount <= maxRetries) {
-            toast.error(`Retrying... (${retryCount}/${maxRetries})`);
-            await tryLogin();
-          } else {
-            setLoading(false);
-            toast.error("Uhm hi there was an error logging you in.");
-          }
-        } finally {
-          setLoading(false);
-        }
-      }
-      await tryLogin();},
-    flow: "auth-code",
-  });
-
-  return login;
-};
-
-
-
-
-//sign up with google
-
-export const useAdminSignUpGoogle = (
-  setGoogleUserData: (googleUser: GoogleUser) => void,
-  setGoogleLogInLoading: (googleLoginLoading: boolean) => void, 
-  onDone : () => void , maxRetries : number = 3
-) => {
-
-   
-
-const signUp = useGoogleLogin({
-    onSuccess: async (codeResponse) => {
-      let retryCount = 0;
-      async function trySignUp() {
-        try {
-          setGoogleLogInLoading(true);
+    try {
     
-          const tokenResponse = await axios.post(
-            dotEnv.googleAuthTokenLink,
-            {
-              code: codeResponse.code,
-              client_id: dotEnv.googleCleintId,
-              client_secret: dotEnv.googleClientSecret,
-              redirect_uri: dotEnv.googleAuthRedirectLink,
-              grant_type: "authorization_code",
-            }
-          );
-          const accessToken = tokenResponse.data.access_token;
-          const googleResponse = await axios.get(
-            dotEnv.versionInfoLink,
-            {
-              headers: {
-                Authorization: `Bearer ${accessToken}`,
-              }
-            }
-          );
-      const pageExpTime = Date.now() + 5 * 60 * 1000;
-          setGoogleUserData({...googleResponse.data, pageExpTime});
-          
-          toast.info(`just a sec..`);
-          if (onDone) onDone();
-        } catch (error) {
-          retryCount++;
-          if (retryCount <= maxRetries) {
-            toast.error(`Retrying... (${retryCount}/${maxRetries})`);
-            await trySignUp();
-          } else {
-            setGoogleLogInLoading(false);
-            toast.error("There was an error signing you up.");
-          }
-        } finally {
-          setGoogleLogInLoading(false);
-        }
-      }
-      await trySignUp();
-    },
-    flow: "auth-code",
-  });
+    handleAdminReqKeyValidation("/weclome-back",userInfo.adminKey,setLoading,setAdminKey);
+      setLoading(true);
+        const response = await fetch(dotEnv.adminLocalLogInLink, {
+        method: "POST", 
+        headers: {
+          "Content-Type": "application/json", 
+        },
+        credentials: "include", 
+        body: JSON.stringify(userInfo),
+      });
 
-  return signUp;
-};
+      console.log(response)
+      const data = await response.json();
+      console.log(data)
+    if (data.code !== 201 && !data.data) {
+        setLoading(false)
+        
+        throw new Error("Sign up failed...trying again")}
+
+        
+      toast.success("Sign up successful!")
+      window.location.replace("/");
+    } catch (err: any) {
+      toast.error(err.message || "Sign Up failed")
+    } finally {
+      setLoading(false)
+    }
+  }

@@ -1,0 +1,111 @@
+services:
+  # ==== SHARED POSTGRES INSTANCE ====
+  postgres:
+    image: postgres:16
+    container_name: postgres-main
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - ./init-db:/docker-entrypoint-initdb.d
+
+  # ==== DATABASE CLIENT ====
+  pgadmin:
+    image: dpage/pgadmin4
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+
+  mongo-logging:
+    image: mongo:6
+    container_name: mongo-logging
+    restart: always
+    ports:
+      - "27018:27017"
+
+  mongo-express:
+    image: mongo-express
+    restart: always
+    environment:
+      ME_CONFIG_MONGODB_SERVER: mongo-logging
+    ports:
+      - "8082:8081"
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    restart: always
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    profiles: ["rabbitmq"]
+
+  # ==== SPRING BOOT SERVICES ====
+  api-gateway:
+    build: ./SPRING-SERVICES/ApiGateway
+    env_file: .env
+    depends_on:
+      - auth-service
+      - logging-service
+      - dispatch-service
+      - vehicle-service
+    ports:
+      - "${API_GATEWAY_PORT}:${API_GATEWAY_PORT}"
+
+  auth-service:
+    build: ./SPRING-SERVICES/AuthService
+    env_file: .env
+    depends_on:
+      - postgres
+    ports:
+      - "${AUTH_SERVICE_APP_PORT}:${AUTH_SERVICE_APP_PORT}"
+
+  dispatch-service:
+    build: ./SPRING-SERVICES/DispatchService
+    env_file: .env
+    depends_on:
+      - postgres
+   
+    ports:
+      - "${DISPATCH_SERVICE_APP_PORT}:${DISPATCH_SERVICE_APP_PORT}"
+
+  logging-service:
+    build: ./SPRING-SERVICES/logging-tracking-service
+    env_file: .env
+    depends_on:
+      - mongo-logging
+    ports:
+      - "${LOGGING_SERVICE_APP_PORT}:${LOGGING_SERVICE_APP_PORT}"
+
+  vehicle-service:
+    build: ./SPRING-SERVICES/VehicleService
+    env_file: .env
+    depends_on:
+      - postgres
+      
+    ports:
+      - "${VEHICLE_SERVICE_APP_PORT}:${VEHICLE_SERVICE_APP_PORT}"
+
+
+  # ==== FRONTEND UIs ====
+  admin-desk:
+    build: ./VIEWS/admin_desk_web
+    env_file: .env
+    depends_on:
+      - api-gateway
+    ports:
+      - "3000:3000"
+
+  user-auto-port:
+    build: ./VIEWS/user_auto_port_web
+    env_file: .env
+    depends_on:
+      - api-gateway
+    ports:
+      - "3001:3000"

@@ -23,7 +23,7 @@ import { toast } from "sonner"
 import { useAuth } from "@/contexts/AuthContext"
 import { handleAdminLocalLogInSubmit, handleAdminLocalSignUp} from "@/lib/handleUserAuth"
 import { useState } from "react"
-import { AdminLocalLogIn, AdminLocalSignUp } from "@/types/authTypes"
+import {AdminLocalLogIn, AdminLocalSignUp } from "@/types/authTypes"
 import { Loader2 } from "lucide-react"
 
 
@@ -37,7 +37,7 @@ const FormSchema = z.object({ pin: z
 export function AdminKeyForm({pageSender} : {pageSender: string} ) {
     const { signUpData, logInData,googleUserData } = useAuth()
       const [loading, setLoading] = useState(false);
-      
+      const getAdminKey = () => form.getValues("pin");
       const setAdminKey = (value: string) => form.setValue("pin", value);
       let imgSrc = null;
 

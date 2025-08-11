@@ -54,18 +54,9 @@ const HealthText = ({value} : {value : number}) =>{
 
 
 type StatusPillsProps = {
-  statusName:
-    | "IN_TRANSIT"
-    | "PENDING"
-    | "IN_PROGRESS"
-    | "AVAILABLE"
-    | "CLASSIFIED"
-    | "CARGO"
-    | "REGULAR"
-    | "TRANSPORT"
-    | "DELIVERY";
-    className?: string; };
-
+  statusName: any
+  className?: string;
+};
 
     const StatusPills = (props: StatusPillsProps) => {
       // Utility for disabling mouse interactions
@@ -200,7 +191,7 @@ const [infoLoading, setInfoLoadingLoading] = React.useState(false);
 </div>
 
 
-<StatusPills statusName={vehicleInfo.dispatchStatus} className="absolute top-[38%] right-2 w-[5rem] text-body" />
+<StatusPills statusName={vehicleInfo.dispatchStatus as any} className="absolute top-[38%] right-2 w-[5rem] text-body" />
 
 <div className="flex flex-col 
 w-full pl-4 relative 

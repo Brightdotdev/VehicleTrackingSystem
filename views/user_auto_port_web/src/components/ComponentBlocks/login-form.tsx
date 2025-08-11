@@ -21,11 +21,6 @@ import { Loader2 } from "lucide-react";
 
 
 
-type GoogleButtonProps = {
-  authType: string;
-};
-
-
 const loginSchema = z.object({
   email: z.string().email({ message: "Invalid email address" }),
   password: z.string().min(6, { message: "Password must be at least 6 characters" }),
@@ -98,7 +93,7 @@ const handleSubmit = (e: React.FormEvent) => {
           <form onSubmit={handleSubmit}>
             <div className="grid gap-sm">
 
-              {/* <TopGoogle authType="google-log-in"/> */}
+
               
               <div className="grid gap-6">
                 <div className="grid gap-3">
@@ -184,7 +179,7 @@ const handleSubmit = (e: React.FormEvent) => {
                 </Button>}
               </div>
 
-              {/* <BottomGoogle authType="google-log-in"/> */}
+
             </div>
           </form>
 

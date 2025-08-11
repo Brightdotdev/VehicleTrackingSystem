@@ -1,5 +1,5 @@
 server:
-  port: ${PORT}
+  port: ${API_GATEWAY_PORT}
   forward-headers-strategy: framework
 
 spring:
@@ -18,7 +18,7 @@ spring:
           lower-case-service-id: true
       routes:
         - id: authService
-          uri : ${AUTH_URL}
+          uri : ${AUTH_SERVICE_URL}
           predicates:
             - Path=/v1/auth/admin/**, /v1/auth/user/**
           filters:
@@ -27,7 +27,7 @@ spring:
                 name: Access-Control-Allow-Origin
                 strategy: RETAIN_FIRST
         - id: loggingService
-          uri : ${LOGGING_URL}
+          uri : ${LOGGING_SERVICE_URL}
           predicates:
             - Path=/v1/user/notifications/**, /v1/sse/**, /v1/user/tracking/**
           filters:
@@ -36,7 +36,7 @@ spring:
                 name: Access-Control-Allow-Origin
                 strategy: RETAIN_FIRST
         - id: dispatchService
-          uri : ${DISPATCH_URL}
+          uri : ${DISPATCH_SERVICE_URL}
           predicates:
             - Path=/v1/admin/dispatch/**, /v1/user/dispatch/**
           filters:
@@ -45,7 +45,7 @@ spring:
                 name: Access-Control-Allow-Origin
                 strategy: RETAIN_FIRST
         - id: vehicleService
-          uri: ${VEHICLE_URL}
+          uri: ${VEHICLE_SERVICE_URL}
           predicates:
             - Path=/v1/admin/vehicle/**, /v1/user/vehicle/**
           filters:
@@ -57,8 +57,8 @@ spring:
         cors-configurations:
           '[/**]':
             allowed-origins:
-              - ${USER_AUTO}
-              - ${ADMIN_DESK}
+              - ${AUTO_PORT_URL}
+              - ${ADMIN_DESK_URL}
             allowed-methods:
               - "GET"
               - "POST"

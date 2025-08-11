@@ -4,10 +4,10 @@ import { UserPreference } from '../UserPreference'
 import { LastStep } from './LastStepForm'
 import { Loader2 } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
-import { UserGoogleSignUp, UserLocalSignUp, UserStatus } from '@/types/authTypes'
+import { UserLocalSignUp, UserStatus } from '@/types/authTypes'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
-import { handleGoogleSignUp, handleUserLocalSignUp } from '@/lib/handleUserAuth'
+import { handleUserLocalSignUp } from '@/lib/handleUserAuth'
 
 type FormData = {
   name: string

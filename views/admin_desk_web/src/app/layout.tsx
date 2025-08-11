@@ -7,6 +7,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { GlobalContextProvider } from "@/contexts/GlobalContext";
 import BottomNav from "@/components/ui/BottomNav";
 import { AdminNotificationProvider } from "@/contexts/NotificationContext";
+import React from "react";
 
 
 export const metadata: Metadata = {
@@ -19,13 +20,12 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "";
-
+  
   return (
     <html lang="en" suppressHydrationWarning>
       
       <body className="antialiased bodyWrapper duration-700 transition-all">
-        <GoogleOAuthProvider clientId={googleClientId}>
+  
           <Toaster position="top-right" />
           <ThemeProvider>
             <AuthProvider>
@@ -39,8 +39,12 @@ export default function RootLayout({
               </GlobalContextProvider>
             </AuthProvider>
           </ThemeProvider>
-        </GoogleOAuthProvider>
       </body>
     </html>
   );
 }
+
+
+
+
+

@@ -30,42 +30,7 @@ type GoogleButtonProps = {
 };
 
 
-/* const TopGoogle = ({ authType }: GoogleButtonProps) =>{
-    const [googleLoading, setGoogleLoading] = useState(false)
-  return(
-            <div className="hidden md:flex-col gap-sm md:flex">
 
-                <GoogleButton authType={authType} loading={googleLoading} setGoogleLoading={setGoogleLoading} />
-              <div className="after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">
-                <span className="md:bg-card bg-background text-muted-foreground relative z-10 px-[var(--space-sm)]">
-                  Or continue with
-                </span>
-              </div>
-              </div>
-
-  )
-}
- */
-
-
-/* 
-const BottomGoogle = ({ authType }: GoogleButtonProps) => {
-    const [googleLoading, setGoogleLoading] = useState(false)
-  return(
-            <div className="md:hidden gap-sm flex flex-col">
-
-              <div className="after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">
-                <span className="md:bg-card bg-background text-muted-foreground relative z-10 px-[var(--space-sm)]">
-                  Or continue with
-                </span>
-              </div>
-                <GoogleButton authType={authType} loading={googleLoading} setGoogleLoading={setGoogleLoading} />
-              </div>
-
-  )
-}
-
- */
 
 export function SignUpForm({
   className,

@@ -5,15 +5,12 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 
-import Loading from "@/components/ui/Loading";
 import UnvalidatedPage from "@/components/utils/UnvalidatedPage";
 import { useUserValidation } from "@/hooks/useUserValidation";
 
 // Lazy-load the Vehicle Info Page component
 const VehicleInfoPage = lazy(() =>
-  import(
-    "@/components/ComponentBlocks/Vehicles/VehicleInfoPage"
-  )
+  import("@/components/ComponentBlocks/Vehicles/VehicleInfoPage")
 );
 
 export default function Page() {
