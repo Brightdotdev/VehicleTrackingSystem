@@ -20,7 +20,7 @@ spring:
         - id: authService
           uri : http://localhost:8103
           predicates:
-            - Path=/v1/auth/admin/**, /v1/auth/user/**
+            - Path=/v1/auth/admin/**, /v1/auth/user/** , /internal/auth/**
           filters:
             - name: DedupeResponseHeader
               args:
@@ -29,7 +29,7 @@ spring:
         - id: loggingService
           uri : http://localhost:8104
           predicates:
-            - Path=/v1/user/notifications/**, /v1/sse/**, /v1/user/tracking/**
+            - Path=/v1/user/notifications/**, /v1/admin/notifications/**, ,/v1/sse/**, /v1/user/tracking/** , /internal/logs/**
           filters:
             - name: DedupeResponseHeader
               args:
@@ -38,7 +38,7 @@ spring:
         - id: dispatchService
           uri : http://localhost:8105
           predicates:
-            - Path=/v1/admin/dispatch/**, /v1/user/dispatch/**
+            - Path=/v1/admin/dispatch/**, /v1/user/dispatch/** , /internal/dispatch/**
           filters:
             - name: DedupeResponseHeader
               args:
@@ -47,7 +47,7 @@ spring:
         - id: vehicleService
           uri: http://localhost:8106
           predicates:
-            - Path=/v1/admin/vehicle/**, /v1/user/vehicle/**
+            - Path=/v1/admin/vehicle/**, /v1/user/vehicle/** , /internal/vehicles/**
           filters:
             - name: DedupeResponseHeader
               args:
@@ -78,6 +78,10 @@ spring:
               - "Set-Cookie"
               - "Authorization"
             max-age: 3600
+
+
+
+
 
 auth:
   api:

@@ -18,7 +18,6 @@ spring:
       ddl-auto : update
 
 
-
 auth:
   api:
     key : thisIsMyApiKey
@@ -27,12 +26,11 @@ auth:
     expiration: 604800000
     sender: auth-service
 
+
 external:
   services:
     logging:
       base-url: http://localhost:8104
-
-
 
 logging:
   level:

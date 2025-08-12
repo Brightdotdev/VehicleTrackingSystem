@@ -23,7 +23,7 @@ spring:
     password: secret123
     listener:
       simple:
-        default-requeue-rejected: false  # Don’t keep retrying forever
+        default-requeue-rejected: false
         retry:
           enabled: true
           max-attempts: 3
