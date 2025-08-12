@@ -1,5 +1,5 @@
 server:
-  port: ${DISPATCH_SERVICE_APP_PORT}
+  port: ${VEHICLE_SERVICE_APP_PORT}
   forward-headers-strategy: framework
 
 spring:
@@ -8,32 +8,31 @@ spring:
   application:
     name: vehicleService
   datasource:
-    url: ${DISPATCH_SERVICE_SQL_URL}
-    username: ${DISPATCH_SERVICE_SQL_USER}
-    password: ${DISPATCH_SERVICE_SQL_PASSWORD}
+    url: ${VEHICLE_SERVICE_SQL_URL}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+    hikari:
+      maximum-pool-size: 5
+      connection-timeout: 30000
+      initialization-fail-timeout: 60000
   jpa:
     open-in-view: false
     show-sql: true
     hibernate:
       ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
   rabbitmq:
     host: ${RABBITMQ_URL}
     port: ${RABBITMQ_PORT}
     username: ${RABBITMQ_USER}
     password: ${RABBITMQ_PASSWORD}
-    listener:
-      simple:
-        default-requeue-rejected: false
-        retry:
-          enabled: true
-          max-attempts: 3
-          initial-interval: 1000
-          multiplier: 2.0
-          max-interval: 10000
 
 auth:
   api:
-    key : ${API_INTERNAL_KEY}
+    key: ${API_INTERNAL_KEY}
   jwt:
     secret: ${JWT_SECRET}
     expiration: ${JWT_EXP}
@@ -43,31 +42,22 @@ external:
   services:
     logging:
       base-url: ${LOGGING_SERVICE_URL}
-    vehicle:
-      base-url: ${VEHICLE_SERVICE_URL}
+    dispatch:
+      base-url: ${DISPATCH_SERVICE_URL}
     auth:
       base-url: ${AUTH_SERVICE_URL}
-
-
-
-
-messaging:
-  type: ${MESSAGE_TYPE}
-
-
 
 logging:
   level:
     org.springframework.amqp: WARN
     com.rabbitmq: WARN
     org.springframework.security: DEBUG
-    com.dispatchservice: DEBUG
-
+    com.example.VehicleService: DEBUG
 
 resilience4j:
   circuitbreaker:
     instances:
-      myServiceCircuitBreaker:
+      dispatchServiceCircuit:
         registerHealthIndicator: true
         slidingWindowSize: 15
         minimumNumberOfCalls: 10
@@ -75,3 +65,12 @@ resilience4j:
         waitDurationInOpenState: 22s
         permittedNumberOfCallsInHalfOpenState: 7
         automaticTransitionFromOpenToHalfOpenEnabled: true
+
+management:
+  endpoint:
+    health:
+      show-details: always
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics

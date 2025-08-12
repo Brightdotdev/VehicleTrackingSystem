@@ -9,8 +9,6 @@ COPY gradlew gradlew.bat build.gradle settings.gradle /app/
 COPY gradle/wrapper/ /app/gradle/wrapper/
 
 
-
-
 # Copy rest of app and build
 COPY . /app/
 RUN gradle build --no-daemon -x test
@@ -21,5 +19,7 @@ RUN gradle build --no-daemon -x test
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 COPY --from=build /app/build/libs/*.jar app.jar
+
 EXPOSE 8103
+
 ENTRYPOINT ["java", "-XX:+UseContainerSupport", "-XX:MaxRAMPercentage=75.0", "-jar", "app.jar"]
