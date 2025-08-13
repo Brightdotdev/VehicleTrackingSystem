@@ -1,5 +1,5 @@
-server:
-  port: ${DISPATCH_SERVICE_APP_PORT}
+server :
+  port : 8105
   forward-headers-strategy: framework
 
 spring:
@@ -7,69 +7,68 @@ spring:
     lazy-initialization: true
   application:
     name: dispatchService
-  datasource:
-    url: ${DISPATCH_SERVICE_SQL_URL}
-    username: ${POSTGRES_USER}
-    password: ${POSTGRES_PASSWORD}
-    hikari:
-      maximum-pool-size: 5
-      connection-timeout: 30000
-      initialization-fail-timeout: 60000
-  jpa:
+  datasource :
+    url : jdbc:postgresql://localhost:5432/VEHICLE_DISPATCH_DB
+    username : postgres
+    password : bomboclat
+  jpa :
     open-in-view: false
-    show-sql: true
-    hibernate:
-      ddl-auto: update
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
-        format_sql: true
+    show-sql : true
+    hibernate :
+      ddl-auto : update
   rabbitmq:
-    host: ${RABBITMQ_URL}
-    port: ${RABBITMQ_PORT}
-    username: ${RABBITMQ_USER}
-    password: ${RABBITMQ_PASSWORD}
+    host: localhost
+    port: 5672
+    username: bright
+    password: secret123
     listener:
       simple:
-        default-requeue-rejected: false
+        default-requeue-rejected: false  # Don’t keep retrying forever
         retry:
           enabled: true
           max-attempts: 3
-          initial-interval: 1000ms
+          initial-interval: 1000
           multiplier: 2.0
-          max-interval: 10000ms
+          max-interval: 10000
 
-auth:
-  api:
-    key: ${API_INTERNAL_KEY}
-  jwt:
-    secret: ${JWT_SECRET}
-    expiration: ${JWT_EXP}
-    issuer: auth-service
+
+
+messaging:
+  type: webClient
+
 
 external:
   services:
     logging:
-      base-url: ${LOGGING_SERVICE_URL}
+      base-url: http://localhost:8104
     vehicle:
-      base-url: ${VEHICLE_SERVICE_URL}
+      base-url: http://localhost:8106
     auth:
-      base-url: ${AUTH_SERVICE_URL}
+      base-url: http://localhost:8103
 
-messaging:
-  type: ${MESSAGE_TYPE}
+
+
+auth:
+  api:
+    key : thisIsMyApiKey
+  jwt:
+    secret: 6715c78c9a1d53f358dafd68da12c40c95780b0d00486f9d725672b7bf95eea89d682826b22883dd592b45b6ee2f79d4d4372d0c136b2e6fb1935c04f7593d05
+    expiration: 604800000
+    issuer: auth-service
+
 
 logging:
   level:
     org.springframework.amqp: WARN
     com.rabbitmq: WARN
     org.springframework.security: DEBUG
-    com.example.DispatchService: DEBUG
+    com.example.UserService: DEBUG
+
 
 resilience4j:
   circuitbreaker:
     instances:
-      vehicleServiceCircuit:
+      myServiceCircuitBreaker:
         registerHealthIndicator: true
         slidingWindowSize: 15
         minimumNumberOfCalls: 10
@@ -77,14 +76,3 @@ resilience4j:
         waitDurationInOpenState: 22s
         permittedNumberOfCallsInHalfOpenState: 7
         automaticTransitionFromOpenToHalfOpenEnabled: true
-      authServiceCircuit:
-        baseConfig: vehicleServiceCircuit
-
-management:
-  endpoint:
-    health:
-      show-details: always
-  endpoints:
-    web:
-      exposure:
-        include: health,info,metrics

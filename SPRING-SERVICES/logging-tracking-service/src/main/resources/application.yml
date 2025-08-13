@@ -1,5 +1,5 @@
 server:
-  port: ${LOGGING_SERVICE_APP_PORT}
+  port: 8104
   forward-headers-strategy: framework
 
 
@@ -15,12 +15,12 @@ spring :
   data :
     mongodb:
       auto-index-creation : true
-      uri : ${LOGGING_SERVICE_MONGO_URL}
+      uri : mongodb://localhost:27017/logging_mongo_db
   rabbitmq:
-    host: ${RABBITMQ_URL}
-    port: ${RABBITMQ_PORT}
-    username: ${RABBITMQ_USER}
-    password: {RABBITMQ_PASSWORD}
+    host: localhost
+    port: 5672
+    username: bright
+    password: secret123
     listener:
       simple:
         default-requeue-rejected: false  # Don’t keep retrying forever
@@ -32,22 +32,27 @@ spring :
           max-interval: 10000
 
 
+
+
+messaging:
+  type: webClient
+
+
 auth:
   api:
-    key: ${API_INTERNAL_KEY}
+    key : thisIsMyApiKey
   jwt:
-    secret: ${JWT_SECRET}
-    expiration: ${JWT_EXP}
-
+    secret: 6715c78c9a1d53f358dafd68da12c40c95780b0d00486f9d725672b7bf95eea89d682826b22883dd592b45b6ee2f79d4d4372d0c136b2e6fb1935c04f7593d05
+    expiration: 604800000
+    issuer: auth-service
 
 
 external:
   services:
     vehicle:
-      base-url: ${VEHICLE_SERVICE_URL}
+      base-url: http://localhost:8106
     dispatch:
-      base-url: ${DISPATCH_SERVICE_URL}
-
+      base-url: http://localhost:8105
 
 logging:
   level:
@@ -57,8 +62,6 @@ logging:
     com.example.UserService: DEBUG
 
 
-messaging:
-  type: ${MESSAGE_TYPE}
 
 
 resilience4j:

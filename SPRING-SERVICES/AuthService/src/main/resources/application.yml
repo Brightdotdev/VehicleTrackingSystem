@@ -1,5 +1,5 @@
-server:
-  port: ${AUTH_SERVICE_APP_PORT}
+server :
+  port : 8103
   forward-headers-strategy: framework
 
 spring:
@@ -7,46 +7,38 @@ spring:
     lazy-initialization: true
   application:
     name: authService
-  datasource:
-    url: ${AUTH_SERVICE_SQL_URL}
-    username: ${POSTGRES_USER}
-    password: ${POSTGRES_PASSWORD}
-    hikari:
-      initialization-fail-timeout: 60000
-      connection-timeout: 30000
-      maximum-pool-size: 5
-      minimum-idle: 1
-  jpa:
+  datasource :
+    url : jdbc:postgresql://localhost:5432/VEHICLE_AUTH_DB
+    username : postgres
+    password : bomboclat
+  jpa :
     open-in-view: false
-    show-sql: true
-    hibernate:
-      ddl-auto: update
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
-        format_sql: true
-        jdbc:
-          lob:
-            non_contextual_creation: true
+    show-sql : true
+    hibernate :
+      ddl-auto : update
+
 
 auth:
   api:
-    key: ${API_INTERNAL_KEY}
+    key : thisIsMyApiKey
   jwt:
-    secret: ${JWT_SECRET}
-    expiration: ${JWT_EXP}
+    secret: 6715c78c9a1d53f358dafd68da12c40c95780b0d00486f9d725672b7bf95eea89d682826b22883dd592b45b6ee2f79d4d4372d0c136b2e6fb1935c04f7593d05
+    expiration: 604800000
+    sender: auth-service
+
 
 external:
   services:
     logging:
-      base-url: ${LOGGING_SERVICE_URL}
+      base-url: http://localhost:8104
 
 logging:
   level:
     org.springframework.amqp: WARN
     com.rabbitmq: WARN
     org.springframework.security: DEBUG
-    com.example.AuthService: DEBUG
+    com.example.UserService: DEBUG
+
 
 resilience4j:
   circuitbreaker:
@@ -59,12 +51,3 @@ resilience4j:
         waitDurationInOpenState: 22s
         permittedNumberOfCallsInHalfOpenState: 7
         automaticTransitionFromOpenToHalfOpenEnabled: true
-
-management:
-  endpoint:
-    health:
-      show-details: always
-  endpoints:
-    web:
-      exposure:
-        include: health,info,metrics
