@@ -1,21 +1,17 @@
 module.exports = {
-  async rewrites() {
-    return [
-      {
-        source: '/v1/:path*',
-        destination: process.env.BASE_URL + '/v1/:path*'
-      }
-    ];
-  },
+  // Remove the rewrites() and headers() configuration entirely
+  // We'll handle CORS at the API Gateway level instead
   async headers() {
     return [
       {
-        source: '/v1/:path*',
+        source: '/:path*',
         headers: [
-          { key: 'Access-Control-Allow-Origin', value: process.env.BASE_URL },
+          { key: 'Access-Control-Allow-Origin', value: '*' }, // Or your specific frontend URL
+          { key: 'Access-Control-Allow-Methods', value: 'GET,POST,PUT,DELETE,OPTIONS' },
+          { key: 'Access-Control-Allow-Headers', value: 'Content-Type, Authorization' },
           { key: 'Access-Control-Allow-Credentials', value: 'true' }
         ]
       }
-    ];
+    ]
   }
-};
+}

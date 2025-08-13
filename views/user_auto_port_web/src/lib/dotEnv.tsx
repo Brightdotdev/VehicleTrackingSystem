@@ -1,14 +1,14 @@
  
  
-    const userLocalLogInLink = process.env.NEXT_PUBLIC_SPRING_LOCAL_LOGIN_BACKEND || "";
+    const userLocalLogInLink = process.env.NEXT_PUBLIC_SPRING_LOCAL_USER_LOGIN_BACKEND || "";
  
   
-    const userLocalSignUpLink = process.env.NEXT_PUBLIC_SPRING_LOCAL_SIGNUP_BACKEND || "";
+    const userLocalSignUpLink = process.env.NEXT_PUBLIC_SPRING_LOCAL_USER_SIGNUP_BACKEND || "";
     
         
     const userLogOutLink = process.env.NEXT_PUBLIC_USER_LOG_OUT || "";
 
-    const cookieValidationLink = process.env.NEXT_PUBLIC_SPRING_USER_COOKIE_VALIDATE || "";
+    const cookieValidationLink = process.env.NEXT_PUBLIC_SPRING_COOKIE_VALIDATE || "";
   
     const userVehicleBaseUrl = process.env.NEXT_PUBLIC_VEHICLES_BASE_URL || "";
 

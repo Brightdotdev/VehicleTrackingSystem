@@ -23,10 +23,6 @@ public class WebClientConfig {
                 .baseUrl(baseUrl)
                 .defaultHeader("X-Internal-API-Key", authProperties.getApi().getKey())
                 .build();
-
     }
 
-        @Bean
-        public WebClientHelper webClientHelper (WebClient loggingWebClient){
-            return new WebClientHelper(loggingWebClient);
-        }}
+}

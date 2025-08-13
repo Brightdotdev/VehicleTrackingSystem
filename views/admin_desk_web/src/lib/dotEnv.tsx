@@ -1,6 +1,6 @@
 
 
-    const adminLocalSignUpLink = process.env.NEXT_PUBLIC_SPRING_LOCAL_SIGNUP_BACKEND || "";
+    const adminLocalSignUpLink = process.env.NEXT_PUBLIC_SPRING_LOCAL_ADMIN_SIGNUP_BACKEND || "";
     const adminLocalLogInLink = process.env.NEXT_PUBLIC_SPRING_LOCAL_ADMIN_LOGIN_BACKEND || "";
 
     
@@ -12,7 +12,7 @@
 
     const adminCookieName = process.env.NEXT_PUBLIC_ADMIN_COOKIE_NAME || "";
     const validateDispatchLink = process.env.NEXT_PUBLIC_VALIDATE_DISPATCH_URL || "";
-    const cancelDispatchLink = process.env.NEXT_PUBLIC_CANCEL_DISPATCH_URL || "";
+   
     
     const getAllDispatchUrl = process.env.NEXT_PUBLIC_GET_ALL_DISPATCH_ADMIN_URL || "";
     const markForMentainanceUrl = process.env.NEXT_PUBLIC_MARK_FOR_MAINTENANCE || "";
@@ -31,7 +31,6 @@
      adminVehicleBaseUrl,
     markForMentainanceUrl,
     getAllDispatchUrl,
-    cancelDispatchLink,
     validateDispatchLink,
       adminKeyValidationLink,
         adminLogOutLink,

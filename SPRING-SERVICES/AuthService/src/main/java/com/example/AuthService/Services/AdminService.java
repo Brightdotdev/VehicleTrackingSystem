@@ -100,9 +100,9 @@ public class AdminService {
      * Internal method to sync admin creation event with external messaging service.
      */
     private void syncAdminCreated(String email) {
-        Mono<ApiResponse<Map<String, Object>>> responseMono = messagingService.sendAdminCreated(email);
+        ApiResponse<Map<String, Object>> apiResponse = messagingService.sendAdminCreated(email);
 
-        ApiResponse<Map<String, Object>> apiResponse = responseMono.block();
+
 
         if (apiResponse == null) {
             throw new ConflictException("No response from admin creation sync");
@@ -122,7 +122,7 @@ public class AdminService {
             throw new ConflictException("Unable to synchronize admin data. Try signing up again.");
         }
 
-        Boolean createdNew = Boolean.TRUE.equals(data.get("createdNew"));
+        boolean createdNew = Boolean.TRUE.equals(data.get("createdNew"));
 
         if (!createdNew) {
             throw new ConflictException("Admin already exists. Try logging in.");

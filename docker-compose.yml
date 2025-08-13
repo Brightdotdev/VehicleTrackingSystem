@@ -154,26 +154,26 @@ services:
     networks:
       - vehicle-network
 
-  # ==== FRONTEND SERVICES ====
-  admin-desk:
-    build: ./VIEWS/admin_desk_web
-    env_file: .env
-    ports:
-      - "3000:3000"
-    depends_on:
-      - api-gateway
-    networks:
-      - vehicle-network
+  # # ==== FRONTEND SERVICES ====
+  # admin-desk:
+  #   build: ./VIEWS/admin_desk_web
+  #   env_file: .env
+  #   ports:
+  #     - "3000:3000"
+  #   depends_on:
+  #     - api-gateway       
+  #   networks:
+  #     - vehicle-network
 
-  user-auto-port:
-    build: ./VIEWS/user_auto_port_web
-    env_file: .env
-    ports:
-      - "3001:3000"
-    depends_on:
-      - api-gateway
-    networks:
-      - vehicle-network
+  # user-auto-port:
+  #   build: ./VIEWS/user_auto_port_web
+  #   env_file: .env
+  #   ports:
+  #     - "3001:3000"
+  #   depends_on:
+  #     - api-gateway
+  #   networks:
+  #     - vehicle-network
 
 volumes:
   postgres_data:

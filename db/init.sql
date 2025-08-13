@@ -1,28 +1,12 @@
--- Create databases
-CREATE DATABASE vehicle_auth_db;
-CREATE DATABASE vehicle_dispatch_db;
-CREATE DATABASE vehicle_vehicle_db;
+-- This assumes POSTGRES_USER=postgres from docker-compose env
 
--- Create user if not exists
-DO $$
-BEGIN
-  IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = 'app_user') THEN
-    CREATE ROLE app_user WITH LOGIN PASSWORD 'super_secret_password';
-  END IF;
-END
-$$;
+CREATE DATABASE "VEHICLE_AUTH_DB";
+CREATE DATABASE "VEHICLE_DISPATCH_DB";
+CREATE DATABASE "VEHICLE_VEHICLE_DB";
 
--- Grant privileges
-GRANT ALL PRIVILEGES ON DATABASE vehicle_auth_db TO app_user;
-GRANT ALL PRIVILEGES ON DATABASE vehicle_dispatch_db TO app_user;
-GRANT ALL PRIVILEGES ON DATABASE vehicle_vehicle_db TO app_user;
+-- No need to create user 'postgres' because it's created by the image with superuser rights.
+-- If you want other users, create them here, but make sure postgres exists.
 
--- Create extensions in each database
-\c vehicle_auth_db
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-
-\c vehicle_dispatch_db
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-
-\c vehicle_vehicle_db
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+GRANT ALL PRIVILEGES ON DATABASE "VEHICLE_AUTH_DB" TO postgres;
+GRANT ALL PRIVILEGES ON DATABASE "VEHICLE_DISPATCH_DB" TO postgres;
+GRANT ALL PRIVILEGES ON DATABASE "VEHICLE_VEHICLE_DB" TO postgres;

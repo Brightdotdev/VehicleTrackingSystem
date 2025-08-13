@@ -89,4 +89,4 @@ auth:
 logging:
   level:
     org.springframework.security: DEBUG
-    com.example.UserService: DEBUG
+    com.example.ApiGateway: DEBUG

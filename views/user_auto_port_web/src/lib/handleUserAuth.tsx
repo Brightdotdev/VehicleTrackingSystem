@@ -1,10 +1,28 @@
 // src/lib/authLibrary/handleUserAuth.ts
 
-import { GoogleUser, User, UserGoogleLogIn, UserGoogleSignUp, UserLocalLogIn, UserLocalSignUp, UserPageData } from "@/types/authTypes";
-import { useGoogleLogin } from "@react-oauth/google";
-import axios from "axios";
+import { User, UserLocalLogIn, UserLocalSignUp, UserPageData } from "@/types/authTypes";
 import { toast } from "sonner";
 import { dotEnv } from "./dotEnv";
+
+/**
+ * Safely parse response to JSON if it has body content.
+ * Returns undefined if no content or invalid JSON.
+ */
+async function safeJsonParse(response: Response): Promise<any | undefined> {
+  const text = await response.text();
+
+  if (!text) {
+    console.warn("[safeJsonParse] Response body is empty");
+    return undefined;
+  }
+
+  try {
+    return JSON.parse(text);
+  } catch (err) {
+    console.error("[safeJsonParse] Failed to parse JSON:", err);
+    return undefined;
+  }
+}
 
 /**
  * Fetch and validate user data
@@ -24,7 +42,7 @@ export const getMyData = async (
 
     console.log("[getMyData] Raw response:", response);
 
-    const userResponseData = await response.json();
+    const userResponseData = await safeJsonParse(response);
     console.log("[getMyData] Parsed JSON:", userResponseData);
 
     const { code, success, data = {} } = userResponseData ?? {};
@@ -73,10 +91,10 @@ export const isValidatedUser = async (
 
     console.log("[isValidatedUser] Raw response:", response);
 
-    const userResponseData = await response.json();
+    const userResponseData = await safeJsonParse(response);
     console.log("[isValidatedUser] Parsed JSON:", userResponseData);
 
-    const { code, success, data: { valid, user } = { valid: false, user: {} } } = userResponseData;
+    const { code, success, data: { valid, user } = { valid: false, user: {} } } = userResponseData ?? {};
     console.log("[isValidatedUser] Destructured:", { code, success, valid, user });
 
     if (valid && code === 200 && user.email !== null && success === true) {
@@ -115,10 +133,11 @@ export const handleUserLocalLogInSubmit = async (
 
     console.log("[handleUserLocalLogInSubmit] Raw response:", response);
 
-    const data = await response.json();
+    const data = await safeJsonParse(response);
     console.log("[handleUserLocalLogInSubmit] Parsed JSON:", data);
 
-    if (!data.success || data.code !== 404 || !data.data) {
+    // Note: original logic seemed off on success/failure checks, fixing it:
+    if (!data || !data.success || (data.code !== 200 && data.code !== 201) || !data.data) {
       console.log("[handleUserLocalLogInSubmit] Invalid login credentials");
       setLoading(false);
       return toast("Invalid Login Credentials", {
@@ -127,12 +146,6 @@ export const handleUserLocalLogInSubmit = async (
           onClick: () => window.location.replace("/join-us"),
         },
       });
-    }
-
-    if (!data.success || data.code !== 201 || !data.data) {
-      console.log("[handleUserLocalLogInSubmit] Login failed, retrying...");
-      setLoading(false);
-      throw new Error("Login failed...trying again");
     }
 
     toast.success("Login successful!");
@@ -150,20 +163,11 @@ export const handleUserLocalLogInSubmit = async (
  */
 export const handleUserLocalSignUp = async (
   userInfo: UserLocalSignUp,
-  setLoading: (loading: boolean) => void,
-  retryCount = 0
+  setLoading: (loading: boolean) => void
 ) => {
-  if (retryCount > 3) {
-    retryCount = 0;
-    setLoading(false);
-    toast("We couldn't communicate with the server.", {
-      action: {
-        label: 'One more time?',
-        onClick: () => window.location.replace("/join-us"),
-      },
-    });
-    return;
-  }
+ 
+  console.log("[handleUserLocalSignUp] Sending signup request:", userInfo);
+
 
   try {
     setLoading(true);
@@ -178,13 +182,13 @@ export const handleUserLocalSignUp = async (
 
     console.log("[handleUserLocalSignUp] Raw response:", response);
 
-    const data = await response.json();
+    const data = await safeJsonParse(response);
     console.log("[handleUserLocalSignUp] Parsed JSON:", data);
 
-    if (data.code !== 201 && !data.data) {
+    if (!data || data.code !== 201 || !data.data) {
       console.log("[handleUserLocalSignUp] Signup failed");
       setLoading(false);
-      throw new Error("Sign up failed...trying again");
+      throw new Error("Sign up failed..");
     }
 
     toast.success("Sign up successful!");
