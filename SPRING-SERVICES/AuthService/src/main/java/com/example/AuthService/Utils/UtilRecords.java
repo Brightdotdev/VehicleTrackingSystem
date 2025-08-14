@@ -256,24 +256,16 @@ public class UtilRecords {
              String redirectUri
     ){}
 
-    public record  GoogleTokenResponse(
-             String access_token,
-             int expires_in,
-             String refresh_token,
-             String scope,
-             String token_type,
-             String id_token
-    ){}
 
+    public record UserSyncResponse(
+            boolean success,
+            int code,
+            String message,
+            UserSyncData data,
+            String timestamp
+    ) {}
 
-    public record GoogleUser (
-         String sub,
-         String name,
-         String given_name,
-         String family_name,
-         String picture,
-         String email,
-         boolean email_verified,
-         String locale
-        ){}
+    public record UserSyncData(
+            boolean createdNew
+    ) {}
 }

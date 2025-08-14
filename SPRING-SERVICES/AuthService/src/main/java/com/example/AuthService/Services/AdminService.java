@@ -100,33 +100,33 @@ public class AdminService {
      * Internal method to sync admin creation event with external messaging service.
      */
     private void syncAdminCreated(String email) {
-        ApiResponse<Map<String, Object>> apiResponse = messagingService.sendAdminCreated(email);
+        ApiResponse<UtilRecords.UserSyncResponse> apiResponse = messagingService.sendAdminCreated(email);
 
+        UtilRecords.UserSyncData syncData = getUserSyncData(apiResponse);
+        if (syncData == null) {
+            throw new ConflictException("No sync data details in response");
+        }
 
+        if (!syncData.createdNew()) {
+            throw new ConflictException("Admin already exists. Try logging in.");
+        }
+    }
 
+    private static UtilRecords.UserSyncData getUserSyncData(ApiResponse<UtilRecords.UserSyncResponse> apiResponse) {
         if (apiResponse == null) {
             throw new ConflictException("No response from admin creation sync");
         }
 
-        Map<String, Object> extractedResponse = responseMapperService.createdAdminResponse(apiResponse);
-
-        Object dataObj = extractedResponse.get("data");
-
-        if (!(dataObj instanceof Map<?, ?>)) {
-            throw new ConflictException("Invalid data format from sync response");
+        if (!apiResponse.isSuccess()) {
+            throw new ConflictException("Admin sync failed: " + apiResponse.getMessage());
         }
 
-        Map<?, ?> data = (Map<?, ?>) dataObj;
-
-        if (!data.containsKey("createdNew")) {
-            throw new ConflictException("Unable to synchronize admin data. Try signing up again.");
+        UtilRecords.UserSyncResponse userSyncResponse = apiResponse.getData();
+        if (userSyncResponse == null) {
+            throw new ConflictException("No user sync data in response");
         }
 
-        boolean createdNew = Boolean.TRUE.equals(data.get("createdNew"));
-
-        if (!createdNew) {
-            throw new ConflictException("Admin already exists. Try logging in.");
-        }
+        return userSyncResponse.data();
     }
 
     @Transactional

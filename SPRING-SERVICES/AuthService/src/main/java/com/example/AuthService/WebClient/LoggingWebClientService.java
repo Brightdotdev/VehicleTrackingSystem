@@ -9,8 +9,6 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import java.util.Map;
-
 @Service
 public class LoggingWebClientService implements MessagingService {
 
@@ -26,7 +24,7 @@ public class LoggingWebClientService implements MessagingService {
 
 
     @Override
-    public ApiResponse<Map<String, Object>> sendAdminCreated(String email) {
+    public ApiResponse<UtilRecords.UserSyncResponse> sendAdminCreated(String email) {
         var requestBody = new UtilRecords.adminCreatedRequestBodyDto(email);
 
         return webClientHelper.safeCall(
@@ -35,7 +33,7 @@ public class LoggingWebClientService implements MessagingService {
                         .contentType(MediaType.APPLICATION_JSON)
                         .bodyValue(requestBody)
                         .retrieve()
-                        .bodyToMono(new ParameterizedTypeReference<Map<String, Object>>() {})
+                        .bodyToMono(new ParameterizedTypeReference<UtilRecords.UserSyncResponse>() {})
         );
 
     }
