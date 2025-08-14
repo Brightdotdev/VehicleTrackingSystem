@@ -2,28 +2,27 @@ server:
   port: ${LOGGING_SERVICE_APP_PORT}
   forward-headers-strategy: framework
 
-
-spring :
+spring:
   main:
     lazy-initialization: true
   application:
     name: loggingService
-  autoconfigure :
-    exclude :
+  autoconfigure:
+    exclude:
       - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
       - org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
-  data :
+  data:
     mongodb:
-      auto-index-creation : true
-      uri : ${LOGGING_SERVICE_MONGO_URL}
+      auto-index-creation: true
+      uri: ${LOGGING_SERVICE_MONGO_URL}  # e.g. mongodb://mongo-logging:27017/logging_mongo_db
   rabbitmq:
-    host: ${RABBITMQ_URL}
-    port: ${RABBITMQ_PORT}
+    host: ${RABBITMQ_URL}      # e.g. rabbitmq
+    port: ${RABBITMQ_PORT}     # e.g. 5672
     username: ${RABBITMQ_USER}
-    password: {RABBITMQ_PASSWORD}
+    password: ${RABBITMQ_PASSWORD}
     listener:
       simple:
-        default-requeue-rejected: false  # Don’t keep retrying forever
+        default-requeue-rejected: false
         retry:
           enabled: true
           max-attempts: 3
@@ -31,15 +30,13 @@ spring :
           multiplier: 2.0
           max-interval: 10000
 
-
-
 auth:
   api:
     key: ${API_INTERNAL_KEY}
   jwt:
     secret: ${JWT_SECRET}
     expiration: ${JWT_EXP}
-
+    issuer: auth-service
 
 external:
   services:
@@ -48,6 +45,8 @@ external:
     dispatch:
       base-url: ${DISPATCH_SERVICE_URL}
 
+messaging:
+  type: ${MESSAGE_TYPE}
 
 logging:
   level:
@@ -55,11 +54,6 @@ logging:
     com.rabbitmq: WARN
     org.springframework.security: DEBUG
     com.example.UserService: DEBUG
-
-
-messaging:
-  type: ${MESSAGE_TYPE}
-
 
 resilience4j:
   circuitbreaker:

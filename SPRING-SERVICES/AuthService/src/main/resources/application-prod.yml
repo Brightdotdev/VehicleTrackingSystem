@@ -9,8 +9,8 @@ spring:
     name: authService
   datasource :
     url : ${AUTH_SERVICE_SQL_URL}
-    username : ${AUTH_SERVICE_SQL_USER}
-    password : ${AUTH_SERVICE_SQL_PASSWORD}
+    username : ${POSTGRES_USER}
+    password : ${POSTGRES_PASSWORD}
   jpa :
     open-in-view: false
     show-sql : true
@@ -22,9 +22,8 @@ auth :
   api :
     key : ${API_INTERNAL_KEY}
   jwt :
-    secret: ${AUTH_SERVICE_JWT_SECRET}
-    expiration: ${AUTH_SERVICE_JWT_EXP}
-    sender: ${AUTH_SERVICE_JWT_TOKEN_SENDER}
+    secret: ${JWT_SECRET}
+    expiration: ${JWT_EXP}
 
 
 external:

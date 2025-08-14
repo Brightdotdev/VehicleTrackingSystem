@@ -4,10 +4,14 @@ import com.example.AuthService.Utils.ApiResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
 
+
+
+@Component
 public class WebClientHelper {
 
     private static final Logger logger = LoggerFactory.getLogger(WebClientHelper.class);

@@ -1,5 +1,5 @@
 server:
-  port: 8102
+  port: ${API_GATEWAY_PORT}
   forward-headers-strategy: framework
 
 spring:
@@ -18,36 +18,36 @@ spring:
           lower-case-service-id: true
       routes:
         - id: authService
-          uri : http://localhost:8103
+          uri : ${AUTH_SERVICE_URL}
           predicates:
-            - Path=/v1/auth/admin/**, /v1/auth/user/** , /internal/auth/**
+            - Path=/v1/auth/admin/**, /v1/auth/user/**
           filters:
             - name: DedupeResponseHeader
               args:
                 name: Access-Control-Allow-Origin
                 strategy: RETAIN_FIRST
         - id: loggingService
-          uri : http://localhost:8104
+          uri : ${LOGGING_SERVICE_URL}
           predicates:
-            - Path=/v1/user/notifications/**, /v1/admin/notifications/**, ,/v1/sse/**, /v1/user/tracking/** , /internal/logs/**
+            - Path=/v1/user/notifications/**, /v1/sse/**, /v1/user/tracking/**
           filters:
             - name: DedupeResponseHeader
               args:
                 name: Access-Control-Allow-Origin
                 strategy: RETAIN_FIRST
         - id: dispatchService
-          uri : http://localhost:8105
+          uri : ${DISPATCH_SERVICE_URL}
           predicates:
-            - Path=/v1/admin/dispatch/**, /v1/user/dispatch/** , /internal/dispatch/**
+            - Path=/v1/admin/dispatch/**, /v1/user/dispatch/**
           filters:
             - name: DedupeResponseHeader
               args:
                 name: Access-Control-Allow-Origin
                 strategy: RETAIN_FIRST
         - id: vehicleService
-          uri: http://localhost:8106
+          uri: ${VEHICLE_SERVICE_URL}
           predicates:
-            - Path=/v1/admin/vehicle/**, /v1/user/vehicle/** , /internal/vehicles/**
+            - Path=/v1/admin/vehicle/**, /v1/user/vehicle/**
           filters:
             - name: DedupeResponseHeader
               args:
@@ -57,8 +57,8 @@ spring:
         cors-configurations:
           '[/**]':
             allowed-origins:
-              - "http://localhost:3000"
-              - "http://localhost:3001"
+              - ${AUTO_PORT_URL}
+              - ${ADMIN_DESK_URL}
             allowed-methods:
               - "GET"
               - "POST"
@@ -79,16 +79,12 @@ spring:
               - "Authorization"
             max-age: 3600
 
-
-
-
-
 auth:
   api:
-    key : thisIsMyApiKey
+    key : ${API_INTERNAL_KEY}
   jwt:
-    secret: 6715c78c9a1d53f358dafd68da12c40c95780b0d00486f9d725672b7bf95eea89d682826b22883dd592b45b6ee2f79d4d4372d0c136b2e6fb1935c04f7593d05
-    expiration: 604800000
+    secret: ${JWT_SECRET}
+    expiration: ${JWT_EXP}
 
 logging:
   level:

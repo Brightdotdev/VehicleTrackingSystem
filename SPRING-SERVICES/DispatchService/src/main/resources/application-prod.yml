@@ -9,8 +9,8 @@ spring:
     name: vehicleService
   datasource:
     url: ${DISPATCH_SERVICE_SQL_URL}
-    username: ${DISPATCH_SERVICE_SQL_USER}
-    password: ${DISPATCH_SERVICE_SQL_PASSWORD}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
   jpa:
     open-in-view: false
     show-sql: true

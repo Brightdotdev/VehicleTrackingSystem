@@ -1,5 +1,3 @@
-
-
 services:
   # ==== DATABASE SERVICES ====
   postgres-db:
@@ -46,21 +44,12 @@ services:
       - "27018:27017"
     volumes:
       - mongo_data:/data/db
-    networks:
-      - vehicle-network
-
-  mongo-express:
-    image: mongo-express
-    container_name: mongo-express
-    restart: unless-stopped
-    environment:
-      ME_CONFIG_MONGODB_SERVER: mongo-logging
-      ME_CONFIG_BASICAUTH_USERNAME: admin
-      ME_CONFIG_BASICAUTH_PASSWORD: admin
-    ports:
-      - "8082:8081"
-    depends_on:
-      - mongo-logging
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 20s
+      retries: 10
+      start_period: 30s
     networks:
       - vehicle-network
 
@@ -75,9 +64,9 @@ services:
       - "5672:5672"
       - "15672:15672"
     healthcheck:
-      test: ["CMD", "rabbitmqctl", "status"]
+      test: ["CMD-SHELL", "rabbitmq-diagnostics check_running && rabbitmq-diagnostics check_local_alarms"]
       interval: 30s
-      timeout: 10s
+      timeout: 20s
       retries: 5
     networks:
       - vehicle-network
@@ -91,14 +80,12 @@ services:
     depends_on:
       - auth-service
       - logging-service
-      - dispatch-service
-      - vehicle-service
-      - rabbitmq
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:${API_GATEWAY_PORT}/actuator/health"]
+      test: ["CMD-SHELL", "curl -f http://localhost:${API_GATEWAY_PORT}/actuator/health || exit 1"]
       interval: 30s
-      timeout: 10s
-      retries: 5
+      timeout: 60s
+      retries: 10
+      start_period: 90s
     networks:
       - vehicle-network
 
@@ -111,10 +98,11 @@ services:
       postgres-db:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:${AUTH_SERVICE_APP_PORT}/actuator/health"]
+      test: ["CMD-SHELL", "curl -f http://localhost:${AUTH_SERVICE_APP_PORT}/actuator/health || exit 1"]
       interval: 30s
-      timeout: 10s
-      retries: 5
+      timeout: 60s
+      retries: 10
+      start_period: 60s
     networks:
       - vehicle-network
 
@@ -124,13 +112,16 @@ services:
     ports:
       - "${DISPATCH_SERVICE_APP_PORT}:${DISPATCH_SERVICE_APP_PORT}"
     depends_on:
-      - postgres-db
-      - rabbitmq
+      postgres-db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:${DISPATCH_SERVICE_APP_PORT}/actuator/health"]
+      test: ["CMD-SHELL", "curl -f http://localhost:${DISPATCH_SERVICE_APP_PORT}/actuator/health || exit 1"]
       interval: 30s
-      timeout: 10s
-      retries: 5
+      timeout: 60s
+      retries: 10
+      start_period: 60s
     networks:
       - vehicle-network
 
@@ -140,7 +131,14 @@ services:
     ports:
       - "${LOGGING_SERVICE_APP_PORT}:${LOGGING_SERVICE_APP_PORT}"
     depends_on:
-      - mongo-logging
+      mongo-logging:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:${LOGGING_SERVICE_APP_PORT}/actuator/health || exit 1"]
+      interval: 30s
+      timeout: 60s
+      retries: 10
+      start_period: 60s
     networks:
       - vehicle-network
 
@@ -150,30 +148,16 @@ services:
     ports:
       - "${VEHICLE_SERVICE_APP_PORT}:${VEHICLE_SERVICE_APP_PORT}"
     depends_on:
-      - postgres-db
+      postgres-db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:${VEHICLE_SERVICE_APP_PORT}/actuator/health || exit 1"]
+      interval: 30s
+      timeout: 30s
+      retries: 5
+      start_period: 30s
     networks:
       - vehicle-network
-
-  # # ==== FRONTEND SERVICES ====
-  # admin-desk:
-  #   build: ./VIEWS/admin_desk_web
-  #   env_file: .env
-  #   ports:
-  #     - "3000:3000"
-  #   depends_on:
-  #     - api-gateway       
-  #   networks:
-  #     - vehicle-network
-
-  # user-auto-port:
-  #   build: ./VIEWS/user_auto_port_web
-  #   env_file: .env
-  #   ports:
-  #     - "3001:3000"
-  #   depends_on:
-  #     - api-gateway
-  #   networks:
-  #     - vehicle-network
 
 volumes:
   postgres_data:
@@ -182,3 +166,4 @@ volumes:
 networks:
   vehicle-network:
     driver: bridge
+    external: true

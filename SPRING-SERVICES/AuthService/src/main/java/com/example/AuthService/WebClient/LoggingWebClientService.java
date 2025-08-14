@@ -33,7 +33,7 @@ public class LoggingWebClientService implements MessagingService {
                 loggingWebClient.post()
                         .uri("/internal/logs/admin/create")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .bodyValue(email)
+                        .bodyValue(requestBody)
                         .retrieve()
                         .bodyToMono(new ParameterizedTypeReference<Map<String, Object>>() {})
         );
