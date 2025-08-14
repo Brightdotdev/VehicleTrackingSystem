@@ -80,6 +80,8 @@ services:
     depends_on:
       - auth-service
       - logging-service
+      - vehicle-service
+      - dispatch-service
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:${API_GATEWAY_PORT}/actuator/health || exit 1"]
       interval: 30s
@@ -113,8 +115,6 @@ services:
       - "${DISPATCH_SERVICE_APP_PORT}:${DISPATCH_SERVICE_APP_PORT}"
     depends_on:
       postgres-db:
-        condition: service_healthy
-      rabbitmq:
         condition: service_healthy
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:${DISPATCH_SERVICE_APP_PORT}/actuator/health || exit 1"]
@@ -158,6 +158,33 @@ services:
       start_period: 30s
     networks:
       - vehicle-network
+  
+  # ==== FRONTEND SERVICES ====
+  user-auto-port-web:
+    build: ./VIEWS/user_auto_port_web
+    env_file: .env
+    ports:
+      - "3001:3000"
+    depends_on:
+      - api-gateway
+    networks:
+      - vehicle-network
+  
+  admin-desk-web:
+    build: ./VIEWS/admin_desk_web
+    env_file: .env
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api-gateway
+    networks:
+      - vehicle-network
+  
+
+
+
+
+
 
 volumes:
   postgres_data:
