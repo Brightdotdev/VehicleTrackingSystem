@@ -151,5 +151,23 @@ public class RabbitMqSenderService implements MessagingService {
 
 
     }
+    public  void checkDispatchEligibility(UtilRecords.IsValidForDispatchRequest event){
+
+     logger.warn("There's no rabbit mq representation of this method using web client instead :: for dispatch available");
+
+        if (event == null ) {
+            logger.warn("Invalid dispatch user check event: {}", event);
+            return;
+        }
+
+        try {
+            Object vehicleResponse = userServiceWebClientService.checkDispatchEligibility(event);
+        } catch (Exception e) {
+            logger.error("Failed to Send User Score update", e);
+            throw new ConflictException("Failed to Send User Score update event");
+        }
+
+
+    }
 
 }

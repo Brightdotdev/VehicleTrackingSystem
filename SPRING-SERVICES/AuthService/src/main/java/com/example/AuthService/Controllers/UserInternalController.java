@@ -23,6 +23,7 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -57,6 +58,47 @@ public class UserInternalController {
                 ApiResponse.ok(200, "Yeah wtv")
         );
     }
+
+
+
+    public record IsValidForDispatchRequest (String email , Double score) {}
+
+    @PostMapping("/dispatch/dispatchable-user")
+    public ResponseEntity<ApiResponse<Void>> isWorthyForDispatch(
+            @Valid @RequestBody IsValidForDispatchRequest dispatchRequest) {
+
+        // Log incoming request
+        logger.info("Received dispatch request: email={}, score={}",
+                dispatchRequest.email(), dispatchRequest.score());
+
+        // Retrieve user
+        UserModel dispatchRequester = userDetailService.getUserData(dispatchRequest.email());
+        if (dispatchRequester == null) {
+            throw new NotFoundException("User not found for email: " + dispatchRequest.email());
+        }
+
+        // Validate score
+        if (dispatchRequester.getDispatchPoints() == null || dispatchRequester.getDispatchPoints().isEmpty()) {
+            throw new ConflictException("User has no dispatch points recorded");
+        }
+        Double lastScore = dispatchRequester.getDispatchPoints().getLast();
+        if (!Objects.equals(lastScore, dispatchRequest.score())) {
+            throw new ConflictException("The user score is invalid");
+        }
+
+        // Validate license expiry
+        LocalDateTime licenseExpiry = dispatchRequester.getLicenseExpiry();
+        if (licenseExpiry == null) {
+            throw new AccessException("User license expiry date is missing");
+        }
+        if (licenseExpiry.isBefore(LocalDateTime.now())) {
+            throw new AccessException("User license is already expired");
+        }
+
+        // If all checks pass
+        return ResponseEntity.ok(ApiResponse.ok(200, "User is eligible for dispatch"));
+    }
+
 
 
 }

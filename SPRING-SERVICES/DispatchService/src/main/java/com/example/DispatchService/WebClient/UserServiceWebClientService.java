@@ -44,6 +44,18 @@ public class UserServiceWebClientService {
                         .bodyToMono(new ParameterizedTypeReference<Map<String, Object>>() {})
         );
     }
+
+
+    public ApiResponse<Map<String, Object>> checkDispatchEligibility(UtilRecords.IsValidForDispatchRequest scoreUpdate) {
+        return webClientHelper.safeCall(
+                userWebClient.post()
+                        .uri("/internal/auth/dispatch/dispatchable-user")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .bodyValue(scoreUpdate)
+                        .retrieve()
+                        .bodyToMono(new ParameterizedTypeReference<Map<String, Object>>() {})
+        );
+    }
 }
 
 

@@ -177,6 +177,27 @@ public class WebClientSenderService implements MessagingService {
             throw new ConflictException("Failed to send user score update event");
         }
     }
+    /**
+     * Wrapper for updating user score safely.
+     */
+    private void safeCheckForAvailability(UtilRecords.IsValidForDispatchRequest event) {
+        if (event == null) {
+            logger.warn("Invalid user check eveent: {}", event);
+            return;
+        }
+
+        try {
+            ApiResponse<?> userResponse = userServiceWebClientService.checkDispatchEligibility(event);
+            logger.info("User user check event sent: {}", jsonMapper.convertToJson(userResponse));
+
+            if (!userResponse.isSuccess()) {
+                logAndThrowConflict("User service", userResponse.getMessage());
+            }
+        } catch (Exception e) {
+            logger.error("Failed to send user score update event", e);
+            throw new ConflictException("Failed to send user score update event");
+        }
+    }
 
     /**
      * Helper to log error and throw ConflictException with detailed message.
@@ -211,5 +232,13 @@ public class WebClientSenderService implements MessagingService {
     @Override
     public void updateUserScore(UtilRecords.DispatchScoreUpdateDto event) {
         safeUpdateUserScore(event);
+    }
+
+
+
+    public  void checkDispatchEligibility(UtilRecords.IsValidForDispatchRequest event){
+
+        safeCheckForAvailability(event);
+
     }
 }

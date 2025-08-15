@@ -1,36 +1,37 @@
 "use client";
 
-import UnvalidatedPage from "@/components/utils/UnvalidatedPage";
+
+import UnvalidatedPage from "@/components/UnvalidatedPage";
 import { useUserValidation } from "@/hooks/useUserValidation";
-import { UserPageData } from "@/types/authTypes";
+import { AdminDetails } from "@/types/authTypes";
 import { lazy, Suspense, useEffect, useState } from "react";
 
 // Lazy load the dashboard component
 const UserDashboard = lazy(() => import('@/components/ui/UserDashboard'));
 
 export default function Page() {
-  const { returnMyData } = useUserValidation();
+  const { adminDetails, checkValidation } = useUserValidation();
 
-  const [userData, setUserData] = useState<UserPageData | null>(null);
+  const [userData, setUserData] = useState<AdminDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [invalidUserData, setInvalidUserData] = useState(false);
 
   useEffect(() => {
     const handleUserData = async () => {
       try {
-        const user = await returnMyData();
+       await checkValidation();
 
-        // 🛑 Early exit if failed to fetch
-        if (!user) {
+      
+       if (!adminDetails) {
           setUserData(null);
           return;
         }
 
         // ✅ Save fetched user
-        setUserData(user);
+        setUserData(adminDetails);
 
         // 🚫 Check for missing critical fields
-        if (!user.username || !user.licence || !user.licenceExp) {
+        if (!adminDetails.username || !adminDetails.licence || !adminDetails.licenceExp || !adminDetails.email) {
           setInvalidUserData(true);
         }
       } catch (err) {

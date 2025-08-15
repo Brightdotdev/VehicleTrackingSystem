@@ -218,6 +218,7 @@ public class UtilRecords {
 
     public record DispatchScoreUpdateDto (String user,Long dispatchId , Double score) {}
 
+    public record IsValidForDispatchRequest (String email , Double score) {}
 
     // -------------------------------
     // Start dispatch tracking

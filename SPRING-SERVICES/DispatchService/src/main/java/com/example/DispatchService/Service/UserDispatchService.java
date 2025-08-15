@@ -1,5 +1,6 @@
 package com.example.DispatchService.Service;
 
+import com.example.DispatchService.Exceptions.AccessException;
 import com.example.DispatchService.Exceptions.ConflictException;
 import com.example.DispatchService.Exceptions.InvalidRequestException;
 import com.example.DispatchService.Exceptions.NotFoundException;
@@ -128,6 +129,9 @@ public class UserDispatchService {
             List<String> userRole) {
 
         logger.info("[DispatchRequest] Starting requestVehicleDispatch for user: {}", userName);
+
+
+        isWorthyForDispatch(userName, requestBody.userDispatchScore());
 
         // 1) Check for conflicting dispatches on the same vehicle
         List<DispatchModel> existingDispatches = dispatchRepository.findByDispatchVehicleId(requestBody.vehicleIdentificationNumber());
@@ -641,5 +645,12 @@ public class UserDispatchService {
         }
 
         return true;
+    }
+
+
+    public void isWorthyForDispatch(String user, double score) {
+
+        UtilRecords.IsValidForDispatchRequest request = new UtilRecords.IsValidForDispatchRequest(user,score);
+        messagingService.checkDispatchEligibility(request);
     }
 }

@@ -5,6 +5,7 @@ import { Button } from './button';
 import { NotificationData } from '@/types/utilTypes';
 import { useAdminNotifications } from '@/contexts/NotificationContext';
 import { HandleReadNotifications, HandleUnreadNotifications } from '../utils/NotificationUtils';
+import Link from 'next/link';
 
 
 
@@ -68,7 +69,7 @@ const Usernav = ({classNames} : {classNames? : string}) => {
     isAuthenticated ? (
       <nav className={'fixed top-2 flex items-start justify-between w-screen h-[var(--size-sm)] p-[var(--size-sm-3)] z-10 ' + classNames} >
 
-        <article className="flex items-center justify-start gap-4  p-[var(--space-xs)] bg-accent rounded-lg cursor-pointer">
+        <Link href="/me" className="flex items-center justify-start gap-4  p-[var(--space-xs)] bg-accent rounded-lg cursor-pointer" >
                 {
                     userData?.picture  && (<img src={userData.picture} className='size-8 rounded-full object-cover' />)
                 }
@@ -76,7 +77,7 @@ const Usernav = ({classNames} : {classNames? : string}) => {
                  <h3 className=' hidden md:flex md:subtitleText'>
                 {`${userData?.username || "Nobody" }'s Desk`}  
             </h3>
-        </article>
+        </Link>
         
 
 

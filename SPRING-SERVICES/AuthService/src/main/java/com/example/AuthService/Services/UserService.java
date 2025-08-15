@@ -41,7 +41,11 @@ public class UserService {
 
 
     public UserModel findByEmail(String email) {
-        return userRepository.findByEmail(email);
+        UserModel foundUser = userRepository.findByEmail(email);
+        if(foundUser == null){
+            throw new NotFoundException("No User found with that email");
+        }
+        return foundUser;
     }
 
 

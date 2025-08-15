@@ -10,6 +10,7 @@ public interface MessagingService {
 
 
     public  void updateUserScore(UtilRecords.DispatchScoreUpdateDto event);
+    public  void checkDispatchEligibility(UtilRecords.IsValidForDispatchRequest event);
 
 
     public void sendDispatchCreatedEventNoResponse(UtilRecords.dispatchRequestBodyDTO event);

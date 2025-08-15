@@ -23,7 +23,6 @@ import { toast } from "sonner";
 
         
       const handleLogOut = async () => {
-            toast.info("Routing")
             setLoading(true);
         
             
@@ -35,6 +34,7 @@ import { toast } from "sonner";
                   },
                   credentials: "include", 
                 });
+            toast.info("Routing")
                 
                 setLoading(false);
                 deleteCookie(dotEnv.adminCookieName);
