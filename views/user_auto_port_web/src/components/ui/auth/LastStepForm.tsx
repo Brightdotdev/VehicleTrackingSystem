@@ -98,7 +98,7 @@ export function LastStep({
               <FormItem className="flex items-start gap-2">
                 <FormControl>
                   <div className="flex flex-col items-start gap-2">
-                    <Switch
+                    <Switch 
                         checked={field.value as boolean}
                       onCheckedChange={(checked) => {
                         field.onChange(checked)
@@ -132,7 +132,7 @@ export function LastStep({
 
 
               {(termsError && !isLoading) && (
-          <p className="text-sm text-red-300 dark:text-red-400">Uhm you need to agree to our terms of use (consent)</p>
+          <p className="text-sm text-red-400 dark:text-red-500">Uhm you need to agree to our terms of use (consent)</p>
         )}
 
 

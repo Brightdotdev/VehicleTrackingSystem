@@ -88,7 +88,7 @@ public class UserDispatchController {
         // If the model is not null, return success with the dispatch info
         return ResponseEntity.ok(
                 ApiResponse.success(
-                        201,
+                        200,
                         "Dispatch retrieval success",
                         dispatchResponse
                 )
@@ -111,7 +111,7 @@ public class UserDispatchController {
 
         return ResponseEntity.ok(
                 ApiResponse.success(
-                        201,
+                        200,
                         "Dispatch cancel Success",
                         dispatchModel
                 ));
@@ -129,7 +129,7 @@ public class UserDispatchController {
 
         return ResponseEntity.ok(
                 ApiResponse.success(
-                        201,
+                        200,
                         "Dispatch retrieval Success",
                         myDispatchModels
                 ));
@@ -144,7 +144,7 @@ public class UserDispatchController {
 
         return ResponseEntity.ok(
                 ApiResponse.success(
-                        201,
+                        200,
                         "Dispatch retival Success",
                         myDispatchModels
                 ));

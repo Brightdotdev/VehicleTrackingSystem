@@ -9,9 +9,11 @@ import { format, parseISO } from "date-fns"
 import { ArrowUpLeft, Baby, Fuel, Timer, X } from "lucide-react"
 import { useState } from "react"
 import UnvalidatedPage from "../utils/UnvalidatedPage"
+import { useTheme } from "@/contexts/ThemeContext"
 
 export default function UserDashboard({ userData }: { userData: UserPageData }) {
   const [isCardOpen, setOpenCard] = useState(false)
+  const {toggleTheme} = useTheme()
 
 
 
@@ -93,9 +95,17 @@ if(userData === null) return <UnvalidatedPage/>
                 </h2>
               </div>
 
-              <Button className="self-end" onClick={() => setOpenCard(true)}>
+
+  
+    <div className="flex items-center justify-between w-full">
+         <Button onClick={() => toggleTheme()}>
+    Change Theme
+              </Button>
+
+              <Button  onClick={() => setOpenCard(true)}>
                 View Drivers card
               </Button>
+    </div>
             </div>
           </article>
 

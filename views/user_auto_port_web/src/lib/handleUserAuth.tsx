@@ -23,6 +23,53 @@ async function safeJsonParse(response: Response): Promise<any | undefined> {
     return undefined;
   }
 }
+/**
+ * Validate user from cookie
+ */
+export const isValidatedUser = async (
+  setLoading: (loading: boolean) => void,
+  setValidated: (isValidated: boolean) => void,
+  setUser: (user: User) => void
+) => {
+  try {
+    setLoading(true);
+    console.log("[isValidatedUser] Fetching:", dotEnv.cookieValidationLink);
+
+    const response = await fetch(dotEnv.cookieValidationLink, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+    });
+
+    console.log("[isValidatedUser] Raw response:", response);
+
+    const userResponseData = await safeJsonParse(response);
+    console.log("[isValidatedUser] Parsed JSON:", userResponseData);
+
+    // Safe destructuring
+    const { code, success, data } = userResponseData ?? {};
+    const valid = data?.valid ?? false;
+    const user = data?.user ?? {};
+
+    console.log("[isValidatedUser] Safe destructured:", { code, success, valid, user });
+
+    if (valid && code === 200 && success === true && user.email !== null) {
+      console.log("[isValidatedUser] User validated successfully");
+      setUser(user);
+      return setValidated(true);
+    }
+
+    console.log("[isValidatedUser] Validation failed");
+    return setValidated(false);
+  } catch (error) {
+    console.log("[isValidatedUser] Error:", error);
+    return setValidated(false);
+  } finally {
+    setLoading(false);
+  }
+};
+
+
 
 /**
  * Fetch and validate user data
@@ -45,11 +92,12 @@ export const getMyData = async (
     const userResponseData = await safeJsonParse(response);
     console.log("[getMyData] Parsed JSON:", userResponseData);
 
-    const { code, success, data = {} } = userResponseData ?? {};
-    console.log("[getMyData] Destructured:", { code, success, data });
+    // ✅ Safe destructuring (no crash if data is null)
+    const { code, success, data } = userResponseData ?? {};
+    const valid = data?.valid ?? false;
+    const userData = data?.userData ?? {};
 
-    const { valid, userData } = data;
-    console.log("[getMyData] Validation check:", { valid, userData });
+    console.log("[getMyData] Validation check:", { code, success, valid, userData });
 
     if (
       valid === true &&
@@ -72,46 +120,6 @@ export const getMyData = async (
   }
 };
 
-/**
- * Validate user from cookie
- */
-export const isValidatedUser = async (
-  setLoading: (loading: boolean) => void,
-  setValidated: (isValidated: boolean) => void,
-  setUser: (user: User) => void
-) => {
-  try {
-    console.log("[isValidatedUser] Fetching:", dotEnv.cookieValidationLink);
-
-    const response = await fetch(dotEnv.cookieValidationLink, {
-      method: "GET",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include"
-    });
-
-    console.log("[isValidatedUser] Raw response:", response);
-
-    const userResponseData = await safeJsonParse(response);
-    console.log("[isValidatedUser] Parsed JSON:", userResponseData);
-
-    const { code, success, data: { valid, user } = { valid: false, user: {} } } = userResponseData ?? {};
-    console.log("[isValidatedUser] Destructured:", { code, success, valid, user });
-
-    if (valid && code === 200 && user.email !== null && success === true) {
-      console.log("[isValidatedUser] User validated successfully");
-      setUser(user);
-      return setValidated(true);
-    }
-
-    console.log("[isValidatedUser] Validation failed");
-    return setValidated(false);
-  } catch (error) {
-    console.log("[isValidatedUser] Error:", error);
-    return setValidated(false);
-  } finally {
-    setLoading(false);
-  }
-};
 
 /**
  * Local login

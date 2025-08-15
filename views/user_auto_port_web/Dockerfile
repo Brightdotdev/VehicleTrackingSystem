@@ -1,21 +1,45 @@
-# 1. Base image with Node
-FROM node:20-alpine
+# =====================
+# 1. Build stage
+# =====================
+FROM node:20-alpine AS builder
 
-# 2. Set working directory
+# Set working directory
 WORKDIR /app
 
-# 3. Copy package files and install deps
+# Copy only package files first (better caching for dependencies)
 COPY package*.json ./
+
+# Install ALL dependencies (including devDependencies) for build
 RUN npm install
 
-# 4. Copy rest of project
+# Copy rest of the project
 COPY . .
 
-# 5. Build Next.js app
+# Build the Next.js app
 RUN npm run build
 
-# 6. Start Next.js app
-CMD ["npm", "run", "start"]
+# =====================
+# 2. Production stage
+# =====================
+FROM node:20-alpine AS runner
 
-# Expose port
+# Set working directory
+WORKDIR /app
+
+# Set NODE_ENV for production
+ENV NODE_ENV=production
+
+# Copy only required files from builder stage
+COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/public ./public
+
+# Next.js standalone output (optional, if using output=standalone in next.config.js)
+# COPY --from=builder /app/standalone ./ 
+
+# Expose app port
 EXPOSE 3000
+
+# Run the Next.js app
+CMD ["npm", "run", "start"]

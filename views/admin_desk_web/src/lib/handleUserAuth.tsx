@@ -58,7 +58,6 @@ const handleAdminReqKeyValidation = async (
     window.location.replace(requester);
   }
 };
-
 /**
  * Validates the logged-in user
  */
@@ -82,8 +81,12 @@ export const isValidatedUser = async (
     const userResponseData = await response.json();
     console.log("[isValidatedUser] Parsed JSON:", userResponseData);
 
-    const { code, success, data: { valid, user } = { valid: false, user: {} } } = userResponseData;
-    console.log("[isValidatedUser] Destructured:", { code, success, valid, user });
+    // Destructure safely
+    const { code, success, data } = userResponseData;
+    const valid = data?.valid ?? false;
+    const user = data?.user ?? {};
+
+    console.log("[isValidatedUser] Safe destructured:", { code, success, valid, user });
 
     if (valid && code === 200 && user.email !== null && success === true) {
       console.log("[isValidatedUser] Validation success");
@@ -101,6 +104,7 @@ export const isValidatedUser = async (
     setLoading(false);
   }
 };
+
 
 /**
  * Gets user data
@@ -120,8 +124,12 @@ export const getMyData = async () => {
     const userResponseData = await response.json();
     console.log("[getMyData] Parsed JSON:", userResponseData);
 
-    const { code, success, data: { valid, user } = { valid: false, user: {} } } = userResponseData;
-    console.log("[getMyData] Destructured:", { code, success, valid, user });
+    // Safe destructuring
+    const { code, success, data } = userResponseData;
+    const valid = data?.valid ?? false;
+    const user = data?.user ?? {};
+
+    console.log("[getMyData] Safe destructured:", { code, success, valid, user });
 
     if (valid && code === 200 && user.email !== null && success === true) {
       console.log("[getMyData] Returning user data");
@@ -136,26 +144,17 @@ export const getMyData = async () => {
   }
 };
 
+
+
+
 /**
  * Admin sign up
  */
 export const handleAdminLocalSignUp = async (
   userInfo: AdminLocalSignUp,
   setLoading: (loading: boolean) => void,
-  setAdminKey: (adminKey: string) => void,
-  retryCount = 0
-) => {
-  if (retryCount > 3) {
-    retryCount = 0;
-    setLoading(false);
-    toast("We couldn't communicate with the server.", {
-      action: {
-        label: 'One more time?',
-        onClick: () => window.location.replace("/join-us"),
-      },
-    });
-    return;
-  }
+  setAdminKey: (adminKey: string) => void) => {
+  
 
   try {
     console.log("[handleAdminLocalSignUp] User info:", userInfo);
@@ -197,20 +196,9 @@ export const handleAdminLocalSignUp = async (
 export const handleAdminLocalLogInSubmit = async (
   userInfo: AdminLocalLogIn,
   setLoading: (loading: boolean) => void,
-  setAdminKey: (adminKey: string) => void,
-  retryCount = 0
-) => {
-  if (retryCount > 3) {
-    retryCount = 0;
-    setLoading(false);
-    toast("We couldn't communicate with the server.", {
-      action: {
-        label: 'One more time?',
-        onClick: () => window.location.replace("/join-us"),
-      },
-    });
-    return;
-  }
+  setAdminKey: (adminKey: string) => void) => {
+
+  
 
   try {
     console.log("[handleAdminLocalLogInSubmit] User info:", userInfo);

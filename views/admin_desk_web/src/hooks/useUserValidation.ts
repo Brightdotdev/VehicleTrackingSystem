@@ -28,23 +28,20 @@ import { toast } from "sonner";
         
             
             try {
-                  const response = await fetch(dotEnv.adminLogOutLink, {
+               await fetch(dotEnv.adminLogOutLink, {
                   method: "GET",
                   headers: {
                     "Content-Type": "application/json",
                   },
                   credentials: "include", 
                 });
-                console.log(response)
-                const data = await response.json();
-               
-                console.log(data)
-
+                
                 setLoading(false);
                 deleteCookie(dotEnv.adminCookieName);
                 return window.location.replace("/")
             } catch (error) {
               setLoading(false);
+              console.log(error)
               toast.error("Something went wrong")
             } finally {
               setLoading(false);

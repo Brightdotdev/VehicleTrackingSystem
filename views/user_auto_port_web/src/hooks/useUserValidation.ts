@@ -37,18 +37,14 @@ import { toast } from "sonner";
         
             
             try {
-                  const response = await fetch(dotEnv.userLogOutLink, {
+              await fetch(dotEnv.userLogOutLink, {
                   method: "GET",
                   headers: {
                     "Content-Type": "application/json",
                   },
                   credentials: "include", 
                 });
-                console.log(response)
-                const data = await response.json();
-               
-                console.log(data)
-
+              
                 setLoading(false);
                 deleteCookie(dotEnv.userCookieName);
                 return window.location.replace("/")

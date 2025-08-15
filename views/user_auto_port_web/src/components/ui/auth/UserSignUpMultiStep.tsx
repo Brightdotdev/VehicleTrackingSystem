@@ -121,7 +121,7 @@ const UserSignUpMultiStep = ({ pageSender }: { pageSender: string }) => {
         </div>
 
         {(validationError && !isLoading) && (
-          <p className="text-sm text-red-300 dark:text-red-400">Please select a user type before proceeding</p>
+          <p className="text-sm text-red-400 dark:text-red-400">Please select a user type before proceeding</p>
         )}
 
  
