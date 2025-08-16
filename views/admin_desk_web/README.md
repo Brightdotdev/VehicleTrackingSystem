@@ -24,7 +24,6 @@ It allows administrators to manage vehicles, users, and monitor live vehicle loc
 ### Alerts and Notifications
 - Receive alerts for:
   - Unauthorized vehicle movements
-  - Speeding
   - Maintenance requirements
 
 ## 🖥 Interface Overview

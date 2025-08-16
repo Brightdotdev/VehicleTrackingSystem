@@ -19,7 +19,7 @@ services:
       timeout: 5s
       retries: 15
     networks:
-      - vehicle-network
+      - vehicletrackingsystem-main_vehicle-network
 
   mongo-logging:
     image: mongo:6
@@ -36,7 +36,7 @@ services:
       retries: 10
       start_period: 30s
     networks:
-      - vehicle-network
+      - vehicletrackingsystem-main_vehicle-network
 
   rabbitmq:
     image: rabbitmq:3-management
@@ -54,7 +54,7 @@ services:
       timeout: 20s
       retries: 5
     networks:
-      - vehicle-network
+      - vehicletrackingsystem-main_vehicle-network
 
   # ==== SPRING BOOT SERVICES ====
   api-gateway:
@@ -74,7 +74,7 @@ services:
       retries: 10
       start_period: 90s
     networks:
-      - vehicle-network
+      - vehicletrackingsystem-main_vehicle-network
 
   auth-service:
     build: ./SPRING-SERVICES/AuthService
@@ -91,7 +91,7 @@ services:
       retries: 10
       start_period: 60s
     networks:
-      - vehicle-network
+      - vehicletrackingsystem-main_vehicle-network
 
   dispatch-service:
     build: ./SPRING-SERVICES/DispatchService
@@ -108,7 +108,7 @@ services:
       retries: 10
       start_period: 60s
     networks:
-      - vehicle-network
+      - vehicletrackingsystem-main_vehicle-network
 
   logging-service:
     build: ./SPRING-SERVICES/logging-tracking-service
@@ -125,7 +125,7 @@ services:
       retries: 10
       start_period: 60s
     networks:
-      - vehicle-network
+      - vehicletrackingsystem-main_vehicle-network
 
   vehicle-service:
     build: ./SPRING-SERVICES/VehicleService
@@ -142,33 +142,15 @@ services:
       retries: 5
       start_period: 30s
     networks:
-      - vehicle-network
+      - vehicletrackingsystem-main_vehicle-network
   
-  # ==== FRONTEND SERVICES ====
-  user-auto-port-web:
-    build: ./VIEWS/user_auto_port_web
-    env_file: .env
-    ports:
-      - "3001:3000"   # localhost:3001 → container:3000
-    depends_on:
-      - api-gateway
-    networks:
-      - vehicle-network
-  
-  admin-desk-web:
-    build: ./VIEWS/admin_desk_web
-    env_file: .env
-    ports:
-      - "3000:3000"   # localhost:3000 → container:3000
-    depends_on:
-      - api-gateway
-    networks:
-      - vehicle-network
+
+
 
 volumes:
   postgres_data:
   mongo_data:
 
 networks:
-  vehicle-network:
+  vehicletrackingsystem-main_vehicle-network:
     driver: bridge
