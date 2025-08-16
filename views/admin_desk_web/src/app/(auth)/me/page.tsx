@@ -12,28 +12,15 @@ const UserDashboard = lazy(() => import('@/components/ui/UserDashboard'));
 export default function Page() {
   const { adminDetails, checkValidation } = useUserValidation();
 
-  const [userData, setUserData] = useState<AdminDetails | null>(null);
+  
   const [loading, setLoading] = useState(true);
-  const [invalidUserData, setInvalidUserData] = useState(false);
-
+  
   useEffect(() => {
     const handleUserData = async () => {
       try {
        await checkValidation();
 
       
-       if (!adminDetails) {
-          setUserData(null);
-          return;
-        }
-
-        // ✅ Save fetched user
-        setUserData(adminDetails);
-
-        // 🚫 Check for missing critical fields
-        if (!adminDetails.username || !adminDetails.licence || !adminDetails.licenceExp || !adminDetails.email) {
-          setInvalidUserData(true);
-        }
       } catch (err) {
         console.error("Error fetching user:", err);
       } finally {
@@ -54,12 +41,12 @@ export default function Page() {
   }
 
   // ❌ Show unvalidated if not logged in
-  if (!userData) {
+  if (!adminDetails) {
     return <UnvalidatedPage />;
   }
 
   // ❌ User exists but has broken/missing fields (optional)
-  if (invalidUserData) {
+  if (adminDetails.email === null || adminDetails.licenceExp === null || adminDetails.licenceExp === null ) {
     return <UnvalidatedPage/>;
   }
 
@@ -72,7 +59,7 @@ export default function Page() {
         </div>
       }
     >
-      <UserDashboard userData={userData} />
+      <UserDashboard userData={adminDetails} />
     </Suspense>
   );
 }

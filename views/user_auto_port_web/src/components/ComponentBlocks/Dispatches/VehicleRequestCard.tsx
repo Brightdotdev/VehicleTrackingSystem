@@ -147,7 +147,7 @@ items-start justify-start gap-2">
   onClick={async () => {
    
    if (vehicleRequest.dispatchStatus === DispatchStatus.IN_PROGRESS) {
-  toast.info("This is what we're doing o");
+  
   await handleDispatchValidatedTracking(
     vehicleRequest.dispatchId,
     setLoading,

@@ -10,22 +10,31 @@ import { toast } from 'sonner';
 
 
 
- const markForMentainance =  async  (vehicleVin : string) => {
-        
-        try {
-              const response = await fetch(`${dotEnv.adminVehicleBaseUrl}/mark-for-maintenance?vin=${vehicleVin}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-              });
-              if (response.ok) {
-          toast.info('Vehicle marked for maintenance successfully!');
-              } else {
-          toast.error('Failed to mark vehicle for maintenance.');
-              }
-            } catch {
-              toast.error('Somethingg went wrong');
-            }
-          }
+// ✅ Mark a vehicle for maintenance
+export const markForMaintenance = async (vehicleVin: string) => {
+  try {
+    const response = await fetch(
+      `${dotEnv.adminVehicleBaseUrl}/mark-for-maintenance?vin=${vehicleVin}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include", // Ensure cookies/session are sent
+      }
+    );
+
+    const data = await response.json().catch(() => ({})); // Gracefully handle no JSON body
+
+    if (!response.ok) {
+      throw new Error(data.message || "Failed to mark vehicle for maintenance.");
+    }
+
+    toast.info(data.message || "Vehicle marked for maintenance successfully!");
+  } catch (error: any) {
+    toast.error(error.message || "Something went wrong while marking vehicle for maintenance.");
+    console.error(error);
+  }
+};
+
 
 
 
@@ -345,7 +354,7 @@ absolute flex items-end justify-end w-full bottom-0 xl:bottom-4 left-0">
             if(vehicleData?.dispatchStatus === VehicleDispatchStatus.PENDING){
               return toast.error("Vehicle Already staged to a user") 
             }
-               markForMentainance(vehicleVin)
+               markForMaintenance(vehicleVin)
           }
           }>
           Mark for Maintenance

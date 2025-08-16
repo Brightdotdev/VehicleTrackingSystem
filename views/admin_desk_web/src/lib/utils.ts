@@ -18,28 +18,3 @@ export const deleteCookie = (name: string) => {
   document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
 };
 
-export const setCookie = (name: string, value: string, days: number) => {
-  const date = new Date();
-  date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
-  const expires = `expires=${date.toUTCString()}`;
-  document.cookie = `${name}=${value}; ${expires}; path=/`;
-};
-
-
-
-// utils/authFetch.ts
-export const authFetch = async (url: string, options: RequestInit = {}) => {
-  const token = localStorage.getItem("accessToken");
-
-  const headers = {
-    ...(options.headers || {}),
-    Authorization: `Bearer ${token}`,
-    "Content-Type": "application/json",
-  };
-
-  return fetch(url, {
-    ...options,
-    headers,
-    credentials: "include", // Ensures cookies are sent too
-  });
-};

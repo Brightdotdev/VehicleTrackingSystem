@@ -2,15 +2,12 @@
 
 import {
   AdminDetails,
-  AdminGoogleLogIn,
-  AdminGoogleSignUp,
   AdminLocalLogIn,
   AdminLocalSignUp,
-  GoogleUser,
   User
 } from "@/types/authTypes";
-import { useGoogleLogin } from "@react-oauth/google";
-import axios from "axios";
+
+
 import { toast } from "sonner";
 import { dotEnv } from "./dotEnv";
 
@@ -181,12 +178,14 @@ export const handleAdminLocalSignUp = async (
     }
 
     toast.success("Sign up successful!");
-    window.location.replace("/");
+
   } catch (err: any) {
     console.error("[handleAdminLocalSignUp] Error:", err);
     toast.error(err.message || "Sign Up failed");
+    
   } finally {
     setLoading(false);
+    window.location.replace("/");
   }
 };
 
@@ -225,11 +224,12 @@ export const handleAdminLocalLogInSubmit = async (
     }
 
     toast.success("Sign up successful!");
-    window.location.replace("/");
   } catch (err: any) {
     console.error("[handleAdminLocalLogInSubmit] Error:", err);
     toast.error(err.message || "Sign Up failed");
   } finally {
     setLoading(false);
+    window.location.replace("/");
+
   }
 };

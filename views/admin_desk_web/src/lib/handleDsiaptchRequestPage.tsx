@@ -2,114 +2,115 @@ import { DispatchRequestDto } from "@/types/VehicleTypes";
 import { toast } from "sonner";
 import { dotEnv } from "./dotEnv";
 
+// ✅ Centralized default fetch settings
+const defaultFetchOptions = {
+  headers: { "Content-Type": "application/json" },
+  credentials: "include" as const,
+};
 
-// Fetches all dispatch requests, either active or all depending on the `active` flag
+// ✅ Get all dispatch requests (optionally only active)
 export const getAllDispatchRequests = async (
   active?: boolean
 ): Promise<DispatchRequestDto[]> => {
-  // Build the correct URL based on whether 'active' is true or not
   const baseUrl = active
     ? `${dotEnv.adminDispatchesBaseUrl}/get-all/active`
     : `${dotEnv.adminDispatchesBaseUrl}/get-all`;
 
   try {
-    
     const response = await fetch(baseUrl, {
       method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
+      ...defaultFetchOptions,
     });
 
-    
     const data = await response.json();
+    if (!response.ok) throw new Error(data.message || "Failed to fetch dispatches");
 
-    
-    if (response.ok && data?.data) {
-      return data.data;
-    } else {
-    
-      toast.error("No dispatch data available.");
-      return [];
-    }
-  } catch (error) {
-    
-    toast.error("Something went wrong while fetching dispatch data.");
+    return data?.data ?? [];
+  } catch (error: any) {
+    toast.error(error.message || "Something went wrong while fetching dispatch data.");
+    console.error(error);
     return [];
   }
 };
 
-
-
-    //actual uusage of the appi grahhhh
-   export const getVehicleDispatchHistoryApi = async (vehicleVin : string) : Promise<DispatchRequestDto[] | undefined> => {
-         try {
-
-    const response =  await fetch(`${dotEnv.adminDispatchesBaseUrl}/get-vehicle-history?vehicleVin=${vehicleVin}`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json"},
-          credentials: "include"});
-
-        const data  = await response.json();
-        if(data.data !== null){
-        return data.data;
-      }else{
-        toast.error("The vehicle is data acc empty");
-          return [];
+// ✅ Get dispatch history for a vehicle
+export const getVehicleDispatchHistoryApi = async (
+  vehicleVin: string
+): Promise<DispatchRequestDto[]> => {
+  try {
+    const response = await fetch(
+      `${dotEnv.adminDispatchesBaseUrl}/get-vehicle-history?vehicleVin=${vehicleVin}`,
+      {
+        method: "GET",
+        ...defaultFetchOptions,
       }
-    } catch (error) {   
-      toast.error("Somethinggg went wrong")}}  
+    );
 
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.message || "Failed to fetch vehicle history");
 
+    if (!data.data || data.data.length === 0) {
+      toast.error("The vehicle has no dispatch history.");
+      return [];
+    }
 
+    return data.data;
+  } catch (error: any) {
+    toast.error(error.message || "Something went wrong while fetching history");
+    console.error(error);
+    // Redirect only if it's an authentication issue
+    if (error.message?.toLowerCase().includes("unauthorized")) {
+      window.location.replace("/");
+    }
+    return [];
+  }
+};
 
+// ✅ Accept a dispatch
+export const handleDispatchAccept = async (dispatchId: number) => {
+  try {
+    const response = await fetch(
+      `${dotEnv.validateDispatchLink}?dispatchId=${dispatchId}`,
+      {
+        method: "PUT",
+        ...defaultFetchOptions,
+      }
+    );
 
-    //accepting a dispatch
-   export const handleDispatchAccept = async (dispatchId : number) => {
-         try {
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.message || "Failed to accept dispatch");
 
-    const response =  await fetch(`${dotEnv.validateDispatchLink}?dispatchId=${dispatchId}`, {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json"},
-          credentials: "include"});
+    toast.info(data.message);
+  } catch (error: any) {
+    toast.error(error.message || "Something went wrong while accepting dispatch");
+    console.error(error);
+    if (error.message?.toLowerCase().includes("unauthorized")) {
+      window.location.replace("/");
+    }
+  }
+};
 
-          console.log(response)
-        const data  = await response.json();
+// ✅ Reject a dispatch
+export const handleDispatchReject = async (dispatchId: number, reason: string) => {
+  try {
+    const response = await fetch(
+      `${dotEnv.adminDispatchesBaseUrl}/admin-cancel?dispatchId=${dispatchId}`,
+      {
+        method: "PUT",
+        ...defaultFetchOptions,
+        body: JSON.stringify({ dispatchReason: reason }),
+      }
+    );
 
-        console.log(data)
-        toast.info(data.message)
-    } catch (error) {   
-      toast.error("Somethinggg went wrong")}}  
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.message || "Failed to reject dispatch");
 
-
-
-      
-
-
-
-    //rejecting a dispatch
-   export const handleDispatchReject = async (dispatchId : number, reason : string) => {
-         try {
-
-    const response =  await fetch(`${dotEnv.adminDispatchesBaseUrl}/admin-cancel?dispatchId=${dispatchId}`, {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json"},
-          credentials: "include",
-          body: JSON.stringify({dispatchReason : reason}), 
-        });
-
-        const data  = await response.json();
-        console.log("Rejected dispatch " , data)
-        toast.info(data.message)
-    } catch (error) {   
-      toast.error("Somethinggg went wrong")}}  
-
-
-
-      
-
-
+    toast.info(data.message);
+  } catch (error: any) {
+    toast.error(error.message || "Something went wrong while rejecting dispatch");
+    console.error(error);
+    if (error.message?.toLowerCase().includes("unauthorized")) {
+      window.location.replace("/");
+    }
+  }
+};

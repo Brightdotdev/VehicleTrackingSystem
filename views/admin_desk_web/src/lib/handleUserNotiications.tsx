@@ -24,8 +24,7 @@ export const  pollNotifications = async ( lastChecked : string , setLastChecked 
           setLastChecked(now);
             return notifications;
           }else{
-              toast.error("This is what is looping the the poll")
-            toast.error(message)
+            
             return [] 
           }
         } catch (error) {
@@ -95,7 +94,7 @@ export const setNotificationToRead = async (id : string) => {
               return notifications;
             }
             else{
-              toast.error(message)
+              
               return [] 
             }
 }
