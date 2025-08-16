@@ -1,247 +1,113 @@
-# 🛡️ JwtAuthenticationFilter
 
-## 📌 Purpose
+# API Gateway Service
 
-`JwtAuthenticationFilter` is a **global Spring Cloud Gateway filter** that intercepts all incoming HTTP requests. It handles:
+This service is the **API Gateway** for the platform.  
+It routes external requests to the appropriate microservices and applies global policies such as **CORS**, **JWT validation**, and **header deduplication**.  
 
-* 🔐 **JWT validation** for user/admin authentication
-* 🔑 **API key validation** for internal service-to-service calls
-* 📨 Attaching identity headers to downstream services
+It currently proxies requests to:
 
----
-
-## ⚙️ Class Overview
-
-```java
-@Component
-public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
-```
-
-* `@Component`: Registers this class as a Spring-managed bean
-* `GlobalFilter`: Intercepts **all HTTP requests** before routing
-* `Ordered`: Controls execution priority in the filter chain (`-1` = high priority)
+- **Auth Service** (`/v1/auth/admin/**`, `/v1/auth/user/**`, `/internal/auth/**`)
+- **Logging Service** (`/v1/user/notifications/**`, `/v1/admin/notifications/**`, `/v1/sse/**`, `/v1/user/tracking/**`, `/internal/logs/**`)
+- **Dispatch Service** (`/v1/admin/dispatch/**`, `/v1/user/dispatch/**`, `/internal/dispatch/**`)
+- **Vehicle Service** (`/v1/admin/vehicle/**`, `/v1/user/vehicle/**`, `/internal/vehicles/**`)
 
 ---
 
-## 🔐 Authentication Logic: Step-by-Step
+## Configuration
 
-### ✅ 1. Handle Internal Requests via API Key
+The gateway has **two profiles**:
 
-```java
-if (path.startsWith("/internal")) {
-    String internalKey = request.getHeaders().getFirst("X-Internal-API-Key");
+### 1. Development (`application.yml`)
+- Hardcoded ports for local services (`http://localhost:8103`, `http://localhost:8104`, etc.)
+- Allows local frontends (`http://localhost:3000`, `http://localhost:3001`)
+- Use this when running everything locally for debugging
 
-    if (internalKey == null || !internalKey.equals(internalApiKey)) {
-        return unauthorizedResponse(exchange, "Unauthorized: Invalid internal API key");
-    }
-
-    return chain.filter(exchange); // internal request authorized
-}
-```
-
-* Internal routes (e.g. `/internal/**`) must send a **custom header**:
-  `X-Internal-API-Key: your-secret-key`
-* The expected key is injected via:
-  `auth.api.key` from `application.yml`
-
-#### 🔑 Configuration in `application.yml`:
-
-```yaml
-auth:
-  api:
-    key: ${API_INTERNAL_KEY}
-  jwt:
-    secret: ${JWT_SECRET}
-    expiration: ${JWT_EXP}
-```
+### 2. Production (`application.yml` with environment variables)
+- All URLs and secrets are externalized as environment variables:
+  - `AUTH_SERVICE_URL`, `LOGGING_SERVICE_URL`, `DISPATCH_SERVICE_URL`, `VEHICLE_SERVICE_URL`
+  - `AUTO_PORT_URL`, `ADMIN_DESK_URL`
+  - `API_INTERNAL_KEY`, `JWT_SECRET`, `JWT_EXP`
+- Designed for **Docker Compose** or production deployment environments
 
 ---
 
-### 🚪 2. Bypass Public Auth Routes
+## ⚠ Important Warning
 
-```java
-if (path.contains("/v1/auth/") || path.contains("/v1/oauth/")) {
-    return chain.filter(exchange);
-}
-```
+This **API Gateway is useless without the other services**.  
+Only run it standalone if the **Auth**, **Logging**, **Dispatch**, and **Vehicle** services are already running.  
 
-These routes are public — login, signup, OAuth — and don’t require filtering.
+- ✅ Use **Docker Compose** to run the entire system together (recommended).  
+- ⚠ Run the gateway individually only for **debugging**.  
 
 ---
 
-### 🕵️ 3. Extract JWT Token
+## Running the Gateway
 
-#### 🔒 For Admin Paths (`/v1/admin/**`):
+### Option 1 — Run Entire System (Recommended)
+Run everything (gateway + services) with Docker Compose from the project root:
 
-* Try `Authorization` header (Bearer)
-* Fallback to `adminDeskCookie`
+```bash
+docker compose up --build
+````
 
-#### 👤 For User Paths:
-
-* Try `Authorization` header
-* Then `userDeskToken` cookie
-* Lastly fallback to `adminDeskCookie` (for admin fallback use)
-
-```java
-if (isAdminEndpoint) {
-    if (token == null) {
-        token = getJwtFromCookies(request, "adminDeskCookie");
-    }
-} else {
-    if (token == null) {
-        token = getJwtFromCookies(request, "userDeskToken");
-    }
-    if (token == null) {
-        token = getJwtFromCookies(request, "adminDeskCookie");
-    }
-}
-```
-
-If token is **still not found**, respond with `401 Unauthorized`.
+This ensures all services are started and connected correctly.
 
 ---
 
-### 🧪 4. Parse and Validate JWT
+### Option 2 — Run Only the Gateway (Debugging)
 
-```java
-SecretKey secretKey = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
+You can build and run just the API Gateway if the dependent services are already running elsewhere.
 
-Jws<Claims> jws = Jwts.parser()
-    .setSigningKey(secretKey)
-    .build()
-    .parseClaimsJws(token);
-```
+#### Build and run with Docker
 
-* Uses the secret from `auth.jwt.secret`
-* Fails if token is malformed, expired, or signature is invalid
-
----
-
-### 📦 5. Extract User Identity
-
-```java
-Claims claims = jws.getBody();
-String subject = claims.getSubject(); // e.g. user email
-Object claim = claims.get("roles");   // user roles (currently unused)
+```bash
+docker build -t api-gateway .
+docker run -p 8102:8102 \
+  -e API_GATEWAY_PORT=8102 \
+  -e AUTH_SERVICE_URL=http://host.docker.internal:8103 \
+  -e LOGGING_SERVICE_URL=http://host.docker.internal:8104 \
+  -e DISPATCH_SERVICE_URL=http://host.docker.internal:8105 \
+  -e VEHICLE_SERVICE_URL=http://host.docker.internal:8106 \
+  -e AUTO_PORT_URL=http://localhost:3000 \
+  -e ADMIN_DESK_URL=http://localhost:3001 \
+  -e API_INTERNAL_KEY=thisIsMyApiKey \
+  -e JWT_SECRET=changeme \
+  -e JWT_EXP=604800000 \
+  api-gateway
 ```
 
 ---
 
-### 🔁 6. Attach Custom Headers for Downstream Services
+### Option 3 — Run Locally with Gradle
 
-```java
-ServerHttpRequest modifiedRequest = request.mutate()
-    .header("x-user-email", subject)
-    .header("x-user-token", token)
-    .build();
-```
+If you prefer running outside Docker (e.g., during active development):
 
-These are forwarded with the request so downstream services can identify the user.
-
----
-
-### ❌ 7. Handle Unauthorized Cases
-
-Returns:
-
-```json
-{
-  "error": "Unauthorized: Missing or invalid token"
-}
-```
-
-* HTTP status: `401 Unauthorized`
-* Triggered when token is missing, invalid, or API key check fails (for internal)
-
----
-
-## 🍪 Cookie Helper Function
-
-```java
-private String getJwtFromCookies(ServerHttpRequest request, String cookieName)
-```
-
-* Iterates over cookies in request header
-* Matches by cookie name and extracts value
-
----
-
-## 📐 Filter Order
-
-```java
-@Override
-public int getOrder() {
-    return -1;
-}
-```
-
-* Runs early in the chain before routing or further processing
-* Ensures that all routing decisions happen **after authentication**
-
----
-
-## 🔁 Full Filter Flow (Updated Pseudocode)
-
-```
-if path starts with /internal:
-    if X-Internal-API-Key header is present and valid:
-        allow request
-    else:
-        respond 401 Unauthorized
-
-else if path is public (/v1/auth, /v1/oauth):
-    allow request
-
-else:
-    try to get JWT from Authorization header
-    if not found:
-        try user/admin cookies
-
-    if still not found:
-        respond 401 Unauthorized
-
-    try parse JWT
-    if expired/invalid:
-        respond 401 Unauthorized
-
-    extract claims (subject, roles)
-    attach x-user-email and x-user-token headers
-    forward request to downstream service
+```bash
+./gradlew bootRun
 ```
 
 ---
 
-## 🛠️ Future Improvements
+## Environment Variables (Production)
 
-* ✔️ Attach `x-user-roles` header from JWT claims
-* 🔄 Add role-based access control (e.g. block user token on `/v1/admin/**`)
-* 🪵 Log JWT issuer, subject, or token lifespan for monitoring
-* ❗ Optional: support token refresh headers or custom claim mapping
-
----
-
-## 🧪 Testing Scenarios
-
-| Scenario                         | Expected Result          |
-| -------------------------------- | ------------------------ |
-| Valid internal API key           | ✅ Request forwarded      |
-| Invalid/missing internal API key | ❌ 401 Unauthorized       |
-| Valid JWT in header              | ✅ Request forwarded      |
-| Valid JWT in cookie              | ✅ Request forwarded      |
-| No token anywhere                | ❌ 401 Unauthorized       |
-| Expired or invalid JWT           | ❌ 401 Unauthorized       |
-| Admin route with user token      | ✅ (if not validated yet) |
-| Missing `sub` in token           | ❌ 401 or NullPointer     |
+| Variable               | Description                       |
+| ---------------------- | --------------------------------- |
+| `API_GATEWAY_PORT`     | Port the gateway listens on       |
+| `AUTH_SERVICE_URL`     | URL of the Auth Service           |
+| `LOGGING_SERVICE_URL`  | URL of the Logging Service        |
+| `DISPATCH_SERVICE_URL` | URL of the Dispatch Service       |
+| `VEHICLE_SERVICE_URL`  | URL of the Vehicle Service        |
+| `AUTO_PORT_URL`        | Allowed origin for user frontend  |
+| `ADMIN_DESK_URL`       | Allowed origin for admin frontend |
+| `API_INTERNAL_KEY`     | API key for internal requests     |
+| `JWT_SECRET`           | Secret key for JWT signing        |
+| `JWT_EXP`              | JWT expiration time (ms)          |
 
 ---
 
-## 📁 Location
+## Notes for Developers
 
-```
-src/main/java/com/example/ApiGateway/JwtAuthenticationFilter.java
-```
-
----
-
-## 🧠 Author
-**Bright Akinola**
+* Use the **dev config (`application-dev.yml`)** when working locally with hardcoded URLs.
+* Switch to **prod config** (`application.yml` with env vars) for Docker/Docker Compose.
+* Always prefer `docker-compose` for real usage since the gateway depends on other services.
+* Run the gateway alone only if debugging and the other services are already running.

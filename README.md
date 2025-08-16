@@ -1,4 +1,3 @@
-
 # 🚗📍 Vehicle Tracking System
 
 [![License: CC BY-NC-ND 4.0](https://img.shields.io/badge/License-CC%20BY--NC--ND%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc-nd/4.0/)
@@ -23,14 +22,12 @@ This system helps companies:
 
 ```bash
 /views                       -> Frontend (React apps: admin + user)
-/AuthService/Docs            -> Auth microservice documentation
-/VehicleService/Docs         -> Vehicle info and scoring Docs
-/DispatchService/Docs        -> Dispatch creation and rules
-/logging-tracking-service/Docs -> Tracking logs, notifications
-/ApiGateway/Docs             -> Gateway routing and config
+/AuthService                 -> Auth microservice
+/VehicleService              -> Vehicle microservice
+/DispatchService             -> Dispatch handling microservice
+/logging-tracking-service    -> Tracking logs + notifications
+/ApiGateway                  -> Gateway routing and config
 ```
-
-📌 Each backend service contains its own `/Docs` folder. Please check these folders for service-specific setup, endpoints, and notes.
 
 ---
 
@@ -71,21 +68,22 @@ The Dispatch Service automatically blocks unsafe vehicles from being dispatched.
 
 ## 🔄 Notification Flow
 
-
 * Notifications are retrieved by **polling endpoints** at intervals.
+
 ---
 
-## Messaging 
+## Messaging
 
 * Developers can choose:
+
   1. **RabbitMQ-based events** for faster async communication, **or**
   2. **Direct WebClient calls** for a simpler setup.
 
-
+---
 
 ## ⚙️ Running the Backend
 
-The system now uses **one Postgres container** for all databases.
+The system uses **one Postgres container** for all databases.
 An `init.sql` script creates each database and its user automatically.
 
 ---
@@ -94,7 +92,7 @@ An `init.sql` script creates each database and its user automatically.
 
 #### 1. Create your `.env`
 
-Copy `.env.example` and set credentials, ports, and API keys.
+Copy `.env.example` and set credentials, ports, and API keys manually.
 
 > ⚠ **Security Warning:**
 > Never commit `.env` to GitHub or any public repo — it contains credentials.
@@ -114,7 +112,7 @@ This will start:
 
 * **Postgres** (with all DBs pre-created)
 * **MongoDB** for logging
-* **RabbitMQ** *(optional — only if you want event-driven mode)*
+* **RabbitMQ** *(optional — only if you configure services to use it)*
 * All microservices (Auth, Dispatch, Vehicle, Logging)
 * API Gateway
 
@@ -122,67 +120,26 @@ This will start:
 
 #### 3. Access UIs
 
-* **pgAdmin** → [http://localhost:5050](http://localhost:5050)
-* **Mongo Express** → [http://localhost:8081](http://localhost:8081)
-* **RabbitMQ UI** *(optional)* → [http://localhost:15672](http://localhost:15672)
 * **API Gateway** → Port from `.env` (default `8102`)
 * **Frontend Admin UI** → [http://localhost:3000](http://localhost:3000)
 * **Frontend User UI** → [http://localhost:3001](http://localhost:3001)
 
-
-
->  **Info**
-> Each of the services have their own seperate docmenation on how each of them work under the hood
-> (incase you where wondering where the url of the services are)
 ---
-
 
 ## 🔀 Switching Between RabbitMQ and WebClient
 
 You can change the communication mode between services via the `.env` file.
 
-Look for the `*_MESSAGE_TYPE` variables in `.env` for each service:
+Look for the `MESSAGE_TYPE` variable:
 
 ```env
-MESSAGE_TYPE=rabbitMq      # Use 'rabbitMq' for RabbitMQ
-
-**To switch to WebClient (no RabbitMQ)**:
-
-* Change all `*_MESSAGE_TYPE` values to `webClient`
-* You can also stop the RabbitMQ container from `docker-compose.yml` if you’re not using it
-
-Example:
-
-```env
-MESSAGE_TYPE=webClient
+MESSAGE_TYPE=rabbitMq   # use RabbitMQ
+MESSAGE_TYPE=webClient  # use WebClient instead
 ```
+
+If you don’t want RabbitMQ, just leave it set to `webClient` — the container can still run, but won’t be used.
 
 ---
-
-
-
-````md
-## 🐇 Running With or Without RabbitMQ
-
-By default, the system runs **without RabbitMQ** (using WebClient calls between services).  
-To enable RabbitMQ and event-driven mode:
-
-```bash
-docker compose --profile rabbitmq up --build
-````
-
-If you want to run without RabbitMQ:
-
-```bash
-docker compose up --build
-```
-
-Make sure `.env` is configured with:
-
-```env
-MESSAGE_TYPE=rabbitMq   # to run with rabbit mq else just use web client
-```
-
 
 ## 🌐 Frontend Setup
 
@@ -190,18 +147,7 @@ Frontend lives in [`/views`](./views) and:
 
 * Uses the API Gateway for backend access
 * Polls backend endpoints for notifications
-* Supports RabbitMQ-based or WebClient-based backend communications
-
----
-
-## 📚 Service Documentation
-
-Each service has a `/Docs` folder with:
-
-* Endpoints
-* Config options
-* Example requests
-* Integration notes
+* Works with **RabbitMQ-based** or **WebClient-based** backend communications
 
 ---
 
@@ -241,10 +187,5 @@ Core system design and code by **[Brightdotdev](https://github.com/Brightdotdev)
 ---
 
 💻 Made with grit, patience, and a choice between queues or straight-up HTTP calls
-
----
-
-
-
 
 
