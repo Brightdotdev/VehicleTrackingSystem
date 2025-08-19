@@ -14,9 +14,9 @@ import { toast } from 'sonner';
 export const markForMaintenance = async (vehicleVin: string) => {
   try {
     const response = await fetch(
-      `${dotEnv.adminVehicleBaseUrl}/mark-for-maintenance?vin=${vehicleVin}`,
+      `${dotEnv.adminVehicleBaseUrl}/v1/admin/vehicle/${vehicleVin}/maintenance`,
       {
-        method: "POST",
+        method: "PUT",
         headers: { "Content-Type": "application/json" },
         credentials: "include", // Ensure cookies/session are sent
       }

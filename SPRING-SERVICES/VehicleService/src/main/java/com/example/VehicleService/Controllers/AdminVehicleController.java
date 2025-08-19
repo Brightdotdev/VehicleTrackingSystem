@@ -15,102 +15,63 @@ import java.util.List;
 
 @RestController
 @PreAuthorize("hasRole('ROLE_ADMIN')")
-@RequestMapping("/v1/admin/vehicle") // Base path for all vehicle-related endpoints
+@RequestMapping("/v1/admin/vehicle")
 public class AdminVehicleController {
 
     private final VehicleService vehicleService;
+
     public AdminVehicleController(VehicleService vehicleService) {
         this.vehicleService = vehicleService;
     }
 
-
-
-    // :: localhost:8106/v1/admin/vehicle - Fetch all vehicles
-    @Transactional
+    // GET /v1/admin/vehicle - Fetch all vehicles
     @GetMapping
     public ResponseEntity<ApiResponse<List<UtilRecords.VehicleApiData>>> getAllVehicles() {
-
         List<UtilRecords.VehicleApiData> vehicles = vehicleService.findAllVehicles();
-        return ResponseEntity.ok(
-                ApiResponse.success(
-                        201,
-                        "Vehicles retrieved",
-                        vehicles
-                ));
+        return ResponseEntity.ok(ApiResponse.success(200, "Vehicles retrieved", vehicles));
     }
 
-    // :: localhost:8106/v1/admin/vehicle/{vin} - Fetch vehicles by vin
+    // GET /v1/admin/vehicle/{vin} - Fetch vehicle by VIN
     @GetMapping("/{vin}")
-    public ResponseEntity<ApiResponse<VehicleModel>> getVehicleByVIN(@PathVariable String vin) {
-
-        VehicleModel vehicle = vehicleService.findVehicleByIdentificationNumber(vin);
-
-        return ResponseEntity.ok(
-                ApiResponse.success(
-                        201,
-                        "Vehicle retrieved by vin",
-                        vehicle
-                ));
+    public ResponseEntity<ApiResponse<UtilRecords.VehicleApiData>> getVehicleByVIN(@PathVariable String vin) {
+        UtilRecords.VehicleApiData vehicle = vehicleService.getVehicleByVin(vin);
+        return ResponseEntity.ok(ApiResponse.success(200, "Vehicle retrieved by VIN", vehicle));
     }
 
-    // :: localhost:8106/v1/admin/vehicle/new - Save a new vehicle
+    // POST /v1/admin/vehicle/new - Save a new vehicle
     @PostMapping("/new")
     public ResponseEntity<ApiResponse<VehicleModel>> saveVehicle(@Valid @RequestBody UtilRecords.VehicleDTO vehicle) {
         VehicleModel savedVehicle = vehicleService.saveVehicle(vehicle);
-
-        return ResponseEntity.ok(
-                ApiResponse.success(
-                        201,
-                        "Vehicle Saved successfully",
-                        savedVehicle
-                ));
-
+        return ResponseEntity.status(HttpStatus.CREATED).body(
+                ApiResponse.success(201, "Vehicle saved successfully", savedVehicle));
     }
 
-
-
-    // :: localhost:8106/v1/admin/vehicle/new/bad - Save a new vehicle
+    // POST /v1/admin/vehicle/new/bad - Save a bad vehicle
     @PostMapping("/new/bad")
     public ResponseEntity<ApiResponse<VehicleModel>> saveBadVehicle(@Valid @RequestBody UtilRecords.VehicleDTO vehicle) {
         VehicleModel savedVehicle = vehicleService.saveBadVehicle(vehicle);
-
-        return ResponseEntity.ok(
-                ApiResponse.success(
-                        201,
-                        "Bad Vehicle Saved successfully",
-                        savedVehicle
-                ));
-
+        return ResponseEntity.status(HttpStatus.CREATED).body(
+                ApiResponse.success(201, "Bad vehicle saved successfully", savedVehicle));
     }
 
-
-    // :: localhost:8106/v1/admin/vehicle/mark-for-maintenance - mark for maintenance
-    @PostMapping("/mark-for-maintenance")
-    public  ResponseEntity<ApiResponse<VehicleModel>> setVehicleInMaintenance(@RequestParam String vin) {
-
-     VehicleModel maintainedVehicle  =  vehicleService.markVehicleForMaintenance(vin);
-
-        return ResponseEntity.ok(
-                ApiResponse.success(
-                        201,
-                        "Vehicle marked for maintenance successfully",
-                        maintainedVehicle
-                ));
+    // PUT /v1/admin/vehicle/{vin}/maintenance - Mark vehicle for maintenance
+    @PutMapping("/{vin}/maintenance")
+    public ResponseEntity<ApiResponse<VehicleModel>> setVehicleInMaintenance(@PathVariable String vin) {
+        VehicleModel maintainedVehicle = vehicleService.markVehicleForMaintenance(vin);
+        return ResponseEntity.ok(ApiResponse.success(200, "Vehicle marked for maintenance", maintainedVehicle));
     }
 
-    @Transactional
-    @GetMapping("/get-dispatch-history")
-    public  ResponseEntity<ApiResponse<List<Long>>> getVehicleHistory(@RequestParam String vin) {
-
-     List<Long> vehicleHistory  =  vehicleService.getVehicleDispatchHistory(vin);
-
-        return ResponseEntity.ok(
-                ApiResponse.success(
-                        201,
-                        "Vehicle dispatch retrieved successfully",
-                        vehicleHistory
-                ));
+    // GET /v1/admin/vehicle/locations - Get all vehicles location
+    @GetMapping("/locations")
+    public ResponseEntity<ApiResponse<List<UtilRecords.LatitudeLongitude>>> getVehiclesLocation() {
+        List<UtilRecords.LatitudeLongitude> locations = vehicleService.getAllVehiclesLocation();
+        return ResponseEntity.ok(ApiResponse.success(200, "Vehicle locations retrieved", locations));
     }
 
-
+    // GET /v1/admin/vehicle/{vin}/dispatch-history - Get dispatch history
+    @GetMapping("/{vin}/dispatch-history")
+    public ResponseEntity<ApiResponse<List<Long>>> getVehicleHistory(@PathVariable String vin) {
+        List<Long> vehicleHistory = vehicleService.getVehicleDispatchHistory(vin);
+        return ResponseEntity.ok(ApiResponse.success(200, "Vehicle dispatch history retrieved", vehicleHistory));
+    }
 }

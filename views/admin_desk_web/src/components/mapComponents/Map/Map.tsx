@@ -10,6 +10,8 @@ import markerIcon from 'leaflet/dist/images/marker-icon.png';
 import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 import { Info } from 'lucide-react';
 import Link from 'next/link';
+import { LatLng } from '@/types/utilTypes';
+import { getVehicleLocations } from '@/lib/handleVehiclePage';
 
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: markerIcon2x.src ?? markerIcon2x,
@@ -17,7 +19,6 @@ L.Icon.Default.mergeOptions({
   shadowUrl: markerShadow.src ?? markerShadow,
 });
 
-type LatLng = [number, number];
 
 const Map = () => {
   const mapRef = useRef<L.Map | null>(null);
@@ -32,9 +33,7 @@ const Map = () => {
     setLoading(true);
     const fetchLocations = async () => {
       try {
-        // Simulated network delay
-        await new Promise(res => setTimeout(res, 1500));
-
+        const vehicleLocations = await getVehicleLocations();
         // Replace with your real API call
         const apiData = [
           [51.505, -0.09],
@@ -123,7 +122,7 @@ const Map = () => {
   
       <Link href="vehicles?tab=vehicles" className='mutedText underline hover:underline-offset-4 underline-offset-3'>
               {locations === null
-            ? 'Get the veehicles manually'
+            ? 'Get the vehicles manually'
             : 'Just check the vehicle page'}
   
       </Link>      

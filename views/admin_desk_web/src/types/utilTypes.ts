@@ -4,6 +4,7 @@ export type componentTypes  = {
     vehicleComponent :   "requests" | "vehicles"
 }
 
+export type LatLng = [number, number];
 
 
 

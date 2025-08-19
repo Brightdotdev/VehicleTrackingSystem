@@ -266,6 +266,20 @@ public class UtilRecords {
 
 
 
+    public record LatitudeLongitude (
+            Double latitude,
+            Double longitude
+            ){
+      public LatitudeLongitude  {
+            if (latitude == null) {
+                throw new IllegalArgumentException("Latitude is required");
+            }
+            if (longitude == null) {
+                throw new IllegalArgumentException("Longitude is required");
+            }
+        }
+    }
+
     // -------------------------------
     // Start dispatch tracking
     // -------------------------------

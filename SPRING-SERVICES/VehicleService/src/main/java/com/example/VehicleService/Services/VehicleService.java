@@ -12,8 +12,8 @@ import com.example.VehicleService.Utils.VehicleEnums;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -24,45 +24,42 @@ import static com.example.VehicleService.Utils.VehicleEnums.VehicleDispatchStatu
 @Service
 public class VehicleService {
 
-
-    @Autowired
-    VehicleDataGenerator vehicleDataGenerator;
-
     private final VehicleRepository vehicleRepository;
     private final VehicleHealthService vehicleHealthService;
+    private final VehicleDataGenerator vehicleDataGenerator;
+
     private static final Logger logger = LoggerFactory.getLogger(VehicleService.class);
-    public VehicleService(VehicleRepository vehicleRepository, VehicleHealthService vehicleHealthService) {
+
+    // ✅ Constructor injection for all dependencies (consistent and testable)
+    public VehicleService(VehicleRepository vehicleRepository,
+                          VehicleHealthService vehicleHealthService,
+                          VehicleDataGenerator vehicleDataGenerator) {
         this.vehicleRepository = vehicleRepository;
         this.vehicleHealthService = vehicleHealthService;
+        this.vehicleDataGenerator = vehicleDataGenerator;
     }
 
-
+    // Find a vehicle by VIN
     public VehicleModel findVehicleByIdentificationNumber(String vin) {
-
         VehicleModel foundVehicle = vehicleRepository.findByVehicleIdentificationNumber(vin);
         if (foundVehicle == null) {
-            throw new NotFoundException("Vehicle not found of current identification Number");
+            throw new NotFoundException("Vehicle not found for the given VIN: " + vin);
         }
-
         return foundVehicle;
     }
 
-
+    // Mark a vehicle for maintenance
     @Transactional
     public VehicleModel markVehicleForMaintenance(String vin) {
-
-        VehicleModel foundVehicle =   findVehicleByIdentificationNumber(vin);
+        VehicleModel foundVehicle = findVehicleByIdentificationNumber(vin);
 
         Optional<VehicleWildcardAttributeModel> existing = foundVehicle.getWildcardAttributes().stream()
                 .filter(attr -> attr.getWildcardKey() == VehicleEnums.VehicleWildCardType.IN_MAINTENANCE)
                 .findFirst();
 
         if (existing.isPresent()) {
-
             existing.get().setWildcardValue(true);
         } else {
-
-
             VehicleWildcardAttributeModel wildcard = new VehicleWildcardAttributeModel(
                     foundVehicle,
                     VehicleEnums.VehicleWildCardType.IN_MAINTENANCE,
@@ -70,60 +67,48 @@ public class VehicleService {
             );
             foundVehicle.getWildcardAttributes().add(wildcard);
         }
+
         return vehicleRepository.save(foundVehicle);
     }
 
-
+    // Get vehicle dispatch history
     @Transactional
     public List<Long> getVehicleDispatchHistory(String vin) {
-
-        VehicleModel foundVehicle =   findVehicleByIdentificationNumber(vin);
-
-        return foundVehicle.getDispatchHistory();
+        return findVehicleByIdentificationNumber(vin).getDispatchHistory();
     }
 
-
-
+    // Save a "good" vehicle
     @Transactional
     public VehicleModel saveVehicle(UtilRecords.VehicleDTO vehicleDTO) {
-
         VehicleModel vehicle = new VehicleModel();
-
-
-
 
         vehicle.setModel(vehicleDTO.model());
         vehicle.setEngineType(vehicleDTO.engineType());
-        vehicle.setVehicleLocation(vehicleDTO.vehicleLocation());
-
         vehicle.setVehicleType(vehicleDTO.vehicleType());
         vehicle.setVehicleStatus(vehicleDTO.vehicleStatus());
-
-        vehicle.setDispatchStatus(VehicleEnums.VehicleDispatchStatus.AVAILABLE);
+        vehicle.setVehicleLocation(vehicleDTO.vehicleLocation());
+        vehicle.setDispatchStatus(AVAILABLE);
         vehicle.setSafetyScore(100.00);
-
         vehicle.setVehicleMetadata(vehicleDTO.vehicleMetadata());
         vehicle.setVehicleImages(vehicleDTO.vehicleImages());
         vehicle.setVehicleIdentificationNumber(vehicleDataGenerator.generateRandomVIN());
         vehicle.setLicensePlate(vehicleDataGenerator.generateRandomLicensePlate());
         vehicle.setVehicleAcquiredYear(vehicleDataGenerator.generateRandomAcquiredYear());
-        List<VehicleHealthAttributeModel> healthAttributes = new ArrayList<>();
 
+        // Add health attributes
+        List<VehicleHealthAttributeModel> healthAttributes = new ArrayList<>();
         for (VehicleEnums.VehicleHealthAttributeType type : VehicleEnums.VehicleHealthAttributeType.values()) {
             VehicleHealthAttributeModel attr = new VehicleHealthAttributeModel();
-
             attr.setAttributeName(type);
             attr.setScore(type.getScore());
-
             attr.setVehicle(vehicle);
-            healthAttributes.add(attr);}
-
+            healthAttributes.add(attr);
+        }
         vehicle.setHealthAttributes(healthAttributes);
 
+        // Add wildcard attributes
         List<VehicleWildcardAttributeModel> wildcardAttributes = new ArrayList<>();
-
         for (VehicleEnums.VehicleWildCardType type : VehicleEnums.VehicleWildCardType.values()) {
-
             VehicleWildcardAttributeModel wildcard = new VehicleWildcardAttributeModel();
             wildcard.setWildcardKey(type);
             wildcard.setWildcardValue(false);
@@ -132,50 +117,45 @@ public class VehicleService {
         }
         vehicle.setWildcardAttributes(wildcardAttributes);
 
-
         return vehicleRepository.save(vehicle);
     }
 
-
+    // Save a "bad" vehicle with random weaker health scores
     @Transactional
     public VehicleModel saveBadVehicle(UtilRecords.VehicleDTO vehicleDTO) {
-
         VehicleModel vehicle = new VehicleModel();
-        double vehicleScore = 0.00;
+        double vehicleScore = 0.0;
+
         vehicle.setModel(vehicleDTO.model());
         vehicle.setEngineType(vehicleDTO.engineType());
-
         vehicle.setVehicleType(vehicleDTO.vehicleType());
         vehicle.setVehicleStatus(vehicleDTO.vehicleStatus());
-
-        vehicle.setDispatchStatus(VehicleEnums.VehicleDispatchStatus.AVAILABLE);
-
         vehicle.setVehicleLocation(vehicleDTO.vehicleLocation());
-
-
+        vehicle.setDispatchStatus(AVAILABLE);
         vehicle.setVehicleMetadata(vehicleDTO.vehicleMetadata());
         vehicle.setVehicleImages(vehicleDTO.vehicleImages());
         vehicle.setVehicleIdentificationNumber(vehicleDataGenerator.generateRandomVIN());
         vehicle.setLicensePlate(vehicleDataGenerator.generateRandomLicensePlate());
         vehicle.setVehicleAcquiredYear(vehicleDataGenerator.generateRandomAcquiredYear());
 
+        // Add degraded health attributes
         List<VehicleHealthAttributeModel> healthAttributes = new ArrayList<>();
-
         for (VehicleEnums.VehicleHealthAttributeType type : VehicleEnums.VehicleHealthAttributeType.values()) {
             VehicleHealthAttributeModel attr = new VehicleHealthAttributeModel();
-            double score = type.getScore() - Math.floor(Math.random() * 10) + 1;
+            // ✅ Fixed formula: random degradation (0–9) but not boosting above type.getScore()
+            double score = Math.max(0, type.getScore() - (int) (Math.random() * 10));
             attr.setAttributeName(type);
             attr.setScore(score);
             vehicleScore += score;
             attr.setVehicle(vehicle);
-            healthAttributes.add(attr);}
-
+            healthAttributes.add(attr);
+        }
         vehicle.setHealthAttributes(healthAttributes);
 
+        // Add random wildcards
         List<VehicleWildcardAttributeModel> wildcardAttributes = new ArrayList<>();
-
         for (VehicleEnums.VehicleWildCardType type : VehicleEnums.VehicleWildCardType.values()) {
-            boolean isTrue = Math.random() * 10 < 5;
+            boolean isTrue = Math.random() < 0.5; // 50% chance
             VehicleWildcardAttributeModel wildcard = new VehicleWildcardAttributeModel();
             wildcard.setWildcardKey(type);
             wildcard.setWildcardValue(isTrue);
@@ -184,185 +164,151 @@ public class VehicleService {
         }
         vehicle.setWildcardAttributes(wildcardAttributes);
 
-
         vehicle.setSafetyScore(vehicleScore);
-
         return vehicleRepository.save(vehicle);
     }
 
-
-
+    // Get all vehicles
     @Transactional
-    public
-   List<UtilRecords.VehicleApiData>
-    findAllVehicles() {
-       List<VehicleModel> foundVehicles =  vehicleRepository.findAll();
-        List<UtilRecords.VehicleApiData> vehicles =   new ArrayList<>();
-
-        for (VehicleModel vehicle : foundVehicles){
-            UtilRecords.VehicleApiData vehicleApi = new UtilRecords.VehicleApiData(
-                vehicle.getVehicleIdentificationNumber(),vehicle.getLicensePlate(),vehicle.getModel(),vehicle.getEngineType(),vehicle.getVehicleType(),vehicle.getVehicleStatus(),vehicle.getDispatchStatus(),vehicle.getDispatchHistory(),vehicle.getVehicleImages(),vehicle.getSafetyScore(),vehicle.getVehicleMetadata(),vehicle.getVehicleAcquiredYear(),vehicle.getHealthAttributes(),vehicle.getWildcardAttributes()
-            ,vehicle.getVehicleLocation());
-            vehicles.add(vehicleApi);
+    public List<UtilRecords.VehicleApiData> findAllVehicles() {
+        List<VehicleModel> foundVehicles = vehicleRepository.findAll();
+        List<UtilRecords.VehicleApiData> vehicles = new ArrayList<>();
+        for (VehicleModel vehicle : foundVehicles) {
+            vehicles.add(mapToApiData(vehicle));
         }
         return vehicles;
     }
 
- @Transactional
-    public
-   List<UtilRecords.VehicleApiData>
- getAllDispatchAble() {
-       List<VehicleModel> foundVehicles =  vehicleRepository.findAll();
-        List<UtilRecords.VehicleApiData> vehicles =   new ArrayList<>();
+    // Get all dispatchable vehicles (skip PENDING/ONGOING/IN_PROGRESS)
+    @Transactional
+    public List<UtilRecords.VehicleApiData> getAllDispatchAble() {
+        List<VehicleModel> foundVehicles = vehicleRepository.findAll();
+        List<UtilRecords.VehicleApiData> vehicles = new ArrayList<>();
 
-        for (VehicleModel vehicle : foundVehicles){
-
-            if(vehicle.getDispatchStatus() == PENDING || vehicle.getDispatchStatus() == ONGOING || vehicle.getDispatchStatus() == IN_PROGRESS ){
+        for (VehicleModel vehicle : foundVehicles) {
+            if (vehicle.getDispatchStatus() == PENDING ||
+                    vehicle.getDispatchStatus() == ONGOING ||
+                    vehicle.getDispatchStatus() == IN_PROGRESS) {
                 continue;
             }
-
-            UtilRecords.VehicleApiData vehicleApi = new UtilRecords.VehicleApiData(
-                vehicle.getVehicleIdentificationNumber(),vehicle.getLicensePlate(),vehicle.getModel(),vehicle.getEngineType(),vehicle.getVehicleType(),vehicle.getVehicleStatus(),vehicle.getDispatchStatus(),vehicle.getDispatchHistory(),vehicle.getVehicleImages(),vehicle.getSafetyScore(),vehicle.getVehicleMetadata(),vehicle.getVehicleAcquiredYear(),vehicle.getHealthAttributes(),vehicle.getWildcardAttributes()
-            ,vehicle.getVehicleLocation());
-            vehicles.add(vehicleApi);
+            vehicles.add(mapToApiData(vehicle));
         }
         return vehicles;
     }
 
-
-
-
+    // ✅ Fixed lat/long bug here
+    @Transactional
+    public List<UtilRecords.LatitudeLongitude> getAllVehiclesLocation() {
+        List<UtilRecords.VehicleApiData> foundVehicles = findAllVehicles();
+        List<UtilRecords.LatitudeLongitude> vehicleLocations = new ArrayList<>();
+        for (UtilRecords.VehicleApiData vehicles : foundVehicles) {
+            UtilRecords.LatitudeLongitude vehicleLocation =
+                    new UtilRecords.LatitudeLongitude(
+                            vehicles.location().latitude(),
+                            vehicles.location().longitude()  // ✅ FIXED
+                    );
+            vehicleLocations.add(vehicleLocation);
+        }
+        return vehicleLocations;
+    }
 
     @Transactional
     public UtilRecords.VehicleApiData getVehicleByVin(String vin) {
-       VehicleModel foundVehicle =   vehicleRepository.findByVehicleIdentificationNumber(vin);
-
-
-
-            UtilRecords.VehicleApiData vehicleApi = new UtilRecords.VehicleApiData(
-                    foundVehicle.getVehicleIdentificationNumber(),foundVehicle.getLicensePlate(),foundVehicle.getModel(),foundVehicle.getEngineType(),foundVehicle.getVehicleType(),foundVehicle.getVehicleStatus(),foundVehicle.getDispatchStatus(),foundVehicle.getDispatchHistory(),foundVehicle.getVehicleImages(),foundVehicle.getSafetyScore(),foundVehicle.getVehicleMetadata(),foundVehicle.getVehicleAcquiredYear(),foundVehicle.getHealthAttributes(),foundVehicle.getWildcardAttributes(),foundVehicle.getVehicleLocation());
-        return vehicleApi;
+        VehicleModel foundVehicle = findVehicleByIdentificationNumber(vin);
+        return mapToApiData(foundVehicle);
     }
 
-
-
-
+    // ✅ Fixed dispatch completion logic
     @Transactional
     public void completedDispatch(UtilRecords.DispatchEndedDTO dispatchEvent) {
-        logger.info("Starting completedDispatch process for VIN: {}", dispatchEvent.vehicleIdentificationNumber());
-
-        // Fetch the vehicle by its VIN
+        logger.info("Starting completedDispatch for VIN: {}", dispatchEvent.vehicleIdentificationNumber());
         VehicleModel dispatchedVehicle = vehicleRepository
                 .findByVehicleIdentificationNumber(dispatchEvent.vehicleIdentificationNumber());
 
-        // Check if vehicle was found
         if (dispatchedVehicle == null) {
-            logger.error("Vehicle not found for VIN: {}", dispatchEvent.vehicleIdentificationNumber());
-            throw new NotFoundException("The vehicle doesn't even exist boss");
+            throw new NotFoundException("The vehicle doesn't exist");
         }
 
-        logger.debug("Vehicle found: {} with dispatch status: {}",
-                dispatchedVehicle.getVehicleIdentificationNumber(),
-                dispatchedVehicle.getDispatchStatus());
+        if (dispatchedVehicle.getDispatchStatus() == IN_PROGRESS ||
+                dispatchedVehicle.getDispatchStatus() == PENDING ||
+                dispatchedVehicle.getDispatchStatus() == ONGOING) {
 
-        // Only update dispatch status if it's IN_PROGRESS or PENDING
-        if (dispatchedVehicle.getDispatchStatus() != VehicleEnums.VehicleDispatchStatus.IN_PROGRESS &&
-                dispatchedVehicle.getDispatchStatus() != VehicleEnums.VehicleDispatchStatus.PENDING) {
-
-            dispatchedVehicle.setDispatchStatus(VehicleEnums.VehicleDispatchStatus.AVAILABLE);
-            logger.info("Dispatch status updated to AVAILABLE for VIN: {}",
-                    dispatchedVehicle.getVehicleIdentificationNumber());
-
-            // Save the updated vehicle to the repository
+            dispatchedVehicle.setDispatchStatus(AVAILABLE);
             vehicleRepository.save(dispatchedVehicle);
-            logger.info("Vehicle saved with updated dispatch status for VIN: {}",
-                    dispatchedVehicle.getVehicleIdentificationNumber());
-        } else {
-            logger.info("Vehicle dispatch status remains unchanged (IN_PROGRESS or PENDING) for VIN: {}",
-                    dispatchedVehicle.getVehicleIdentificationNumber());
+            logger.info("Vehicle marked AVAILABLE after dispatch completion: {}", dispatchedVehicle.getVehicleIdentificationNumber());
         }
     }
+
     @Transactional
-    public void handleDispatchTracking(UtilRecords.StartTrackingDTO trackingEvent){
+    public void handleDispatchTracking(UtilRecords.StartTrackingDTO trackingEvent) {
+        VehicleModel dispatchedVehicle = findVehicleByIdentificationNumber(trackingEvent.vehicleIdentificationNumber());
 
-        VehicleModel dispatchedVehicle = vehicleRepository.
-                findByVehicleIdentificationNumber(trackingEvent.vehicleIdentificationNumber());
-
-        if (dispatchedVehicle == null){
-            throw new NotFoundException("The vehicle doesn't even exist boss");
-        }
-        if(
-                dispatchedVehicle.getDispatchStatus() != IN_PROGRESS
-        ){
+        if (dispatchedVehicle.getDispatchStatus() != IN_PROGRESS) {
             throw new ConflictException("The vehicle is not staged for dispatch");
         }
-        if(!dispatchedVehicle.getDispatchHistory().contains(trackingEvent.dispatchId())){
+
+        if (!dispatchedVehicle.getDispatchHistory().contains(trackingEvent.dispatchId())) {
             dispatchedVehicle.addDispatchHistoryEntry(trackingEvent.dispatchId());
         }
 
-        dispatchedVehicle.setDispatchStatus(VehicleEnums.VehicleDispatchStatus.ONGOING);
+        dispatchedVehicle.setDispatchStatus(ONGOING);
         vehicleRepository.save(dispatchedVehicle);
-
-
     }
 
-
     @Transactional
-    public void handleVehicleLocationUpdate(UtilRecords.vehicleLocationUpdate locationUpdate){
-
+    public void handleVehicleLocationUpdate(UtilRecords.vehicleLocationUpdate locationUpdate) {
         VehicleModel foundVehicle = vehicleRepository.findByVehicleIdentificationNumber(locationUpdate.vehicleIdentificationNumber());
-
-        if(foundVehicle == null){
-
+        if (foundVehicle == null) {
             return;
         }
-
         foundVehicle.setVehicleLocation(locationUpdate.checkPoint());
         vehicleRepository.save(foundVehicle);
     }
 
-
-
-
-
     @Transactional
     public Map<String, Object> handleDispatchRequest(UtilRecords.dispatchRequestBodyDTO dispatchEvent) {
+        if (dispatchEvent == null || dispatchEvent.vehicleIdentificationNumber() == null) {
+            throw new NotFoundException("Vehicle VIN missing for creating a new dispatch");
+        }
 
-            if (dispatchEvent == null || dispatchEvent.vehicleIdentificationNumber() == null) {
-                throw new NotFoundException("Vehicle vin missing for creating a new dispatch");
-            }
+        VehicleModel vehicle = findVehicleByIdentificationNumber(dispatchEvent.vehicleIdentificationNumber());
+        vehicle.setDispatchStatus(PENDING);
+        vehicleRepository.save(vehicle);
 
-
-            VehicleModel vehicle = vehicleRepository.findByVehicleIdentificationNumber(dispatchEvent.vehicleIdentificationNumber());
-
-            if (vehicle == null) {
-                throw new NotFoundException("No vehicle of that vin found");
-            }
-            vehicle.setDispatchStatus(PENDING);
-            vehicleRepository.save(vehicle);
-
-           return  vehicleHealthService.vehicleDispatchStatus(vehicle, dispatchEvent);
-
+        return vehicleHealthService.vehicleDispatchStatus(vehicle, dispatchEvent);
     }
 
     @Transactional
     public void handleValidatedDispatch(UtilRecords.ValidatedDispatch dispatchEvent) {
+        VehicleModel dispatchedVehicle = findVehicleByIdentificationNumber(dispatchEvent.vehicleIdentificationNumber());
 
-        VehicleModel dispatchedVehicle = vehicleRepository.
-                findByVehicleIdentificationNumber(dispatchEvent.vehicleIdentificationNumber());
-
-        if (dispatchedVehicle == null){
-            throw new NotFoundException("The vehicle doesn't even exist boss");
-        }
-        if(dispatchedVehicle.getDispatchStatus() != PENDING){
+        if (dispatchedVehicle.getDispatchStatus() != PENDING) {
             throw new ConflictException("The vehicle is not staged for dispatch");
         }
+
         dispatchedVehicle.addDispatchHistoryEntry(dispatchEvent.dispatchId());
         dispatchedVehicle.setDispatchStatus(IN_PROGRESS);
         vehicleRepository.save(dispatchedVehicle);
+    }
 
+    // ✅ Helper method to map VehicleModel → VehicleApiData
+    private UtilRecords.VehicleApiData mapToApiData(VehicleModel vehicle) {
+        return new UtilRecords.VehicleApiData(
+                vehicle.getVehicleIdentificationNumber(),
+                vehicle.getLicensePlate(),
+                vehicle.getModel(),
+                vehicle.getEngineType(),
+                vehicle.getVehicleType(),
+                vehicle.getVehicleStatus(),
+                vehicle.getDispatchStatus(),
+                vehicle.getDispatchHistory(),
+                vehicle.getVehicleImages(),
+                vehicle.getSafetyScore(),
+                vehicle.getVehicleMetadata(),
+                vehicle.getVehicleAcquiredYear(),
+                vehicle.getHealthAttributes(),
+                vehicle.getWildcardAttributes(),
+                vehicle.getVehicleLocation()
+        );
     }
 }
-
-
-

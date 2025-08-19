@@ -1,6 +1,7 @@
 import { DispatchRequestDto, FormProps, SaveNewVehiclePopUpProps, VehicleDTO } from "@/types/VehicleTypes";
 import { dotEnv } from "./dotEnv";
 import { toast } from "sonner";
+import { LatLng } from "@/types/utilTypes";
 
 // Helper function for fetch options
 const defaultFetchOptions = {
@@ -70,6 +71,20 @@ export const getAllVehicles = async (): Promise<VehicleDTO[]> => {
     return [];
   }
 };
+
+
+export const getVehicleLocations = async () : Promise<LatLng[]> => {
+
+      const response = await fetch(`${dotEnv.adminVehicleBaseUrl}/locations`, {
+      method: "GET",
+      ...defaultFetchOptions,
+    });
+    
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.message || "Failed to fetch vehicles");
+    console.log(data);
+    return data.data;
+}
 
 // ✅ Get vehicle by VIN
 export const getVehicleByVin = async (vin: string): Promise<VehicleDTO | undefined> => {

@@ -1,53 +1,133 @@
-# 🛠 Admin View - Vehicle Tracking Application
+# 🚗 User View - Vehicle Tracking Application
 
-The Admin View is a crucial component of the Vehicle Tracking Application.  
-It allows administrators to manage vehicles, users, and monitor live vehicle locations through an intuitive dashboard.
+The **User View** is the frontend application designed for drivers and regular users.
+It allows them to view assigned vehicles, monitor their trips, and receive alerts through an intuitive interface.
+
+---
 
 ## ✨ Features
 
-### User Management
-- View, edit, suspend, or delete user accounts
-- Assign users specific vehicles or fleets
+### Vehicle Access
 
-### Vehicle Management
-- Add, update, or remove vehicles from the system
-- View vehicle status (active, inactive, maintenance)
+* View assigned vehicles or fleets
+* Check current vehicle status (active, idle, maintenance)
+
+### Trip Management
+
+* Start and stop trips
+* View personal trip history (duration, distance, routes taken)
 
 ### Real-Time Tracking
-- Monitor the live location of all registered vehicles on an interactive map
-- View trip history and reports
 
-### Reports and Analytics
-- Generate reports on vehicle usage, trip durations, and user activity
-- Export data in CSV/PDF formats
+* Track the current location of assigned vehicles on an interactive map
+* See live updates of movement, stops, and speed
 
 ### Alerts and Notifications
-- Receive alerts for:
-  - Unauthorized vehicle movements
-  - Speeding
-  - Maintenance requirements
+
+* Receive alerts for:
+
+  * Unauthorized vehicle usage
+  * Overspeeding warnings
+  * Maintenance notifications
+
+### Profile & Settings
+
+* Manage personal details (name, email, contact)
+---
 
 ## 🖥 Interface Overview
 
 ### Dashboard
-- Summary cards for:
-  - Total vehicles
-  - Active trips
-  - User statistics
-- Recent activity feed
+
+* Summary of active trips and recent activities
+* Quick view of assigned vehicles
 
 ### Map View
-- Real-time GPS tracking of all vehicles
-- Vehicle status indicators (e.g., moving, idle, offline)
 
-### Users Section
-- Table view of all users with filters and search options
+* Real-time vehicle tracking
+* Indicators for moving, idle, and offline status
 
-### Vehicles Section
-- Table view of all vehicles, including:
-  - Status
-  - Assigned driver
-  - Last location update
+### Trips Section
 
-### Reports Section
-- Customizable reporting tool for analyzing operations
+* Table/list of all previous trips with filters and export options (in development)
+
+### Alerts Section
+
+* Notifications and alerts related to the user’s assigned vehicles
+
+### Profile Section
+
+* view user account details
+
+---
+
+## 🚀 How to Run
+
+Follow these steps to run the **User View** application:
+
+1. **Start the backend services**
+
+   * Navigate to the **root folder** of the project.
+   * Run the following command to start all required services with Docker:
+
+     ```bash
+     docker compose up
+     ```
+   * Ensure API, database, and related services are running.
+
+2. **Install dependencies**
+   Inside the `user-view` folder, install the required packages:
+
+   ```bash
+   npm install
+   ```
+
+3. **Build the application**
+   Compile the frontend code:
+
+   ```bash
+   npm run build
+   ```
+
+4. **Start the application**
+   Run the User View:
+
+   ```bash
+   npm run start
+   ```
+
+5. **Access the application**
+   Open your browser and go to:
+
+   ```
+   http://localhost:3001
+   ```
+
+   > ⚠️ The User View may run on a different port than the Admin View (e.g., 3001 vs 3000).
+
+---
+
+## 🛠 Development Mode (for debugging)
+
+For developers working on the User View with hot-reloading:
+
+1. Ensure backend services are up:
+
+   ```bash
+   docker compose up
+   ```
+
+2. Start the app in **development mode**:
+
+   ```bash
+   npm run dev
+   ```
+
+3. Access it in your browser:
+
+   ```
+   http://localhost:3001
+   ```
+
+> ⚡ Changes to the code will automatically reflect in the browser.
+

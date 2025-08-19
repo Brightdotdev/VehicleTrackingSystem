@@ -39,7 +39,7 @@ export const getVehicleDispatchHistoryApi = async (
 ): Promise<DispatchRequestDto[]> => {
   try {
     const response = await fetch(
-      `${dotEnv.adminDispatchesBaseUrl}/get-vehicle-history?vehicleVin=${vehicleVin}`,
+      `${dotEnv.adminDispatchesBaseUrl}/${vehicleVin}/dispatch-history`,
       {
         method: "GET",
         ...defaultFetchOptions,
