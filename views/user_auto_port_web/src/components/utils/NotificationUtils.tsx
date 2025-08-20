@@ -20,11 +20,10 @@ export const NotificationCard = ({ notificationItem }: { notificationItem: Notif
 const {optimisticSetToRead } = useNotifications()
   const goodCtaMethod = async () => {
     setLoading(true);
-    toast.info("Yeah i was clicked")
     try {
       
       if (notificationItem.type === notificationType.DISPATCH_VALIDATED_USER) {
-        toast.info("we are here")
+
         await handleDispatchValidatedTracking(notificationItem.dispatchId, setLoading, setWorked);
           if(worked){
         await optimisticSetToRead(notificationItem)  

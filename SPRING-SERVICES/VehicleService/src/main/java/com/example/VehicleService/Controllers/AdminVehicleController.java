@@ -31,6 +31,17 @@ public class AdminVehicleController {
         return ResponseEntity.ok(ApiResponse.success(200, "Vehicles retrieved", vehicles));
     }
 
+
+    // GET /v1/admin/vehicle/locations - Get all vehicles location
+    @GetMapping("/locations")
+    public ResponseEntity<ApiResponse<List<UtilRecords.LatitudeLongitude>>> getVehiclesLocation() {
+        List<UtilRecords.LatitudeLongitude> locations = vehicleService.getAllVehiclesLocation();
+        return ResponseEntity.ok(ApiResponse.success(200, "Vehicle locations retrieved", locations));
+    }
+
+
+
+
     // GET /v1/admin/vehicle/{vin} - Fetch vehicle by VIN
     @GetMapping("/{vin}")
     public ResponseEntity<ApiResponse<UtilRecords.VehicleApiData>> getVehicleByVIN(@PathVariable String vin) {
@@ -61,12 +72,6 @@ public class AdminVehicleController {
         return ResponseEntity.ok(ApiResponse.success(200, "Vehicle marked for maintenance", maintainedVehicle));
     }
 
-    // GET /v1/admin/vehicle/locations - Get all vehicles location
-    @GetMapping("/locations")
-    public ResponseEntity<ApiResponse<List<UtilRecords.LatitudeLongitude>>> getVehiclesLocation() {
-        List<UtilRecords.LatitudeLongitude> locations = vehicleService.getAllVehiclesLocation();
-        return ResponseEntity.ok(ApiResponse.success(200, "Vehicle locations retrieved", locations));
-    }
 
     // GET /v1/admin/vehicle/{vin}/dispatch-history - Get dispatch history
     @GetMapping("/{vin}/dispatch-history")

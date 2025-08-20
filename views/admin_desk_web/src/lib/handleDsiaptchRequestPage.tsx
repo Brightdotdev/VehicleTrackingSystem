@@ -50,8 +50,7 @@ export const getVehicleDispatchHistoryApi = async (
     if (!response.ok) throw new Error(data.message || "Failed to fetch vehicle history");
 
     if (!data.data || data.data.length === 0) {
-      toast.error("The vehicle has no dispatch history.");
-      return [];
+     return [];
     }
 
     return data.data;

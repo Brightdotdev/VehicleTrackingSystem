@@ -49,7 +49,7 @@ max-w-2xl mx-auto p-12 z-10 bg-background rounded-xl">
 
 <Link 
 onClick={() => {
-  toast.info("Getting ready to sign you up");
+  toast.info("Redirecting now");
   setLoading(true)
 }}
 
@@ -67,7 +67,7 @@ className='
         <p className='bodyText'>or   {"  "}
           <Link href="/welcome-back"
           onClick={() => {
-  toast.info("Log in you in now");
+  toast.info("Loging you in now");
   setLoading(true)
 }}
           

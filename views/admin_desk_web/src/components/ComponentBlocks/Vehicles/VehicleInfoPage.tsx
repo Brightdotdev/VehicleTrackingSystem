@@ -352,7 +352,7 @@ absolute flex items-end justify-end w-full bottom-0 xl:bottom-4 left-0">
             }
 
             if(vehicleData?.dispatchStatus === VehicleDispatchStatus.PENDING){
-              return toast.error("Vehicle Already staged to a user") 
+              return toast.error("Vehicle Already staged for a user") 
             }
                markForMaintenance(vehicleVin)
           }

@@ -20,13 +20,12 @@ export const NotificationCard = ({ notificationItem }: { notificationItem: Notif
   const goodCtaMethod = async () => {
     setLoading(true);
     try {
-      toast.info(notificationItem.type);
+      
       if (notificationItem.type === notificationType.DISPATCH_CREATED_ADMIN) {
         setLoading(true)
          router.push("/vehicles?tab=requests");
         await optimisticSetToRead(notificationItem);
       } else {
-        toast.info("THis is like working the other ones");
         await optimisticSetToRead(notificationItem);
       }
     } finally {

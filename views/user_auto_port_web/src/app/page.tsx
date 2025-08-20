@@ -19,16 +19,11 @@ const UserWelcomePage = dynamic(() => import('@/components/ComponentBlocks/UserA
 
 export default function Page() {
   const {checkValidation, isValidated, loading} = useUserValidation();
-  
-    const searchParams = useSearchParams();
-  const redirected = searchParams.get("redirected");
 
+  
   useEffect(() => {
     checkValidation();
-    if (redirected && (redirected === "already-logged-in")) {
-      toast.error(`You're already logged in`);
-    }
-  }, [redirected]);
+  }, []);
 
 
   if(loading || isValidated == null) return <>Validating...</>

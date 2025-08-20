@@ -199,19 +199,36 @@ public class VehicleService {
     // ✅ Fixed lat/long bug here
     @Transactional
     public List<UtilRecords.LatitudeLongitude> getAllVehiclesLocation() {
+        logger.info("Starting getAllVehiclesLocation()");
+
+        // Fetch all vehicles
         List<UtilRecords.VehicleApiData> foundVehicles = findAllVehicles();
+        logger.debug("Fetched {} vehicles from DB", foundVehicles.size());
+
         List<UtilRecords.LatitudeLongitude> vehicleLocations = new ArrayList<>();
-        for (UtilRecords.VehicleApiData vehicles : foundVehicles) {
+
+        // Loop through vehicles
+        for (UtilRecords.VehicleApiData vehicle : foundVehicles) {
+            if (vehicle.location() == null) {
+                logger.warn("Vehicle with VIN={} has no location data!", vehicle.vehicleIdentificationNumber());
+                continue;
+            }
+
+            double lat = vehicle.location().latitude();
+            double lon = vehicle.location().longitude();
+
+            logger.debug("Processing VIN={} -> latitude={}, longitude={}",
+                    vehicle.vehicleIdentificationNumber(), lat, lon);
+
             UtilRecords.LatitudeLongitude vehicleLocation =
-                    new UtilRecords.LatitudeLongitude(
-                            vehicles.location().latitude(),
-                            vehicles.location().longitude()  // ✅ FIXED
-                    );
+                    new UtilRecords.LatitudeLongitude(lat, lon);
+
             vehicleLocations.add(vehicleLocation);
         }
+
+        logger.info("Completed getAllVehiclesLocation(): {} locations extracted", vehicleLocations.size());
         return vehicleLocations;
     }
-
     @Transactional
     public UtilRecords.VehicleApiData getVehicleByVin(String vin) {
         VehicleModel foundVehicle = findVehicleByIdentificationNumber(vin);

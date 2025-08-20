@@ -10,17 +10,15 @@ export const handleDispatchValidatedTracking  = async (dispatchId  : number, set
     setLoading(true);
     const userLocation  = await getUsersLocation(setLoading);
     
-    toast.info("This is the users location oo")
-    toast.info(JSON.stringify(userLocation))
+  
     if(userLocation === undefined || userLocation === null) {
       toast.error("We cant seem to get your exact loacation...the dispatch cant be processed")
       return setWorked(false);
     }
-
-    toast.info(JSON.stringify(userLocation))
+    
     
     try {
-        toast.info("Yayyy Tracking finally");
+      
         const response = await fetch(`${dotEnv.userTrackingBaseUrl}/start/${dispatchId}`,{
           method: "PUT",
           headers: {

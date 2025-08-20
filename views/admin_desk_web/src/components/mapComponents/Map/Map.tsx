@@ -34,17 +34,10 @@ const Map = () => {
     const fetchLocations = async () => {
       try {
         const vehicleLocations = await getVehicleLocations();
-        // Replace with your real API call
-        const apiData = [
-          [51.505, -0.09],
-          [51.51, -0.1],
-          [51.52, -0.12],
-          [51.5, -0.08],
-          [51.515, -0.11],
-        ];
-
+     
+        
         // Validate and cast
-        const validLocations: LatLng[] = apiData.filter(
+        const validLocations: LatLng[] = vehicleLocations.filter(
           (coords): coords is LatLng => Array.isArray(coords) && coords.length === 2
         );
 
