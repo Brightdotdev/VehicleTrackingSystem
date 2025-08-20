@@ -19,6 +19,14 @@ L.Icon.Default.mergeOptions({
   shadowUrl: markerShadow.src ?? markerShadow,
 });
 
+// Define the API response type
+interface VehicleLocationResponse {
+  success: boolean;
+  code: number;
+  message: string;
+  data: LatLng[] | null;
+  timestamp: string;
+}
 
 const Map = () => {
   const mapRef = useRef<L.Map | null>(null);
@@ -27,31 +35,36 @@ const Map = () => {
   const [mapFailed, setMapFailed] = useState(false);
   const [locations, setLocations] = useState<LatLng[] | null>(null);
   const [loading, setLoading] = useState(true);
+useEffect(() => {
+  setLoading(true);
+  const fetchLocations = async () => {
+    try {
+      const vehicleLocations = await getVehicleLocations();
+      
+      console.log('API Response:', vehicleLocations);
+      
+      // Convert object format {latitude, longitude} to tuple format [lat, lng]
+      const validLocations: LatLng[] = vehicleLocations
+        .filter((location: any) => 
+          location && 
+          typeof location.latitude === 'number' && 
+          typeof location.longitude === 'number' &&
+          location.latitude >= -90 && location.latitude <= 90 &&
+          location.longitude >= -180 && location.longitude <= 180
+        )
+        .map((location: any) => [location.latitude, location.longitude] as LatLng);
 
-  // Simulated API fetch
-  useEffect(() => {
-    setLoading(true);
-    const fetchLocations = async () => {
-      try {
-        const vehicleLocations = await getVehicleLocations();
-     
-        
-        // Validate and cast
-        const validLocations: LatLng[] = vehicleLocations.filter(
-          (coords): coords is LatLng => Array.isArray(coords) && coords.length === 2
-        );
-
-        setLocations(validLocations);
-      } catch (error) {
-        console.error('Failed to fetch locations:', error);
-        setLocations(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchLocations();
-  }, []);
-
+      console.log('Valid locations:', validLocations);
+      setLocations(validLocations);
+    } catch (error) {
+      console.error('Failed to fetch locations:', error);
+      setLocations(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+  fetchLocations();
+}, []);
   // Map initialization
   useEffect(() => {
     if (!locations || locations.length === 0) return;
@@ -105,21 +118,31 @@ const Map = () => {
     return (
       <section className="flex flex-col gap-4 items-center justify-center h-full w-md">
         <Info/>
-
-   <p className="subtitleText2 font-semibold">
-
-              {locations === null
-            ? 'Looks like the vehicle Locations are unavalable'
-            : "Hm...we can't acces the map right now"}
+        <p className="subtitleText2 font-semibold">
+          {locations === null
+            ? 'Looks like the vehicle Locations are unavailable'
+            : "Hm...we can't access the map right now"}
         </p>
-  
-      <Link href="vehicles?tab=vehicles" className='mutedText underline hover:underline-offset-4 underline-offset-3'>
-              {locations === null
+        <Link href="vehicles?tab=vehicles" className='mutedText underline hover:underline-offset-4 underline-offset-3'>
+          {locations === null
             ? 'Get the vehicles manually'
             : 'Just check the vehicle page'}
-  
-      </Link>      
-   
+        </Link>      
+      </section>
+    );
+  }
+
+  // Handle case when locations is empty array
+  if (locations.length === 0) {
+    return (
+      <section className="flex flex-col gap-4 items-center justify-center h-full w-md">
+        <Info/>
+        <p className="subtitleText2 font-semibold">
+          No vehicle locations available
+        </p>
+        <Link href="vehicles?tab=vehicles" className='mutedText underline hover:underline-offset-4 underline-offset-3'>
+          Check the vehicle page
+        </Link>      
       </section>
     );
   }

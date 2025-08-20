@@ -73,19 +73,33 @@ export const getAllVehicles = async (): Promise<VehicleDTO[]> => {
 };
 
 
-export const getVehicleLocations = async () : Promise<LatLng[]> => {
+export const getVehicleLocations = async (): Promise<LatLng[]> => {
+  try{
+    const response = await fetch(`${dotEnv.adminVehicleBaseUrl}/locations`, {
+    method: "GET",
+    ...defaultFetchOptions,
+  });
+  
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.message || "Failed to fetch vehicle locations");
+  console.log('Raw API response:', response);
+console.log('Type of response:', typeof response);
+console.log('Data:', data);
 
-      const response = await fetch(`${dotEnv.adminVehicleBaseUrl}/locations`, {
-      method: "GET",
-      ...defaultFetchOptions,
-    });
-    
-    const data = await response.json();
-    if (!response.ok) throw new Error(data.message || "Failed to fetch vehicles");
-    console.log(data);
+
+
+if (data.data && Array.isArray(data.data)) {
+  console.log('Response is an array');
     return data.data;
+}else{
+  toast.info(data.message)
+  return []
 }
-
+  }catch(error){
+    console.log(error)
+    return []
+  }
+}
 // ✅ Get vehicle by VIN
 export const getVehicleByVin = async (vin: string): Promise<VehicleDTO | undefined> => {
   try {
