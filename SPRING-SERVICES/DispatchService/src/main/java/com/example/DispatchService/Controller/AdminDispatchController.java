@@ -125,7 +125,7 @@ public class AdminDispatchController {
         return ResponseEntity.ok(
                 ApiResponse.success(
                         201,
-                        "Dispatch retrival Success",
+                        "Dispatch retrieval Success",
                         metadata
                 ));}
 
@@ -139,7 +139,7 @@ public class AdminDispatchController {
         return ResponseEntity.ok(
                 ApiResponse.success(
                         201,
-                        "Dispatch retrival Success",
+                        "Dispatch retrieval Success",
                         vehicleHistory
                 ));
     }

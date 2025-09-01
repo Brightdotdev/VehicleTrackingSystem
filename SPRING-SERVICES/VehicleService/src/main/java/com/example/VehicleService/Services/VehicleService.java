@@ -83,6 +83,13 @@ public class VehicleService {
 
         List<VehicleModel> allVehicles = new ArrayList<>();
 
+          boolean  isHigh = Math.random() > 0.5;
+          double score;
+        if (isHigh) {
+            score = Math.round(Math.random() * 20.0 + 70.0);
+        } else {
+            score = Math.round(Math.random() * 20 + 40);
+        }
 
         for(UtilRecords.VehicleDTO vehicleDTO : vehicleListDTO) {
             VehicleModel vehicle = new VehicleModel();
@@ -92,7 +99,7 @@ public class VehicleService {
             vehicle.setVehicleStatus(vehicleDTO.vehicleStatus());
             vehicle.setVehicleLocation(vehicleDTO.vehicleLocation());
             vehicle.setDispatchStatus(AVAILABLE);
-            vehicle.setSafetyScore(Math.random() * 100 + 1);
+            vehicle.setSafetyScore(score);
             vehicle.setVehicleMetadata(vehicleDTO.vehicleMetadata());
             vehicle.setVehicleImages(vehicleDTO.vehicleImages());
             vehicle.setVehicleIdentificationNumber(vehicleDataGenerator.generateRandomVIN());

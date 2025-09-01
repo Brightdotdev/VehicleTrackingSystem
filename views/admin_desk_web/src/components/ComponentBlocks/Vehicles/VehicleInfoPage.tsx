@@ -14,7 +14,7 @@ import { toast } from 'sonner';
 export const markForMaintenance = async (vehicleVin: string) => {
   try {
     const response = await fetch(
-      `${dotEnv.adminVehicleBaseUrl}/v1/admin/vehicle/${vehicleVin}/maintenance`,
+      `${dotEnv.adminVehicleBaseUrl}/${vehicleVin}/maintenance`,
       {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
