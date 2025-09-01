@@ -77,7 +77,59 @@ public class VehicleService {
         return findVehicleByIdentificationNumber(vin).getDispatchHistory();
     }
 
-    // Save a "good" vehicle
+    // Save "all vehicles randomly good" vehicle
+    @Transactional
+    public List<VehicleModel> saveAllVehicles(List<UtilRecords.VehicleDTO> vehicleListDTO) {
+
+        List<VehicleModel> allVehicles = new ArrayList<>();
+
+
+        for(UtilRecords.VehicleDTO vehicleDTO : vehicleListDTO) {
+            VehicleModel vehicle = new VehicleModel();
+            vehicle.setModel(vehicleDTO.model());
+            vehicle.setEngineType(vehicleDTO.engineType());
+            vehicle.setVehicleType(vehicleDTO.vehicleType());
+            vehicle.setVehicleStatus(vehicleDTO.vehicleStatus());
+            vehicle.setVehicleLocation(vehicleDTO.vehicleLocation());
+            vehicle.setDispatchStatus(AVAILABLE);
+            vehicle.setSafetyScore(Math.random() * 100 + 1);
+            vehicle.setVehicleMetadata(vehicleDTO.vehicleMetadata());
+            vehicle.setVehicleImages(vehicleDTO.vehicleImages());
+            vehicle.setVehicleIdentificationNumber(vehicleDataGenerator.generateRandomVIN());
+            vehicle.setLicensePlate(vehicleDataGenerator.generateRandomLicensePlate());
+            vehicle.setVehicleAcquiredYear(vehicleDataGenerator.generateRandomAcquiredYear());
+
+            // Add health attributes
+            List<VehicleHealthAttributeModel> healthAttributes = new ArrayList<>();
+            for (VehicleEnums.VehicleHealthAttributeType type : VehicleEnums.VehicleHealthAttributeType.values()) {
+                VehicleHealthAttributeModel attr = new VehicleHealthAttributeModel();
+                attr.setAttributeName(type);
+                attr.setScore(type.getScore());
+                attr.setVehicle(vehicle);
+                healthAttributes.add(attr);
+            }
+            vehicle.setHealthAttributes(healthAttributes);
+
+            // Add wildcard attributes
+            List<VehicleWildcardAttributeModel> wildcardAttributes = new ArrayList<>();
+            for (VehicleEnums.VehicleWildCardType type : VehicleEnums.VehicleWildCardType.values()) {
+                VehicleWildcardAttributeModel wildcard = new VehicleWildcardAttributeModel();
+                wildcard.setWildcardKey(type);
+                wildcard.setWildcardValue(Math.random() > 0.5);
+                wildcard.setVehicle(vehicle);
+                wildcardAttributes.add(wildcard);
+            }
+            vehicle.setWildcardAttributes(wildcardAttributes);
+
+
+        allVehicles.add(vehicle);
+        }
+
+
+
+        return vehicleRepository.saveAll(allVehicles);
+    }
+ // Save a "good" vehicle
     @Transactional
     public VehicleModel saveVehicle(UtilRecords.VehicleDTO vehicleDTO) {
         VehicleModel vehicle = new VehicleModel();

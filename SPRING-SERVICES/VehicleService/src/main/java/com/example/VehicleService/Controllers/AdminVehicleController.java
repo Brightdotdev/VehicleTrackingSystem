@@ -49,6 +49,18 @@ public class AdminVehicleController {
         return ResponseEntity.ok(ApiResponse.success(200, "Vehicle retrieved by VIN", vehicle));
     }
 
+
+
+
+    // POST /v1/admin/vehicle/new/many - Save many new vehicles
+    @PostMapping("/new/many")
+    public ResponseEntity<ApiResponse<List<VehicleModel>>> saveManyVehicles(@Valid @RequestBody List<UtilRecords.VehicleDTO> vehicles) {
+        List<VehicleModel> savedVehicle = vehicleService.saveAllVehicles(vehicles);
+        return ResponseEntity.status(HttpStatus.CREATED).body(
+                ApiResponse.success(201, "Vehicles saved successfully", savedVehicle));
+    }
+
+
     // POST /v1/admin/vehicle/new - Save a new vehicle
     @PostMapping("/new")
     public ResponseEntity<ApiResponse<VehicleModel>> saveVehicle(@Valid @RequestBody UtilRecords.VehicleDTO vehicle) {

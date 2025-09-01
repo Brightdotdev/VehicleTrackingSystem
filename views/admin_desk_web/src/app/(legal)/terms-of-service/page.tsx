@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import Link from "next/link"; // Add this import
+import Link from "next/link";
 
 export default function TermsOfService() {
   return (
@@ -37,9 +37,17 @@ export default function TermsOfService() {
         <p>
           We reserve the right to modify these terms at any time. Changes will be effective immediately upon posting on this page.
         </p>
+        <h2 className="text-xl font-semibold mt-6">7. Copyright Disclaimer</h2>
+        <p className="text-sm mt-2 p-4 bg-gray-100 rounded-lg">
+          This is an educational project and simulation only. All images, icons, and visual assets used in this
+          application are for educational and demonstration purposes only. We do not claim ownership or copyright
+          of any images or visual elements used. This is a school project intended to simulate real-life vehicle
+          tracking experiences and should not be mistaken for commercial software, malware, or any unauthorized
+          tracking program. All features and functionalities are simulated for educational purposes only.
+        </p>
+
         <h2 className="text-xl font-semibold">6. Contact Information</h2>
-   
-       <p>
+        <p>
           If you have any questions about this Privacy Policy, please contact us at
           {"  "}
           <a href="mailto:mail.bright.dev@gmail.com" className="underline-offset-1 underline
