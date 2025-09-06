@@ -128,41 +128,63 @@ public class UserDispatchService {
             String userImage,
             List<String> userRole) {
 
-        logger.info("[DispatchRequest] Starting requestVehicleDispatch for user: {}", userName);
+        logger.info("[DispatchRequest] Starting dispatch for user={} roles={} vehicleVIN={}",
+                userName, userRole, requestBody.vehicleIdentificationNumber());
 
-
+        // 🔹 Step 1: Check user eligibility
+        logger.debug("[DispatchRequest] Checking if user={} is worthy for dispatch with score={}",
+                userName, requestBody.userDispatchScore());
         isWorthyForDispatch(userName, requestBody.userDispatchScore());
 
-        // 1) Check for conflicting dispatches on the same vehicle
-        List<DispatchModel> existingDispatches = dispatchRepository.findByDispatchVehicleId(requestBody.vehicleIdentificationNumber());
+        // 🔹 Step 2: Check for conflicting dispatches
+        logger.debug("[DispatchRequest] Checking for conflicting dispatches on vehicleVIN={}",
+                requestBody.vehicleIdentificationNumber());
+        List<DispatchModel> existingDispatches = dispatchRepository
+                .findByDispatchVehicleId(requestBody.vehicleIdentificationNumber());
+
         for (DispatchModel dispatchModel : existingDispatches) {
             DispatchEnums.DispatchStatus status = dispatchModel.getDispatchStatus();
+            logger.debug("[DispatchRequest] Found existing dispatchId={} with status={}",
+                    dispatchModel.getDispatchId(), status);
 
             if (status == DispatchEnums.DispatchStatus.COMPLETED ||
                     status == DispatchEnums.DispatchStatus.CANCELLED ||
                     status == DispatchEnums.DispatchStatus.EXPIRED) {
+                logger.debug("[DispatchRequest] Skipping dispatchId={} as it's non-conflicting",
+                        dispatchModel.getDispatchId());
                 continue; // no conflict
             }
 
             if (status == DispatchEnums.DispatchStatus.PENDING) {
+                logger.warn("[DispatchRequest] Conflict: vehicle already requested by another user");
                 throw new InvalidRequestException("Vehicle already requested by another user", 403);
             }
             if (status == DispatchEnums.DispatchStatus.ONGOING) {
+                logger.warn("[DispatchRequest] Conflict: vehicle already in an ongoing dispatch");
                 throw new InvalidRequestException("Vehicle already in an ongoing dispatch", 403);
             }
             if (status == DispatchEnums.DispatchStatus.IN_PROGRESS) {
+                logger.warn("[DispatchRequest] Conflict: vehicle staged for dispatch and cannot be booked");
                 throw new InvalidRequestException("Vehicle staged for dispatch and cannot be booked", 403);
             }
         }
 
-        // 2) Verify user's score can cover the dispatch price
+        // 🔹 Step 3: Verify user score
+        logger.debug("[DispatchRequest] Verifying user={} has enough score for dispatch", userName);
         Map<String, Object> scoreCheck = scoreIsEnough(requestBody);
         boolean canDispatch = (boolean) scoreCheck.getOrDefault("isEnough", false);
+        double price = (double) scoreCheck.getOrDefault("price", 0.0);
+
+        logger.debug("[DispatchRequest] Score check result: canDispatch={} price={} userFinalScore={}",
+                canDispatch, price, scoreCheck.getOrDefault("finalUserScore", 0.0));
+
         if (!canDispatch) {
+            logger.warn("[DispatchRequest] User={} score too low for dispatch (needed={})", userName, price);
             throw new InvalidRequestException("User score too low for dispatch", 403);
         }
 
-        // 3) Prepare request DTO for external service and send initial ‘requested’ event
+        // 🔹 Step 4: Prepare DTO for external service
+        logger.debug("[DispatchRequest] Preparing dispatch request body DTO for external service");
         UtilRecords.dispatchRequestBodyDTO requestBodyDTO = new UtilRecords.dispatchRequestBodyDTO(
                 requestBody.vehicleName(),
                 requestBody.vehicleIdentificationNumber(),
@@ -173,25 +195,72 @@ public class UserDispatchService {
                 null
         );
 
+        logger.debug("[DispatchRequest] Sending dispatch requested event for vehicleVIN={}",
+                requestBody.vehicleIdentificationNumber());
         Map<String, Object> dispatchResult = messagingService.sendDispatchRequestedEvent(requestBodyDTO);
 
-        // 4) If external service returned a canDispatch flag override, apply it
+        // 🔹 Step 5: External service response
+        logger.debug("[DispatchRequest] External service dispatchResult={}", dispatchResult);
         if (dispatchResult != null && dispatchResult.containsKey("canDispatch")) {
             canDispatch = (Boolean) dispatchResult.get("canDispatch");
             if (!canDispatch) {
-                throw new InvalidRequestException("External service denied dispatch", 403);
+                // Default reason
+                String denialReason = "Dispatch denied by the moderators";
+
+                // Check for logicErrors first
+                if (dispatchResult.containsKey("logicErrors")) {
+                    @SuppressWarnings("unchecked")
+                    Map<String, String> logicErrors = (Map<String, String>) dispatchResult.get("logicErrors");
+                    if (!logicErrors.isEmpty()) {
+                        denialReason = "Dispatch failed due to logic errors: " + logicErrors.toString();
+                    }
+                }
+
+                // If no logicErrors, check for wildCards
+                if (denialReason.equals("External service denied dispatch") && dispatchResult.containsKey("wildCards")) {
+                    @SuppressWarnings("unchecked")
+                    List<Map<String, Object>> wildCards = (List<Map<String, Object>>) dispatchResult.get("wildCards");
+
+                    List<String> failedConditions = new ArrayList<>();
+                    for (Map<String, Object> wc : wildCards) {
+                        wc.forEach((key, value) -> {
+                            if (Boolean.TRUE.equals(value)) {
+                                failedConditions.add(key);
+                            }
+                        });
+                    }
+
+                    if (!failedConditions.isEmpty()) {
+                        denialReason = "Vehicle unavailable due to: " + String.join(", ", failedConditions);
+                    }
+                }
+
+                logger.warn("[DispatchRequest] External service denied dispatch for vehicleVIN={} reason={}",
+                        requestBody.vehicleIdentificationNumber(), denialReason);
+
+                throw new InvalidRequestException(denialReason, 403);
             }
         }
 
-        // 5) Map external response to our response DTO
+        // 🔹 Step 6: Map external response
+        logger.debug("[DispatchRequest] Mapping external response to final DTO");
         UtilRecords.DispatchResponseDTO finalResponse = dispatchResponseMapper.dispatchResponseMapper(dispatchResult);
 
-        // 6) Build and persist DispatchModel entity
-        DispatchModel finalDispatchModel = getDispatchModel(finalResponse, userName, userRole, userImage, requestBody, (Double) scoreCheck.get("price"));
+        // 🔹 Step 7: Build and persist DispatchModel
+        logger.debug("[DispatchRequest] Building DispatchModel entity for persistence");
+        DispatchModel finalDispatchModel = getDispatchModel(
+                finalResponse, userName, userRole, userImage, requestBody, price
+        );
+
+        logger.debug("[DispatchRequest] Saving DispatchModel with vehicleVIN={} user={}",
+                finalDispatchModel.getDispatchVehicleId(), userName);
         DispatchModel savedModel = dispatchRepository.save(finalDispatchModel);
 
-        // 7) Deduct user score (negated)
+        // 🔹 Step 8: Deduct user score
         double finalScore = ((Number) scoreCheck.getOrDefault("finalUserScore", 0.0)).doubleValue();
+        logger.debug("[DispatchRequest] Deducting user score={} for user={} dispatchId={}",
+                finalScore, requestBody.dispatchRequester(), savedModel.getDispatchId());
+
         UtilRecords.DispatchScoreUpdateDto userScoreUpdate = new UtilRecords.DispatchScoreUpdateDto(
                 requestBody.dispatchRequester(),
                 savedModel.getDispatchId(),
@@ -199,7 +268,10 @@ public class UserDispatchService {
         );
         messagingService.updateUserScore(userScoreUpdate);
 
-        // 8) Fire-and-forget event to signal created dispatch to other services
+        // 🔹 Step 9: Fire-and-forget dispatch created event
+        logger.debug("[DispatchRequest] Sending dispatch created event for dispatchId={} vehicleVIN={}",
+                savedModel.getDispatchId(), savedModel.getDispatchVehicleId());
+
         UtilRecords.dispatchRequestBodyDTO finalDispatchDto = new UtilRecords.dispatchRequestBodyDTO(
                 savedModel.getVehicleName(),
                 savedModel.getDispatchVehicleId(),
@@ -211,9 +283,12 @@ public class UserDispatchService {
         );
         messagingService.sendDispatchCreatedEventNoResponse(finalDispatchDto);
 
-        logger.info("[DispatchRequest] Successfully completed requestVehicleDispatch for user: {}", userName);
+        logger.info("[DispatchRequest] Successfully completed dispatch request for user={} dispatchId={}",
+                userName, savedModel.getDispatchId());
+
         return savedModel;
     }
+
 
     /**
      * Cancels a dispatch requested by the user.
@@ -421,7 +496,7 @@ public class UserDispatchService {
         }
 
         if (!dispatch.getDispatchRequester().equals(trackingEvent.dispatchRequester())) {
-            throw new ConflictException("User not valid for tracking external dispatch");
+            throw new ConflictException("User not valid for tracking");
         }
 
         if (!isStillValidDispatch(dispatch)) {

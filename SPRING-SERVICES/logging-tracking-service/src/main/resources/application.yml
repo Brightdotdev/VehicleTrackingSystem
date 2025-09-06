@@ -53,7 +53,7 @@ logging:
     org.springframework.amqp: WARN
     com.rabbitmq: WARN
     org.springframework.security: DEBUG
-    com.example.UserService: DEBUG
+    com.example.logging-tracking-service: DEBUG
 
 resilience4j:
   circuitbreaker:

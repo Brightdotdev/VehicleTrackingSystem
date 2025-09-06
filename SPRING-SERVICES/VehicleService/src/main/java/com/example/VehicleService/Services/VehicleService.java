@@ -14,10 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import static com.example.VehicleService.Utils.VehicleEnums.VehicleDispatchStatus.*;
 
@@ -81,17 +78,20 @@ public class VehicleService {
     @Transactional
     public List<VehicleModel> saveAllVehicles(List<UtilRecords.VehicleDTO> vehicleListDTO) {
 
+
         List<VehicleModel> allVehicles = new ArrayList<>();
 
-          boolean  isHigh = Math.random() > 0.5;
-          double score;
-        if (isHigh) {
-            score = Math.round(Math.random() * 20.0 + 70.0);
-        } else {
-            score = Math.round(Math.random() * 20 + 40);
-        }
+        for (UtilRecords.VehicleDTO vehicleDTO : vehicleListDTO) {
 
-        for(UtilRecords.VehicleDTO vehicleDTO : vehicleListDTO) {
+            // 🔹 Generate a random safety score PER vehicle
+            boolean isHigh = Math.random() > 0.5;
+            double score;
+            if (isHigh) {
+                score = Math.round(Math.random() * 20.0 + 70.0); // range 70–90
+            } else {
+                score = Math.round(Math.random() * 20 + 40);     // range 40–60
+            }
+
             VehicleModel vehicle = new VehicleModel();
             vehicle.setModel(vehicleDTO.model());
             vehicle.setEngineType(vehicleDTO.engineType());
@@ -99,25 +99,37 @@ public class VehicleService {
             vehicle.setVehicleStatus(vehicleDTO.vehicleStatus());
             vehicle.setVehicleLocation(vehicleDTO.vehicleLocation());
             vehicle.setDispatchStatus(AVAILABLE);
-            vehicle.setSafetyScore(score);
+            vehicle.setSafetyScore(score); // 🔹 unique per vehicle now
             vehicle.setVehicleMetadata(vehicleDTO.vehicleMetadata());
             vehicle.setVehicleImages(vehicleDTO.vehicleImages());
             vehicle.setVehicleIdentificationNumber(vehicleDataGenerator.generateRandomVIN());
             vehicle.setLicensePlate(vehicleDataGenerator.generateRandomLicensePlate());
             vehicle.setVehicleAcquiredYear(vehicleDataGenerator.generateRandomAcquiredYear());
 
-            // Add health attributes
+            // 🔹 Calculate total weight of all health attributes
+            int totalWeight = Arrays.stream(VehicleEnums.VehicleHealthAttributeType.values())
+                    .mapToInt(VehicleEnums.VehicleHealthAttributeType::getScore)
+                    .sum();
+
+            // 🔹 Add health attributes relative to the vehicle's safety score
             List<VehicleHealthAttributeModel> healthAttributes = new ArrayList<>();
             for (VehicleEnums.VehicleHealthAttributeType type : VehicleEnums.VehicleHealthAttributeType.values()) {
                 VehicleHealthAttributeModel attr = new VehicleHealthAttributeModel();
                 attr.setAttributeName(type);
-                attr.setScore(type.getScore());
+
+                // proportional score relative to total weight
+                double relativeScore = (type.getScore() / (double) totalWeight) * score;
+
+                // optionally add slight randomness (+/- 10%) to avoid too-perfect splits
+                double variation = relativeScore * (Math.random() * 0.2 - 0.1); // -10% to +10%
+                attr.setScore(Math.round(relativeScore + variation));
+
                 attr.setVehicle(vehicle);
                 healthAttributes.add(attr);
             }
             vehicle.setHealthAttributes(healthAttributes);
 
-            // Add wildcard attributes
+            // 🔹 Add wildcard attributes
             List<VehicleWildcardAttributeModel> wildcardAttributes = new ArrayList<>();
             for (VehicleEnums.VehicleWildCardType type : VehicleEnums.VehicleWildCardType.values()) {
                 VehicleWildcardAttributeModel wildcard = new VehicleWildcardAttributeModel();
@@ -128,12 +140,10 @@ public class VehicleService {
             }
             vehicle.setWildcardAttributes(wildcardAttributes);
 
-
-        allVehicles.add(vehicle);
+            allVehicles.add(vehicle);
         }
 
-
-
+        // 🔹 Persist all vehicles at once
         return vehicleRepository.saveAll(allVehicles);
     }
  // Save a "good" vehicle

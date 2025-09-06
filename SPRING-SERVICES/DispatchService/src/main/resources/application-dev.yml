@@ -47,12 +47,11 @@ external:
       base-url: http://localhost:8103
 
 
-
 auth:
   api:
-    key : thisIsMyApiKey
+    key : internalKey
   jwt:
-    secret: 6715c78c9a1d53f358dafd68da12c40c95780b0d00486f9d725672b7bf95eea89d682826b22883dd592b45b6ee2f79d4d4372d0c136b2e6fb1935c04f7593d05
+    secret: 431da76bdce7104b0a69902ede07459b0087f110d969fb15fef07afc899012ac07bc3435d063f8619c1523d917e84024ee8784c3f2e619c1efb770d86221bf35
     expiration: 604800000
     issuer: auth-service
 
@@ -62,7 +61,7 @@ logging:
     org.springframework.amqp: WARN
     com.rabbitmq: WARN
     org.springframework.security: DEBUG
-    com.example.UserService: DEBUG
+    com.example.DispatchService: DEBUG
 
 
 resilience4j:

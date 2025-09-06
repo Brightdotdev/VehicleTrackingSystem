@@ -57,7 +57,7 @@ logging:
     org.springframework.amqp: WARN
     com.rabbitmq: WARN
     org.springframework.security: DEBUG
-    com.example.UserService: DEBUG
+    com.example.VehicleService: DEBUG
 
 
 resilience4j:
