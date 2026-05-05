@@ -186,6 +186,6 @@ Core system design and code by **[Brightdotdev](https://github.com/Brightdotdev)
 
 ---
 
-💻 Made with grit, patience, and a choice between queues or straight-up HTTP calls
+💻 Made cause my diplaoma requests it
 
 
